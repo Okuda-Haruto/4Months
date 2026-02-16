@@ -40,33 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Application\BackGround\Ground\Ground.cpp">
-      <Filter>Application\BackGround\Ground</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp">
-      <Filter>Application\BackGround\Skydome</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Bullet\BaseBullet.cpp">
-      <Filter>Application\Bullet</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp">
-      <Filter>Application\Bullet\PlayerBullet</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Character\BaseCharacter.cpp">
-      <Filter>Application\Character</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Character\Boss\Boss.cpp">
-      <Filter>Application\Character\Boss</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Character\Player\Player.cpp">
-      <Filter>Application\Character\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\GameCamera\GameCamera.cpp">
-      <Filter>Application\GameCamera</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\ModelHolder\ModelHolder.cpp">
-      <Filter>Application\ModelHolder</Filter>
-    </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp">
       <Filter>Application\SampleScene</Filter>
     </ClCompile>
@@ -136,15 +109,6 @@
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp">
       <Filter>GameEngine\Resource\Sprite</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp">
-      <Filter>Application\Scene\GameScene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Scene\TitleScene\TitleScene.cpp">
-      <Filter>Application\Scene\TitleScene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Character\Item\Item.cpp">
-      <Filter>Application\Character\Item</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Modules\AudioManager\AudioManager.cpp">
       <Filter>GameEngine\Modules\AudioManager</Filter>
     </ClCompile>
@@ -162,12 +126,6 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\BackGround\Fence\Fence.cpp">
-      <Filter>Application\BackGround\Fence</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp">
-      <Filter>Application\Bullet\BossBullet</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\SceneManager\SceneManager.cpp">
       <Filter>GameEngine\Modules\SceneManager</Filter>
@@ -190,27 +148,6 @@
     <ClCompile Include="GameEngine\Resource\BaseScene\BaseScene.cpp">
       <Filter>GameEngine\Resource\BaseScene</Filter>
     </ClCompile>
-    <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp">
-      <Filter>Application\GameManager\SceneFactory</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\GameManager\GameManager.cpp">
-      <Filter>Application\GameManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\BackGround\BackGround\BackGround.cpp">
-      <Filter>Application\BackGround\BackGround</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp">
-      <Filter>Application\BackGround\Tumbleweed</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\AudioHolder\AudioHolder.cpp">
-      <Filter>Application\AudioHolder</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Scene\GameOverScene\GameOverScene.cpp">
-      <Filter>Application\Scene\GameOverScene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Scene\ClearScene\ClearScene.cpp">
-      <Filter>Application\Scene\ClearScene</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.cpp">
       <Filter>GameEngine\Math\LerpKeyFrame</Filter>
     </ClCompile>
@@ -219,33 +156,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application\BackGround\Ground\Ground.h">
-      <Filter>Application\BackGround\Ground</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\BackGround\Skydome\Skydome.h">
-      <Filter>Application\BackGround\Skydome</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Bullet\BaseBullet.h">
-      <Filter>Application\Bullet</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h">
-      <Filter>Application\Bullet\PlayerBullet</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Character\BaseCharacter.h">
-      <Filter>Application\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Character\Boss\Boss.h">
-      <Filter>Application\Character\Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Character\Player\Player.h">
-      <Filter>Application\Character\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\GameCamera\GameCamera.h">
-      <Filter>Application\GameCamera</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\ModelHolder\ModelHolder.h">
-      <Filter>Application\ModelHolder</Filter>
-    </ClInclude>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
       <Filter>Application\SampleScene</Filter>
     </ClInclude>
@@ -411,18 +321,6 @@
     <ClInclude Include="GameEngine\Data\ObjectVertexData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Scene\TitleScene\TitleScene.h">
-      <Filter>Application\Scene\TitleScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Scene\GameScene\GameScene.h">
-      <Filter>Application\Scene\GameScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Collider\Collider.h">
-      <Filter>Application\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Character\Item\Item.h">
-      <Filter>Application\Character\Item</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Modules\AudioManager\AudioManager.h">
       <Filter>GameEngine\Modules\AudioManager</Filter>
     </ClInclude>
@@ -443,12 +341,6 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\BackGround\Fence\Fence.h">
-      <Filter>Application\BackGround\Fence</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h">
-      <Filter>Application\Bullet\BossBullet</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\SceneManager\SceneManager.h">
       <Filter>GameEngine\Modules\SceneManager</Filter>
@@ -474,29 +366,8 @@
     <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h">
       <Filter>GameEngine\Factory\AbstractSceneFactory</Filter>
     </ClInclude>
-    <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h">
-      <Filter>Application\GameManager\SceneFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\GameManager\GameManager.h">
-      <Filter>Application\GameManager</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\Fog.h">
       <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\BackGround\BackGround\BackGround.h">
-      <Filter>Application\BackGround\BackGround</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h">
-      <Filter>Application\BackGround\Tumbleweed</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\AudioHolder\AudioHolder.h">
-      <Filter>Application\AudioHolder</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Scene\GameOverScene\GameOverScene.h">
-      <Filter>Application\Scene\GameOverScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Scene\ClearScene\ClearScene.h">
-      <Filter>Application\Scene\ClearScene</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\AnimationData.h">
       <Filter>GameEngine\Data</Filter>
@@ -560,32 +431,8 @@
     <Filter Include="Application">
       <UniqueIdentifier>{f6761bf2-51d3-48e8-8d6d-6dbde92f1220}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\BackGround">
-      <UniqueIdentifier>{e309db45-ad38-4d1b-bebf-41b07c47dc28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\Ground">
-      <UniqueIdentifier>{1328bcfd-c37d-4ba5-8490-0f0c0b0c374a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\Skydome">
-      <UniqueIdentifier>{3513f97a-7647-4244-bbf8-c2189ae96e81}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Bullet">
-      <UniqueIdentifier>{9729b52e-e5bf-4191-828b-59e12b459e7e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Bullet\PlayerBullet">
-      <UniqueIdentifier>{be182511-9de2-4847-84ef-cc20be4131ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\GameCamera">
-      <UniqueIdentifier>{8af3a526-46a8-4b26-b723-299e8ef772f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\ModelHolder">
-      <UniqueIdentifier>{6cec777a-bf3f-463a-88c8-5e026608b282}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\SampleScene">
       <UniqueIdentifier>{f139356a-d80c-4917-9061-55dca0c8fa46}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Scene">
-      <UniqueIdentifier>{dc7f5321-2cea-42ed-9bab-00cbb9c023ab}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine">
       <UniqueIdentifier>{0ad8d85e-7d01-49e2-be05-051ad0d1024c}</UniqueIdentifier>
@@ -692,27 +539,6 @@
     <Filter Include="GameEngine\Resource\PointLight">
       <UniqueIdentifier>{745e2b4a-9550-4d20-b010-15d973bc4372}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Scene\GameScene">
-      <UniqueIdentifier>{92169cd4-666c-4e20-b384-9621b65379ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Scene\TitleScene">
-      <UniqueIdentifier>{b6e9533b-9849-442a-a0d2-3d3dd2edb521}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Collider">
-      <UniqueIdentifier>{f99949b4-9574-4f36-ab7a-53efbffa63e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character">
-      <UniqueIdentifier>{f7e7b00b-95d3-419b-ae9f-9f2fcc68a66c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Boss">
-      <UniqueIdentifier>{2530ba28-a9db-4654-acff-c27e512d4cbe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Player">
-      <UniqueIdentifier>{d12b4d77-761f-4894-bbe9-30f98d7dbaf8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Item">
-      <UniqueIdentifier>{069b990c-aa2e-47d1-bc02-5aa29ac2ebc3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Modules\AudioManager">
       <UniqueIdentifier>{e8df6498-259c-487e-a53f-0d6e757ff025}</UniqueIdentifier>
     </Filter>
@@ -734,12 +560,6 @@
     <Filter Include="GameEngine\Modules\PrimitiveManager">
       <UniqueIdentifier>{f6336c19-5f0e-4227-84d0-ef1f2364fa48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Bullet\BossBullet">
-      <UniqueIdentifier>{4aa5fe03-41ea-49c0-94d6-731469498c92}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\Fence">
-      <UniqueIdentifier>{6e980b69-b0ae-4218-a2d9-927e327b3fc5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Modules\SceneManager">
       <UniqueIdentifier>{3727cc7c-0eb3-4bc1-9cd4-2b96d97824aa}</UniqueIdentifier>
     </Filter>
@@ -749,29 +569,8 @@
     <Filter Include="GameEngine\Factory">
       <UniqueIdentifier>{f6a8960a-68c9-4af8-9582-b66f0d2c11da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\GameManager">
-      <UniqueIdentifier>{2cb838c1-ed28-4467-b96b-de7090f1874a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\GameManager\SceneFactory">
-      <UniqueIdentifier>{17bb9e5d-32e7-4f69-aba8-55848056d217}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Factory\AbstractSceneFactory">
       <UniqueIdentifier>{6694e463-239f-49ff-a797-bf37f828eaaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\BackGround">
-      <UniqueIdentifier>{8624c25a-ddc0-4d79-a292-407c297b5444}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\Tumbleweed">
-      <UniqueIdentifier>{91e1ebee-a127-41cc-85db-cc128ecbde71}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\AudioHolder">
-      <UniqueIdentifier>{9109b9b0-8079-4a1c-93f9-cf2a372a3552}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Scene\GameOverScene">
-      <UniqueIdentifier>{647967ab-9b90-451b-8865-0c18f3c86b9d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Scene\ClearScene">
-      <UniqueIdentifier>{dcb14910-851c-4676-a048-59fe4e93f94c}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\Math\LerpKeyFrame">
       <UniqueIdentifier>{d0437533-3446-42b8-8627-69f276b7c584}</UniqueIdentifier>

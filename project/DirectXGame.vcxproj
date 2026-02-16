@@ -39,24 +39,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application\AudioHolder\AudioHolder.cpp" />
-    <ClCompile Include="Application\BackGround\BackGround\BackGround.cpp" />
-    <ClCompile Include="Application\BackGround\Fence\Fence.cpp" />
-    <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp" />
-    <ClCompile Include="Application\Bullet\BaseBullet.cpp" />
-    <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp" />
-    <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp" />
-    <ClCompile Include="Application\Character\BaseCharacter.cpp" />
-    <ClCompile Include="Application\Character\Boss\Boss.cpp" />
-    <ClCompile Include="Application\Character\Item\Item.cpp" />
-    <ClCompile Include="Application\Character\Player\Player.cpp" />
-    <ClCompile Include="Application\GameManager\GameManager.cpp" />
-    <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
-    <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
-    <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
-    <ClCompile Include="Application\Scene\ClearScene\ClearScene.cpp" />
-    <ClCompile Include="Application\Scene\GameOverScene\GameOverScene.cpp" />
-    <ClCompile Include="Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
@@ -93,35 +75,13 @@
     <ClCompile Include="GameEngine\Resource\SpotLight\SpotLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
-    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
-    <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp" />
-    <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp" />
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application\AudioHolder\AudioHolder.h" />
-    <ClInclude Include="Application\BackGround\BackGround\BackGround.h" />
-    <ClInclude Include="Application\BackGround\Fence\Fence.h" />
-    <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h" />
-    <ClInclude Include="Application\Bullet\BaseBullet.h" />
-    <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h" />
-    <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h" />
-    <ClInclude Include="Application\Character\BaseCharacter.h" />
-    <ClInclude Include="Application\Character\Boss\Boss.h" />
-    <ClInclude Include="Application\Character\Item\Item.h" />
-    <ClInclude Include="Application\Character\Player\Player.h" />
-    <ClInclude Include="Application\Collider\Collider.h" />
-    <ClInclude Include="Application\GameManager\GameManager.h" />
-    <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h" />
-    <ClInclude Include="Application\ModelHolder\ModelHolder.h" />
-    <ClInclude Include="Application\GameCamera\GameCamera.h" />
-    <ClInclude Include="Application\Scene\ClearScene\ClearScene.h" />
-    <ClInclude Include="Application\Scene\GameOverScene\GameOverScene.h" />
-    <ClInclude Include="Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h" />
     <ClInclude Include="GameEngine\Data\Bone.h" />
@@ -204,9 +164,6 @@
     <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h" />
     <ClInclude Include="GameEngine\Modules\Input\Input.h" />
     <ClInclude Include="Application\SampleScene\SampleScene.h" />
-    <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />
-    <ClInclude Include="Application\Scene\GameScene\GameScene.h" />
-    <ClInclude Include="Application\BackGround\Ground\Ground.h" />
     <ClInclude Include="GameEngine\Math\Lerp.h" />
     <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />
   </ItemGroup>

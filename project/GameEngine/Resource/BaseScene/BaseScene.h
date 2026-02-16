@@ -1,5 +1,4 @@
 #pragma once
-#include "ModelHolder/ModelHolder.h"
 #include "SpriteManager/SpriteManager.h"
 #include <memory>
 #include <Input/Input.h>
