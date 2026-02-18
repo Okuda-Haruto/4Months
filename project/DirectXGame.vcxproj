@@ -75,11 +75,13 @@
     <ClCompile Include="GameEngine\Resource\SpotLight\SpotLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
+    <ClCompile Include="Application\GameScene\GameScene.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp" />
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
+    <ClCompile Include="Application\Player\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
@@ -166,6 +168,8 @@
     <ClInclude Include="Application\SampleScene\SampleScene.h" />
     <ClInclude Include="GameEngine\Math\Lerp.h" />
     <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />
+    <ClInclude Include="Application\GameScene\GameScene.h" />
+    <ClInclude Include="Application\Player\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

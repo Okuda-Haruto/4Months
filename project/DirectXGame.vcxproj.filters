@@ -154,6 +154,10 @@
     <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp">
       <Filter>GameEngine\Modules\Animation</Filter>
     </ClCompile>
+    <ClCompile Include="Application\GameScene\GameScene.cpp">
+      <Filter>Application\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Player\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -408,6 +412,10 @@
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="Application\GameScene\GameScene.h">
+      <Filter>Application\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Player\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -577,6 +585,9 @@
     </Filter>
     <Filter Include="GameEngine\Modules\Animation">
       <UniqueIdentifier>{2c4cc0fb-6e3d-40e2-ab0e-b89fb46ab728}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\GameScene">
+      <UniqueIdentifier>{a5d22d78-633f-4270-8853-63cb1aefaf81}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
