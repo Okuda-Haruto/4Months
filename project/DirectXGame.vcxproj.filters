@@ -160,14 +160,14 @@
     <ClCompile Include="Application\Spike\Spike.cpp">
       <Filter>Application\Spike</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Ring\Ring.cpp" />
-      <Filter>Application\Ring</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Course\Course.cpp" />
-      <Filter>Application\Course</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Player\Player.cpp">
       <Filter>Application\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Ring\Ring.cpp">
+      <Filter>Application\Ring</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Course\Course.cpp">
+      <Filter>Application\Course</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -429,14 +429,14 @@
     <ClInclude Include="Application\Spike\Spike.h">
       <Filter>Application\Spike</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Ring\Ring.h" />
-      <Filter>Application\Ring</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Course\Course.h" />
-      <Filter>Application\Course</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Player\Player.h">
       <Filter>Application\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Ring\Ring.h">
+      <Filter>Application\Ring</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Course\Course.h">
+      <Filter>Application\Course</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -616,6 +616,12 @@
     </Filter>
     <Filter Include="Application\Player">
       <UniqueIdentifier>{bebc082e-a2ee-4908-bb91-6c01aef3da6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Course">
+      <UniqueIdentifier>{3264a6e5-9ec9-48b2-815c-81c922c87096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Ring">
+      <UniqueIdentifier>{ff0cf0ae-ff34-46d5-8aa3-b56708fbed16}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
