@@ -43,6 +43,10 @@ void GameScene::Initialize() {
 	player_ = std::make_unique<Player>();
 	player_->Initialize(directionalLight_);
 
+	// コース
+	course_ = std::make_unique<Course>();
+	course_->Initialize();
+
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = true;
 #endif
@@ -56,6 +60,9 @@ void GameScene::Update() {
 	// プレイヤーの更新
 	player_->Update(input_);
 
+	// コース
+	course_->Update();
+
 	//カメラアップデート
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
@@ -66,4 +73,7 @@ void GameScene::Update() {
 void GameScene::Draw() {
 	//描画処理
 	player_->Draw();
+
+	// コース
+	course_->Draw(directionalLight_);
 }

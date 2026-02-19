@@ -157,6 +157,15 @@
     <ClCompile Include="Application\GameScene\GameScene.cpp">
       <Filter>Application\GameScene</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Spike\Spike.cpp">
+      <Filter>Application\Spike</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Ring\Ring.cpp" />
+      <Filter>Application\Ring</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Course\Course.cpp" />
+      <Filter>Application\Course</Filter>
+    </ClCompile>
     <ClCompile Include="Application\Player\Player.cpp">
       <Filter>Application\Player</Filter>
     </ClCompile>
@@ -417,6 +426,15 @@
     <ClInclude Include="Application\GameScene\GameScene.h">
       <Filter>Application\GameScene</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Spike\Spike.h">
+      <Filter>Application\Spike</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Ring\Ring.h" />
+      <Filter>Application\Ring</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Course\Course.h" />
+      <Filter>Application\Course</Filter>
+    </ClInclude>
     <ClInclude Include="Application\Player\Player.h">
       <Filter>Application\Player</Filter>
     </ClInclude>
@@ -592,6 +610,9 @@
     </Filter>
     <Filter Include="Application\GameScene">
       <UniqueIdentifier>{a5d22d78-633f-4270-8853-63cb1aefaf81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Spike">
+      <UniqueIdentifier>{4c0c0ae8-cee3-4019-a9c3-9fbe3ac4b112}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\Player">
       <UniqueIdentifier>{bebc082e-a2ee-4908-bb91-6c01aef3da6a}</UniqueIdentifier>
