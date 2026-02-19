@@ -18,5 +18,13 @@ private:
 
 	// トランスフォーム
 	SRT transform_;
+	SRT velocity_;
+
+	const float kGravity_ = 0.098f;
+	const float kMaxFallingSpeed_ = -4.0f;
+	float fallingSpeed_;
+
+	//頭の進行角度
+	Vector3 headRotate_;
 };
 

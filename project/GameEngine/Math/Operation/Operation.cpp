@@ -728,7 +728,7 @@ Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion) {
 Matrix4x4 MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate) {
 
 	Matrix4x4 rotateXMatrix = MakeRotateAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, rotate.x);
-	Matrix4x4 rotateYMatrix = MakeRotateAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, rotate.y);
+	Matrix4x4 rotateYMatrix = MakeRotateAxisAngle(rotateXMatrix * Vector3{ 0.0f,1.0f,0.0f }, rotate.y);
 	Matrix4x4 rotateZMatrix = MakeRotateAxisAngle(rotateYMatrix * Vector3{ 0.0f,0.0f,1.0f }, rotate.z);
 
 	Matrix4x4 rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;

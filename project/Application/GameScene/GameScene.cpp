@@ -46,6 +46,11 @@ void GameScene::Initialize() {
 	// コース
 	course_ = std::make_unique<Course>();
 	course_->Initialize();
+
+#ifdef USE_IMGUI
+	isUseDebugCamera_ = true;
+#endif
+
 }
 
 void GameScene::Update() {
