@@ -16,7 +16,7 @@ private:
 	//デバッグカメラ
 	std::shared_ptr<DebugCamera> debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
-	bool isUseDebugCamera_ = true;
+	bool isUseDebugCamera_ = false;
 
 	//光源
 	DirectionalLightElement directionalLightElement_;

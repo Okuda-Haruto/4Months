@@ -42,6 +42,11 @@ void GameScene::Initialize() {
 
 	player_ = std::make_unique<Player>();
 	player_->Initialize(directionalLight_);
+
+#ifdef USE_IMGUI
+	isUseDebugCamera_ = true;
+#endif
+
 }
 
 void GameScene::Update() {

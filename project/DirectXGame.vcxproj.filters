@@ -157,7 +157,9 @@
     <ClCompile Include="Application\GameScene\GameScene.cpp">
       <Filter>Application\GameScene</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Player\Player.cpp" />
+    <ClCompile Include="Application\Player\Player.cpp">
+      <Filter>Application\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -415,7 +417,9 @@
     <ClInclude Include="Application\GameScene\GameScene.h">
       <Filter>Application\GameScene</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Player\Player.h" />
+    <ClInclude Include="Application\Player\Player.h">
+      <Filter>Application\Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -588,6 +592,9 @@
     </Filter>
     <Filter Include="Application\GameScene">
       <UniqueIdentifier>{a5d22d78-633f-4270-8853-63cb1aefaf81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Player">
+      <UniqueIdentifier>{bebc082e-a2ee-4908-bb91-6c01aef3da6a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
