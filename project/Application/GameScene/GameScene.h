@@ -3,6 +3,7 @@
 #include <Input/Input.h>
 #include <WindowsAPI/WindowsAPI.h>
 #include "Player/Player.h"
+#include "Course/Course.h"
 
 class GameScene {
 private:
@@ -26,6 +27,9 @@ private:
 
 	// プレイヤー
 	std::unique_ptr<Player> player_ = nullptr;
+
+	// コース
+	std::unique_ptr<Course> course_ = nullptr;
 
 public:
 	//初期化

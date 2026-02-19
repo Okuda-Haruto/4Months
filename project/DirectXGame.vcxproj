@@ -39,6 +39,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Course\Course.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
@@ -82,8 +83,11 @@
     <ClCompile Include="Application\SampleScene\SampleScene.cpp" />
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
     <ClCompile Include="Application\Player\Player.cpp" />
+    <ClCompile Include="Application\Spike\Spike.cpp" />
+    <ClCompile Include="Application\Ring\Ring.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\Course\Course.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h" />
     <ClInclude Include="GameEngine\Data\Bone.h" />
@@ -170,6 +174,8 @@
     <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />
     <ClInclude Include="Application\GameScene\GameScene.h" />
     <ClInclude Include="Application\Player\Player.h" />
+    <ClInclude Include="Application\Spike\Spike.h" />
+    <ClInclude Include="Application\Ring\Ring.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
