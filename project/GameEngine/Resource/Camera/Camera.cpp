@@ -9,7 +9,7 @@ Camera::Camera() {
 }
 
 void Camera::Initialize(DirectXCommon* dxCommon) {
-	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f });
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f });
 	viewMatrix_ = Inverse(worldMatrix);
 	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 1000.0f);
 
@@ -29,7 +29,7 @@ void Camera::Initialize(DirectXCommon* dxCommon) {
 
 void Camera::Update(SRT transform) {
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, transform.rotate, transform.translate);
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix({ 1.0f,1.0f,1.0f }, transform.rotate, transform.translate);
 	viewMatrix_ = Inverse(worldMatrix);
 	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 1000.0f);
 

@@ -96,11 +96,11 @@ void ParticleManager::Update(std::string name) {
 
 			if (IsCollision(particleGroups[name].accelerationField.area, (*particleIterator).transform.translate)) {
 				(*particleIterator).velocity.scale += particleGroups[name].accelerationField.acceleration.scale;
-				(*particleIterator).velocity.rotate += particleGroups[name].accelerationField.acceleration.rotate;
+				(*particleIterator).velocity.rotate = (*particleIterator).velocity.rotate * particleGroups[name].accelerationField.acceleration.rotate;
 				(*particleIterator).velocity.translate += particleGroups[name].accelerationField.acceleration.translate;
 			}
 			(*particleIterator).transform.scale += (*particleIterator).velocity.scale;
-			(*particleIterator).transform.rotate += (*particleIterator).velocity.rotate;
+			(*particleIterator).transform.rotate = (*particleIterator).transform.rotate * (*particleIterator).velocity.rotate;
 			(*particleIterator).transform.translate += (*particleIterator).velocity.translate;
 			(*particleIterator).color.x = (*particleIterator).beforeColor.x * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.x * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
 			(*particleIterator).color.y = (*particleIterator).beforeColor.y * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.y * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
