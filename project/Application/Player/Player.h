@@ -12,6 +12,8 @@ public:
 	// 描画
 	void Draw();
 
+	SRT GetTransform() { return transform_; }
+
 private:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;

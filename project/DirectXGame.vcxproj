@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Course\Course.cpp" />
+    <ClCompile Include="Application\Neck\Neck.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
@@ -88,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Course\Course.h" />
+    <ClInclude Include="Application\Neck\Neck.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h" />
     <ClInclude Include="GameEngine\Data\Bone.h" />

@@ -141,6 +141,9 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 //球面スプライン
 Quaternion Squad(const Quaternion& q0, const Quaternion& q1, const Quaternion& q2, const Quaternion& q3, float t);
 
+//v0からv1への向き
+Quaternion LookAt(const Vector3& v0, const Vector3& v1);
+
 Quaternion operator+(const Quaternion& q1, const Quaternion& q2);
 Quaternion operator-(const Quaternion& q1, const Quaternion& q2);
 Quaternion operator*(float s, const Quaternion& q);
@@ -206,6 +209,9 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 
 //aiMatrix変換(GLTF用)
 Matrix4x4 aiMatrix4x4ToMatrix4x4(aiMatrix4x4 matrix);
+
+//ある地点からもう一つの地点への向き
+Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
 
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2);
 Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2);
