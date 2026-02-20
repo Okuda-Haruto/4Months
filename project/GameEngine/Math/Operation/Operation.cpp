@@ -530,6 +530,31 @@ Quaternion Squad(const Quaternion& q0, const Quaternion& q1,
 	// 外側の SLERP
 	return Slerp(slerp1, slerp2, 2.0f * t * (1.0f - t));
 }
+
+Quaternion LookAt(const Vector3& v0, const Vector3& v1) {
+	// 方向ベクトル
+	Vector3 forward = Normalize(v1 - v0);
+
+	// 基準軸（例では前方向 Z）
+	Vector3 from = { 0.0f, 0.0f, 1.0f };
+
+	// 内積・外積で軸と角度情報を得る
+	float dot = Dot(from, forward);
+	Vector3 axis = Cross(from, forward);
+
+	// 方向が同一・反対の場合への対処
+	if (dot < -0.999999f) {
+		// 反対方向 → 180° 回転
+		axis = { 0.0f, 1.0f, 0.0f };
+		return { -axis.x, -axis.y, -axis.z, 0.0f };
+	}
+
+	Quaternion quaternion;
+	quaternion = { -axis.x,-axis.y,-axis.z,(1.0f + dot) };
+	quaternion = Normalize(quaternion);
+	return quaternion;
+}
+
 Quaternion operator+(const Quaternion& q1, const Quaternion& q2) { return Add(q1, q2); }
 Quaternion operator-(const Quaternion& q1, const Quaternion& q2) { return Subtract(q1, q2); }
 Quaternion operator*(float s, const Quaternion& q) { return Multiply(s, q); }
@@ -816,6 +841,41 @@ Matrix4x4 aiMatrix4x4ToMatrix4x4(aiMatrix4x4 matrix) {
 	returnMatrix.m[1][0] = matrix.b1; returnMatrix.m[1][1] = matrix.b2; returnMatrix.m[1][2] = matrix.b3; returnMatrix.m[1][3] = matrix.b4;
 	returnMatrix.m[2][0] = matrix.c1; returnMatrix.m[2][1] = matrix.c2; returnMatrix.m[2][2] = matrix.c3; returnMatrix.m[2][3] = matrix.c4;
 	returnMatrix.m[3][0] = matrix.d1; returnMatrix.m[3][1] = matrix.d2; returnMatrix.m[3][2] = matrix.d3; returnMatrix.m[3][3] = matrix.d4;
+	return returnMatrix;
+}
+
+Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
+	Matrix4x4 returnMatrix;
+
+	if (from.x == -to.x && from.y == -to.y && from.z == -to.z) {
+		Vector3 n = Cross(from, Vector3{ 0.0f,0.0f,1.0f });
+		float cos = Dot(from, to);
+		float sin = Length(Cross(from, to));
+
+		Matrix4x4 S = MakeScaleMatrix(Vector3{ cos, cos, cos });
+
+		Matrix4x4 P = (1.0f - cos) * DotMatrix(n, n);
+
+		Matrix4x4 C = -sin * CrossMatrix(n);
+
+		returnMatrix = Transpose(S + P - C);
+
+		return returnMatrix;
+	} else {
+
+		Vector3 n = Normalize(Cross(from, to));
+		float cos = Dot(from, to);
+		float sin = Length(Cross(from, to));
+
+		Matrix4x4 S = MakeScaleMatrix(Vector3{ cos, cos, cos });
+
+		Matrix4x4 P = (1.0f - cos) * DotMatrix(n, n);
+
+		Matrix4x4 C = -sin * CrossMatrix(n);
+
+		returnMatrix = Transpose(S + P - C);
+	}
+
 	return returnMatrix;
 }
 

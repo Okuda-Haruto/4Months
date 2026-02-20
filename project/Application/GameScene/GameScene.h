@@ -3,6 +3,7 @@
 #include <Input/Input.h>
 #include <WindowsAPI/WindowsAPI.h>
 #include "Player/Player.h"
+#include "Neck/Neck.h"
 #include "Course/Course.h"
 #include "CheckCollision/CheckCollision.h"
 
@@ -28,6 +29,9 @@ private:
 
 	// プレイヤー
 	std::unique_ptr<Player> player_ = nullptr;
+
+	//首
+	std::unique_ptr<Neck> neck_ = nullptr;
 
 	// コース
 	std::unique_ptr<Course> course_ = nullptr;

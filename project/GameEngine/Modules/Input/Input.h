@@ -17,7 +17,7 @@ using namespace std;
 #pragma region Keybord
 
 //キーボード入力
-struct Keybord {
+struct Keyboard {
 	BYTE hold[256] = {};	//押している
 	BYTE idle[256] = {};	//離している
 	BYTE trigger[256] = {};	//押した瞬間
@@ -122,7 +122,7 @@ private:
 	DWORD dwResult_[4];
 	XINPUT_STATE prePadState_[4];
 
-	Keybord keybord_{};
+	Keyboard keyboard_{};
 	Mouse mouse_{};
 	std::array<Pad, 4> pad_{};
 
@@ -136,7 +136,7 @@ public:
 	/// キーボード入力
 	/// </summary>
 	/// <returns>キーボード入力</returns>
-	Keybord GetKeyBord() { return keybord_; }
+	Keyboard GetKeyBoard() { return keyboard_; }
 
 	/// <summary>
 	/// マウス入力
