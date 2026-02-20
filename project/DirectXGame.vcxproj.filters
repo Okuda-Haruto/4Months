@@ -446,7 +446,7 @@
     </ClInclude>
     <ClInclude Include="Application\CheckCollision\CheckCollision.h">
       <Filter>Application\CheckCollision</Filter>
-    </ClCompile>
+    </ClInclude>
     <ClInclude Include="Application\Neck\Neck.h">
       <Filter>Application\Neck</Filter>
     </ClInclude>
