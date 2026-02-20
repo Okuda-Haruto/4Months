@@ -43,6 +43,9 @@ void GameScene::Initialize() {
 	player_ = std::make_unique<Player>();
 	player_->Initialize(directionalLight_);
 
+	neck_ = std::make_unique<Neck>();
+	neck_->Initialize(player_.get(), directionalLight_);
+
 	// コース
 	course_ = std::make_unique<Course>();
 	course_->Initialize();
@@ -60,6 +63,8 @@ void GameScene::Update() {
 	// プレイヤーの更新
 	player_->Update(input_);
 
+	neck_->Update();
+
 	// コース
 	course_->Update();
 
@@ -73,6 +78,8 @@ void GameScene::Update() {
 void GameScene::Draw() {
 	//描画処理
 	player_->Draw();
+
+	neck_->Draw();
 
 	// コース
 	course_->Draw(directionalLight_);

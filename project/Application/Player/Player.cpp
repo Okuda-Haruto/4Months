@@ -48,9 +48,13 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 	velocity_.translate.y = fallingSpeed_;
 
+	static float speed = 1.0f / 100;
+	transform_.translate += velocity_.translate * speed;
+
 #ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
 	ImGui::DragFloat3("速度", &velocity_.translate.x);
+	ImGui::DragFloat("speed", &speed, 0.001f);
 	ImGui::End();
 #endif
 
