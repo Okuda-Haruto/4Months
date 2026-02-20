@@ -185,32 +185,32 @@ void SampleScene::Initialize() {
 void SampleScene::Update() {
 	//入力処理
 	input_->Update();
-	Keybord keybord = input_->GetKeyBord();
+	Keyboard keyboard = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
 
 	object_[5]->Update();
 
-	if (keybord.hold[DIK_UP] || pad.Button[PAD_BUTTON_UP].hold) {
+	if (keyboard.hold[DIK_UP] || pad.Button[PAD_BUTTON_UP].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate.y += 0.1f;
 		}
 	}
-	if (keybord.hold[DIK_DOWN] || pad.Button[PAD_BUTTON_DOWN].hold) {
+	if (keyboard.hold[DIK_DOWN] || pad.Button[PAD_BUTTON_DOWN].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate.y -= 0.1f;
 		}
 	}
-	if (keybord.hold[DIK_RIGHT] || pad.Button[PAD_BUTTON_RIGHT].hold) {
+	if (keyboard.hold[DIK_RIGHT] || pad.Button[PAD_BUTTON_RIGHT].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate.x += 0.1f;
 		}
 	}
-	if (keybord.hold[DIK_LEFT] || pad.Button[PAD_BUTTON_LEFT].hold) {
+	if (keyboard.hold[DIK_LEFT] || pad.Button[PAD_BUTTON_LEFT].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate.x -= 0.1f;
 		}
 	}
-	if (keybord.hold[DIK_R] || pad.Button[PAD_BUTTON_BACK].trigger) {
+	if (keyboard.hold[DIK_R] || pad.Button[PAD_BUTTON_BACK].trigger) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate = {};
 			objectTransform_[i].rotate = {};
@@ -224,10 +224,10 @@ void SampleScene::Update() {
 			isDisplayUI = true;
 		}
 	}
-	if (keybord.hold[DIK_P] || pad.Button[PAD_BUTTON_RT].trigger) {
+	if (keyboard.hold[DIK_P] || pad.Button[PAD_BUTTON_RT].trigger) {
 		audio_->SoundPlayWave();
 	}
-	if (keybord.hold[DIK_L] || pad.Button[PAD_BUTTON_LT].trigger) {
+	if (keyboard.hold[DIK_L] || pad.Button[PAD_BUTTON_LT].trigger) {
 		switch (reflection)
 		{
 		case 0:
