@@ -11,9 +11,17 @@ void Spike::Initialize() {
 	};
 	transform_ = { {1,1,1},{},spawnPos };
 	model_->SetTransform(transform_);
+
+	// 衝突判定
+	collider_.center = transform_.translate;
+	collider_.radius = 0.5f;
+
+	transform_.scale.x = collider_.radius * 2;
 }
 
 void Spike::Update() {
+	model_->SetTransform(transform_);
+	collider_.center = transform_.translate;
 }
 
 void Spike::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {

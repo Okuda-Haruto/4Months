@@ -11,9 +11,17 @@ void Ring::Initialize() {
 	};
 	transform_ = { {1,1,1},{},spawnPos };
 	model_->SetTransform(transform_);
+
+	// 衝突判定
+	colliderCenter_ = transform_.translate;
+	colliderRadius_ = GameEngine::randomFloat(radiusMin_, radiusMax_);
+
+	transform_.scale = { colliderRadius_ * 2,colliderHeight_,colliderRadius_ * 2 };
 }
 
 void Ring::Update() {
+	model_->SetTransform(transform_);
+	colliderCenter_ = transform_.translate;
 }
 
 void Ring::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
