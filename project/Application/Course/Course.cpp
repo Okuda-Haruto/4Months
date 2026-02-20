@@ -1,6 +1,7 @@
 #include "Course.h"
 
 Course::Course() {
+	// 配置物の設置
 	for (int i = 0; i < ringCount_; ++i) {
 		rings_.push_back(std::make_unique<Ring>());
 	}

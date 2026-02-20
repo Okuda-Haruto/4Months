@@ -169,6 +169,9 @@
     <ClCompile Include="Application\Course\Course.cpp">
       <Filter>Application\Course</Filter>
     </ClCompile>
+    <ClCompile Include="Application\CheckCollision\CheckCollision.cpp">
+      <Filter>Application\CheckCollision</Filter>
+    </ClCompile>
     <ClCompile Include="Application\Neck\Neck.cpp">
       <Filter>Application\Neck</Filter>
     </ClCompile>
@@ -441,6 +444,9 @@
     <ClInclude Include="Application\Course\Course.h">
       <Filter>Application\Course</Filter>
     </ClInclude>
+    <ClInclude Include="Application\CheckCollision\CheckCollision.h">
+      <Filter>Application\CheckCollision</Filter>
+    </ClCompile>
     <ClInclude Include="Application\Neck\Neck.h">
       <Filter>Application\Neck</Filter>
     </ClInclude>

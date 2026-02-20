@@ -5,6 +5,7 @@
 #include "Player/Player.h"
 #include "Neck/Neck.h"
 #include "Course/Course.h"
+#include "CheckCollision/CheckCollision.h"
 
 class GameScene {
 private:
@@ -34,6 +35,9 @@ private:
 
 	// コース
 	std::unique_ptr<Course> course_ = nullptr;
+
+	// 当たり判定
+	std::unique_ptr<CheckCollision> checkCollision_ = nullptr;
 
 public:
 	//初期化

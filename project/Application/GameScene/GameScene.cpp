@@ -50,6 +50,10 @@ void GameScene::Initialize() {
 	course_ = std::make_unique<Course>();
 	course_->Initialize();
 
+	// 当たり判定
+	checkCollision_ = std::make_unique<CheckCollision>();
+	checkCollision_->Initialize(player_.get(), course_.get());
+
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = true;
 #endif
@@ -67,6 +71,9 @@ void GameScene::Update() {
 
 	// コース
 	course_->Update();
+
+	// 当たり判定
+	checkCollision_->Update();
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
