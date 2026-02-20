@@ -19,7 +19,13 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	Pad pad = input->GetPad(0);
 
 	//基礎クォータニオン(真下)
-	Quaternion NextRotate = MakeRotateAxisAngleQuaternion(Vector3{1,0,0},-std::numbers::pi_v<float> / 2);
+	Quaternion NextRotate;
+
+	if (!isTurnBack_) {
+		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	} else {
+		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
+	}
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
@@ -44,7 +50,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	velocity_.translate = Vector3{ 0,0,1 } * rotateMatrix;
 
 	//「下向き速度 * 重力」を落下速度に加える
-	fallingSpeed_ = max(fallingSpeed_ + velocity_.translate.y * kGravity_, kMaxFallingSpeed_);
+	fallingSpeed_ = min(max(fallingSpeed_ + velocity_.translate.y * kGravity_, kMaxFallingSpeed_), kMaxRisingSpeed_);
 
 	velocity_.translate.y = fallingSpeed_;
 
@@ -55,6 +61,9 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	ImGui::Begin("プレイヤー");
 	ImGui::DragFloat3("速度", &velocity_.translate.x);
 	ImGui::DragFloat("speed", &speed, 0.001f);
+	if (ImGui::Button("折り返し")) {
+		isTurnBack_ = !isTurnBack_;
+	}
 	ImGui::End();
 #endif
 
