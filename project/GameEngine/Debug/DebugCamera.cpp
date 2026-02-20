@@ -53,7 +53,7 @@ void CameraModePlayerCamera::Initialize(shared_ptr<Input> input) {
 }
 
 void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
-	Keybord key = input_->GetKeyBord();
+	Keyboard key = input_->GetKeyBoard();
 	Mouse mouse = input_->GetMouse();
 
 	Matrix4x4 rotateMatrix = debugCamera->GetRotateMatrix();
@@ -134,7 +134,7 @@ void CameraModeSphericalCoordinates::Initialize(shared_ptr<Input> input) {
 }
 
 void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
-	Keybord key = input_->GetKeyBord();
+	Keyboard key = input_->GetKeyBoard();
 	Mouse mouse = input_->GetMouse();
 
 	Matrix4x4 rotateMatrix = debugCamera->GetRotateMatrix();

@@ -48,10 +48,10 @@ void Input::Update() {
 	keyboardDevice_->GetDeviceState(sizeof(BYTE) * 256, keys_);
 
 	for (int i = 0; i < 256; i++) {
-		keybord_.hold[i] = keys_[i];
-		keybord_.idle[i] = ~keys_[i];
-		keybord_.trigger[i] = keys_[i] & ~preKeys_[i];
-		keybord_.release[i] = ~keys_[i] & preKeys_[i];
+		keyboard_.hold[i] = keys_[i];
+		keyboard_.idle[i] = ~keys_[i];
+		keyboard_.trigger[i] = keys_[i] & ~preKeys_[i];
+		keyboard_.release[i] = ~keys_[i] & preKeys_[i];
 	}
 
 	//前frame処理
