@@ -43,17 +43,23 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	}
 
 	//現在の向きと次の向きの補完
-	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.25f);
+	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f);
 	rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
 	//向いている向きに速度を向ける
 	velocity_.translate = Vector3{ 0,0,1 } * rotateMatrix;
 
-	//「下向き速度 * 重力」を落下速度に加える
-	fallingSpeed_ = min(max(fallingSpeed_ + velocity_.translate.y * kGravity_, kMaxFallingSpeed_), kMaxRisingSpeed_);
+	if (!isTurnBack_) {
+		//「下向き速度 * 重力」を落下速度に加える
+		fallingSpeed_ = min(fallingSpeed_ + kGravity_, kMaxFallingSpeed_);
 
-	velocity_.translate.y = fallingSpeed_;
+		velocity_.translate *= fallingSpeed_;
+	} else {
+		//「下向き速度 * 重力」を落下速度に加える
+		fallingSpeed_ = min(fallingSpeed_ + kGravity_, kMaxRisingSpeed_);
 
+		velocity_.translate *= fallingSpeed_;
+	}
 	static float speed = 1.0f / 100;
 	transform_.translate += velocity_.translate * speed;
 
