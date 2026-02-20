@@ -169,6 +169,7 @@
     <ClCompile Include="Application\Course\Course.cpp">
       <Filter>Application\Course</Filter>
     </ClCompile>
+    <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -438,6 +439,7 @@
     <ClInclude Include="Application\Course\Course.h">
       <Filter>Application\Course</Filter>
     </ClInclude>
+    <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

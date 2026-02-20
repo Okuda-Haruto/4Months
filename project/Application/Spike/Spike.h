@@ -13,6 +13,9 @@ public:
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
 
+	// 触れたとき
+	void OnCollide();
+
 	// Getter
 	Sphere GetCollider() { return collider_; }
 

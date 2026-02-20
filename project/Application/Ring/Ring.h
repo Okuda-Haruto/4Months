@@ -12,6 +12,9 @@ public:
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
 
+	// 触れたとき
+	void OnCollide();
+
 	// Getter
 	Vector3 GetColliderCenter() { return colliderCenter_; }
 	float GetColliderRadius() { return colliderRadius_; }
@@ -30,7 +33,7 @@ private:
 	float colliderHeight_ = 1.0f;
 
 	// サイズ範囲
-	float radiusMin_ = 0.25f;
+	float radiusMin_ = 0.5f;
 	float radiusMax_ = 3.0f;
 
 	// 出現範囲

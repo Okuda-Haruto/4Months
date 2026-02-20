@@ -17,6 +17,9 @@ public:
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
 
 	// Getter
+	Vector2 GetColliderCenter() { return colliderCenter_; }
+	float GetColliderRadius() { return colliderRadius_; }
+
 	std::vector<Ring*> GetRings() {
 		std::vector<Ring*> rings;
 		for (auto& ring : rings_) {

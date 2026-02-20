@@ -14,19 +14,23 @@ void Spike::Initialize() {
 
 	// 衝突判定
 	collider_.center = transform_.translate;
-	collider_.radius = 0.5f;
+	collider_.radius = 1.0f;
 
-	transform_.scale.x = collider_.radius * 2;
+	transform_.scale.x = collider_.radius;
 }
 
 void Spike::Update() {
 	model_->SetTransform(transform_);
 	collider_.center = transform_.translate;
+
+	model_->SetColor({ 1, 0, 0, 1 });
 }
 
 void Spike::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
-	model_->SetColor({ 1, 0, 0, 1 });
-
 	model_->SetDirectionalLight(directionalLight);
 	model_->Draw3D();
+}
+
+void Spike::OnCollide() {
+	model_->SetColor({ 1, 1, 1, 1 });
 }
