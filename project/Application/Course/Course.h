@@ -46,6 +46,11 @@ private:
 	int spikeCount_ = 30;
 	std::vector<std::unique_ptr<Ring>> rings_;
 	std::vector<std::unique_ptr<Spike>> spikes_;
+
+	// モデル
+	std::unique_ptr<Object> model_;
+	// トランスフォーム
+	SRT transform_;
 };
 
 
