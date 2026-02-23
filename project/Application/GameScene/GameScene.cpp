@@ -35,10 +35,11 @@ void GameScene::Initialize() {
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
-		{0.0f,-1.0f,0.0f},
+		Normalize(Vector3{0.0f,-1.0f,0.25f}),
 		1.0f
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+
 
 	player_ = std::make_unique<Player>();
 	player_->Initialize(directionalLight_);

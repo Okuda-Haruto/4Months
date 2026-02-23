@@ -3,7 +3,7 @@
 Course::Course() {
 	model_ = make_unique<Object>();
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course", "Course.obj"));
-	model_->SetShininess(30.0f);
+	model_->SetShininess(40.0f);
 	model_->SetColor({ 1,1,1,0.75f });
 	transform_ = { {1,1,1},{},{0,-200,0} };
 	model_->SetTransform(transform_);
