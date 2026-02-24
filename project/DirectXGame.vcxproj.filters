@@ -169,11 +169,12 @@
     <ClCompile Include="Application\Course\Course.cpp">
       <Filter>Application\Course</Filter>
     </ClCompile>
-    <ClCompile Include="Application\CheckCollision\CheckCollision.cpp">
-      <Filter>Application\CheckCollision</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Neck\Neck.cpp">
       <Filter>Application\Neck</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
+    <ClCompile Include="Application\GameCamera\GameCamera.cpp">
+      <Filter>Application\GameCamera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -444,11 +445,12 @@
     <ClInclude Include="Application\Course\Course.h">
       <Filter>Application\Course</Filter>
     </ClInclude>
-    <ClInclude Include="Application\CheckCollision\CheckCollision.h">
-      <Filter>Application\CheckCollision</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Neck\Neck.h">
       <Filter>Application\Neck</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
+    <ClInclude Include="Application\GameCamera\GameCamera.h">
+      <Filter>Application\GameCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -637,6 +639,9 @@
     </Filter>
     <Filter Include="Application\Neck">
       <UniqueIdentifier>{827acd4c-b6b6-4024-b08e-1aa6b2712401}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\GameCamera">
+      <UniqueIdentifier>{9ac8fca4-15d9-4e94-a6ce-ec88dc902b19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
