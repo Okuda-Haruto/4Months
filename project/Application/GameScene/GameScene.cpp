@@ -24,6 +24,9 @@ void GameScene::Initialize() {
 	defaultCamera_ = Object::GetDefaultCamera();
 	defaultCamera_->SetDebugCamera(debugCamera_);
 
+	gameCamera_ = make_unique<GameCamera>();
+	gameCamera_->Initialize(defaultCamera_);
+
 	cameraTransform_ = {
 		{ 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.0f, 0.0f },
@@ -68,6 +71,9 @@ void GameScene::Update() {
 	// プレイヤーの更新
 	player_->Update(input_);
 
+	gameCamera_->SetPlayerTransform(player_->GetTransform());
+	gameCamera_->Update();
+
 	neck_->Update();
 
 	// コース
@@ -81,6 +87,14 @@ void GameScene::Update() {
 		defaultCamera_->Update();
 	}
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+
+#ifdef USE_IMGUI
+	ImGui::Begin("GameScene");
+	if (ImGui::Button("デバッグカメラ")) {
+		isUseDebugCamera_ = !isUseDebugCamera_;
+	}
+	ImGui::End();
+#endif
 }
 
 void GameScene::Draw() {

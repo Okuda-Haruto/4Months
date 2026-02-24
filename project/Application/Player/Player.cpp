@@ -5,10 +5,11 @@ void Player::Initialize(const std::shared_ptr<DirectionalLight> directionalLight
 	model_ = make_unique<Object>();
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
 	model_->SetShininess(30.0f);
-	transform_ = {};
-	transform_.scale = { 1.0f,1.0f,1.0f };
-	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
-	model_->SetTransform(transform_);
+	//カメラで使う
+	transform_ = std::make_shared<SRT>();
+	transform_->scale = { 1.0f,1.0f,1.0f };
+	transform_->rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	model_->SetTransform(transform_.get());
 	model_->SetDirectionalLight(directionalLight);
 
 	fallingSpeed_ = 0.0f;

@@ -5,7 +5,9 @@
 #include "Player/Player.h"
 #include "Neck/Neck.h"
 #include "Course/Course.h"
+
 #include "CheckCollision/CheckCollision.h"
+#include "GameCamera/GameCamera.h"
 
 class GameScene {
 private:
@@ -15,6 +17,8 @@ private:
 	// カメラ
 	SRT cameraTransform_{};
 	std::shared_ptr<Camera> defaultCamera_ = nullptr;
+	std::unique_ptr<GameCamera> gameCamera_;
+
 
 	//デバッグカメラ
 	std::shared_ptr<DebugCamera> debugCamera_ = nullptr;
