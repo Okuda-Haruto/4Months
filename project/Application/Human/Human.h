@@ -15,6 +15,9 @@ public:
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 
+	//ドリフト中か
+	bool isDrifting_ = false;
+
 protected:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
@@ -29,10 +32,10 @@ protected:
 	Quaternion rollRotate_;
 
 	//重力加速度
-	const float kGravity_ = 0.098f;
+	const float kGravity_ = 0.001f;
 	//落下最高速度
-	const float kMaxFallingSpeed_ = 8.0f;
-	const float kMaxRisingSpeed_ = 8.0f;
+	const float kMaxFallingSpeed_ = 0.1f;
+	const float kMaxRisingSpeed_ = 0.1f;
 	//落下速度
 	float fallingSpeed_;
 

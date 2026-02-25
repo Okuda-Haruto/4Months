@@ -442,9 +442,6 @@
     <ClInclude Include="Application\Spike\Spike.h">
       <Filter>Application\Spike</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Human\Player\Player.h">
-      <Filter>Application\Human\Player</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Ring\Ring.h">
       <Filter>Application\Ring</Filter>
     </ClInclude>
@@ -463,6 +460,9 @@
     </ClInclude>
     <ClInclude Include="Application\Human\Enemy\Enemy.h">
       <Filter>Application\Human\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Human\Player\Player.h">
+      <Filter>Application\Human\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
