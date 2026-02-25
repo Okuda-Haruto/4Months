@@ -9,6 +9,7 @@ void Player::Initialize(const std::shared_ptr<DirectionalLight> directionalLight
 	transform_ = {};
 	transform_.scale = { 1.0f,1.0f,1.0f };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	rollRotate_ = IdentityQuaternion();
 	model_->SetTransform(transform_);
 	model_->SetDirectionalLight(directionalLight);
 
@@ -27,6 +28,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	} else {
 		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
 	}
+	NextRotate = NextRotate * rollRotate_;
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
@@ -65,14 +67,18 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	transform_.translate += velocity_.translate * speed;
 
 #ifdef USE_IMGUI
+	static float rotateY = 0;
 	ImGui::Begin("プレイヤー");
 	ImGui::DragFloat3("速度", &velocity_.translate.x);
 	ImGui::DragFloat("speed", &speed, 0.001f);
+	ImGui::SliderAngle("roll", &rotateY);
 	if (ImGui::Button("折り返し")) {
 		isTurnBack_ = !isTurnBack_;
 	}
 	ImGui::End();
 #endif
+
+	rollRotate_ = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } , rotateY);
 
 	model_->SetTransform(transform_);
 }

@@ -13,6 +13,7 @@ public:
 	void Draw();
 
 	SRT GetTransform() { return transform_; }
+	Quaternion GetRollRotate() { return rollRotate_; }
 
 private:
 	// モデル
@@ -21,6 +22,9 @@ private:
 	// トランスフォーム
 	SRT transform_;
 	SRT velocity_;
+
+	//y軸回転
+	Quaternion rollRotate_;
 
 	//重力加速度
 	const float kGravity_ = 0.098f;
