@@ -41,6 +41,8 @@
   <ItemGroup>
     <ClCompile Include="Application\Course\Course.cpp" />
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
+    <ClCompile Include="Application\Human\Enemy\Enemy.cpp" />
+    <ClCompile Include="Application\Human\Human.cpp" />
     <ClCompile Include="Application\Neck\Neck.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
@@ -85,13 +87,15 @@
     </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp" />
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
-    <ClCompile Include="Application\Player\Player.cpp" />
+    <ClCompile Include="Application\Human\Player\Player.cpp" />
     <ClCompile Include="Application\Spike\Spike.cpp" />
     <ClCompile Include="Application\Ring\Ring.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Course\Course.h" />
     <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
+    <ClInclude Include="Application\Human\Enemy\Enemy.h" />
+    <ClInclude Include="Application\Human\Human.h" />
     <ClInclude Include="Application\Neck\Neck.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
@@ -179,7 +183,7 @@
     <ClInclude Include="GameEngine\Math\Lerp.h" />
     <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />
     <ClInclude Include="Application\GameScene\GameScene.h" />
-    <ClInclude Include="Application\Player\Player.h" />
+    <ClInclude Include="Application\Human\Player\Player.h" />
     <ClInclude Include="Application\Spike\Spike.h" />
     <ClInclude Include="Application\Ring\Ring.h" />
   </ItemGroup>

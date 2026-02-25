@@ -1,5 +1,5 @@
 #include "CheckCollision.h"
-#include "Player/Player.h"
+#include "Human/Player/Player.h"
 #include "Course/Course.h"
 #include "Math/Collision.h"
 

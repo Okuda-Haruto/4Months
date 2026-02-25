@@ -4,8 +4,8 @@
 
 std::weak_ptr<DirectionalLight> Neck::directionalLight_;
 
-void Neck::Initialize(Player* player, const std::shared_ptr<DirectionalLight> directionalLight) {
-	player_ = player;
+void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> directionalLight) {
+	human_ = human;
 	directionalLight_ = directionalLight;
 
 	//共通モデル
@@ -14,15 +14,15 @@ void Neck::Initialize(Player* player, const std::shared_ptr<DirectionalLight> di
 	//初期地点の首
 	std::unique_ptr<Object> object = std::make_unique<Object>();
 	object->Initialize(model_.lock());
-	object->SetTransform(player_->GetTransform());
+	object->SetTransform(human_->GetTransform());
 	object->SetDirectionalLight(directionalLight_.lock());
 	objects_.push_back(move(object));
 
-	lastPoint_ = player_->GetTransform().translate;
+	lastPoint_ = human_->GetTransform().translate;
 }
 
 void Neck::Update() {
-	SRT playerTransform = player_->GetTransform();
+	SRT playerTransform = human_->GetTransform();
 
 	//最終地点とプレイヤー位置の距離がある程度あるならオブジェクト生成
 	Vector3 diff = playerTransform.translate - lastPoint_;

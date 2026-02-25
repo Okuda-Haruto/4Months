@@ -2,7 +2,8 @@
 #include <GameEngine.h>
 #include <Input/Input.h>
 #include <WindowsAPI/WindowsAPI.h>
-#include "Player/Player.h"
+#include "Human/Player/Player.h"
+#include "Human/Enemy/Enemy.h"
 #include "Neck/Neck.h"
 #include "Course/Course.h"
 
@@ -33,9 +34,10 @@ private:
 
 	// プレイヤー
 	std::unique_ptr<Player> player_ = nullptr;
+	std::unique_ptr<Enemy> enemy_ = nullptr;
 
 	//首
-	std::unique_ptr<Neck> neck_ = nullptr;
+	std::vector<std::unique_ptr<Neck>> necks_;
 
 	// コース
 	std::unique_ptr<Course> course_ = nullptr;

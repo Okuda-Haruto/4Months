@@ -2,12 +2,12 @@
 #include "Object/Object.h"
 #include <vector>
 
-#include <Player/Player.h>
+#include <Human/Human.h>
 
 class Neck {
 public:
 	//初期化
-	void Initialize(Player* player, const std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(Human* player, const std::shared_ptr<DirectionalLight> directionalLight);
 	//更新処理
 	void Update();
 	//描画処理
@@ -22,5 +22,5 @@ private:
 	//最終地点
 	Vector3 lastPoint_;
 
-	Player* player_ = nullptr;
+	Human* human_ = nullptr;
 };

@@ -160,8 +160,8 @@
     <ClCompile Include="Application\Spike\Spike.cpp">
       <Filter>Application\Spike</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Player\Player.cpp">
-      <Filter>Application\Player</Filter>
+    <ClCompile Include="Application\Human\Player\Player.cpp">
+      <Filter>Application\Human\Player</Filter>
     </ClCompile>
     <ClCompile Include="Application\Ring\Ring.cpp">
       <Filter>Application\Ring</Filter>
@@ -175,6 +175,12 @@
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp">
       <Filter>Application\GameCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Human\Enemy\Enemy.cpp">
+      <Filter>Application\Human\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Human\Human.cpp">
+      <Filter>Application\Human</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -436,8 +442,8 @@
     <ClInclude Include="Application\Spike\Spike.h">
       <Filter>Application\Spike</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Player\Player.h">
-      <Filter>Application\Player</Filter>
+    <ClInclude Include="Application\Human\Player\Player.h">
+      <Filter>Application\Human\Player</Filter>
     </ClInclude>
     <ClInclude Include="Application\Ring\Ring.h">
       <Filter>Application\Ring</Filter>
@@ -451,6 +457,12 @@
     <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h">
       <Filter>Application\GameCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Human\Human.h">
+      <Filter>Application\Human</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Human\Enemy\Enemy.h">
+      <Filter>Application\Human\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -628,9 +640,6 @@
     <Filter Include="Application\Spike">
       <UniqueIdentifier>{4c0c0ae8-cee3-4019-a9c3-9fbe3ac4b112}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Player">
-      <UniqueIdentifier>{bebc082e-a2ee-4908-bb91-6c01aef3da6a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Course">
       <UniqueIdentifier>{3264a6e5-9ec9-48b2-815c-81c922c87096}</UniqueIdentifier>
     </Filter>
@@ -642,6 +651,15 @@
     </Filter>
     <Filter Include="Application\GameCamera">
       <UniqueIdentifier>{9ac8fca4-15d9-4e94-a6ce-ec88dc902b19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Human">
+      <UniqueIdentifier>{450b6018-5e2e-43ce-9266-49bf2c500a60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Human\Player">
+      <UniqueIdentifier>{bebc082e-a2ee-4908-bb91-6c01aef3da6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Human\Enemy">
+      <UniqueIdentifier>{5c3f6781-4635-4024-bf6a-996598b2e699}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
