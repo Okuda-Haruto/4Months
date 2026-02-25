@@ -24,9 +24,6 @@ void GameScene::Initialize() {
 	defaultCamera_ = Object::GetDefaultCamera();
 	defaultCamera_->SetDebugCamera(debugCamera_);
 
-	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_);
-
 	cameraTransform_ = {
 		{ 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.0f, 0.0f },
@@ -50,6 +47,9 @@ void GameScene::Initialize() {
 	neck_ = std::make_unique<Neck>();
 	neck_->Initialize(player_.get(), directionalLight_);
 
+	gameCamera_ = make_unique<GameCamera>();
+	gameCamera_->Initialize(defaultCamera_, player_.get());
+
 	// コース
 	course_ = std::make_unique<Course>();
 	course_->Initialize();
@@ -71,7 +71,6 @@ void GameScene::Update() {
 	// プレイヤーの更新
 	player_->Update(input_);
 
-	gameCamera_->SetPlayerTransform(player_->GetTransform());
 	gameCamera_->Update();
 
 	neck_->Update();
