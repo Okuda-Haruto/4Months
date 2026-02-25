@@ -42,10 +42,18 @@ void GameScene::Initialize() {
 
 
 	player_ = std::make_unique<Player>();
-	player_->Initialize(directionalLight_);
+	player_->Initialize(Vector3{0,0,0}, directionalLight_);
 
-	neck_ = std::make_unique<Neck>();
-	neck_->Initialize(player_.get(), directionalLight_);
+	enemy_ = std::make_unique<Enemy>();
+	enemy_->Initialize(Vector3{ 0,0,10 }, directionalLight_);
+
+	std::unique_ptr<Neck> neck;
+	neck = std::make_unique<Neck>();
+	neck->Initialize(player_.get(), directionalLight_);
+	necks_.push_back(move(neck));
+	neck = std::make_unique<Neck>();
+	neck->Initialize(enemy_.get(), directionalLight_);
+	necks_.push_back(move(neck));
 
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, player_.get());
@@ -71,9 +79,16 @@ void GameScene::Update() {
 	// プレイヤーの更新
 	player_->Update(input_);
 
+	//敵の更新
+	enemy_->Update();
+
+	//カメラ更新
 	gameCamera_->Update();
 
-	neck_->Update();
+	//首更新
+	for (auto& neck : necks_) {
+		neck->Update();
+	}
 
 	// コース
 	course_->Update();
@@ -100,7 +115,13 @@ void GameScene::Draw() {
 	//描画処理
 	player_->Draw();
 
-	neck_->Draw();
+	//敵の描画
+	enemy_->Draw();
+
+	//首描画
+	for (auto& neck : necks_) {
+		neck->Draw();
+	}
 
 	// コース
 	course_->Draw(directionalLight_);

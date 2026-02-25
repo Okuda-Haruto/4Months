@@ -1,19 +1,9 @@
 #include "Player.h"
 #include <numbers>
 
-void Player::Initialize(const std::shared_ptr<DirectionalLight> directionalLight) {
-	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
-	model_->SetShininess(30.0f);
-	//カメラで使う
-	transform_ = {};
-	transform_.scale = { 1.0f,1.0f,1.0f };
-	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
-	rollRotate_ = IdentityQuaternion();
-	model_->SetTransform(transform_);
-	model_->SetDirectionalLight(directionalLight);
-
-	fallingSpeed_ = 0.0f;
+void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
+	//初期化
+	Human::Initialize(position, directionalLight);
 }
 
 void Player::Update(const std::shared_ptr<Input> input) {
@@ -47,42 +37,25 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 	//現在の向きと次の向きの補完
 	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f);
-	rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
-	//向いている向きに速度を向ける
-	velocity_.translate = Vector3{ 0,0,1 } * rotateMatrix;
-
-	if (!isTurnBack_) {
-		//「下向き速度 * 重力」を落下速度に加える
-		fallingSpeed_ = min(fallingSpeed_ + kGravity_, kMaxFallingSpeed_);
-
-		velocity_.translate *= fallingSpeed_;
-	} else {
-		//「下向き速度 * 重力」を落下速度に加える
-		fallingSpeed_ = min(fallingSpeed_ + kGravity_, kMaxRisingSpeed_);
-
-		velocity_.translate *= fallingSpeed_;
-	}
-	static float speed = 1.0f / 100;
-	transform_.translate += velocity_.translate * speed;
+	//速度などを加算する
+	Human::Update();
 
 #ifdef USE_IMGUI
 	static float rotateY = 0;
 	ImGui::Begin("プレイヤー");
 	ImGui::DragFloat3("速度", &velocity_.translate.x);
-	ImGui::DragFloat("speed", &speed, 0.001f);
 	ImGui::SliderAngle("roll", &rotateY);
 	if (ImGui::Button("折り返し")) {
 		isTurnBack_ = !isTurnBack_;
 	}
 	ImGui::End();
+
+	rollRotate_ = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, rotateY);
 #endif
 
-	rollRotate_ = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } , rotateY);
-
-	model_->SetTransform(transform_);
 }
 
 void Player::Draw() {
-	model_->Draw3D();
+	Human::Draw();
 }
