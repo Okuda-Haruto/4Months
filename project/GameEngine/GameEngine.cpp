@@ -714,6 +714,15 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	std::vector<std::vector<Parts>> parts;
 	std::vector<Offset> offsets = (*objectIterator)->GetOffsets();
 
+	//インスタシング描画とボーンアニメーションの両立は構造体の大きさ故に難しい
+	instancingObjectBoneResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
+	std::vector<Bone> bones = (*objectIterator)->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		instancingObjectBoneData_[instancingObjectIndex_]->matrix[i] = bones[i].finalMatrix;
+	}
+	instancingObjectBoneResource_[instancingObjectIndex_]->Unmap(0, nullptr);
+	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
+
 	//それぞれの情報をまとめる
 	for (objectIterator = objects.begin();
 		objectIterator != objects.end();) {
@@ -730,15 +739,6 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		++numInstance;
 		++objectIterator;
 	}
-
-	//インスタシング描画とボーンアニメーションの両立は構造体の大きさ故に難しい
-	instancingObjectBoneResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
-	std::vector<Bone> bones = (*objectIterator)->GetBones();
-	for (int i = 0; i < bones.size(); i++) {
-		instancingObjectBoneData_[instancingObjectIndex_]->matrix[i] = bones[i].finalMatrix;
-	}
-	instancingObjectBoneResource_[instancingObjectIndex_]->Unmap(0, nullptr);
-	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
 	
 	//パーツごとにインスタシング描画
 	for (uint32_t i = 0; i < numParts; i++) {

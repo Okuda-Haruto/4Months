@@ -94,3 +94,15 @@ void Object::SetShininess(float shininess) {
 		parts_[i].material->shininess = shininess;
 	}
 }
+
+void Object::InstancingDraw3D(std::list<Object*> objects, const shared_ptr<DirectionalLight>& directionalLight, const shared_ptr<PointLight>& pointLight, const shared_ptr<SpotLight>& spotLight) {
+	GameEngine::DrawInstancingObject_3D(objects, directionalLight, pointLight, spotLight);
+}
+
+void Object::InstancingDraw3D(std::vector<Object*> objects, const shared_ptr<DirectionalLight>& directionalLight, const shared_ptr<PointLight>& pointLight, const shared_ptr<SpotLight>& spotLight) {
+	std::list<Object*> objects_;
+	for (Object* object : objects) {
+		objects_.push_back(object);
+	}
+	GameEngine::DrawInstancingObject_3D(objects_, directionalLight, pointLight, spotLight);
+}
