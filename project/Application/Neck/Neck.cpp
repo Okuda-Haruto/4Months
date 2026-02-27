@@ -48,7 +48,9 @@ void Neck::Update() {
 }
 
 void Neck::Draw() {
-	for (auto& object : objects_) {
-		object->Draw3D();
+	std::list<Object*> objects;
+	for (std::unique_ptr<Object>& object : objects_) {
+		objects.push_back(object.get());
 	}
+	Object::InstancingDraw3D(objects, directionalLight_.lock(), nullptr, nullptr);
 }
