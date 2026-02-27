@@ -18,7 +18,7 @@ void DownCamera::Update() {
 	Vector3 nextTranslate = player_->GetTransform().translate;
 	rollRotate_ = Slerp(rollRotate_, player_->GetRollRotate(), 0.1f);
 	//プレイヤーのロール分回転した位置に移動
-	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate) * MakeRotateMatrix(rollRotate_);
+	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
 	transform_.translate = Lerp(transform_.translate, nextTranslate, 0.1f);
 	//常に下を向く
 	Quaternion nextRotate;

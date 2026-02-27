@@ -74,7 +74,7 @@ void GameScene::Initialize() {
 	checkCollision_->Initialize(player_.get(), course_.get());
 
 #ifdef USE_IMGUI
-	isUseDebugCamera_ = true;
+	isUseDebugCamera_ = false;
 #endif
 
 }
