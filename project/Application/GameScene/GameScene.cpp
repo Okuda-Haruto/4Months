@@ -56,6 +56,12 @@ void GameScene::Initialize() {
 	necks_.push_back(move(neck));
 	player_->SetNeck(necks_[1].get());
 
+	//ゴール
+	goal_ = std::make_unique<Goal>();
+	goal_->Initialize(Vector3{ 0,-100,0 },directionalLight_);
+	player_->SetGoal(goal_.get());
+	enemy_->SetGoal(goal_.get());
+
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, player_.get());
 
@@ -91,6 +97,9 @@ void GameScene::Update() {
 		neck->Update();
 	}
 
+	//ゴール更新処理
+	goal_->Update();
+
 	// コース
 	course_->Update();
 
@@ -123,6 +132,9 @@ void GameScene::Draw() {
 	for (auto& neck : necks_) {
 		neck->Draw();
 	}
+
+	//ゴール描画処理
+	goal_->Draw();
 
 	// コース
 	course_->Draw(directionalLight_);

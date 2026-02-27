@@ -2,6 +2,7 @@
 #include "GameEngine.h"
 
 class Neck;
+class Goal;
 
 class Human {
 public:
@@ -22,6 +23,7 @@ public:
 
 	//setter
 	void SetNeck(Neck* neck) { neck_ = neck; }
+	void SetGoal(Goal* goal) { goal_ = goal; }
 
 protected:
 	// モデル
@@ -53,6 +55,9 @@ protected:
 
 	//軸になる可能性のある首
 	Neck* neck_;
+
+	//ゴール
+	Goal* goal_ = nullptr;
 
 	//巻き付き可能距離
 	const float kCanCoilAroundRange_ = 5.0f;
