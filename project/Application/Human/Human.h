@@ -1,6 +1,8 @@
 #pragma once
 #include "GameEngine.h"
 
+class Neck;
+
 class Human {
 public:
 	// 初期化
@@ -14,6 +16,12 @@ public:
 
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
+
+	//ドリフト中か
+	bool isDrifting_ = false;
+
+	//setter
+	void SetNeck(Neck* neck) { neck_ = neck; }
 
 protected:
 	// モデル
@@ -29,10 +37,11 @@ protected:
 	Quaternion rollRotate_;
 
 	//重力加速度
-	const float kGravity_ = 0.098f;
+	const float kGravity_ = 0.02f;
 	//落下最高速度
-	const float kMaxFallingSpeed_ = 8.0f;
-	const float kMaxRisingSpeed_ = 8.0f;
+	const float kMinSpeed_ = 0.05f;
+	const float kMaxFallingSpeed_ = 0.2f;
+	const float kMaxRisingSpeed_ = 0.2f;
 	//落下速度
 	float fallingSpeed_;
 
@@ -41,4 +50,19 @@ protected:
 
 	//頭の進行角度
 	Vector3 headRotate_;
+
+	//軸になる可能性のある首
+	Neck* neck_;
+
+	//巻き付き可能距離
+	const float kCanCoilAroundRange_ = 5.0f;
+	//巻き付く場合の首の中心からの距離
+	const float kCoilAroundRange_ = 4.0f;
+	//巻き付いているか
+	bool isCoilAround_ = false;
+	//現在巻き付いている首の番号
+	int32_t neckCoilAroundIndex_;
+	//線形補間位置
+	float coilAroundDistance_;
+
 };

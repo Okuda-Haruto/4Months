@@ -18,6 +18,8 @@ void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> dire
 	object->SetDirectionalLight(directionalLight_.lock());
 	objects_.push_back(move(object));
 
+	transforms_.push_back(human_->GetTransform());
+
 	lastPoint_ = human_->GetTransform().translate;
 }
 
@@ -38,6 +40,7 @@ void Neck::Update() {
 		object->SetTransform(transform);
 		object->SetDirectionalLight(directionalLight_.lock());
 		objects_.push_back(move(object));
+		transforms_.push_back(transform);
 
 		lastPoint_ = transform.translate;
 		diff = playerTransform.translate - lastPoint_;

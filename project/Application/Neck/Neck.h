@@ -12,6 +12,8 @@ public:
 	void Update();
 	//描画処理
 	void Draw();
+
+	std::vector<SRT> GetTransforms() { return transforms_; }
 private:
 
 	static std::weak_ptr<DirectionalLight> directionalLight_;
@@ -19,6 +21,7 @@ private:
 	//モデル
 	std::weak_ptr<Model> model_;
 	std::vector<std::unique_ptr<Object>> objects_;
+	std::vector<SRT> transforms_;
 	//最終地点
 	Vector3 lastPoint_;
 
