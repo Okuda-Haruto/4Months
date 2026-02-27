@@ -17,6 +17,9 @@ private:
 	// プレイヤーととげの判定
 	void CheckSpike();
 
+	// プレイヤーと壁の判定
+	void CheckWall();
+
 	Player* player_;
 	Course* course_;
 };
