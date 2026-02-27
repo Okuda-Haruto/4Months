@@ -12,6 +12,9 @@ public:
 	// 描画
 	void Draw();
 
+	//Getter
+	bool GetIsTurnBack() { return isTurnBack_; }
+
 private:
 
 };

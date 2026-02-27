@@ -182,6 +182,7 @@
     <ClCompile Include="Application\Human\Human.cpp">
       <Filter>Application\Human</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Goal\Goal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -464,6 +465,7 @@
     <ClInclude Include="Application\Human\Player\Player.h">
       <Filter>Application\Human\Player</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Goal\Goal.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

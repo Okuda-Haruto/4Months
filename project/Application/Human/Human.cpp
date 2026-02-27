@@ -1,5 +1,6 @@
 #include "Human.h"
 #include "Neck/Neck.h"
+#include "Goal/Goal.h"
 #include <Lerp.h>
 #include <Collision.h>
 
@@ -33,6 +34,13 @@ void Human::Update() {
 	//向いている向きに速度を向ける
 	velocity_.translate = Vector3{ 0,0,1 } * rotateMatrix * speed_;
 
+	if (goal_->GetTransform().translate.y > transform_.translate.y) {
+		isTurnBack_ = true;
+	} else {
+		isTurnBack_ = false;
+	}
+
+	//巻き付いているとき
 	if(isCoilAround_ && isDrifting_){
 
 		std::vector<SRT> neckTransforms = neck_->GetTransforms();
@@ -53,9 +61,16 @@ void Human::Update() {
 			transform.translate = neckTransforms[neckCoilAroundIndex_].translate;
 
 			//軸回転後位置
-			Vector3 rotatePos = RotateVector(
-				Vector3{ 0,0,-15 },
-				transform.rotate);
+			Vector3 rotatePos;
+			if (!isTurnBack_) {
+				Vector3 rotatePos = RotateVector(
+					Vector3{ 0,0,-15 },
+					transform.rotate);
+			} else {
+				Vector3 rotatePos = RotateVector(
+					Vector3{ 0,0,15 },
+					transform.rotate);
+			}
 			transform.translate += rotatePos;
 
 		} else {	//そうでないなら首の周囲を回る
@@ -86,12 +101,13 @@ void Human::Update() {
 
 		//向いている向きに速度を向ける
 		velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_ * 5;
-		//velocity_ = {};
-		//transform_.translate = transform.translate;
 
 	} else {
+		//巻き付いていないなら切る
 		isCoilAround_ = false;
 	}
+
+	//とぐろ中(巻き付いていない)
 	if (isDrifting_ && !isCoilAround_) {
 		//落下速度を遅くする
 		fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
@@ -127,16 +143,14 @@ void Human::Update() {
 			}
 		}
 
-	} else if (!isTurnBack_) {
-		//「下向き速度 * 重力」を落下速度に加える
-		fallingSpeed_ = min(fallingSpeed_ + kGravity_, kMaxFallingSpeed_);
-
-		velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
 	} else {
 		//上向き速度 * 重力」を落下速度に加える
 		fallingSpeed_ = min(fallingSpeed_ + kGravity_, kMaxRisingSpeed_);
-
-		velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+		if (!isTurnBack_) {
+			velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
+		} else {
+			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+		}
 	}
 	transform_.translate += velocity_.translate;
 

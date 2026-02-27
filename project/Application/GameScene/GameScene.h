@@ -5,6 +5,7 @@
 #include "Human/Player/Player.h"
 #include "Human/Enemy/Enemy.h"
 #include "Neck/Neck.h"
+#include "Goal/Goal.h"
 #include "Course/Course.h"
 
 #include "CheckCollision/CheckCollision.h"
@@ -38,6 +39,8 @@ private:
 
 	//首
 	std::vector<std::unique_ptr<Neck>> necks_;
+
+	std::unique_ptr<Goal> goal_;
 
 	// コース
 	std::unique_ptr<Course> course_ = nullptr;
