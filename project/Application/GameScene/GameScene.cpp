@@ -45,7 +45,7 @@ void GameScene::Initialize() {
 	player_->Initialize(Vector3{0,0,0}, directionalLight_);
 
 	enemy_ = std::make_unique<Enemy>();
-	enemy_->Initialize(Vector3{ 0,0,10 }, directionalLight_);
+	enemy_->Initialize(Vector3{ 0,-30,10 }, directionalLight_);
 
 	std::unique_ptr<Neck> neck;
 	neck = std::make_unique<Neck>();
@@ -54,6 +54,7 @@ void GameScene::Initialize() {
 	neck = std::make_unique<Neck>();
 	neck->Initialize(enemy_.get(), directionalLight_);
 	necks_.push_back(move(neck));
+	player_->SetNeck(necks_[1].get());
 
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, player_.get());

@@ -24,13 +24,13 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 	//ドリフト
 	if (keyboard.hold[DIK_SPACE]) {
-		//rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } *rotateMatrix, std::numbers::pi_v<float> / 60);
-		if (keyboard.hold[DIK_RIGHT] || keyboard.hold[DIK_D] || pad.Button[PAD_BUTTON_RIGHT].hold) {
-			rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } * rotateMatrix, std::numbers::pi_v<float> / 30);
-		}
-		if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
-			rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } * rotateMatrix, -std::numbers::pi_v<float> / 30);
-		}
+		rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } *rotateMatrix, std::numbers::pi_v<float> / 30);
+		//if (keyboard.hold[DIK_RIGHT] || keyboard.hold[DIK_D] || pad.Button[PAD_BUTTON_RIGHT].hold) {
+		//	rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } * rotateMatrix, std::numbers::pi_v<float> / 30);
+		//}
+		//if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
+		//	rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } * rotateMatrix, -std::numbers::pi_v<float> / 30);
+		//}
 		NextRotate = IdentityQuaternion() * rollRotate_;
 		isDrifting_ = true;
 	} else {
