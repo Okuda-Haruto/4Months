@@ -50,7 +50,7 @@ private:
 	float spawnRadius_ = 30;
 	float spawnHeight_ = 300;
 
-	Vector3 spawnCenter_ = { 0, -60, 0 };
+	Vector3 spawnCenter_ = { 0, -200, 0 };
 
 	// 速度増加量
 	float boostSpeed = 0.05f;
