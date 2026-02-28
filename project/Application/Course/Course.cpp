@@ -158,19 +158,16 @@ Quaternion Course::FromRotationMatrix(const Matrix3x3& m) {
 }
 
 void Course::CreateTubeCourse() {
-	const int sampleCount = 1000;        // 長さ計算用サンプル
+	const int sampleCount = 1000;
 
 	walls_.clear();
 	wallModel_.clear();
 
-	// ==============================
-	// ① 弧長テーブル作成
-	// ==============================
+	// 弧長テーブル
 	std::vector<float> lengthTable(sampleCount);
 	std::vector<float> tTable(sampleCount);
 
 	float totalLength = 0.0f;
-
 	Vector3 prev = GetPoint(0.0f);
 	lengthTable[0] = 0.0f;
 	tTable[0] = 0.0f;
@@ -187,27 +184,17 @@ void Course::CreateTubeCourse() {
 		prev = p;
 	}
 
-	// ==============================
-	// ② 初期フレーム作成
-	// ==============================
 	float t0 = 0.0f;
-
 	Vector3 T0 = Normalize(GetTangent(t0));
-
-	Vector3 upRef =
-		fabs(T0.y) < 0.9f ? Vector3{ 0,1,0 }
-	: Vector3{ 1,0,0 };
-
+	Vector3 upRef = fabs(T0.y) < 0.9f ? Vector3{ 0,1,0 } : Vector3{ 1,0,0 };
 	Vector3 N = Normalize(Cross(upRef, T0));
 	Vector3 B = Normalize(Cross(T0, N));
 
 	Vector3 prevT = T0;
 
-	// ==============================
-	// ③ 等距離で配置
-	// ==============================
+	// 円の位置
 	for (float dist = 0.0f; dist < totalLength; dist += wallSpace_) {
-		// ---- dist → t を探す（線形探索）
+		// dist → t を探す（線形探索）
 		float t = 1.0f;
 
 		for (int i = 1; i < sampleCount; ++i) {
@@ -224,9 +211,7 @@ void Course::CreateTubeCourse() {
 		Vector3 center = GetPoint(t);
 		Vector3 T = Normalize(GetTangent(t));
 
-		// ==============================
 		// Parallel Transport
-		// ==============================
 		Vector3 axis = Cross(prevT, T);
 		float len = Length(axis);
 
@@ -245,9 +230,7 @@ void Course::CreateTubeCourse() {
 
 		prevT = T;
 
-		// ==============================
-		// 円周方向
-		// ==============================
+		// 円状に配置
 		for (int r = 0; r < wallCount_; ++r) {
 			float angle =
 				2.0f * 3.1415926535f * r / wallCount_;
@@ -258,9 +241,9 @@ void Course::CreateTubeCourse() {
 
 			Vector3 wallPos = center + radial * radius_;
 
-			// ---- 回転生成
-			Vector3 forward = -radial;  // Z-前方
-			Vector3 up = T;
+			// 回転生成
+			Vector3 forward = -radial;
+			Vector3 up = Normalize(T);
 			Vector3 right = Normalize(Cross(up, forward));
 			up = Normalize(Cross(forward, right));
 
@@ -271,7 +254,7 @@ void Course::CreateTubeCourse() {
 
 			Quaternion q = FromRotationMatrix(rot);
 
-			// ---- OBB
+			// OBB
 			OBB obb;
 			obb.center = wallPos;
 			obb.size = wallSize_;
@@ -281,7 +264,7 @@ void Course::CreateTubeCourse() {
 
 			walls_.push_back(obb);
 
-			// ---- モデル
+			// モデル
 			SRT transform;
 			transform.scale = wallSize_ * 2.0f;
 			transform.rotate = q;

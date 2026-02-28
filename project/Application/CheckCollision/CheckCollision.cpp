@@ -27,7 +27,10 @@ void CheckCollision::CheckRing() {
 			Vector3 ringCenter2D = { ringCenter.x, ringCenter.z };
 			if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ playerPos.x, playerPos.z }) <= ringRadius) {
 				// 衝突
-				ring->OnCollide();
+				if (!ring->IsCoolDown(player_->GetID())) { // 連続で触れられない
+					player_->OnHitRing(ring->GetBoostAmount());
+					ring->OnCollide(player_->GetID());
+				}
 			}
 		}
 	}
@@ -37,12 +40,13 @@ void CheckCollision::CheckSpike() {
 	for (auto& spike : course_->GetSpikes()) {
 		Sphere spikeSphere = spike->GetCollider();
 		Vector3 playerPos = player_->GetTransform().translate;
-		Sphere playerSphere = {playerPos, 1.0f};
+		Sphere playerSphere = { playerPos, 1.0f };
 
 		// 判定
 		if (IsCollision(spikeSphere, playerSphere)) {
 			// 衝突
 			spike->OnCollide();
+			player_->OnHitSpike();
 		}
 	}
 }
@@ -53,9 +57,12 @@ void CheckCollision::CheckWall() {
 		Sphere playerSphere = { playerPos, 1.0f };
 
 		// 判定
-		if (IsCollision(wall, playerSphere)) {
-			// 衝突
-			course_->OnCollide();
+		if (fabsf(wall.center.y - playerPos.y) >= wall.size.y) { // 高さが合っていたら詳細な判定
+			if (IsCollision(wall, playerSphere)) {
+				// 衝突
+				course_->OnCollide();
+				player_->OnHitWall(wall);
+			}
 		}
 	}
 }

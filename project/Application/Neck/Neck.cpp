@@ -10,7 +10,7 @@ void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> dire
 
 	//共通モデル
 	model_ = ModelManager::GetInstance()->GetModel("resources/Player/Neck", "Neck.obj");
-	
+
 	//初期地点の首
 	std::unique_ptr<Object> object = std::make_unique<Object>();
 	object->Initialize(model_.lock());
@@ -22,30 +22,49 @@ void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> dire
 }
 
 void Neck::Update() {
-	SRT playerTransform = human_->GetTransform();
+	if (!human_->IsRewinding()) {
 
-	//最終地点とプレイヤー位置の距離がある程度あるならオブジェクト生成
-	Vector3 diff = playerTransform.translate - lastPoint_;
-	while (Length(diff) > 1.0f) {
-		//初期地点の首
-		std::unique_ptr<Object> object = std::make_unique<Object>();
-		object->Initialize(model_.lock());
+		SRT playerTransform = human_->GetTransform();
 
-		SRT transform;
-		transform.scale = { 1,1,1 };
-		transform.rotate = LookAt(lastPoint_,playerTransform.translate);
-		transform.translate = lastPoint_ + Normalize(diff);
-		object->SetTransform(transform);
-		object->SetDirectionalLight(directionalLight_.lock());
-		objects_.push_back(move(object));
+		//最終地点とプレイヤー位置の距離がある程度あるならオブジェクト生成
+		Vector3 diff = playerTransform.translate - lastPoint_;
+		while (Length(diff) > 1.0f) {
+			//初期地点の首
+			std::unique_ptr<Object> object = std::make_unique<Object>();
+			object->Initialize(model_.lock());
 
-		lastPoint_ = transform.translate;
-		diff = playerTransform.translate - lastPoint_;
+			SRT transform;
+			transform.scale = { 1,1,1 };
+			transform.rotate = LookAt(lastPoint_, playerTransform.translate);
+			transform.translate = lastPoint_ + Normalize(diff);
+			object->SetTransform(transform);
+			object->SetDirectionalLight(directionalLight_.lock());
+			objects_.push_back(move(object));
+
+			lastPoint_ = transform.translate;
+			diff = playerTransform.translate - lastPoint_;
+		}
+
+	} else {
+		Rewind();
+		lastPoint_ = human_->GetTransform().translate;
 	}
 }
 
 void Neck::Draw() {
 	for (auto& object : objects_) {
 		object->Draw3D();
+	}
+}
+
+void Neck::Rewind() {
+	for (auto it = objects_.begin(); it != objects_.end();) {
+		// 進行方向より先にあれば消す(妥協処理)
+		if ((human_->IsTurnBack() && human_->GetTransform().translate.y < (*it)->GetTransform().translate.y) ||
+			(!human_->IsTurnBack() && human_->GetTransform().translate.y > (*it)->GetTransform().translate.y)) {
+			it = objects_.erase(it);
+		} else {
+			++it;
+		}
 	}
 }

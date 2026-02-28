@@ -12,6 +12,9 @@ public:
 	void Update();
 	//描画処理
 	void Draw();
+
+	// 被弾時
+	void Rewind();
 private:
 
 	static std::weak_ptr<DirectionalLight> directionalLight_;

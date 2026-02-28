@@ -53,8 +53,8 @@ private:
 	float radius_ = 10;
 
 	// 配置物
-	int ringCount_ = 20;
-	int spikeCount_ = 30;
+	int ringCount_ = 8;
+	int spikeCount_ = 10;
 	std::vector<std::unique_ptr<Ring>> rings_;
 	std::vector<std::unique_ptr<Spike>> spikes_;
 

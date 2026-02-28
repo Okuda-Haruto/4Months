@@ -30,7 +30,7 @@ private:
 	Sphere collider_;
 
 	// 出現範囲
-	float spawnRadius_ = 50;
+	float spawnRadius_ = 10;
 	float spawnHeight_ = 100;
 	Vector3 spawnCenter_ = { 0, -60, 0 };
 };
