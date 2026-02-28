@@ -21,7 +21,7 @@ public:
 	void Draw();
 
 	// ヒット時
-	void OnHitRing(const float addSpeed);
+	void OnHitRing(const float addSpeed, const float addMaxSpeed);
 	void OnHitSpike();
 	void OnHitWall(OBB wallObb);
 
@@ -47,7 +47,6 @@ protected:
 	SRT velocity_;
 	//速度
 	float speed_;
-	const float kDefaultSpeed_ = 0.01f;
 
 	//y軸回転
 	Quaternion rollRotate_;
@@ -56,8 +55,10 @@ protected:
 	const float kGravity_ = 0.02f;
 	//落下最高速度
 	const float kMinSpeed_ = 0.05f;
-	const float kMaxFallingSpeed_ = 0.2f;
-	const float kMaxRisingSpeed_ = 0.2f;
+	float maxFallingSpeed_ = 0.2f;
+	float maxRisingSpeed_ = 0.2f;
+	const float kDefaultMaxFallingSpeed_ = 0.2f;
+	const float kDefaultMaxRisingSpeed_ = 0.2f;
 	//落下速度
 	float fallingSpeed_;
 
@@ -69,14 +70,14 @@ protected:
 
 	// 少し前までの位置履歴
 	std::deque<Vector3> history_;
-	const int maxHistory_ = 90;
+	const int maxHistory_ = 60;
 	// 巻き戻しタイマー
 	int rewindTimer_ = 0;
 	const int kRewindTime_ = 30;
 
 	// 無敵時間
 	int invinsibleTimer_;
-	const int invinsibleTimeOnHit_ = 90; // >= maxHistory
+	const int invinsibleTimeOnHit_ = 60; // >= maxHistory
 
 	// id
 	int characterID_ = 0;

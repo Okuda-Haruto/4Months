@@ -28,7 +28,7 @@ void CheckCollision::CheckRing() {
 			if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ playerPos.x, playerPos.z }) <= ringRadius) {
 				// 衝突
 				if (!ring->IsCoolDown(player_->GetID())) { // 連続で触れられない
-					player_->OnHitRing(ring->GetBoostAmount());
+					player_->OnHitRing(ring->GetBoostAmount(),ring->GetBoostMaxAmount());
 					ring->OnCollide(player_->GetID());
 				}
 			}
@@ -61,7 +61,7 @@ void CheckCollision::CheckWall() {
 			if (IsCollision(wall, playerSphere)) {
 				// 衝突
 				course_->OnCollide();
-				player_->OnHitWall(wall);
+				//player_->OnHitWall(wall);
 			}
 		}
 	}
