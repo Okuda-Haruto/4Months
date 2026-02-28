@@ -64,17 +64,23 @@ void Human::Update() {
 				transform.translate = neckTransforms[neckCoilAroundIndex_].translate;
 
 				//軸回転後位置
-				Vector3 rotatePos;
 				if (!isTurnBack_) {
 					Vector3 rotatePos = RotateVector(
 						Vector3{ 0,0,-15 },
 						transform.rotate);
+					transform.translate += rotatePos;
+					if (transform.translate.y < neckTransforms[neckCoilAroundIndex_].translate.y) {
+						isCoilAround_ = false;
+					}
 				} else {
 					Vector3 rotatePos = RotateVector(
 						Vector3{ 0,0,15 },
 						transform.rotate);
+					transform.translate += rotatePos;
+					if (transform.translate.y > neckTransforms[neckCoilAroundIndex_].translate.y) {
+						isCoilAround_ = false;
+					}
 				}
-				transform.translate += rotatePos;
 
 			} else {	//そうでないなら首の周囲を回る
 

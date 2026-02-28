@@ -1,4 +1,6 @@
 #include "Enemy.h"
+#include <Collision.h>
+
 #include <numbers>
 #include <algorithm>
 
@@ -49,17 +51,38 @@ void Enemy::Update() {
 			//目標地点に向かう距離
 			Vector3 toTarget = rings_[index]->GetColliderCenter() - transform_.translate;
 
-			if (toTarget.x > 0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+			//半直線
+			Ray ray;
+			ray.origin = transform_.translate;
+			ray.diff = Normalize(toTarget);
+
+			bool isRayCollision = false;
+			//全障害物と判定
+			for (int i = 0; i < spikes_.size(); i++) {
+				if (IsCollision(spikes_[i]->GetCollider(), ray)) {
+					//真下だとぶつかりそうな場合
+					if (fabsf(ray.diff.x) < 0.5f && fabsf(ray.diff.z) < 0.1f) {
+						toTarget = Vector3(0.0f, transform_.translate.y + 10.0f, 0.0f) - transform_.translate;
+					} else {
+						isRayCollision = true;
+					}
+					break;
+				}
 			}
-			if (toTarget.x < -0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
-			}
-			if (toTarget.z > 0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
-			}
-			if (toTarget.z < -0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+
+			if (!isRayCollision) {
+				if (toTarget.x > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.x < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
 			}
 		}
 
@@ -68,7 +91,7 @@ void Enemy::Update() {
 		float length = -1;
 
 		//近いリングを参照
-		for (int i = int(rings_.size()) - 1; i >= 0; i--) {
+		for (int i = 0; i < rings_.size(); i++) {
 			//リング位置
 			Vector3 center = rings_[i]->GetColliderCenter();
 
@@ -91,17 +114,38 @@ void Enemy::Update() {
 			//目標地点に向かう距離
 			Vector3 toTarget = rings_[index]->GetColliderCenter() - transform_.translate;
 
-			if (toTarget.x > 0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+			//半直線
+			Ray ray;
+			ray.origin = transform_.translate;
+			ray.diff = Normalize(toTarget);
+
+			bool isRayCollision = false;
+			//全障害物と判定
+			for (int i = 0; i < spikes_.size(); i++) {
+				if (IsCollision(spikes_[i]->GetCollider(),ray)) {
+					//真下だとぶつかりそうな場合
+					if (fabsf(ray.diff.x) < 0.5f && fabsf(ray.diff.z) < 0.1f) {
+						toTarget = Vector3(0.0f, transform_.translate.y + 10.0f, 0.0f) - transform_.translate;
+					} else {
+						isRayCollision = true;
+					}
+					break;
+				}
 			}
-			if (toTarget.x < -0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
-			}
-			if (toTarget.z > 0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
-			}
-			if (toTarget.z < -0.2f) {
-				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+
+			if (!isRayCollision) {
+				if (toTarget.x > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.x < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
 			}
 		}
 	}

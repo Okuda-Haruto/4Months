@@ -54,7 +54,7 @@ private:
 
 	// 配置物
 	int ringCount_ = 10;
-	int spikeCount_ = 10;
+	int spikeCount_ = 30;
 	std::vector<std::unique_ptr<Ring>> rings_;
 	std::vector<std::unique_ptr<Spike>> spikes_;
 
