@@ -56,6 +56,7 @@ void GameScene::Initialize() {
 	enemy_ = std::make_unique<Enemy>();
 	enemy_->Initialize(Vector3{ 0,100,10 }, directionalLight_);
 	enemy_->SetRings(course_->GetRings());
+	enemy_->SetSpikes(course_->GetSpikes());
 	enemy_->SetGoal(goal_.get());
 
 	//首

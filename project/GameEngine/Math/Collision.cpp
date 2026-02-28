@@ -44,6 +44,40 @@ bool IsCollision(const Sphere& sphere, const Plane& plane) {
 	return fabsf(k) <= sphere.radius;
 }
 
+
+
+//球と半直線の衝突
+bool IsCollision(const Sphere& sphere,const Ray& ray) {
+	Vector3 diff = ray.origin - sphere.center;
+
+	float a = Dot(ray.diff, ray.diff);
+	float b = 2.0f * Dot(diff, ray.diff);
+	float c = Dot(diff, diff) - powf(sphere.radius,2);
+
+	float discriminant = powf(b,2) - 4.0f * a * c;
+
+	if (discriminant < 0.0f) {
+		return false;
+	}
+
+	float sqrtD = std::sqrt(discriminant);
+
+	float t1 = (-b - sqrtD) / (2.0f * a);
+	float t2 = (-b + sqrtD) / (2.0f * a);
+
+	if (t1 >= 0.0f) {
+		return true;
+	}
+
+	if (t2 >= 0.0f) {
+		return true;
+	}
+
+	return false;
+}
+
+
+
 //直線と平面の衝突
 bool IsCollision(const Line& line, const Plane& plane) {
 	if ((plane.distance - Dot(line.origin, plane.normal)) == 0.0f) {

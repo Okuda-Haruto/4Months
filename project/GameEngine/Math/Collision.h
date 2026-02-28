@@ -18,6 +18,10 @@ bool IsCollision(const Sphere& s1, const Sphere& s2);
 bool IsCollision(const Sphere& sphere, const Vector3& point);
 //球と平面の衝突
 bool IsCollision(const Sphere& sphere, const Plane& plane);
+
+//球と半直線の衝突
+bool IsCollision(const Sphere& sphere, const Ray& ray);
+
 //直線と平面の衝突
 bool IsCollision(const Line& line, const Plane& plane);
 //半直線と平面の衝突
