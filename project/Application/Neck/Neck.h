@@ -13,6 +13,9 @@ public:
 	//描画処理
 	void Draw();
 
+	// 被弾時
+	void Rewind();
+  
 	std::vector<SRT> GetTransforms() { return transforms_; }
 private:
 

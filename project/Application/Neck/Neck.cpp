@@ -10,7 +10,7 @@ void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> dire
 
 	//共通モデル
 	model_ = ModelManager::GetInstance()->GetModel("resources/Player/Neck", "Neck.obj");
-	
+
 	//初期地点の首
 	std::unique_ptr<Object> object = std::make_unique<Object>();
 	object->Initialize(model_.lock());
@@ -24,6 +24,8 @@ void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> dire
 }
 
 void Neck::Update() {
+	if (!human_->IsRewinding()) {
+
 	SRT playerTransform = human_->GetTransform();
 
 	//最終地点とプレイヤー位置の距離がある程度あるならオブジェクト生成
@@ -44,7 +46,11 @@ void Neck::Update() {
 
 		lastPoint_ = transform.translate;
 		diff = playerTransform.translate - lastPoint_;
-	}
+  }
+    
+    } else {
+		Rewind();
+		lastPoint_ = human_->GetTransform().translate;
 }
 
 void Neck::Draw() {
@@ -53,4 +59,16 @@ void Neck::Draw() {
 		objects.push_back(object.get());
 	}
 	Object::InstancingDraw3D(objects, directionalLight_.lock(), nullptr, nullptr);
+}
+
+  void Neck::Rewind() {
+	for (auto it = objects_.begin(); it != objects_.end();) {
+		// 進行方向より先にあれば消す(妥協処理)
+		if ((human_->IsTurnBack() && human_->GetTransform().translate.y < (*it)->GetTransform().translate.y) ||
+			(!human_->IsTurnBack() && human_->GetTransform().translate.y > (*it)->GetTransform().translate.y)) {
+			it = objects_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
