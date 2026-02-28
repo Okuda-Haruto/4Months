@@ -20,6 +20,12 @@ public:
 	float GetColliderRadius() { return colliderRadius_; }
 	float GetColliderHeight() { return colliderHeight_; }
 
+	//ソート用
+	bool operator<(const Ring& another) const
+	{
+		return transform_.translate.y < another.transform_.translate.y;
+	};
+
 private:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
@@ -37,8 +43,8 @@ private:
 	float radiusMax_ = 3.0f;
 
 	// 出現範囲
-	float spawnRadius_ = 50;
-	float spawnHeight_ = 100;
+	float spawnRadius_ = 30;
+	float spawnHeight_ = 300;
 	Vector3 spawnCenter_ = { 0, -60, 0 };
 };
 

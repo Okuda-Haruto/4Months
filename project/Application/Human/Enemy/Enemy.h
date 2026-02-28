@@ -1,5 +1,6 @@
 #pragma once
 #include "Human/Human.h"
+#include "Course/Course.h"
 
 class Enemy : public Human {
 public:
@@ -12,6 +13,13 @@ public:
 	// 描画
 	void Draw();
 
+	//setter
+	void SetRings(std::vector<Ring*> rings) { rings_ = rings; }
+	void SetSpikes(std::vector<Spike*> spikes) { spikes_ = spikes; }
+
 private:
+	//コース
+	std::vector<Ring*> rings_;
+	std::vector<Spike*> spikes_;
 
 };
