@@ -43,7 +43,7 @@ private:
 	float colliderHeight_ = 0.5f;
 
 	// サイズ範囲
-	float radiusMin_ = 0.5f;
+	float radiusMin_ = 1.0f;
 	float radiusMax_ = 3.0f;
 
 	// 出現範囲

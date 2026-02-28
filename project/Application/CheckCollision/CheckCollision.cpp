@@ -24,7 +24,6 @@ void CheckCollision::CheckRing() {
 		if (fabsf(ringCenter.y - playerPos.y) <= ringHeight / 2.0f) {
 			// 横の判定
 			float ringRadius = ring->GetColliderRadius();
-			Vector3 ringCenter2D = { ringCenter.x, ringCenter.z };
 			if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ playerPos.x, playerPos.z }) <= ringRadius) {
 				// 衝突
 				if (!ring->IsCoolDown(player_->GetID())) { // 連続で触れられない
