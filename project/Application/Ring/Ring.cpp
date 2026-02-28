@@ -2,7 +2,7 @@
 
 void Ring::Initialize() {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Ring", "Ring.obj"));
 	model_->SetShininess(40.0f);
 	Vector3 spawnPos = {
 		spawnCenter_.x + GameEngine::randomFloat(-spawnRadius_ / 2, spawnRadius_ / 2),
