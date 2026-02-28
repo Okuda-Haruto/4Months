@@ -40,13 +40,25 @@ void GameScene::Initialize() {
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
+	// コース
+	course_ = std::make_unique<Course>();
+	course_->Initialize();
+	//ゴール
+	goal_ = std::make_unique<Goal>();
+	goal_->Initialize(Vector3{ 0,-380,0 }, directionalLight_);
 
+	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3{0,0,0}, directionalLight_);
+	player_->Initialize(Vector3{0,100,0}, directionalLight_);
+	player_->SetGoal(goal_.get());
 
+	//相手
 	enemy_ = std::make_unique<Enemy>();
-	enemy_->Initialize(Vector3{ 0,0,10 }, directionalLight_);
+	enemy_->Initialize(Vector3{ 0,100,10 }, directionalLight_);
+	enemy_->SetRings(course_->GetRings());
+	enemy_->SetGoal(goal_.get());
 
+	//首
 	std::unique_ptr<Neck> neck;
 	neck = std::make_unique<Neck>();
 	neck->Initialize(player_.get(), directionalLight_);
@@ -54,20 +66,19 @@ void GameScene::Initialize() {
 	neck = std::make_unique<Neck>();
 	neck->Initialize(enemy_.get(), directionalLight_);
 	necks_.push_back(move(neck));
+	player_->SetNeck(necks_[1].get());
 
+	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, player_.get());
 
-	// コース
-	course_ = std::make_unique<Course>();
-	course_->Initialize();
 
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();
 	checkCollision_->Initialize(player_.get(), course_.get());
 
 #ifdef USE_IMGUI
-	isUseDebugCamera_ = true;
+	isUseDebugCamera_ = false;
 #endif
 
 }
@@ -89,6 +100,9 @@ void GameScene::Update() {
 	for (auto& neck : necks_) {
 		neck->Update();
 	}
+
+	//ゴール更新処理
+	goal_->Update();
 
 	// コース
 	course_->Update();
@@ -122,6 +136,9 @@ void GameScene::Draw() {
 	for (auto& neck : necks_) {
 		neck->Draw();
 	}
+
+	//ゴール描画処理
+	goal_->Draw();
 
 	// コース
 	course_->Draw(directionalLight_);

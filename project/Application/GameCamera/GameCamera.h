@@ -20,7 +20,7 @@ public:
 class DownCamera : public BaseCamera {
 private:
 	//回転がない場合のカメラ座標
-	const Vector3 kCameraPos = { 0, 20, 3 };
+	const Vector3 kCameraPos = { 0, 3, -20 };
 public:
 	//初期化
 	void Initialize(Player* player) override;

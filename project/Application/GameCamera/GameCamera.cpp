@@ -10,17 +10,23 @@ void DownCamera::Initialize(Player* player) {
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	rollRotate_ = player_->GetRollRotate();
 	transform_.rotate = transform_.rotate * rollRotate_;
+	transform_.translate = player_->GetTransform().translate;
 }
 
 void DownCamera::Update() {
 	//プレイヤー座標を基にする
-	transform_.translate = player_->GetTransform().translate;
+	Vector3 nextTranslate = player_->GetTransform().translate;
 	rollRotate_ = Slerp(rollRotate_, player_->GetRollRotate(), 0.1f);
 	//プレイヤーのロール分回転した位置に移動
-	transform_.translate += kCameraPos * MakeRotateMatrix(rollRotate_);
+	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
+	transform_.translate = Lerp(transform_.translate, nextTranslate, 0.1f);
 	//常に下を向く
 	Quaternion nextRotate;
-	nextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	if (!player_->GetIsTurnBack()) {
+		nextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	} else {
+		nextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
+	}
 	nextRotate = nextRotate * rollRotate_;
 
 	//現在の向きと次の向きの補完

@@ -6,6 +6,9 @@
 static int id_ = 0;
 const int kMaxCharacters = 4;
 
+class Neck;
+class Goal;
+
 class Human {
 public:
 	// 初期化
@@ -28,6 +31,13 @@ public:
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsRewinding() { return rewindTimer_ > 0; }
 
+	//ドリフト中か
+	bool isDrifting_ = false;
+
+	//setter
+	void SetNeck(Neck* neck) { neck_ = neck; }
+	void SetGoal(Goal* goal) { goal_ = goal; }
+
 protected:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
@@ -43,10 +53,11 @@ protected:
 	Quaternion rollRotate_;
 
 	//重力加速度
-	const float kGravity_ = 0.098f;
+	const float kGravity_ = 0.02f;
 	//落下最高速度
-	const float kMaxFallingSpeed_ = 8.0f;
-	const float kMaxRisingSpeed_ = 8.0f;
+	const float kMinSpeed_ = 0.05f;
+	const float kMaxFallingSpeed_ = 0.2f;
+	const float kMaxRisingSpeed_ = 0.2f;
 	//落下速度
 	float fallingSpeed_;
 
@@ -69,4 +80,21 @@ protected:
 
 	// id
 	int characterID_ = 0;
+	//軸になる可能性のある首
+	Neck* neck_;
+
+	//ゴール
+	Goal* goal_ = nullptr;
+
+	//巻き付き可能距離
+	const float kCanCoilAroundRange_ = 5.0f;
+	//巻き付く場合の首の中心からの距離
+	const float kCoilAroundRange_ = 4.0f;
+	//巻き付いているか
+	bool isCoilAround_ = false;
+	//現在巻き付いている首の番号
+	int32_t neckCoilAroundIndex_;
+	//線形補間位置
+	float coilAroundDistance_;
+
 };

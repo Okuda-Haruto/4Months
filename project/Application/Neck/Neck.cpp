@@ -18,46 +18,50 @@ void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> dire
 	object->SetDirectionalLight(directionalLight_.lock());
 	objects_.push_back(move(object));
 
+	transforms_.push_back(human_->GetTransform());
+
 	lastPoint_ = human_->GetTransform().translate;
 }
 
 void Neck::Update() {
 	if (!human_->IsRewinding()) {
 
-		SRT playerTransform = human_->GetTransform();
+	SRT playerTransform = human_->GetTransform();
 
-		//最終地点とプレイヤー位置の距離がある程度あるならオブジェクト生成
-		Vector3 diff = playerTransform.translate - lastPoint_;
-		while (Length(diff) > 1.0f) {
-			//初期地点の首
-			std::unique_ptr<Object> object = std::make_unique<Object>();
-			object->Initialize(model_.lock());
+	//最終地点とプレイヤー位置の距離がある程度あるならオブジェクト生成
+	Vector3 diff = playerTransform.translate - lastPoint_;
+	while (Length(diff) > 1.0f) {
+		//初期地点の首
+		std::unique_ptr<Object> object = std::make_unique<Object>();
+		object->Initialize(model_.lock());
 
-			SRT transform;
-			transform.scale = { 1,1,1 };
-			transform.rotate = LookAt(lastPoint_, playerTransform.translate);
-			transform.translate = lastPoint_ + Normalize(diff);
-			object->SetTransform(transform);
-			object->SetDirectionalLight(directionalLight_.lock());
-			objects_.push_back(move(object));
+		SRT transform;
+		transform.scale = { 1,1,1 };
+		transform.rotate = LookAt(lastPoint_,playerTransform.translate);
+		transform.translate = lastPoint_ + Normalize(diff);
+		object->SetTransform(transform);
+		object->SetDirectionalLight(directionalLight_.lock());
+		objects_.push_back(move(object));
+		transforms_.push_back(transform);
 
-			lastPoint_ = transform.translate;
-			diff = playerTransform.translate - lastPoint_;
-		}
-
-	} else {
+		lastPoint_ = transform.translate;
+		diff = playerTransform.translate - lastPoint_;
+  }
+    
+    } else {
 		Rewind();
 		lastPoint_ = human_->GetTransform().translate;
-	}
 }
 
 void Neck::Draw() {
-	for (auto& object : objects_) {
-		object->Draw3D();
+	std::list<Object*> objects;
+	for (std::unique_ptr<Object>& object : objects_) {
+		objects.push_back(object.get());
 	}
+	Object::InstancingDraw3D(objects, directionalLight_.lock(), nullptr, nullptr);
 }
 
-void Neck::Rewind() {
+  void Neck::Rewind() {
 	for (auto it = objects_.begin(); it != objects_.end();) {
 		// 進行方向より先にあれば消す(妥協処理)
 		if ((human_->IsTurnBack() && human_->GetTransform().translate.y < (*it)->GetTransform().translate.y) ||

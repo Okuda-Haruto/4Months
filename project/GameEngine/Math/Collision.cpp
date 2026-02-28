@@ -30,6 +30,13 @@ bool IsCollision(const Sphere& s1, const Sphere& s2) {
 	return distance <= s1.radius + s2.radius;
 }
 
+//球と点の衝突
+bool IsCollision(const Sphere& sphere, const Vector3& point) {
+	float distance = Length(point - sphere.center);
+
+	return distance <= sphere.radius;
+}
+
 //球と平面の衝突
 bool IsCollision(const Sphere& sphere, const Plane& plane) {
 	float k = Dot(plane.normal, sphere.center) - plane.distance;

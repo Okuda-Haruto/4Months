@@ -115,4 +115,7 @@ public:
 
 	//ボーン
 	std::vector<Bone> GetBones() { return bones_; }
+
+	static void InstancingDraw3D(std::list<Object*> objects, const shared_ptr<DirectionalLight>& directionalLight, const shared_ptr<PointLight>& pointLight, const shared_ptr<SpotLight>& spotLight);
+	static void InstancingDraw3D(std::vector<Object*> objects, const shared_ptr<DirectionalLight>& directionalLight, const shared_ptr<PointLight>& pointLight, const shared_ptr<SpotLight>& spotLight);
 };

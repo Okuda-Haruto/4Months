@@ -25,6 +25,12 @@ void Course::Initialize() {
 	for (auto& ring : rings_) {
 		ring->Initialize();
 	}
+	//ソート
+	std::sort(rings_.begin(), rings_.end(),
+		[](const auto& a, const auto& b)
+		{
+			return *a < *b;
+		});
 
 	for (auto& spike : spikes_) {
 		spike->Initialize();
@@ -66,10 +72,11 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		spike->Draw(directionalLight);
 	}
 
-	for (auto& model : wallModel_) {
-		model->SetDirectionalLight(directionalLight);
-		model->Draw3D();
+	std::list<Object*> objects;
+	for (std::unique_ptr<Object>& model : wallModel_) {
+		objects.push_back(model.get());
 	}
+	//Object::InstancingDraw3D(objects, directionalLight, nullptr, nullptr);
 }
 
 void Course::OnCollide() {
