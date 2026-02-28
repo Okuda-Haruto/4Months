@@ -49,16 +49,16 @@ void Enemy::Update() {
 			//目標地点に向かう距離
 			Vector3 toTarget = rings_[index]->GetColliderCenter() - transform_.translate;
 
-			if (toTarget.x > 0.0f) {
+			if (toTarget.x > 0.2f) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
 			}
-			if (toTarget.x < 0.0f) {
+			if (toTarget.x < -0.2f) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
 			}
-			if (toTarget.z > 0.0f) {
+			if (toTarget.z > 0.2f) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
 			}
-			if (toTarget.z < 0.0f) {
+			if (toTarget.z < -0.2f) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
 			}
 		}
