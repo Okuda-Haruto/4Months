@@ -20,7 +20,8 @@ public:
 	Vector3 GetColliderCenter() { return colliderCenter_; }
 	float GetColliderRadius() { return colliderRadius_; }
 	float GetColliderHeight() { return colliderHeight_; }
-	float GetBoostAmount() { return boostAmount_; }
+	float GetBoostAmount() { return boostSpeed; }
+	float GetBoostMaxAmount() { return boostMaxSpeed; }
 	bool IsCoolDown(const int id);
 
 	//ソート用
@@ -52,7 +53,8 @@ private:
 	Vector3 spawnCenter_ = { 0, -60, 0 };
 
 	// 速度増加量
-	float boostAmount_ = 0.01f;
+	float boostSpeed = 0.05f;
+	float boostMaxSpeed = 0.01f;
 	// クールダウン
 	const int boostCoolDown_ = 20;
 

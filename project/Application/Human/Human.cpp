@@ -148,7 +148,7 @@ void Human::Update() {
 
 		} else {
 			//上向き速度 * 重力」を落下速度に加える
-			fallingSpeed_ = min(fallingSpeed_ + kGravity_, kMaxRisingSpeed_);
+			fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
 			if (!isTurnBack_) {
 				velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
 			} else {
@@ -187,14 +187,18 @@ void Human::Draw() {
 	model_->Draw3D();
 }
 
-void Human::OnHitRing(const float addSpeed) {
+void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
 	speed_ += addSpeed;
+	maxRisingSpeed_ += addMaxSpeed;
+	maxFallingSpeed_ += addMaxSpeed;
 }
 
 void Human::OnHitSpike() {
 	if (invinsibleTimer_ <= 0) {
 		rewindTimer_ = kRewindTime_;
-		speed_ = kDefaultSpeed_;
+		speed_ = kMinSpeed_;
+		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
+		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 		invinsibleTimer_ = invinsibleTimeOnHit_;
 	}
 }
