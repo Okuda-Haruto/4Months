@@ -172,7 +172,6 @@
     <ClCompile Include="Application\Neck\Neck.cpp">
       <Filter>Application\Neck</Filter>
     </ClCompile>
-    <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp">
       <Filter>Application\GameCamera</Filter>
     </ClCompile>
@@ -183,7 +182,12 @@
       <Filter>Application\Human</Filter>
     </ClCompile>
     <ClCompile Include="Application\Goal\Goal.cpp" />
-    <ClCompile Include="Application\HUD\HUD.cpp" />
+    <ClCompile Include="Application\HUD\HUD.cpp">
+      <Filter>Application\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\CheckCollision\CheckCollision.cpp">
+      <Filter>Application\CheckCollision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -453,7 +457,6 @@
     <ClInclude Include="Application\Neck\Neck.h">
       <Filter>Application\Neck</Filter>
     </ClInclude>
-    <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h">
       <Filter>Application\GameCamera</Filter>
     </ClInclude>
@@ -467,7 +470,12 @@
       <Filter>Application\Human\Player</Filter>
     </ClInclude>
     <ClInclude Include="Application\Goal\Goal.h" />
-    <ClInclude Include="Application\HUD\HUD.h" />
+    <ClInclude Include="Application\HUD\HUD.h">
+      <Filter>Application\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\CheckCollision\CheckCollision.h">
+      <Filter>Application\CheckCollision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -664,6 +672,12 @@
     </Filter>
     <Filter Include="Application\Human\Enemy">
       <UniqueIdentifier>{5c3f6781-4635-4024-bf6a-996598b2e699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\HUD">
+      <UniqueIdentifier>{28a38b11-8e30-4969-9ef1-098658712a26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\CheckCollision">
+      <UniqueIdentifier>{364d503c-ae48-4a9f-a5b5-662661dca4bb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
