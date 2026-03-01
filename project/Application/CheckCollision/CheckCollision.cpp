@@ -1,17 +1,20 @@
 #include "CheckCollision.h"
 #include "Human/Player/Player.h"
 #include "Course/Course.h"
+#include "Goal/Goal.h"
 #include "Math/Collision.h"
 
-void CheckCollision::Initialize(Player* player, Course* course) {
+void CheckCollision::Initialize(Player* player, Course* course, Goal* goal) {
 	player_ = player;
 	course_ = course;
+	goal_ = goal;
 }
 
 void CheckCollision::Update() {
 	CheckRing();
 	CheckSpike();
 	CheckWall();
+	CheckGoal();
 }
 
 void CheckCollision::CheckRing() {
@@ -63,5 +66,18 @@ void CheckCollision::CheckWall() {
 				//player_->OnHitWall(wall);
 			}
 		}
+	}
+}
+
+void CheckCollision::CheckGoal() {
+	Vector3 playerPos = player_->GetTransform().translate;
+	Sphere playerSphere = { playerPos, 1.0f };
+	Vector3 goalPos = goal_->GetTransform().translate;
+	Sphere goalSphere = { goalPos, 2.0f };
+
+	// 判定
+	if (IsCollision(goalSphere, playerSphere)) {
+		// 衝突
+		goal_->SetHuman(player_);
 	}
 }

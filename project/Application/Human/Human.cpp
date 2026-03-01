@@ -37,7 +37,7 @@ void Human::Update() {
 		//向いている向きに速度を向ける
 		velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
 
-		if (goal_->GetTransform().translate.y > transform_.translate.y) {
+		if ((goal_->GetTransform().translate.y > transform_.translate.y) || goal_->GetHuman() == this) {
 			isTurnBack_ = true;
 		} else {
 			isTurnBack_ = false;
@@ -154,12 +154,12 @@ void Human::Update() {
 
 		} else {
 			//上向き速度 * 重力」を落下速度に加える
-			fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
-			if (!isTurnBack_) {
-				velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
+			if (isTurnBack_) {
+				fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
 			} else {
-				velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+				fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 			}
+			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 		}
 		transform_.translate += velocity_.translate;
 

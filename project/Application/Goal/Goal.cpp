@@ -11,7 +11,7 @@ void Goal::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> 
 	object_->SetShininess(30.0f);
 
 	transform_ = {};
-	transform_.scale = { 1.0f,1.0f,1.0f };
+	transform_.scale = { 2.0f,2.0f,2.0f };
 	transform_.translate = position;
 	object_->SetTransform(transform_);
 	object_->SetDirectionalLight(directionalLight);
@@ -23,6 +23,16 @@ void Goal::Update() {
 	ImGui::DragFloat3("Translate", &transform_.translate.x);
 	ImGui::End();
 #endif // USE_IMGUI
+
+	//誰かが取得済みなら追従する
+	if (human_) {
+		SRT transform = human_->GetTransform();
+		//頭からの距離
+		Vector3 haveLength = Vector3(0, 0, 2.2f) * MakeRotateMatrix(transform.rotate);
+		transform.translate += haveLength;
+		transform.scale = transform_.scale;
+		transform_ = transform;
+	}
 
 	object_->SetTransform(transform_);
 }

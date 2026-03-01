@@ -2,11 +2,12 @@
 
 class Player;
 class Course;
+class Goal;
 
 class CheckCollision {
 public:
 	// 初期化
-	void Initialize(Player* player, Course* course);
+	void Initialize(Player* player, Course* course, Goal* goal);
 	// 更新
 	void Update();
 
@@ -20,7 +21,11 @@ private:
 	// プレイヤーと壁の判定
 	void CheckWall();
 
+	// プレイヤーと宝箱の判定
+	void CheckGoal();
+
 	Player* player_;
 	Course* course_;
+	Goal* goal_;
 };
 

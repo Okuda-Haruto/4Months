@@ -1,4 +1,5 @@
 #pragma once
+#include "Human/Human.h"
 #include <Object/Object.h>
 
 #include <memory>
@@ -10,6 +11,9 @@ private:
 
 	//トランスフォーム
 	SRT transform_;
+
+	//取得しているプレイヤー
+	Human* human_;
 public:
 	// 初期化
 	void Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight);
@@ -20,5 +24,10 @@ public:
 	// 描画
 	void Draw();
 
+	//setter
+	void SetHuman(Human* human) { human_ = human; }
+
+	//getter
 	SRT GetTransform() { return transform_; }
+	Human* GetHuman() { return human_; }
 };

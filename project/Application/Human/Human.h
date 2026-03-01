@@ -52,7 +52,7 @@ protected:
 	Quaternion rollRotate_;
 
 	//重力加速度
-	const float kGravity_ = 0.02f;
+	const float kGravity_ = 0.01f;
 	//落下最高速度
 	const float kMinSpeed_ = 0.05f;
 	float maxFallingSpeed_ = 0.2f;

@@ -14,7 +14,7 @@ void Enemy::Update() {
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;
 
-	if (!isTurnBack_) {
+	if (fallingSpeed_ < 0.0f) {
 		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	} else {
 		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
@@ -23,7 +23,7 @@ void Enemy::Update() {
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
-	if (!isTurnBack_) {
+	if (fallingSpeed_ < 0.0f) {
 		int index = -1;
 		float length = -1;
 
