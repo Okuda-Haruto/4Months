@@ -50,7 +50,7 @@ private:
 
 public:
 	//初期化
-	void Initialize();
+	void Initialize(std::shared_ptr<Input> input);
 	//更新
 	void Update();
 	//描画

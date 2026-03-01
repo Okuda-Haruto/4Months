@@ -9,10 +9,9 @@
 
 using namespace std;
 
-void GameScene::Initialize() {
+void GameScene::Initialize(std::shared_ptr<Input> input) {
 
-	input_ = make_shared<Input>();
-	input_->Initialize(GameEngine::GetWindowsAPI());
+	input_ = input;
 
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/sphere", "sphere.obj");
 
@@ -85,8 +84,6 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	//入力処理
-	input_->Update();
 
 	// プレイヤーの更新
 	player_->Update(input_);
