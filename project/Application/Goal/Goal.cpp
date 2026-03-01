@@ -7,7 +7,7 @@
 
 void Goal::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
 	object_ = make_unique<Object>();
-	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
+	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/Goal", "Goal.obj"));
 	object_->SetShininess(30.0f);
 
 	transform_ = {};
