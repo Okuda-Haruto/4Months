@@ -202,7 +202,7 @@ void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
 void Human::OnHitSpike() {
 	if (invinsibleTimer_ <= 0) {
 		rewindTimer_ = kRewindTime_;
-		speed_ = kMinSpeed_;
+		speed_ = 0.2f;
 		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
 		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 		invinsibleTimer_ = invinsibleTimeOnHit_;
