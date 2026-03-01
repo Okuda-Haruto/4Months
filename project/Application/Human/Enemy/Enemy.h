@@ -22,4 +22,5 @@ private:
 	std::vector<Ring*> rings_;
 	std::vector<Spike*> spikes_;
 
+
 };

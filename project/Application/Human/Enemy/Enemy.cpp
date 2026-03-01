@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include <Collision.h>
+#include "Goal/Goal.h"
 
 #include <numbers>
 #include <algorithm>
@@ -14,7 +15,7 @@ void Enemy::Update() {
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;
 
-	if (!isTurnBack_) {
+	if (fallingSpeed_ < 0.0f) {
 		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	} else {
 		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
@@ -23,11 +24,28 @@ void Enemy::Update() {
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
-	if (!isTurnBack_) {
-		int index = -1;
+	if (fallingSpeed_ < 0.0f) {
+
+		//先にゴールが近いか判定
+		bool isNearGoal = false;
 		float length = -1;
 
+		if (goal_->GetHuman() != this) {
+			Sphere nearSpehre;
+			nearSpehre.center = transform_.translate;
+			nearSpehre.radius = 50.0f;
+			if (IsCollision(nearSpehre, goal_->GetTransform().translate)) {
+				//目標地点に向かう距離
+				Vector3 toTarget = goal_->GetTransform().translate - transform_.translate;
+
+				isNearGoal = true;
+				length = Length(toTarget);
+			}
+		}
+
 		//近いリングを参照
+		int index = -1;
+
 		for (int i = int(rings_.size()) - 1; i >= 0;i--) {
 			//リング位置
 			Vector3 center = rings_[i]->GetColliderCenter();
@@ -84,13 +102,67 @@ void Enemy::Update() {
 					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
 				}
 			}
+		} else if (isNearGoal) {
+
+			//目標地点に向かう距離
+			Vector3 toTarget = goal_->GetTransform().translate - transform_.translate;
+
+			//半直線
+			Ray ray;
+			ray.origin = transform_.translate;
+			ray.diff = Normalize(toTarget);
+
+			bool isRayCollision = false;
+			//全障害物と判定
+			for (int i = 0; i < spikes_.size(); i++) {
+				if (IsCollision(spikes_[i]->GetCollider(), ray)) {
+					//真下だとぶつかりそうな場合
+					if (fabsf(ray.diff.x) < 0.5f && fabsf(ray.diff.z) < 0.1f) {
+						toTarget = Vector3(0.0f, transform_.translate.y + 10.0f, 0.0f) - transform_.translate;
+					} else {
+						isRayCollision = true;
+					}
+					break;
+				}
+			}
+
+			if (!isRayCollision) {
+				if (toTarget.x > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.x < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
+			}
 		}
 
 	} else {
-		int index = -1;
+		//先にゴールが近いか判定
+		bool isNearGoal = false;
 		float length = -1;
 
+		if (goal_->GetHuman() != this) {
+			Sphere nearSpehre;
+			nearSpehre.center = transform_.translate;
+			nearSpehre.radius = 50.0f;
+			if (IsCollision(nearSpehre, goal_->GetTransform().translate)) {
+				//目標地点に向かう距離
+				Vector3 toTarget = goal_->GetTransform().translate - transform_.translate;
+
+				isNearGoal = true;
+				length = Length(toTarget);
+			}
+		}
+
 		//近いリングを参照
+		int index = -1;
+
 		for (int i = 0; i < rings_.size(); i++) {
 			//リング位置
 			Vector3 center = rings_[i]->GetColliderCenter();
@@ -123,6 +195,44 @@ void Enemy::Update() {
 			//全障害物と判定
 			for (int i = 0; i < spikes_.size(); i++) {
 				if (IsCollision(spikes_[i]->GetCollider(),ray)) {
+					//真下だとぶつかりそうな場合
+					if (fabsf(ray.diff.x) < 0.5f && fabsf(ray.diff.z) < 0.1f) {
+						toTarget = Vector3(0.0f, transform_.translate.y + 10.0f, 0.0f) - transform_.translate;
+					} else {
+						isRayCollision = true;
+					}
+					break;
+				}
+			}
+
+			if (!isRayCollision) {
+				if (toTarget.x > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.x < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z > 0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+				}
+				if (toTarget.z < -0.2f) {
+					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+				}
+			}
+		} else if (isNearGoal) {
+
+			//目標地点に向かう距離
+			Vector3 toTarget = goal_->GetTransform().translate - transform_.translate;
+
+			//半直線
+			Ray ray;
+			ray.origin = transform_.translate;
+			ray.diff = Normalize(toTarget);
+
+			bool isRayCollision = false;
+			//全障害物と判定
+			for (int i = 0; i < spikes_.size(); i++) {
+				if (IsCollision(spikes_[i]->GetCollider(), ray)) {
 					//真下だとぶつかりそうな場合
 					if (fabsf(ray.diff.x) < 0.5f && fabsf(ray.diff.z) < 0.1f) {
 						toTarget = Vector3(0.0f, transform_.translate.y + 10.0f, 0.0f) - transform_.translate;

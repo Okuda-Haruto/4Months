@@ -1,26 +1,30 @@
 #pragma once
 
-class Player;
 class Course;
+class Goal;
+class Human;
 
 class CheckCollision {
 public:
 	// 初期化
-	void Initialize(Player* player, Course* course);
+	void Initialize(Course* course, Goal* goal);
 	// 更新
-	void Update();
+	void Update(Human* human);
 
 private:
 	// プレイヤーとリングの判定
-	void CheckRing();
+	void CheckRing(Human* human);
 
 	// プレイヤーととげの判定
-	void CheckSpike();
+	void CheckSpike(Human* human);
 
 	// プレイヤーと壁の判定
-	void CheckWall();
+	void CheckWall(Human* human);
 
-	Player* player_;
+	// プレイヤーと宝箱の判定
+	void CheckGoal(Human* human);
+
 	Course* course_;
+	Goal* goal_;
 };
 

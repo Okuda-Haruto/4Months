@@ -13,7 +13,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;
 
-	if (!isTurnBack_) {
+	if (fallingSpeed_ < 0.0f) {
 		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	} else {
 		NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
