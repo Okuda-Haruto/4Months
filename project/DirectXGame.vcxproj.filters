@@ -183,6 +183,7 @@
       <Filter>Application\Human</Filter>
     </ClCompile>
     <ClCompile Include="Application\Goal\Goal.cpp" />
+    <ClCompile Include="Application\HUD\HUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -466,6 +467,7 @@
       <Filter>Application\Human\Player</Filter>
     </ClInclude>
     <ClInclude Include="Application\Goal\Goal.h" />
+    <ClInclude Include="Application\HUD\HUD.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

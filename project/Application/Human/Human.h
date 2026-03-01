@@ -28,6 +28,7 @@ public:
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
+	float GetSpeed() { return fabsf(velocity_.translate.y); }
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsRewinding() { return rewindTimer_ > 0; }
 

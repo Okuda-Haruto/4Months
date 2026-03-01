@@ -78,6 +78,10 @@ void GameScene::Initialize() {
 	checkCollision_ = std::make_unique<CheckCollision>();
 	checkCollision_->Initialize(player_.get(), course_.get());
 
+	// HUD
+	hud_ = std::make_unique<HUD>();
+	hud_->Initialize();
+
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
 #endif
@@ -111,6 +115,9 @@ void GameScene::Update() {
 	// 当たり判定
 	checkCollision_->Update();
 
+	// HUD
+	hud_->Update(player_.get());
+
 	//カメラアップデート
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
@@ -143,4 +150,7 @@ void GameScene::Draw() {
 
 	// コース
 	course_->Draw(directionalLight_);
+
+	// HUD
+	hud_->Draw();
 }
