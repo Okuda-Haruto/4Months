@@ -15,6 +15,8 @@ void Goal::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> 
 	transform_.translate = position;
 	object_->SetTransform(transform_);
 	object_->SetDirectionalLight(directionalLight);
+
+	goalCoolTime_ = 0.0f;
 }
 
 void Goal::Update() {
@@ -23,6 +25,10 @@ void Goal::Update() {
 	ImGui::DragFloat3("Translate", &transform_.translate.x);
 	ImGui::End();
 #endif // USE_IMGUI
+
+	if (goalCoolTime_ > 0.0f) {
+		goalCoolTime_ -= 1.0f / 60.0f;
+	}
 
 	//誰かが取得済みなら追従する
 	if (human_) {

@@ -74,7 +74,7 @@ void Human::Update() {
 					}
 				} else {
 					Vector3 rotatePos = RotateVector(
-						Vector3{ 0,0,15 },
+						Vector3{ 0,0,-15 },
 						transform.rotate);
 					transform.translate += rotatePos;
 					if (transform.translate.y > neckTransforms[neckCoilAroundIndex_].translate.y) {
@@ -120,7 +120,11 @@ void Human::Update() {
 		if (isDrifting_ && !isCoilAround_) {
 			//落下速度を遅くする
 			fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
-			velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
+			if (!isTurnBack_) {
+				velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
+			} else {
+				velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+			}
 
 			//近接判定
 			Sphere humanNearSphere;

@@ -14,6 +14,8 @@ private:
 
 	//取得しているプレイヤー
 	Human* human_;
+
+	float goalCoolTime_ = 0.0f;
 public:
 	// 初期化
 	void Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight);
@@ -25,9 +27,10 @@ public:
 	void Draw();
 
 	//setter
-	void SetHuman(Human* human) { human_ = human; }
+	void SetHuman(Human* human) { human_ = human; goalCoolTime_ = 1.0f; }
 
 	//getter
 	SRT GetTransform() { return transform_; }
 	Human* GetHuman() { return human_; }
+	bool IsCoolTime() { return goalCoolTime_ > 0.0f; }
 };

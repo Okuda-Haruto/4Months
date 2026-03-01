@@ -1,27 +1,26 @@
 #include "CheckCollision.h"
-#include "Human/Player/Player.h"
+#include "Human/Human.h"
 #include "Course/Course.h"
 #include "Goal/Goal.h"
 #include "Math/Collision.h"
 
-void CheckCollision::Initialize(Player* player, Course* course, Goal* goal) {
-	player_ = player;
+void CheckCollision::Initialize(Course* course, Goal* goal) {
 	course_ = course;
 	goal_ = goal;
 }
 
-void CheckCollision::Update() {
-	CheckRing();
-	CheckSpike();
-	CheckWall();
-	CheckGoal();
+void CheckCollision::Update(Human* human) {
+	CheckRing(human);
+	CheckSpike(human);
+	CheckWall(human);
+	CheckGoal(human);
 }
 
-void CheckCollision::CheckRing() {
+void CheckCollision::CheckRing(Human* human) {
 	for (auto& ring : course_->GetRings()) {
 		Vector3 ringCenter = ring->GetColliderCenter();
 		float ringHeight = ring->GetColliderHeight();
-		Vector3 playerPos = player_->GetTransform().translate;
+		Vector3 playerPos = human->GetTransform().translate;
 
 		// 高さの判定
 		if (fabsf(ringCenter.y - playerPos.y) <= ringHeight / 2.0f) {
@@ -29,33 +28,33 @@ void CheckCollision::CheckRing() {
 			float ringRadius = ring->GetColliderRadius();
 			if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ playerPos.x, playerPos.z }) <= ringRadius) {
 				// 衝突
-				if (!ring->IsCoolDown(player_->GetID())) { // 連続で触れられない
-					player_->OnHitRing(ring->GetBoostAmount(),ring->GetBoostMaxAmount());
-					ring->OnCollide(player_->GetID());
+				if (!ring->IsCoolDown(human->GetID())) { // 連続で触れられない
+					human->OnHitRing(ring->GetBoostAmount(),ring->GetBoostMaxAmount());
+					ring->OnCollide(human->GetID());
 				}
 			}
 		}
 	}
 }
 
-void CheckCollision::CheckSpike() {
+void CheckCollision::CheckSpike(Human* human) {
 	for (auto& spike : course_->GetSpikes()) {
 		Sphere spikeSphere = spike->GetCollider();
-		Vector3 playerPos = player_->GetTransform().translate;
+		Vector3 playerPos = human->GetTransform().translate;
 		Sphere playerSphere = { playerPos, 1.0f };
 
 		// 判定
 		if (IsCollision(spikeSphere, playerSphere)) {
 			// 衝突
 			spike->OnCollide();
-			player_->OnHitSpike();
+			human->OnHitSpike();
 		}
 	}
 }
 
-void CheckCollision::CheckWall() {
+void CheckCollision::CheckWall(Human* human) {
 	for (auto& wall : course_->GetWalls()) {
-		Vector3 playerPos = player_->GetTransform().translate;
+		Vector3 playerPos = human->GetTransform().translate;
 		Sphere playerSphere = { playerPos, 1.0f };
 
 		// 判定
@@ -69,8 +68,11 @@ void CheckCollision::CheckWall() {
 	}
 }
 
-void CheckCollision::CheckGoal() {
-	Vector3 playerPos = player_->GetTransform().translate;
+void CheckCollision::CheckGoal(Human* human) {
+
+	if (goal_->IsCoolTime()) return;
+
+	Vector3 playerPos = human->GetTransform().translate;
 	Sphere playerSphere = { playerPos, 1.0f };
 	Vector3 goalPos = goal_->GetTransform().translate;
 	Sphere goalSphere = { goalPos, 2.0f };
@@ -78,6 +80,6 @@ void CheckCollision::CheckGoal() {
 	// 判定
 	if (IsCollision(goalSphere, playerSphere)) {
 		// 衝突
-		goal_->SetHuman(player_);
+		goal_->SetHuman(human);
 	}
 }
