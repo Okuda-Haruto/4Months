@@ -7,6 +7,7 @@
 #include "Neck/Neck.h"
 #include "Goal/Goal.h"
 #include "Course/Course.h"
+#include "HUD/HUD.h"
 
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
@@ -47,6 +48,9 @@ private:
 
 	// 当たり判定
 	std::unique_ptr<CheckCollision> checkCollision_ = nullptr;
+
+	// HUD
+	std::unique_ptr<HUD> hud_ = nullptr;
 
 public:
 	//初期化

@@ -83,6 +83,7 @@
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
     <ClCompile Include="Application\GameScene\GameScene.cpp" />
+    <ClCompile Include="Application\HUD\HUD.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
     </ClCompile>
@@ -188,6 +189,7 @@
     <ClInclude Include="Application\Human\Player\Player.h" />
     <ClInclude Include="Application\Spike\Spike.h" />
     <ClInclude Include="Application\Ring\Ring.h" />
+    <ClInclude Include="Application\HUD\HUD.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
