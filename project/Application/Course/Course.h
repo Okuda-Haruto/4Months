@@ -60,6 +60,7 @@ private:
 	std::vector<std::unique_ptr<Spike>> spikes_;
 
 	// モデル
+	std::unique_ptr<Object> model_;
 	std::vector<std::unique_ptr<Object>> wallModel_;
 
 	// トランスフォーム
@@ -67,7 +68,7 @@ private:
 
 	// 板を並べて円形にする
 	std::vector<OBB> walls_;
-	const int wallCount_ = 4;
+	const int wallCount_ = 16;
 	Vector3 wallSize_ = { 1.0f*4,1.0f,0.1f*4 };
 	const float wallSpace_ = 2.0f;
 	std::vector<Vector3> controlPoints_;
