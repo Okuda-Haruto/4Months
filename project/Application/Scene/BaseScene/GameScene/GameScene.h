@@ -37,7 +37,7 @@ private:
 	std::unique_ptr<Enemy> enemy_ = nullptr;
 
 	//首
-	std::vector<std::unique_ptr<Neck>> necks_;
+	std::vector<std::shared_ptr<Neck>> necks_;
 
 	std::unique_ptr<Goal> goal_;
 
