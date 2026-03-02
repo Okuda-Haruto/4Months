@@ -81,6 +81,9 @@ protected:
 	int unableDriftTimer_;
 	const int unableDriftTime_ = 40;
 
+	// 最低移動速度
+	const float kDefaultSpeed_ = 0.2f;
+
 	// id
 	int characterID_ = 0;
 	//軸になる可能性のある首
