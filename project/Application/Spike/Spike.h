@@ -5,8 +5,8 @@
 class Spike {
 public:
 	// 初期化
-	void Initialize();
-
+	void Initialize(const Vector3& spawnPos);
+	
 	// 更新
 	void Update();
 

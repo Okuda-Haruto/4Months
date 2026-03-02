@@ -5,7 +5,7 @@
 class Ring {
 public:
 	// 初期化
-	void Initialize();
+	void Initialize(const Vector3& spawnPos);
 
 	// 更新
 	void Update();
@@ -31,6 +31,7 @@ public:
 	};
 
 private:
+
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
 

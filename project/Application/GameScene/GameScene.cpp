@@ -72,10 +72,13 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, player_.get());
 
-
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();
-	checkCollision_->Initialize(course_.get(),goal_.get());
+	std::vector<Neck*> necks;
+	for (auto& n : necks_) {
+		necks.push_back(n.get());
+	}
+	checkCollision_->Initialize(course_.get(),goal_.get(),necks);
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
