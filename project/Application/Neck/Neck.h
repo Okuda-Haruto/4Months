@@ -6,6 +6,8 @@
 
 class Neck {
 public:
+	~Neck();
+
 	//初期化
 	void Initialize(Human* player, const std::shared_ptr<DirectionalLight> directionalLight);
 	//更新処理

@@ -1,5 +1,6 @@
 #include "GameCamera.h"
 #include "Operation/Operation.h"
+#include "Lerp.h"
 #include <numbers>
 
 #pragma region 落下カメラ
@@ -13,27 +14,62 @@ void DownCamera::Initialize(Player* player) {
 	transform_.rotate = transform_.rotate * rollRotate_;
 	transform_.translate = player_->GetTransform().translate;
 }
-
 void DownCamera::Update() {
-	//プレイヤー座標を基にする
-	Vector3 nextTranslate = player_->GetTransform().translate;
-	rollRotate_ = Slerp(rollRotate_, player_->GetRollRotate(), 0.1f);
-	//プレイヤーのロール分回転した位置に移動
-	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
-	transform_.translate = Lerp(transform_.translate, nextTranslate, 0.1f);
-	//常に下を向く
-	Quaternion nextRotate;
-	if (!player_->GetIsTurnBack()) {
-		nextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
-	} else {
-		nextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
-	}
-	nextRotate = nextRotate * rollRotate_;
 
-	//現在の向きと次の向きの補完
-	transform_.rotate = Slerp(transform_.rotate, nextRotate, 0.1f);
+    Vector3 nextTranslate = player_->GetTransform().translate;
+
+    bool isCoil = player_->GetIsCoilAround();
+
+    // 巻き付きに入った瞬間を検出
+    if (isCoil && !wasCoilAround_) {
+        coilLockRotate_ = transform_.rotate;  // 今の回転を保存
+    }
+
+    if (isCoil) {
+        // 巻き付き中は回転固定
+        transform_.rotate = coilLockRotate_;
+    }
+    else {
+        // 折り返し基礎回転
+        Quaternion baseRotate;
+        if (!player_->GetIsTurnBack()) {
+            baseRotate = MakeRotateAxisAngleQuaternion(
+                Vector3{ 1,0,0 },
+                -std::numbers::pi_v<float> / 2
+            );
+        }
+        else {
+            baseRotate = MakeRotateAxisAngleQuaternion(
+                Vector3{ 1,0,0 },
+                std::numbers::pi_v<float> / 2
+            );
+        }
+
+        rollRotate_ = Slerp(
+            rollRotate_,
+            player_->GetRollRotate(),
+            0.1f
+        );
+
+        Quaternion nextRotate = baseRotate * rollRotate_;
+
+        transform_.rotate = Slerp(
+            transform_.rotate,
+            nextRotate,
+            0.1f
+        );
+    }
+
+    nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
+
+    transform_.translate = Lerp(
+        transform_.translate,
+        nextTranslate,
+        0.1f
+    );
+
+    wasCoilAround_ = isCoil;
 }
-
 #pragma endregion
 
 

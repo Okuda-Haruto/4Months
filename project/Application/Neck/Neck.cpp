@@ -4,6 +4,13 @@
 
 std::weak_ptr<DirectionalLight> Neck::directionalLight_;
 
+Neck::~Neck() {
+	for (auto& object : objects_) {
+		object.reset();
+	}
+	objects_.clear();
+}
+
 void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> directionalLight) {
 	human_ = human;
 	directionalLight_ = directionalLight;

@@ -26,6 +26,8 @@ public:
 	void OnHitWall(OBB wallObb);
 	void OnHitNeck(const Vector3& pos);
 
+	bool GetIsCoilAround() const;
+
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
@@ -43,6 +45,10 @@ public:
 	//setter
 	void SetNeck(Neck* neck) { neck_ = neck; }
 	void SetGoal(Goal* goal) { goal_ = goal; }
+	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
+
+	//getter
+	float GetCameraEffectTime() { return cameraEffectTime_; }
 
 protected:
 	// モデル
@@ -82,7 +88,10 @@ protected:
 	int unableDriftTimer_;
 	const int unableDriftTime_ = 40;
 
-	// 最低移動速度(下回ると自動回復)
+	//カメラ演出(プレイヤー用)
+	const float kMaxCameraEffectTime_ = 1.0f;
+	float cameraEffectTime_ = 0.0f;
+	// 最低移動速度
 	const float kDefaultSpeed_ = 0.2f;
 
 	// ノックバック中

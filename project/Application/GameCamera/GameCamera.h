@@ -26,6 +26,8 @@ public:
 	void Initialize(Player* player) override;
 	//更新処理
 	void Update() override;
+	bool wasCoilAround_ = false;
+	Quaternion coilLockRotate_;
 };
 
 class GameCamera {

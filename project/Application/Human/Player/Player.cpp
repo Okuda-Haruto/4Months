@@ -28,20 +28,40 @@ void Player::Update(const std::shared_ptr<Input> input) {
 		rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } *rotateMatrix, std::numbers::pi_v<float> / 30);
 		NextRotate = IdentityQuaternion() * rollRotate_;
 		isDrifting_ = true;
-	} else {
-		//上下左右キー
+	}
+	else {
+
+		Matrix4x4 currentMatrix = MakeRotateMatrix(transform_.rotate);
+
 		if (keyboard.hold[DIK_UP] || keyboard.hold[DIK_W] || pad.Button[PAD_BUTTON_UP].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+			NextRotate = NextRotate *
+				MakeRotateAxisAngleQuaternion(
+					Vector3{ 1,0,0 } *currentMatrix,
+					std::numbers::pi_v<float> / 4
+				);
 		}
 		if (keyboard.hold[DIK_DOWN] || keyboard.hold[DIK_S] || pad.Button[PAD_BUTTON_DOWN].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+			NextRotate = NextRotate *
+				MakeRotateAxisAngleQuaternion(
+					Vector3{ 1,0,0 } *currentMatrix,
+					-std::numbers::pi_v<float> / 4
+				);
 		}
 		if (keyboard.hold[DIK_RIGHT] || keyboard.hold[DIK_D] || pad.Button[PAD_BUTTON_RIGHT].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+			NextRotate = NextRotate *
+				MakeRotateAxisAngleQuaternion(
+					Vector3{ 0,1,0 } *currentMatrix,
+					-std::numbers::pi_v<float> / 4
+				);
 		}
 		if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+			NextRotate = NextRotate *
+				MakeRotateAxisAngleQuaternion(
+					Vector3{ 0,1,0 } *currentMatrix,
+					std::numbers::pi_v<float> / 4
+				);
 		}
+
 		isDrifting_ = false;
 	}
 
@@ -64,4 +84,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 void Player::Draw() {
 	Human::Draw();
+}
+bool Player::GetIsDrifting() const {
+    return isDrifting_;
 }
