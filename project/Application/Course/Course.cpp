@@ -18,6 +18,18 @@ Course::Course() {
 	controlPoints_.push_back({ 0,-190,10 });
 	controlPoints_.push_back({ 0,-210,15 });
 	controlPoints_.push_back({ 0,-210,15 });
+	controlPoints_.push_back({ 0,-230,20 });
+	controlPoints_.push_back({ 0,-250,25 });
+	controlPoints_.push_back({ 0,-270,30 });
+	controlPoints_.push_back({ 0,-370,30 });
+	controlPoints_.push_back({ 0,-390,25 });
+	controlPoints_.push_back({ 0,-410,20 });
+	controlPoints_.push_back({ 0,-430,15 });
+	controlPoints_.push_back({ 0,-450,10 });
+	controlPoints_.push_back({ 0,-470,5 });
+	controlPoints_.push_back({ 0,-490,0 });
+	controlPoints_.push_back({ 0,-590,0 });
+	controlPoints_.push_back({ 0,-590,0 });
 
 	// 壁配置
 	CreateTubeCourse();
@@ -29,7 +41,7 @@ Course::Course() {
 
 	model_->SetShininess(40.0f);
 	model_->SetColor({ 1,1,1,1 });
-	model_->SetTransform({ {50,70,30},{},{} });
+	model_->SetTransform({ {200,200,200},{0,0,0},{0,-150,0} });
 }
 
 Course::~Course() {
