@@ -172,6 +172,11 @@ void Human::Update() {
 	}
 	transform_.translate += velocity_.translate;
 
+	// 速度が一定以下なら戻す
+	if (speed_ < kDefaultSpeed_) {
+		speed_ += 0.001f;
+	}
+
 	// 無敵タイマー
 	if (invinsibleTimer_) {
 		invinsibleTimer_--;
@@ -253,8 +258,7 @@ void Human::OnHitNeck(const Vector3& pos) {
 		} else {
 			fallingSpeed_ -= 0.3f;
 		}
-		speed_ -= 0.1f;
-		if (speed_ < 0.2f) { speed_ = 0.2f; }
+		speed_ -= 0.15f;
 		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
 		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 		invinsibleTimer_ = invinsibleTimeOnHit_;

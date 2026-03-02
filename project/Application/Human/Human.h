@@ -88,6 +88,8 @@ protected:
 	//カメラ演出(プレイヤー用)
 	const float kMaxCameraEffectTime_ = 1.0f;
 	float cameraEffectTime_ = 0.0f;
+	// 最低移動速度
+	const float kDefaultSpeed_ = 0.2f;
 
 	// id
 	int characterID_ = 0;
