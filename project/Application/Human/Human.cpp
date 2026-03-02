@@ -48,7 +48,7 @@ void Human::Update() {
 
 			std::vector<SRT> neckTransforms = neck_->GetTransforms();
 			//線形補間位置を加算する
-			coilAroundDistance_ += 1.0f;
+			coilAroundDistance_ += 5.0f * speed_;
 			while (coilAroundDistance_ >= 1.0f) {
 				coilAroundDistance_ -= 1.0f;
 				neckCoilAroundIndex_++;
