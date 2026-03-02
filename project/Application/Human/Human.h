@@ -37,6 +37,7 @@ public:
 
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsCoilAround() { return isCoilAround_; }
+	bool IsInvincible() { return invincibleTimer_ > 0; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -80,8 +81,8 @@ protected:
 	Vector3 headRotate_;
 
 	// 無敵時間
-	int invinsibleTimer_;
-	const int invinsibleTimeOnHit_ = 30;
+	int invincibleTimer_;
+	const int invincibleTimeOnHit_ = 60;
 
 	// ドリフト、巻きつき不可時間
 	int unableDriftTimer_;
@@ -92,6 +93,10 @@ protected:
 	float cameraEffectTime_ = 0.0f;
 	// 最低移動速度
 	const float kDefaultSpeed_ = 0.2f;
+
+	// ノックバック中
+	int knockbackTimer_;
+	const int kKnockbackTime_ = 20;
 
 	// id
 	int characterID_ = 0;

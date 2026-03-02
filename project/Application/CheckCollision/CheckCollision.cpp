@@ -4,11 +4,13 @@
 #include "Goal/Goal.h"
 #include "Neck/Neck.h"
 #include "Math/Collision.h"
+#include "GameCamera/GameCamera.h"
 
-void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> necks) {
+void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> necks, GameCamera* gameCamera) {
 	course_ = course;
 	goal_ = goal;
 	necks_ = necks;
+	gameCamera_ = gameCamera;
 }
 
 void CheckCollision::Update(Human* human) {
@@ -41,6 +43,7 @@ void CheckCollision::CheckRing(Human* human) {
 }
 
 void CheckCollision::CheckSpike(Human* human) {
+	if (human->IsInvincible()) { return; }
 	for (auto& spike : course_->GetSpikes()) {
 		Sphere spikeSphere = spike->GetCollider();
 		Vector3 playerPos = human->GetTransform().translate;
@@ -54,6 +57,7 @@ void CheckCollision::CheckSpike(Human* human) {
 			if (goal_->GetHuman() == human) {
 				goal_->SetHuman(nullptr);
 			}
+			gameCamera_->StartShake(2.0f, 4);
 
 		}
 	}
@@ -76,6 +80,7 @@ void CheckCollision::CheckWall(Human* human) {
 }
 
 void CheckCollision::CheckNeck(Human* human) {
+	if (human->IsInvincible()) { return; }
 	if (human->isDrifting_ && human->IsCoilAround()) { return; } // 巻きつき中は判定しない
 	for (auto& neck : necks_) {
 		Vector3 playerPos = human->GetTransform().translate;
@@ -94,6 +99,7 @@ void CheckCollision::CheckNeck(Human* human) {
 						// 衝突
 						human->OnHitNeck(nPos);
 						//goal_->SetHuman(nullptr);
+						gameCamera_->StartShake(1.5f, 4);
 					}
 				}
 			}

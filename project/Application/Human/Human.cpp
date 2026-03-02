@@ -178,11 +178,15 @@ void Human::Update() {
 	}
 
 	// 無敵タイマー
-	if (invinsibleTimer_) {
-		invinsibleTimer_--;
+	if (invincibleTimer_) {
+		invincibleTimer_--;
 	}
 	if (unableDriftTimer_) {
 		unableDriftTimer_--;
+	}
+	if (knockbackTimer_) {
+		knockbackTimer_--;
+		transform_.translate += Vector3{ 0,0,1 } *rotateMatrix * 0.2f;
 	}
 
 #ifdef USE_IMGUI
@@ -254,66 +258,67 @@ bool Human::GetIsCoilAround() const {
 
 
 void Human::OnHitNeck(const Vector3& pos) {
-	if (invinsibleTimer_ <= 0) {
-		// 減速
-		if (isTurnBack_) {
-			fallingSpeed_ += 0.3f;
-		} else {
-			fallingSpeed_ -= 0.3f;
-		}
-		speed_ -= 0.15f;
-		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
-		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
-		invinsibleTimer_ = invinsibleTimeOnHit_;
-		unableDriftTimer_ = unableDriftTime_;
-
-		// 反射方向の計算
-		Vector3 normal = Normalize(transform_.translate - pos);
-		Vector3 reflect = velocity_.translate - normal * 2.0f * Dot(velocity_.translate, normal);
-		reflect = Normalize(reflect);
-		Vector3 forward = reflect;
-
-		Vector3 up = { 0, 1, 0 };
-		if (fabs(Dot(forward, up)) > 0.99f)
-			up = { 1, 0, 0 };
-
-		Vector3 right = Normalize(Cross(up, forward));
-		up = Cross(forward, right);
-
-		Matrix3x3 rot;
-		rot.m[0][0] = right.x;   rot.m[0][1] = right.y;   rot.m[0][2] = right.z;
-		rot.m[1][0] = up.x;      rot.m[1][1] = up.y;      rot.m[1][2] = up.z;
-		rot.m[2][0] = forward.x; rot.m[2][1] = forward.y; rot.m[2][2] = forward.z;
-
-		Quaternion q;
-		float trace = rot.m[0][0] + rot.m[1][1] + rot.m[2][2];
-		if (trace > 0.0f) {
-			float s = sqrtf(trace + 1.0f) * 2.0f;
-			q.w = 0.25f * s;
-			q.x = (rot.m[2][1] - rot.m[1][2]) / s;
-			q.y = (rot.m[0][2] - rot.m[2][0]) / s;
-			q.z = (rot.m[1][0] - rot.m[0][1]) / s;
-		} else if (rot.m[0][0] > rot.m[1][1] && rot.m[0][0] > rot.m[2][2]) {
-			float s = sqrtf(1.0f + rot.m[0][0] - rot.m[1][1] - rot.m[2][2]) * 2.0f;
-			q.w = (rot.m[2][1] - rot.m[1][2]) / s;
-			q.x = 0.25f * s;
-			q.y = (rot.m[0][1] + rot.m[1][0]) / s;
-			q.z = (rot.m[0][2] + rot.m[2][0]) / s;
-		} else if (rot.m[1][1] > rot.m[2][2]) {
-			float s = sqrtf(1.0f + rot.m[1][1] - rot.m[0][0] - rot.m[2][2]) * 2.0f;
-			q.w = (rot.m[0][2] - rot.m[2][0]) / s;
-			q.x = (rot.m[0][1] + rot.m[1][0]) / s;
-			q.y = 0.25f * s;
-			q.z = (rot.m[1][2] + rot.m[2][1]) / s;
-		} else {
-			float s = sqrtf(1.0f + rot.m[2][2] - rot.m[0][0] - rot.m[1][1]) * 2.0f;
-			q.w = (rot.m[1][0] - rot.m[0][1]) / s;
-			q.x = (rot.m[0][2] + rot.m[2][0]) / s;
-			q.y = (rot.m[1][2] + rot.m[2][1]) / s;
-			q.z = 0.25f * s;
-		}
-
-		transform_.rotate = Normalize(q);
+	// 減速
+	if (isTurnBack_) {
+		fallingSpeed_ += 0.3f;
+	} else {
+		fallingSpeed_ -= 0.3f;
 	}
 
+	speed_ -= 0.1f;
+	if (speed_ < 0) { speed_ = 0.1f; }
+
+	maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
+	maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
+	invincibleTimer_ = invincibleTimeOnHit_;
+	unableDriftTimer_ = unableDriftTime_;
+	knockbackTimer_ = kKnockbackTime_;
+
+	// 反射方向の計算
+	Vector3 normal = Normalize(transform_.translate - pos);
+	Vector3 reflect = velocity_.translate - normal * 2.0f * Dot(velocity_.translate, normal);
+	reflect = Normalize(reflect);
+	Vector3 forward = reflect;
+
+	Vector3 up = { 0, 1, 0 };
+	if (fabs(Dot(forward, up)) > 0.99f)
+		up = { 1, 0, 0 };
+
+	Vector3 right = Normalize(Cross(up, forward));
+	up = Cross(forward, right);
+
+	Matrix3x3 rot;
+	rot.m[0][0] = right.x;   rot.m[0][1] = right.y;   rot.m[0][2] = right.z;
+	rot.m[1][0] = up.x;      rot.m[1][1] = up.y;      rot.m[1][2] = up.z;
+	rot.m[2][0] = forward.x; rot.m[2][1] = forward.y; rot.m[2][2] = forward.z;
+
+	Quaternion q;
+	float trace = rot.m[0][0] + rot.m[1][1] + rot.m[2][2];
+	if (trace > 0.0f) {
+		float s = sqrtf(trace + 1.0f) * 2.0f;
+		q.w = 0.25f * s;
+		q.x = (rot.m[2][1] - rot.m[1][2]) / s;
+		q.y = (rot.m[0][2] - rot.m[2][0]) / s;
+		q.z = (rot.m[1][0] - rot.m[0][1]) / s;
+	} else if (rot.m[0][0] > rot.m[1][1] && rot.m[0][0] > rot.m[2][2]) {
+		float s = sqrtf(1.0f + rot.m[0][0] - rot.m[1][1] - rot.m[2][2]) * 2.0f;
+		q.w = (rot.m[2][1] - rot.m[1][2]) / s;
+		q.x = 0.25f * s;
+		q.y = (rot.m[0][1] + rot.m[1][0]) / s;
+		q.z = (rot.m[0][2] + rot.m[2][0]) / s;
+	} else if (rot.m[1][1] > rot.m[2][2]) {
+		float s = sqrtf(1.0f + rot.m[1][1] - rot.m[0][0] - rot.m[2][2]) * 2.0f;
+		q.w = (rot.m[0][2] - rot.m[2][0]) / s;
+		q.x = (rot.m[0][1] + rot.m[1][0]) / s;
+		q.y = 0.25f * s;
+		q.z = (rot.m[1][2] + rot.m[2][1]) / s;
+	} else {
+		float s = sqrtf(1.0f + rot.m[2][2] - rot.m[0][0] - rot.m[1][1]) * 2.0f;
+		q.w = (rot.m[1][0] - rot.m[0][1]) / s;
+		q.x = (rot.m[0][2] + rot.m[2][0]) / s;
+		q.y = (rot.m[1][2] + rot.m[2][1]) / s;
+		q.z = 0.25f * s;
+	}
+
+	transform_.rotate = Normalize(q);
 }

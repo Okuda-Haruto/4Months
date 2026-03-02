@@ -8,6 +8,7 @@
 void DownCamera::Initialize(Player* player) {
 	player_ = player;
 	//初期値として現在の向きを入れる
+	transform_.scale = { 1,1,1 };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	rollRotate_ = player_->GetRollRotate();
 	transform_.rotate = transform_.rotate * rollRotate_;
@@ -87,7 +88,33 @@ void GameCamera::Update() {
 	if (!nextCamera_) {
 		nowCamera_->Update();
 		camera_->Update(nowCamera_->GetTransform());
+
+		// カメラシェイク
+		if (shakeFrame_ > 0) {
+			shakeFrame_--;
+
+			float amp = amplitude_ * (float(shakeFrame_) / float(shakeEndFrame_));
+
+			shake_ = {
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+			};
+		} else {
+			shake_ = {};
+			amplitude_ = 0;
+		}
+		SRT shakedTransform = nowCamera_->GetTransform();
+		shakedTransform.translate += shake_;
+		// 通常カメラのビュー
+		camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(shakedTransform.scale, shakedTransform.rotate, shakedTransform.translate)));
 	} else {
 		//あとで
 	}
+}
+
+void GameCamera::StartShake(float amplitude, int frame) {
+	amplitude_ = amplitude;
+	shakeFrame_ = frame;
+	shakeEndFrame_ = frame;
 }
