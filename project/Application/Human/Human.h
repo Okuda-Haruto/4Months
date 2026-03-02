@@ -42,6 +42,10 @@ public:
 	//setter
 	void SetNeck(Neck* neck) { neck_ = neck; }
 	void SetGoal(Goal* goal) { goal_ = goal; }
+	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
+
+	//getter
+	float GetCameraEffectTime() { return cameraEffectTime_; }
 
 protected:
 	// モデル
@@ -81,6 +85,9 @@ protected:
 	int unableDriftTimer_;
 	const int unableDriftTime_ = 40;
 
+	//カメラ演出(プレイヤー用)
+	const float kMaxCameraEffectTime_ = 1.0f;
+	float cameraEffectTime_ = 0.0f;
 	// 最低移動速度
 	const float kDefaultSpeed_ = 0.2f;
 

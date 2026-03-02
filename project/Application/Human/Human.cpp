@@ -32,6 +32,13 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 void Human::Update() {
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
+	if (cameraEffectTime_ > 0.0f) {
+		cameraEffectTime_ -= 1.0f / 60.0f;
+		if (cameraEffectTime_ < 0.0f) {
+			cameraEffectTime_ = 0.0f;
+		}
+	}
+
 	//向いている向きに速度を向ける
 	velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
 
@@ -193,6 +200,7 @@ void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
 	speed_ += addSpeed;
 	maxRisingSpeed_ += addMaxSpeed;
 	maxFallingSpeed_ += addMaxSpeed;
+	cameraEffectTime_ = kMaxCameraEffectTime_;
 }
 
 void Human::OnHitSpike(const Vector3& pos) {
