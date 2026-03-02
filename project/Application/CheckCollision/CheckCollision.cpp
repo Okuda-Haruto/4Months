@@ -51,6 +51,8 @@ void CheckCollision::CheckSpike(Human* human) {
 			// 衝突
 			spike->OnCollide();
 			human->OnHitSpike(spikeSphere.center);
+			goal_->SetHuman(nullptr);
+
 		}
 	}
 }
@@ -89,6 +91,7 @@ void CheckCollision::CheckNeck(Human* human) {
 					if (IsCollision(nSphere, playerSphere)) {
 						// 衝突
 						human->OnHitNeck(nPos);
+						//goal_->SetHuman(nullptr);
 					}
 				}
 			}

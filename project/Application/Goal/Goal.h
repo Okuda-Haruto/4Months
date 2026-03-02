@@ -11,11 +11,16 @@ private:
 
 	//トランスフォーム
 	SRT transform_;
+	SRT velocity_;
 
 	//取得しているプレイヤー
 	Human* human_;
 
 	float goalCoolTime_ = 0.0f;
+
+	//定位置
+	const float kBaseHeight_ = -590;
+
 public:
 	// 初期化
 	void Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight);
