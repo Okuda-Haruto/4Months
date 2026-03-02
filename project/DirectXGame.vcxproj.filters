@@ -152,37 +152,37 @@
       <Filter>Application\Scene\BaseScene\GameScene</Filter>
     </ClCompile>
     <ClCompile Include="Application\Spike\Spike.cpp">
-      <Filter>Application\Spike</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Spike</Filter>
     </ClCompile>
     <ClCompile Include="Application\Human\Player\Player.cpp">
-      <Filter>Application\Human\Player</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Human\Player</Filter>
     </ClCompile>
     <ClCompile Include="Application\Ring\Ring.cpp">
-      <Filter>Application\Ring</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Ring</Filter>
     </ClCompile>
     <ClCompile Include="Application\Course\Course.cpp">
-      <Filter>Application\Course</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Course</Filter>
     </ClCompile>
     <ClCompile Include="Application\Neck\Neck.cpp">
-      <Filter>Application\Neck</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Neck</Filter>
     </ClCompile>
     <ClCompile Include="Application\GameCamera\GameCamera.cpp">
-      <Filter>Application\GameCamera</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\GameCamera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Human\Enemy\Enemy.cpp">
-      <Filter>Application\Human\Enemy</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Human\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Application\Human\Human.cpp">
-      <Filter>Application\Human</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Human</Filter>
     </ClCompile>
     <ClCompile Include="Application\HUD\HUD.cpp">
-      <Filter>Application\HUD</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\HUD</Filter>
     </ClCompile>
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp">
-      <Filter>Application\CheckCollision</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\CheckCollision</Filter>
     </ClCompile>
     <ClCompile Include="Application\Goal\Goal.cpp">
-      <Filter>Application\Goal</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Goal</Filter>
     </ClCompile>
     <ClCompile Include="Application\Scene\BaseScene\TitleScene\TitleScene.cpp">
       <Filter>Application\Scene\BaseScene\TitleScene</Filter>
@@ -445,37 +445,37 @@
       <Filter>Application\Scene\BaseScene\GameScene</Filter>
     </ClInclude>
     <ClInclude Include="Application\Spike\Spike.h">
-      <Filter>Application\Spike</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Spike</Filter>
     </ClInclude>
     <ClInclude Include="Application\Ring\Ring.h">
-      <Filter>Application\Ring</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Ring</Filter>
     </ClInclude>
     <ClInclude Include="Application\Course\Course.h">
-      <Filter>Application\Course</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Course</Filter>
     </ClInclude>
     <ClInclude Include="Application\Neck\Neck.h">
-      <Filter>Application\Neck</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Neck</Filter>
     </ClInclude>
     <ClInclude Include="Application\GameCamera\GameCamera.h">
-      <Filter>Application\GameCamera</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\GameCamera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Human\Human.h">
-      <Filter>Application\Human</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Human</Filter>
     </ClInclude>
     <ClInclude Include="Application\Human\Enemy\Enemy.h">
-      <Filter>Application\Human\Enemy</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Human\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Application\Human\Player\Player.h">
-      <Filter>Application\Human\Player</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Human\Player</Filter>
     </ClInclude>
     <ClInclude Include="Application\HUD\HUD.h">
-      <Filter>Application\HUD</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\HUD</Filter>
     </ClInclude>
     <ClInclude Include="Application\CheckCollision\CheckCollision.h">
-      <Filter>Application\CheckCollision</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\CheckCollision</Filter>
     </ClInclude>
     <ClInclude Include="Application\Goal\Goal.h">
-      <Filter>Application\Goal</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene\Goal</Filter>
     </ClInclude>
     <ClInclude Include="Application\Scene\BaseScene\BaseScene.h">
       <Filter>Application\Scene\BaseScene</Filter>
@@ -653,39 +653,6 @@
     <Filter Include="GameEngine\Modules\Animation">
       <UniqueIdentifier>{2c4cc0fb-6e3d-40e2-ab0e-b89fb46ab728}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Spike">
-      <UniqueIdentifier>{4c0c0ae8-cee3-4019-a9c3-9fbe3ac4b112}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Course">
-      <UniqueIdentifier>{3264a6e5-9ec9-48b2-815c-81c922c87096}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Ring">
-      <UniqueIdentifier>{ff0cf0ae-ff34-46d5-8aa3-b56708fbed16}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Neck">
-      <UniqueIdentifier>{827acd4c-b6b6-4024-b08e-1aa6b2712401}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\GameCamera">
-      <UniqueIdentifier>{9ac8fca4-15d9-4e94-a6ce-ec88dc902b19}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Human">
-      <UniqueIdentifier>{450b6018-5e2e-43ce-9266-49bf2c500a60}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Human\Player">
-      <UniqueIdentifier>{bebc082e-a2ee-4908-bb91-6c01aef3da6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Human\Enemy">
-      <UniqueIdentifier>{5c3f6781-4635-4024-bf6a-996598b2e699}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\HUD">
-      <UniqueIdentifier>{28a38b11-8e30-4969-9ef1-098658712a26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\CheckCollision">
-      <UniqueIdentifier>{364d503c-ae48-4a9f-a5b5-662661dca4bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Goal">
-      <UniqueIdentifier>{b0857759-ce34-4e3b-ae39-411d87f3d3be}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Scene">
       <UniqueIdentifier>{918c5dbf-3b80-44ce-9991-b1c99dbf03e2}</UniqueIdentifier>
     </Filter>
@@ -703,6 +670,39 @@
     </Filter>
     <Filter Include="Application\Scene\SceneFactory">
       <UniqueIdentifier>{4a3ab82f-3bd3-4aac-9788-ff40223038eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\CheckCollision">
+      <UniqueIdentifier>{364d503c-ae48-4a9f-a5b5-662661dca4bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Course">
+      <UniqueIdentifier>{3264a6e5-9ec9-48b2-815c-81c922c87096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\GameCamera">
+      <UniqueIdentifier>{9ac8fca4-15d9-4e94-a6ce-ec88dc902b19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Goal">
+      <UniqueIdentifier>{b0857759-ce34-4e3b-ae39-411d87f3d3be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\HUD">
+      <UniqueIdentifier>{28a38b11-8e30-4969-9ef1-098658712a26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Human">
+      <UniqueIdentifier>{450b6018-5e2e-43ce-9266-49bf2c500a60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Human\Player">
+      <UniqueIdentifier>{bebc082e-a2ee-4908-bb91-6c01aef3da6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Human\Enemy">
+      <UniqueIdentifier>{5c3f6781-4635-4024-bf6a-996598b2e699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Neck">
+      <UniqueIdentifier>{827acd4c-b6b6-4024-b08e-1aa6b2712401}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Ring">
+      <UniqueIdentifier>{ff0cf0ae-ff34-46d5-8aa3-b56708fbed16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Spike">
+      <UniqueIdentifier>{4c0c0ae8-cee3-4019-a9c3-9fbe3ac4b112}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
