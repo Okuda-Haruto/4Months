@@ -155,7 +155,7 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 	}
 	//ズーム
 	if (mouse.Movement.z != 0.0f) {
-		const float speed = mouse.Movement.z / 100.0f;
+		const float speed = mouse.Movement.z / 10.0f;
 		//sphericalCoordinates.x は注目位置とカメラの距離
 		sphericalCoordinates.x += speed;
 		sphericalCoordinates.x = std::min(sphericalCoordinates.x, 0.0f);
