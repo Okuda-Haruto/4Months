@@ -305,7 +305,7 @@ void Enemy::Update() {
 				//首の方向
 				toTarget = transforms[neckIndex].translate - transform_.translate;
 
-				toTarget.x *= -1;
+				toTarget = toTarget * MakeRotateMatrix(MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> * 3 / 4));
 
 			}
 
@@ -378,7 +378,7 @@ void Enemy::Update() {
 				//首の方向
 				toTarget = transforms[neckIndex].translate - transform_.translate;
 
-				toTarget.x *= -1;
+				toTarget = toTarget * MakeRotateMatrix(MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> *3 / 4));
 
 			}
 
