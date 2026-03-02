@@ -51,7 +51,9 @@ void CheckCollision::CheckSpike(Human* human) {
 			// 衝突
 			spike->OnCollide();
 			human->OnHitSpike(spikeSphere.center);
-			goal_->SetHuman(nullptr);
+			if (goal_->GetHuman() == human) {
+				goal_->SetHuman(nullptr);
+			}
 
 		}
 	}

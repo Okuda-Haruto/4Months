@@ -91,7 +91,7 @@ public:
 	//描画可能なモデルの数(インスタシング)
 	static const int16_t kMaxInstanceIndex = 8;
 	//インスタンス数
-	static const uint32_t kMaxNumInstance = 2048;
+	static const uint32_t kMaxNumInstance = 4096;
 private:
 #pragma region object
 	int16_t objectIndex_;
