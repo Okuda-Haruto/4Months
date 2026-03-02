@@ -74,6 +74,10 @@ protected:
 	int invinsibleTimer_;
 	const int invinsibleTimeOnHit_ = 30;
 
+	// ドリフト、巻きつき不可時間
+	int unableDriftTimer_;
+	const int unableDriftTime_ = 40;
+
 	// id
 	int characterID_ = 0;
 	//軸になる可能性のある首

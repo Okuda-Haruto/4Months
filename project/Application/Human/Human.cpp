@@ -169,6 +169,9 @@ void Human::Update() {
 	if (invinsibleTimer_) {
 		invinsibleTimer_--;
 	}
+	if (unableDriftTimer_) {
+		unableDriftTimer_--;
+	}
 
 #ifdef USE_IMGUI
 
@@ -245,6 +248,7 @@ void Human::OnHitNeck(const Vector3& pos) {
 		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
 		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 		invinsibleTimer_ = invinsibleTimeOnHit_;
+		unableDriftTimer_ = unableDriftTime_;
 
 		// 反射方向の計算
 		Vector3 normal = Normalize(transform_.translate - pos);
