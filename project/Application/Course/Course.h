@@ -68,9 +68,9 @@ private:
 
 	// 板を並べて円形にする
 	std::vector<OBB> walls_;
-	const int wallCount_ = 16;
-	Vector3 wallSize_ = { 1.0f*4,1.0f,0.1f*4 };
-	const float wallSpace_ = 2.0f;
+	const int wallCount_ = 32;
+	Vector3 wallSize_ = { 1.0f,0.75f,0.1f };
+	const float wallSpace_ = 1.5f;
 	std::vector<Vector3> controlPoints_;
 };
 
