@@ -1,14 +1,10 @@
 #include "Ring.h"
 
-void Ring::Initialize() {
+void Ring::Initialize(const Vector3& spawnPos) {
 	model_ = make_unique<Object>();
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Ring", "Ring.obj"));
 	model_->SetShininess(40.0f);
-	Vector3 spawnPos = {
-		spawnCenter_.x + GameEngine::randomFloat(-spawnRadius_ / 2, spawnRadius_ / 2),
-		spawnCenter_.y + GameEngine::randomFloat(-spawnHeight_ / 2, spawnHeight_ / 2),
-		spawnCenter_.z + GameEngine::randomFloat(-spawnRadius_ / 2, spawnRadius_ / 2),
-	};
+
 	transform_ = { {1,1,1},{},spawnPos };
 	model_->SetTransform(transform_);
 

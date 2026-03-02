@@ -144,8 +144,8 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 	if (mouse.click[MOUSE_BOTTON_WHEEL] && (key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT])) {
 		if (mouse.Movement.x != 0.0f || mouse.Movement.y != 0.0f) {
 			Vector3 move{};
-			move.x = -mouse.Movement.x / 100.0f;
-			move.y = mouse.Movement.y / 100.0f;
+			move.x = -mouse.Movement.x / 10.0f;
+			move.y = mouse.Movement.y / 10.0f;
 
 			//カメラの向きに合わせて変換
 			move = move * rotateMatrix;
