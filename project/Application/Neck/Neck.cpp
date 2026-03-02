@@ -45,6 +45,12 @@ void Neck::Update() {
 			lastPoint_ = transform.translate;
 			diff = playerTransform.translate - lastPoint_;
 		}
+		//首の色の適用
+		Vector4 color = human_->GetColor();
+
+		for (auto& object : objects_) {
+			object->SetColor(color);
+		}
 }
 
 void Neck::Draw() {

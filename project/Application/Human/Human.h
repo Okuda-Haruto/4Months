@@ -30,6 +30,9 @@ public:
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
 	float GetSpeed() { return fabsf(velocity_.translate.y); }
+	//首の色取得
+	const Vector4& GetColor() const { return color_; }
+
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsCoilAround() { return isCoilAround_; }
 
@@ -97,4 +100,6 @@ protected:
 	//線形補間位置
 	float coilAroundDistance_;
 
+	//首の色
+	Vector4 color_ = { 1,1,1,1 };
 };

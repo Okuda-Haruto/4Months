@@ -8,6 +8,7 @@
 void Enemy::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
 	//初期化
 	Human::Initialize(position, directionalLight);
+	color_ = { 1,0,0,1 };   //  //首の色　赤
 }
 
 void Enemy::Update() {
