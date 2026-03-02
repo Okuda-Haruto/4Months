@@ -34,6 +34,13 @@ Course::Course() {
 	CreateTubeCourse();
 }
 
+Course::~Course() {
+	for (auto& model_ : wallModel_) {
+		model_.reset();
+	}
+	wallModel_.clear();
+}
+
 void Course::Initialize() {
 	for (auto& ring : rings_) {
 		Vector3 randomPoint = GetPoint(GameEngine::randomFloat(0.0f, 1.0f));

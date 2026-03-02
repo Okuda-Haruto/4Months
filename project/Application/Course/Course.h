@@ -7,6 +7,7 @@
 class Course {
 public:
 	Course();
+	~Course();
 
 	// 初期化
 	void Initialize();

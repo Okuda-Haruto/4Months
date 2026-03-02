@@ -12,8 +12,10 @@ SceneManager* SceneManager::GetInstance() {
 
 void SceneManager::Finalize() {
 	//最期のシーンの終了と解放
-	scene_->Finalize();
-	scene_.reset();
+	if (scene_) {
+		scene_->Finalize();
+		scene_.reset();
+	}
 
 	instance.reset();
 }
