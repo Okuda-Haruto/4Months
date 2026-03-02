@@ -68,13 +68,11 @@
     <ClCompile Include="GameEngine\Math\Collision.cpp" />
     <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.cpp" />
-    <ClCompile Include="GameEngine\Modules\SceneManager\SceneManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SpriteManager\SpriteManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SRVManager\SRVManager.cpp" />
     <ClCompile Include="GameEngine\Modules\TextureManager\TextureManager.cpp" />
     <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio\Audio.cpp" />
-    <ClCompile Include="GameEngine\Resource\BaseScene\BaseScene.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\DirectionalLight\DirectionalLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Model\Model.cpp" />
@@ -171,13 +169,11 @@
     <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.h" />
-    <ClInclude Include="GameEngine\Modules\SceneManager\SceneManager.h" />
     <ClInclude Include="GameEngine\Modules\SpriteManager\SpriteManager.h" />
     <ClInclude Include="GameEngine\Modules\SRVManager\SRVManager.h" />
     <ClInclude Include="GameEngine\Modules\TextureManager\TextureManager.h" />
     <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h" />
     <ClInclude Include="GameEngine\Resource\Audio\Audio.h" />
-    <ClInclude Include="GameEngine\Resource\BaseScene\BaseScene.h" />
     <ClInclude Include="GameEngine\Resource\Camera\Camera.h" />
     <ClInclude Include="GameEngine\Resource\DirectionalLight\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Resource\Model\Model.h" />
