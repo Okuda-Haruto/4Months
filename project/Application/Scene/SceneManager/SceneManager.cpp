@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include <cassert>
 
 unique_ptr<SceneManager> SceneManager::instance;
 
@@ -30,8 +31,6 @@ void SceneManager::Update() {
 		//シーンの切り替え
 		scene_ = move(nextScene_);
 		nextScene_.reset();
-
-		scene_->SetSceneManager(this);
 
 		//次シーンを初期化
 		scene_->Initialize(input_);

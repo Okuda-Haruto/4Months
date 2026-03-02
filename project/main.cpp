@@ -1,6 +1,7 @@
 #include "GameEngine.h"
 #include "SampleScene/SampleScene.h"
-#include "GameScene/GameScene.h"
+#include "Scene/SceneFactory/SceneFactory.h"
+#include "Scene/SceneManager/SceneManager.h"
 
 using namespace std;
 
@@ -8,14 +9,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ゲームエンジン
 	GameEngine::Initialize(L"LE2A_03_オクダ_ハルト", 1280, 720);
 
-	//一旦
+	//シーンマネージャー生成
+	unique_ptr<SceneFactory> sceneFactory = make_unique<SceneFactory>();
+	SceneManager::GetInstance()->SetSceneFactory(sceneFactory.get());
 	shared_ptr<Input> input = make_shared<Input>();
 	input->Initialize(GameEngine::GetWindowsAPI());
+	SceneManager::GetInstance()->SetInput(input);
 
-	//unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
-	//gameManager->Initialize();
-	unique_ptr<GameScene> gameScene = make_unique<GameScene>();
-	gameScene->Initialize(input);
+	SceneManager::GetInstance()->ChangeScene("Game");
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {
@@ -28,8 +29,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//	更新処理
 			//
 
-			//gameManager->Update();
-			gameScene->Update();
+			SceneManager::GetInstance()->Update();
 
 			//
 			//	描画処理
@@ -37,21 +37,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			GameEngine::PreDraw();
 
-			//gameManager->Draw();
-			gameScene->Draw();
+			SceneManager::GetInstance()->Draw();
 
 			GameEngine::PostDraw();
-
-
-			if (input->PushKey(DIK_R)) {
-				gameScene.reset();
-				gameScene = make_unique<GameScene>();
-				gameScene->Initialize(input);
-			}
 		}
 	}
 
-	gameScene.reset();
+	SceneManager::GetInstance()->Finalize();
 	GameEngine::Finalize();
 	
 	return 0;

@@ -1,7 +1,6 @@
 #define NOMINMAX
 #include "GameScene.h"
-#include "Vector3.h"
-#include "Matrix4x4.h"
+#include "../../SceneManager/SceneManager.h"
 
 #include <algorithm>
 #include <numbers>
@@ -83,6 +82,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 }
 
+void GameScene::Finalize() {
+
+}
+
 void GameScene::Update() {
 
 	// プレイヤーの更新
@@ -122,6 +125,11 @@ void GameScene::Update() {
 	}
 	ImGui::End();
 #endif
+
+	//仮置き
+	if (input_->PushKey(DIK_R)) {
+		SceneManager::GetInstance()->ChangeScene("Game");
+	}
 }
 
 void GameScene::Draw() {
