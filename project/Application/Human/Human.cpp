@@ -22,7 +22,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	characterID_ = id_++;
 
 	fallingSpeed_ = -kMinSpeed_;
-	speed_ = 0.2f;
+	speed_ = 0.4f;
 
 	isDrifting_ = false;
 	isCoilAround_ = false;
@@ -253,9 +253,10 @@ void Human::OnHitWall(OBB wallObb) {
 	transform_.rotate = Normalize(q);
 
 }
+
 bool Human::GetIsCoilAround() const {
 	return isCoilAround_;
-
+}
 
 void Human::OnHitNeck(const Vector3& pos) {
 	// 減速

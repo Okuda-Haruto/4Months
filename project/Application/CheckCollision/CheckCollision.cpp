@@ -57,7 +57,9 @@ void CheckCollision::CheckSpike(Human* human) {
 			if (goal_->GetHuman() == human) {
 				goal_->SetHuman(nullptr);
 			}
-			gameCamera_->StartShake(2.0f, 4);
+			if (human->GetID() == 0) {
+				gameCamera_->StartShake(1.5f, 4);
+			}
 
 		}
 	}
@@ -99,7 +101,9 @@ void CheckCollision::CheckNeck(Human* human) {
 						// 衝突
 						human->OnHitNeck(nPos);
 						//goal_->SetHuman(nullptr);
-						gameCamera_->StartShake(1.5f, 4);
+						if (human->GetID() == 0) {
+							gameCamera_->StartShake(1.5f, 4);
+						}
 					}
 				}
 			}
