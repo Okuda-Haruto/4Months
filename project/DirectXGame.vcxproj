@@ -46,6 +46,7 @@
     <ClCompile Include="Application\Human\Human.cpp" />
     <ClCompile Include="Application\Neck\Neck.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
+    <ClCompile Include="Application\Scene\BaseScene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\Scene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="Application\Neck\Neck.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\Scene\BaseScene\BaseScene.h" />
+    <ClInclude Include="Application\Scene\BaseScene\TitleScene\TitleScene.h" />
     <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h" />
     <ClInclude Include="Application\Scene\SceneManager\SceneManager.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
