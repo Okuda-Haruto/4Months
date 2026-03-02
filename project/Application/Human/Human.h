@@ -22,8 +22,9 @@ public:
 
 	// ヒット時
 	void OnHitRing(const float addSpeed, const float addMaxSpeed);
-	void OnHitSpike();
+	void OnHitSpike(const Vector3& pos);
 	void OnHitWall(OBB wallObb);
+	void OnHitNeck(const Vector3& pos);
 
 	bool GetIsCoilAround() const;
 
@@ -31,8 +32,11 @@ public:
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
 	float GetSpeed() { return fabsf(velocity_.translate.y); }
+	//首の色取得
+	const Vector4& GetColor() const { return color_; }
+
 	bool IsTurnBack() { return isTurnBack_; }
-	bool IsRewinding() { return rewindTimer_ > 0; }
+	bool IsCoilAround() { return isCoilAround_; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -40,6 +44,10 @@ public:
 	//setter
 	void SetNeck(Neck* neck) { neck_ = neck; }
 	void SetGoal(Goal* goal) { goal_ = goal; }
+	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
+
+	//getter
+	float GetCameraEffectTime() { return cameraEffectTime_; }
 
 protected:
 	// モデル
@@ -55,7 +63,7 @@ protected:
 	Quaternion rollRotate_;
 
 	//重力加速度
-	const float kGravity_ = 0.01f;
+	const float kGravity_ = 0.005f;
 	//落下最高速度
 	const float kMinSpeed_ = 0.05f;
 	float maxFallingSpeed_ = 0.2f;
@@ -71,16 +79,19 @@ protected:
 	//頭の進行角度
 	Vector3 headRotate_;
 
-	// 少し前までの位置履歴
-	std::deque<Vector3> history_;
-	const int maxHistory_ = 60;
-	// 巻き戻しタイマー
-	int rewindTimer_ = 0;
-	const int kRewindTime_ = 30;
-
 	// 無敵時間
 	int invinsibleTimer_;
-	const int invinsibleTimeOnHit_ = 60; // >= maxHistory
+	const int invinsibleTimeOnHit_ = 30;
+
+	// ドリフト、巻きつき不可時間
+	int unableDriftTimer_;
+	const int unableDriftTime_ = 40;
+
+	//カメラ演出(プレイヤー用)
+	const float kMaxCameraEffectTime_ = 1.0f;
+	float cameraEffectTime_ = 0.0f;
+	// 最低移動速度
+	const float kDefaultSpeed_ = 0.2f;
 
 	// id
 	int characterID_ = 0;
@@ -101,4 +112,6 @@ protected:
 	//線形補間位置
 	float coilAroundDistance_;
 
+	//首の色
+	Vector4 color_ = { 1,1,1,1 };
 };

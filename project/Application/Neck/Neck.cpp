@@ -4,6 +4,13 @@
 
 std::weak_ptr<DirectionalLight> Neck::directionalLight_;
 
+Neck::~Neck() {
+	for (auto& object : objects_) {
+		object.reset();
+	}
+	objects_.clear();
+}
+
 void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> directionalLight) {
 	human_ = human;
 	directionalLight_ = directionalLight;
@@ -24,8 +31,6 @@ void Neck::Initialize(Human* human, const std::shared_ptr<DirectionalLight> dire
 }
 
 void Neck::Update() {
-	if (!human_->IsRewinding()) {
-
 		SRT playerTransform = human_->GetTransform();
 
 		//最終地点とプレイヤー位置の距離がある程度あるならオブジェクト生成
@@ -47,11 +52,12 @@ void Neck::Update() {
 			lastPoint_ = transform.translate;
 			diff = playerTransform.translate - lastPoint_;
 		}
+		//首の色の適用
+		Vector4 color = human_->GetColor();
 
-	} else {
-		Rewind();
-		lastPoint_ = human_->GetTransform().translate;
-	}
+		for (auto& object : objects_) {
+			object->SetColor(color);
+		}
 }
 
 void Neck::Draw() {
@@ -60,16 +66,4 @@ void Neck::Draw() {
 		objects.push_back(object.get());
 	}
 	Object::InstancingDraw3D(objects, directionalLight_.lock(), nullptr, nullptr);
-}
-
-void Neck::Rewind() {
-	for (auto it = objects_.begin(); it != objects_.end();) {
-		// 進行方向より先にあれば消す(妥協処理)
-		if ((human_->IsTurnBack() && human_->GetTransform().translate.y < (*it)->GetTransform().translate.y) ||
-			(!human_->IsTurnBack() && human_->GetTransform().translate.y > (*it)->GetTransform().translate.y)) {
-			it = objects_.erase(it);
-		} else {
-			++it;
-		}
-	}
 }

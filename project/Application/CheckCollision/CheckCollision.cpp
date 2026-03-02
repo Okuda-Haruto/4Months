@@ -2,17 +2,20 @@
 #include "Human/Human.h"
 #include "Course/Course.h"
 #include "Goal/Goal.h"
+#include "Neck/Neck.h"
 #include "Math/Collision.h"
 
-void CheckCollision::Initialize(Course* course, Goal* goal) {
+void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> necks) {
 	course_ = course;
 	goal_ = goal;
+	necks_ = necks;
 }
 
 void CheckCollision::Update(Human* human) {
 	CheckRing(human);
 	CheckSpike(human);
 	CheckWall(human);
+	CheckNeck(human);
 	CheckGoal(human);
 }
 
@@ -29,7 +32,7 @@ void CheckCollision::CheckRing(Human* human) {
 			if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ playerPos.x, playerPos.z }) <= ringRadius) {
 				// 衝突
 				if (!ring->IsCoolDown(human->GetID())) { // 連続で触れられない
-					human->OnHitRing(ring->GetBoostAmount(),ring->GetBoostMaxAmount());
+					human->OnHitRing(ring->GetBoostAmount(), ring->GetBoostMaxAmount());
 					ring->OnCollide(human->GetID());
 				}
 			}
@@ -47,7 +50,11 @@ void CheckCollision::CheckSpike(Human* human) {
 		if (IsCollision(spikeSphere, playerSphere)) {
 			// 衝突
 			spike->OnCollide();
-			human->OnHitSpike();
+			human->OnHitSpike(spikeSphere.center);
+			if (goal_->GetHuman() == human) {
+				goal_->SetHuman(nullptr);
+			}
+
 		}
 	}
 }
@@ -62,7 +69,33 @@ void CheckCollision::CheckWall(Human* human) {
 			if (IsCollision(wall, playerSphere)) {
 				// 衝突
 				course_->OnCollide();
-				//player_->OnHitWall(wall);
+				human->OnHitWall(wall);
+			}
+		}
+	}
+}
+
+void CheckCollision::CheckNeck(Human* human) {
+	if (human->isDrifting_ && human->IsCoilAround()) { return; } // 巻きつき中は判定しない
+	for (auto& neck : necks_) {
+		Vector3 playerPos = human->GetTransform().translate;
+		Sphere playerSphere = { playerPos, 1.0f };
+		const auto& transforms = neck->GetTransforms();
+		// 最新の2つは判定無視
+		if (transforms.size() > 2) {
+			for (size_t i = 0; i < transforms.size() - 2; ++i) {
+				const auto& nTransform = transforms[i];
+				Vector3 nPos = nTransform.translate;
+
+				// 判定
+				if (fabsf(nPos.y - playerPos.y) >= nTransform.scale.y) { // 高さが合っていたら詳細な判定
+					Sphere nSphere = { nPos, 0.5f };
+					if (IsCollision(nSphere, playerSphere)) {
+						// 衝突
+						human->OnHitNeck(nPos);
+						//goal_->SetHuman(nullptr);
+					}
+				}
 			}
 		}
 	}

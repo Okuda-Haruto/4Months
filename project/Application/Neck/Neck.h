@@ -6,15 +6,14 @@
 
 class Neck {
 public:
+	~Neck();
+
 	//初期化
 	void Initialize(Human* player, const std::shared_ptr<DirectionalLight> directionalLight);
 	//更新処理
 	void Update();
 	//描画処理
 	void Draw();
-
-	// 被弾時
-	void Rewind();
   
 	std::vector<SRT> GetTransforms() { return transforms_; }
 private:

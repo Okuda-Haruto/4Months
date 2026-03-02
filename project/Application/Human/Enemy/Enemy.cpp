@@ -8,6 +8,7 @@
 void Enemy::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
 	//初期化
 	Human::Initialize(position, directionalLight);
+	color_ = { 1,0,0,1 };   //  //首の色　赤
 }
 
 void Enemy::Update() {
@@ -88,6 +89,42 @@ void Enemy::Update() {
 				}
 			}
 
+			for (int i = 0; i < necks_.size(); i++) {
+				int neckIndex = -1;
+				float neckLength = -1;
+				std::vector<SRT> transforms = necks_[i]->GetTransforms();
+				for (int j = 0; j < transforms.size(); j++) {
+
+					//プレイヤー(ある程度の距離まで判定)
+					Sphere playerCollisder;
+					playerCollisder.center = transform_.translate;
+					playerCollisder.radius = 1.0f;
+					//首
+					Sphere neckCollider;
+					neckCollider.center = transforms[j].translate;
+					neckCollider.radius = 1.0f;
+
+					//ある程度近いなら
+					if (IsCollision(playerCollisder, neckCollider)) {
+						if (neckCollider.center.y < playerCollisder.center.y &&
+							(neckIndex == -1 || (neckLength == -1 || Length(neckCollider.center - playerCollisder.center) < neckLength))) {
+
+							neckIndex = j;
+							neckLength = Length(neckCollider.center - playerCollisder.center);
+						}
+					}
+
+				}
+
+				//近くに首があるなら
+				if (neckIndex != -1) {
+					//首の方向
+					toTarget = transforms[neckIndex].translate - transform_.translate;
+
+					toTarget = toTarget * MakeRotateMatrix(MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> *3 / 4));
+				}
+			}
+
 			if (!isRayCollision) {
 				if (toTarget.x > 0.2f) {
 					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
@@ -123,6 +160,43 @@ void Enemy::Update() {
 						isRayCollision = true;
 					}
 					break;
+				}
+			}
+
+			for (int i = 0; i < necks_.size(); i++) {
+				int neckIndex = -1;
+				float neckLength = -1;
+				std::vector<SRT> transforms = necks_[i]->GetTransforms();
+				for (int j = 0; j < transforms.size(); j++) {
+
+					//プレイヤー(ある程度の距離まで判定)
+					Sphere playerCollisder;
+					playerCollisder.center = transform_.translate;
+					playerCollisder.radius = 1.0f;
+					//首
+					Sphere neckCollider;
+					neckCollider.center = transforms[j].translate;
+					neckCollider.radius = 1.0f;
+
+					//ある程度近いなら
+					if (IsCollision(playerCollisder, neckCollider)) {
+						if (neckCollider.center.y < playerCollisder.center.y &&
+							(neckIndex == -1 || (neckLength == -1 || Length(neckCollider.center - playerCollisder.center) < neckLength))) {
+
+							neckIndex = j;
+							neckLength = Length(neckCollider.center - playerCollisder.center);
+						}
+					}
+
+				}
+
+				//近くに首があるなら
+				if (neckIndex != -1) {
+					//首の方向
+					toTarget = transforms[neckIndex].translate - transform_.translate;
+
+					toTarget = toTarget * MakeRotateMatrix(MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> *3 / 4));
+
 				}
 			}
 
@@ -205,6 +279,43 @@ void Enemy::Update() {
 				}
 			}
 
+			for (int i = 0; i < necks_.size(); i++) {
+				int neckIndex = -1;
+				float neckLength = -1;
+				std::vector<SRT> transforms = necks_[i]->GetTransforms();
+				for (int j = 0; j < transforms.size(); j++) {
+
+					//プレイヤー(ある程度の距離まで判定)
+					Sphere playerCollisder;
+					playerCollisder.center = transform_.translate;
+					playerCollisder.radius = 0.5f;
+					//首
+					Sphere neckCollider;
+					neckCollider.center = transforms[j].translate;
+					neckCollider.radius = 1.0f;
+
+					//ある程度近いなら
+					if (IsCollision(playerCollisder, neckCollider)) {
+						if (neckCollider.center.y > playerCollisder.center.y &&
+							(neckIndex == -1 || (neckLength == -1 || Length(neckCollider.center - playerCollisder.center) < neckLength))) {
+
+							neckIndex = j;
+							neckLength = Length(neckCollider.center - playerCollisder.center);
+						}
+					}
+
+				}
+
+				//近くに首があるなら
+				if (neckIndex != -1) {
+					//首の方向
+					toTarget = transforms[neckIndex].translate - transform_.translate;
+
+					toTarget = toTarget * MakeRotateMatrix(MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> *3 / 4));
+
+				}
+			}
+
 			if (!isRayCollision) {
 				if (toTarget.x > 0.2f) {
 					NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
@@ -240,6 +351,43 @@ void Enemy::Update() {
 						isRayCollision = true;
 					}
 					break;
+				}
+			}
+
+			for (int i = 0; i < necks_.size(); i++) {
+				int neckIndex = -1;
+				float neckLength = -1;
+				std::vector<SRT> transforms = necks_[i]->GetTransforms();
+				for (int j = 0; j < transforms.size(); j++) {
+
+					//プレイヤー(ある程度の距離まで判定)
+					Sphere playerCollisder;
+					playerCollisder.center = transform_.translate;
+					playerCollisder.radius = 0.5f;
+					//首
+					Sphere neckCollider;
+					neckCollider.center = transforms[j].translate;
+					neckCollider.radius = 1.0f;
+
+					//ある程度近いなら
+					if (IsCollision(playerCollisder, neckCollider)) {
+						if (neckCollider.center.y > playerCollisder.center.y &&
+							(neckIndex == -1 || (neckLength == -1 || Length(neckCollider.center - playerCollisder.center) < neckLength))) {
+
+							neckIndex = j;
+							neckLength = Length(neckCollider.center - playerCollisder.center);
+						}
+					}
+
+				}
+
+				//近くに首があるなら
+				if (neckIndex != -1) {
+					//首の方向
+					toTarget = transforms[neckIndex].translate - transform_.translate;
+
+					toTarget = toTarget * MakeRotateMatrix(MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> *3 / 4));
+
 				}
 			}
 

@@ -13,12 +13,23 @@ Course::Course() {
 	controlPoints_.push_back({});
 	controlPoints_.push_back({});
 	controlPoints_.push_back({ 0,-50,0 });
-	controlPoints_.push_back({ 0,-80,20 });
-	controlPoints_.push_back({ 0,-100,50 });
-	controlPoints_.push_back({ 0,-120,90 });
+	controlPoints_.push_back({ 0,-150,0 });
+	controlPoints_.push_back({ 0,-170,5 });
+	controlPoints_.push_back({ 0,-190,10 });
+	controlPoints_.push_back({ 0,-210,15 });
+	controlPoints_.push_back({ 0,-210,15 });
 
 	// 壁配置
 	CreateTubeCourse();
+
+	model_ = std::make_unique<Object>();
+	model_->Initialize(
+			ModelManager::GetInstance()
+			->GetModel("resources/Course", "Course.obj"));
+
+	model_->SetShininess(40.0f);
+	model_->SetColor({ 1,1,1,1 });
+	model_->SetTransform({ {50,70,30},{},{} });
 }
 
 Course::~Course() {
@@ -30,17 +41,28 @@ Course::~Course() {
 
 void Course::Initialize() {
 	for (auto& ring : rings_) {
-		ring->Initialize();
+		Vector3 randomPoint = GetPoint(GameEngine::randomFloat(0.0f, 1.0f));
+		Vector3 spawnPos = {
+		 randomPoint.x + GameEngine::randomFloat(-radius_ / 2, radius_ / 2),
+		 randomPoint.y,
+		 randomPoint.z + GameEngine::randomFloat(-radius_ / 2, radius_ / 2)
+		};
+		ring->Initialize(spawnPos);
 	}
 	//ソート
 	std::sort(rings_.begin(), rings_.end(),
-		[](const auto& a, const auto& b)
-		{
+		[](const auto& a, const auto& b) {
 			return *a < *b;
 		});
 
 	for (auto& spike : spikes_) {
-		spike->Initialize();
+		Vector3 randomPoint = GetPoint(GameEngine::randomFloat(0.0f, 1.0f));
+		Vector3 spawnPos = {
+		 randomPoint.x + GameEngine::randomFloat(-radius_ / 2, radius_ / 2),
+		 randomPoint.y,
+		 randomPoint.z + GameEngine::randomFloat(-radius_ / 2, radius_ / 2)
+		};
+		spike->Initialize(spawnPos);
 	}
 }
 
@@ -56,6 +78,8 @@ void Course::Update() {
 	for (auto& spike : spikes_) {
 		spike->Update();
 	}
+
+	model_->Update();
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Wall");
@@ -79,11 +103,13 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		spike->Draw(directionalLight);
 	}
 
+	model_->Draw3D();
+
 	std::list<Object*> objects;
 	for (std::unique_ptr<Object>& model : wallModel_) {
 		objects.push_back(model.get());
 	}
-	//Object::InstancingDraw3D(objects, directionalLight, nullptr, nullptr);
+	Object::InstancingDraw3D(objects, directionalLight, nullptr, nullptr);
 }
 
 void Course::OnCollide() {

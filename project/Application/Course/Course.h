@@ -51,15 +51,16 @@ private:
 
 	// 衝突判定(円)
 	Vector2 colliderCenter_ = {};
-	float radius_ = 10;
+	float radius_ = 20;
 
 	// 配置物
-	int ringCount_ = 10;
+	int ringCount_ = 50;
 	int spikeCount_ = 30;
 	std::vector<std::unique_ptr<Ring>> rings_;
 	std::vector<std::unique_ptr<Spike>> spikes_;
 
 	// モデル
+	std::unique_ptr<Object> model_;
 	std::vector<std::unique_ptr<Object>> wallModel_;
 
 	// トランスフォーム
@@ -67,9 +68,9 @@ private:
 
 	// 板を並べて円形にする
 	std::vector<OBB> walls_;
-	const int wallCount_ = 32;
-	Vector3 wallSize_ = { 1.0f,0.75f,0.1f };
-	const float wallSpace_ = 1.5f;
+	const int wallCount_ = 16;
+	Vector3 wallSize_ = { 1.0f*4,1.0f,0.1f*4 };
+	const float wallSpace_ = 2.0f;
 	std::vector<Vector3> controlPoints_;
 };
 

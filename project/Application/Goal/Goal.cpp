@@ -32,12 +32,20 @@ void Goal::Update() {
 
 	//誰かが取得済みなら追従する
 	if (human_) {
+		velocity_.translate.y = 0.0f;
 		SRT transform = human_->GetTransform();
 		//頭からの距離
 		Vector3 haveLength = Vector3(0, 0, 3.2f) * MakeRotateMatrix(transform.rotate);
 		transform.translate += haveLength;
 		transform.scale = transform_.scale;
 		transform_ = transform;
+	} else if (transform_.translate.y > kBaseHeight_) {
+		velocity_.translate.y += -0.01f;
+		if (velocity_.translate.y < -0.2f) {
+			velocity_.translate.y = -0.2f;
+		}
+		transform_.translate.y += velocity_.translate.y;
+		transform_.rotate = IdentityQuaternion();
 	}
 
 	object_->SetTransform(transform_);

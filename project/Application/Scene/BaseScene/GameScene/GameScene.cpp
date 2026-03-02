@@ -39,7 +39,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//ゴール
 	goal_ = std::make_unique<Goal>();
-	goal_->Initialize(Vector3{ 0,-380,0 }, directionalLight_);
+	goal_->Initialize(Vector3{ 0,-590,0 }, directionalLight_);
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
@@ -54,23 +54,27 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	enemy_->SetGoal(goal_.get());
 
 	//首
-	std::unique_ptr<Neck> neck;
-	neck = std::make_unique<Neck>();
+	std::shared_ptr<Neck> neck;
+	neck = std::make_shared<Neck>();
 	neck->Initialize(player_.get(), directionalLight_);
 	necks_.push_back(move(neck));
-	neck = std::make_unique<Neck>();
+	neck = std::make_shared<Neck>();
 	neck->Initialize(enemy_.get(), directionalLight_);
 	necks_.push_back(move(neck));
 	player_->SetNeck(necks_[1].get());
+	enemy_->SetNeck(necks_);
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, player_.get());
 
-
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();
-	checkCollision_->Initialize(course_.get(),goal_.get());
+	std::vector<Neck*> necks;
+	for (auto& n : necks_) {
+		necks.push_back(n.get());
+	}
+	checkCollision_->Initialize(course_.get(),goal_.get(),necks);
 
 	// HUD
 	hud_ = std::make_unique<HUD>();

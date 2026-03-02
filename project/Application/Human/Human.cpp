@@ -21,7 +21,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 
 	characterID_ = id_++;
 
-	fallingSpeed_ = kMinSpeed_;
+	fallingSpeed_ = -kMinSpeed_;
 	speed_ = 0.2f;
 
 	isDrifting_ = false;
@@ -30,160 +30,159 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 }
 
 void Human::Update() {
-	if (!rewindTimer_) { // 巻き戻し中でなければ移動
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
-		Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
+	if (cameraEffectTime_ > 0.0f) {
+		cameraEffectTime_ -= 1.0f / 60.0f;
+		if (cameraEffectTime_ < 0.0f) {
+			cameraEffectTime_ = 0.0f;
+		}
+	}
 
-		//向いている向きに速度を向ける
-		velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
+	//向いている向きに速度を向ける
+	velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
 
-		if ((goal_->GetTransform().translate.y > transform_.translate.y) || goal_->GetHuman() == this) {
-			isTurnBack_ = true;
-		} else {
-			isTurnBack_ = false;
+	if ((goal_->GetTransform().translate.y > transform_.translate.y) || goal_->GetHuman() == this) {
+		isTurnBack_ = true;
+	} else {
+		isTurnBack_ = false;
+	}
+
+	//巻き付いているとき
+	if (isCoilAround_ && isDrifting_) {
+
+		std::vector<SRT> neckTransforms = neck_->GetTransforms();
+		//線形補間位置を加算する
+		coilAroundDistance_ += 5.0f * speed_;
+		while (coilAroundDistance_ >= 1.0f) {
+			coilAroundDistance_ -= 1.0f;
+			neckCoilAroundIndex_++;
+			if (neckCoilAroundIndex_ >= neckTransforms.size()) neckCoilAroundIndex_ = int32_t(neckTransforms.size() - 1);
 		}
 
-		//巻き付いているとき
-		if (isCoilAround_ && isDrifting_) {
+		//軸になる位置
+		SRT transform = transform_;
+		//次の首がない場合先端の先に移動する
+		if (neckCoilAroundIndex_ + 1 >= neckTransforms.size()) {
+			//線形補間で回転中心のトランスフォームを求める
+			transform.rotate = neckTransforms[neckCoilAroundIndex_].rotate;
+			transform.translate = neckTransforms[neckCoilAroundIndex_].translate;
 
-			std::vector<SRT> neckTransforms = neck_->GetTransforms();
-			//線形補間位置を加算する
-			coilAroundDistance_ += 5.0f * speed_;
-			while (coilAroundDistance_ >= 1.0f) {
-				coilAroundDistance_ -= 1.0f;
-				neckCoilAroundIndex_++;
-				if (neckCoilAroundIndex_ >= neckTransforms.size()) neckCoilAroundIndex_ = int32_t(neckTransforms.size() - 1);
-			}
-
-			//軸になる位置
-			SRT transform = transform_;
-			//次の首がない場合先端の先に移動する
-			if (neckCoilAroundIndex_ + 1 >= neckTransforms.size()) {
-				//線形補間で回転中心のトランスフォームを求める
-				transform.rotate = neckTransforms[neckCoilAroundIndex_].rotate;
-				transform.translate = neckTransforms[neckCoilAroundIndex_].translate;
-
-				//軸回転後位置
-				if (!isTurnBack_) {
-					Vector3 rotatePos = RotateVector(
-						Vector3{ 0,0,-15 },
-						transform.rotate);
-					transform.translate += rotatePos;
-					if (transform.translate.y < neckTransforms[neckCoilAroundIndex_].translate.y) {
-						isCoilAround_ = false;
-					}
-				} else {
-					Vector3 rotatePos = RotateVector(
-						Vector3{ 0,0,-15 },
-						transform.rotate);
-					transform.translate += rotatePos;
-					if (transform.translate.y > neckTransforms[neckCoilAroundIndex_].translate.y) {
-						isCoilAround_ = false;
-					}
-				}
-
-			} else {	//そうでないなら首の周囲を回る
-
-				//線形補間で回転中心のトランスフォームを求める
-				transform.rotate = Slerp(
-					neckTransforms[neckCoilAroundIndex_].rotate,
-					neckTransforms[neckCoilAroundIndex_ + 1].rotate,
-					coilAroundDistance_);
-				transform.translate = Lerp(
-					neckTransforms[neckCoilAroundIndex_].translate,
-					neckTransforms[neckCoilAroundIndex_ + 1].translate,
-					coilAroundDistance_);
-
-				//軸回転後位置
+			//軸回転後位置
+			if (!isTurnBack_) {
 				Vector3 rotatePos = RotateVector(
-					Vector3{ kCoilAroundRange_ * sinf(std::numbers::pi_v<float> / 8 * (neckCoilAroundIndex_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),
-					kCoilAroundRange_ * cosf(std::numbers::pi_v<float> / 8 * (neckCoilAroundIndex_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),0 },
+					Vector3{ 0,0,-15 },
 					transform.rotate);
 				transform.translate += rotatePos;
-
-				PrimitiveManager::GetInstance()->AddPoint(transform.translate);
-			}
-
-			transform_.rotate = LookAt(transform_.translate, transform.translate);
-
-			rotateMatrix = MakeRotateMatrix(transform_.rotate);
-
-			//向いている向きに速度を向ける
-			velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_ * 5;
-
-		} else {
-			//巻き付いていないなら切る
-			isCoilAround_ = false;
-		}
-
-		//とぐろ中(巻き付いていない)
-		if (isDrifting_ && !isCoilAround_) {
-			//落下速度を遅くする
-			fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
-			if (!isTurnBack_) {
-				velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
+				if (transform.translate.y < neckTransforms[neckCoilAroundIndex_].translate.y) {
+					isCoilAround_ = false;
+				}
 			} else {
-				velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-			}
-
-			//近接判定
-			Sphere humanNearSphere;
-			humanNearSphere.center = transform_.translate;
-			humanNearSphere.radius = kCanCoilAroundRange_;
-			std::vector<SRT> neckTransforms = neck_->GetTransforms();
-
-			//先端に近い順に
-			for (int32_t i = 0; i < int32_t(neckTransforms.size()) - 1; i++) {
-				if (IsCollision(humanNearSphere, neckTransforms[i].translate)) {
-					//目標地点に向かう
-					Vector3 toTarget = transform_.translate - neckTransforms[i].translate;
-					Vector3 localDirection = RotateVector(toTarget, Inverse(neckTransforms[i].rotate));
-
-					transform_.rotate = LookAt(transform_.translate, neckTransforms[i].translate);
-					//近接判定に首が接触したなら巻き付く
-					neckCoilAroundIndex_ = i;
-					if (localDirection.x > 0.0f && localDirection.y < 0.0f) {
-						coilAroundDistance_ = 0.0f;
-					} else if (localDirection.x > 0.0f && localDirection.y > 0.0f) {
-						coilAroundDistance_ = 4.0f;
-					} else if (localDirection.x < 0.0f && localDirection.y > 0.0f) {
-						coilAroundDistance_ = 8.0f;
-					} else if (localDirection.x < 0.0f && localDirection.y < 0.0f) {
-						coilAroundDistance_ = 12.0f;
-					}
-					isCoilAround_ = true;
-					break;
+				Vector3 rotatePos = RotateVector(
+					Vector3{ 0,0,-15 },
+					transform.rotate);
+				transform.translate += rotatePos;
+				if (transform.translate.y > neckTransforms[neckCoilAroundIndex_].translate.y) {
+					isCoilAround_ = false;
 				}
 			}
 
+		} else {	//そうでないなら首の周囲を回る
+
+			//線形補間で回転中心のトランスフォームを求める
+			transform.rotate = Slerp(
+				neckTransforms[neckCoilAroundIndex_].rotate,
+				neckTransforms[neckCoilAroundIndex_ + 1].rotate,
+				coilAroundDistance_);
+			transform.translate = Lerp(
+				neckTransforms[neckCoilAroundIndex_].translate,
+				neckTransforms[neckCoilAroundIndex_ + 1].translate,
+				coilAroundDistance_);
+
+			//軸回転後位置
+			Vector3 rotatePos = RotateVector(
+				Vector3{ kCoilAroundRange_ * sinf(std::numbers::pi_v<float> / 8 * (neckCoilAroundIndex_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),
+				kCoilAroundRange_ * cosf(std::numbers::pi_v<float> / 8 * (neckCoilAroundIndex_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),0 },
+				transform.rotate);
+			transform.translate += rotatePos;
+
+			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
+		}
+
+		transform_.rotate = LookAt(transform_.translate, transform.translate);
+
+		rotateMatrix = MakeRotateMatrix(transform_.rotate);
+
+		//向いている向きに速度を向ける
+		velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_ * 5;
+
+	} else {
+		//巻き付いていないなら切る
+		isCoilAround_ = false;
+	}
+
+	//とぐろ中(巻き付いていない)
+	if (isDrifting_ && !isCoilAround_) {
+		//落下速度を遅くする
+		fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
+		if (!isTurnBack_) {
+			velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
 		} else {
-			//上向き速度 * 重力」を落下速度に加える
-			if (isTurnBack_) {
-				fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
-			} else {
-				fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
-			}
 			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 		}
-		transform_.translate += velocity_.translate;
 
-		// 位置を記録
-		history_.push_back(transform_.translate);
-		if (history_.size() > maxHistory_) { // 後ろの記録を削除
-			history_.pop_front();
-		}
+		//近接判定
+		Sphere humanNearSphere;
+		humanNearSphere.center = transform_.translate;
+		humanNearSphere.radius = kCanCoilAroundRange_;
+		std::vector<SRT> neckTransforms = neck_->GetTransforms();
 
-		// 無敵タイマー
-		if (invinsibleTimer_) {
-			invinsibleTimer_--;
+		//先端に近い順に
+		for (int32_t i = 0; i < int32_t(neckTransforms.size()) - 1; i++) {
+			if (IsCollision(humanNearSphere, neckTransforms[i].translate)) {
+				//目標地点に向かう
+				Vector3 toTarget = transform_.translate - neckTransforms[i].translate;
+				Vector3 localDirection = RotateVector(toTarget, Inverse(neckTransforms[i].rotate));
+
+				transform_.rotate = LookAt(transform_.translate, neckTransforms[i].translate);
+				//近接判定に首が接触したなら巻き付く
+				neckCoilAroundIndex_ = i;
+				if (localDirection.x > 0.0f && localDirection.y < 0.0f) {
+					coilAroundDistance_ = 0.0f;
+				} else if (localDirection.x > 0.0f && localDirection.y > 0.0f) {
+					coilAroundDistance_ = 4.0f;
+				} else if (localDirection.x < 0.0f && localDirection.y > 0.0f) {
+					coilAroundDistance_ = 8.0f;
+				} else if (localDirection.x < 0.0f && localDirection.y < 0.0f) {
+					coilAroundDistance_ = 12.0f;
+				}
+				isCoilAround_ = true;
+				break;
+			}
 		}
 
 	} else {
-		rewindTimer_--;
-		if (rewindTimer_ <= 0) {
-			rewindTimer_ = 0;
+		//上向き速度 * 重力」を落下速度に加える
+		if (isTurnBack_) {
+			fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
+		} else {
+			fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 		}
-		transform_.translate = history_[int(float(rewindTimer_) / float(kRewindTime_) * maxHistory_)];
+		velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+	}
+	transform_.translate += velocity_.translate;
+
+	// 速度が一定以下なら戻す
+	if (speed_ < kDefaultSpeed_) {
+		speed_ += 0.001f;
+	}
+
+	// 無敵タイマー
+	if (invinsibleTimer_) {
+		invinsibleTimer_--;
+	}
+	if (unableDriftTimer_) {
+		unableDriftTimer_--;
 	}
 
 #ifdef USE_IMGUI
@@ -201,16 +200,11 @@ void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
 	speed_ += addSpeed;
 	maxRisingSpeed_ += addMaxSpeed;
 	maxFallingSpeed_ += addMaxSpeed;
+	cameraEffectTime_ = kMaxCameraEffectTime_;
 }
 
-void Human::OnHitSpike() {
-	if (invinsibleTimer_ <= 0) {
-		rewindTimer_ = kRewindTime_;
-		speed_ = 0.2f;
-		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
-		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
-		invinsibleTimer_ = invinsibleTimeOnHit_;
-	}
+void Human::OnHitSpike(const Vector3& pos) {
+	OnHitNeck(pos);
 }
 
 void Human::OnHitWall(OBB wallObb) {
@@ -257,4 +251,69 @@ void Human::OnHitWall(OBB wallObb) {
 }
 bool Human::GetIsCoilAround() const {
 	return isCoilAround_;
+
+
+void Human::OnHitNeck(const Vector3& pos) {
+	if (invinsibleTimer_ <= 0) {
+		// 減速
+		if (isTurnBack_) {
+			fallingSpeed_ += 0.3f;
+		} else {
+			fallingSpeed_ -= 0.3f;
+		}
+		speed_ -= 0.15f;
+		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
+		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
+		invinsibleTimer_ = invinsibleTimeOnHit_;
+		unableDriftTimer_ = unableDriftTime_;
+
+		// 反射方向の計算
+		Vector3 normal = Normalize(transform_.translate - pos);
+		Vector3 reflect = velocity_.translate - normal * 2.0f * Dot(velocity_.translate, normal);
+		reflect = Normalize(reflect);
+		Vector3 forward = reflect;
+
+		Vector3 up = { 0, 1, 0 };
+		if (fabs(Dot(forward, up)) > 0.99f)
+			up = { 1, 0, 0 };
+
+		Vector3 right = Normalize(Cross(up, forward));
+		up = Cross(forward, right);
+
+		Matrix3x3 rot;
+		rot.m[0][0] = right.x;   rot.m[0][1] = right.y;   rot.m[0][2] = right.z;
+		rot.m[1][0] = up.x;      rot.m[1][1] = up.y;      rot.m[1][2] = up.z;
+		rot.m[2][0] = forward.x; rot.m[2][1] = forward.y; rot.m[2][2] = forward.z;
+
+		Quaternion q;
+		float trace = rot.m[0][0] + rot.m[1][1] + rot.m[2][2];
+		if (trace > 0.0f) {
+			float s = sqrtf(trace + 1.0f) * 2.0f;
+			q.w = 0.25f * s;
+			q.x = (rot.m[2][1] - rot.m[1][2]) / s;
+			q.y = (rot.m[0][2] - rot.m[2][0]) / s;
+			q.z = (rot.m[1][0] - rot.m[0][1]) / s;
+		} else if (rot.m[0][0] > rot.m[1][1] && rot.m[0][0] > rot.m[2][2]) {
+			float s = sqrtf(1.0f + rot.m[0][0] - rot.m[1][1] - rot.m[2][2]) * 2.0f;
+			q.w = (rot.m[2][1] - rot.m[1][2]) / s;
+			q.x = 0.25f * s;
+			q.y = (rot.m[0][1] + rot.m[1][0]) / s;
+			q.z = (rot.m[0][2] + rot.m[2][0]) / s;
+		} else if (rot.m[1][1] > rot.m[2][2]) {
+			float s = sqrtf(1.0f + rot.m[1][1] - rot.m[0][0] - rot.m[2][2]) * 2.0f;
+			q.w = (rot.m[0][2] - rot.m[2][0]) / s;
+			q.x = (rot.m[0][1] + rot.m[1][0]) / s;
+			q.y = 0.25f * s;
+			q.z = (rot.m[1][2] + rot.m[2][1]) / s;
+		} else {
+			float s = sqrtf(1.0f + rot.m[2][2] - rot.m[0][0] - rot.m[1][1]) * 2.0f;
+			q.w = (rot.m[1][0] - rot.m[0][1]) / s;
+			q.x = (rot.m[0][2] + rot.m[2][0]) / s;
+			q.y = (rot.m[1][2] + rot.m[2][1]) / s;
+			q.z = 0.25f * s;
+		}
+
+		transform_.rotate = Normalize(q);
+	}
+
 }

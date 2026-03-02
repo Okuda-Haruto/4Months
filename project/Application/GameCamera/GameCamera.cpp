@@ -1,5 +1,6 @@
 #include "GameCamera.h"
 #include "Operation/Operation.h"
+#include "Lerp.h"
 #include <numbers>
 
 #pragma region 落下カメラ
