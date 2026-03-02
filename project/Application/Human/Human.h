@@ -25,6 +25,8 @@ public:
 	void OnHitSpike();
 	void OnHitWall(OBB wallObb);
 
+	bool GetIsCoilAround() const;
+
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }

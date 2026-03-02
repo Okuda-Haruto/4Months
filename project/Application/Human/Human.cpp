@@ -255,3 +255,6 @@ void Human::OnHitWall(OBB wallObb) {
 	transform_.rotate = Normalize(q);
 
 }
+bool Human::GetIsCoilAround() const {
+	return isCoilAround_;
+}
