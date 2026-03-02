@@ -1,6 +1,6 @@
 #pragma once
 #include <GameEngine.h>
-#include <Input/Input.h>
+#include "../BaseScene.h"
 #include <WindowsAPI/WindowsAPI.h>
 #include "Human/Player/Player.h"
 #include "Human/Enemy/Enemy.h"
@@ -12,10 +12,8 @@
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
 
-class GameScene {
+class GameScene : public BaseScene{
 private:
-
-	std::shared_ptr<Input> input_;
 
 	// カメラ
 	SRT cameraTransform_{};
@@ -54,11 +52,13 @@ private:
 
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Input> input);
+	void Initialize(std::shared_ptr<Input> input) override;
+	//終了処理
+	void Finalize() override;
 	//更新
-	void Update();
+	void Update() override;
 	//描画
-	void Draw();
+	void Draw() override;
 };
 
 

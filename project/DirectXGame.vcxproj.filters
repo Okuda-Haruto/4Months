@@ -154,7 +154,7 @@
     <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp">
       <Filter>GameEngine\Modules\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Application\GameScene\GameScene.cpp">
+    <ClCompile Include="Application\Scene\BaseScene\GameScene\GameScene.cpp">
       <Filter>Application\GameScene</Filter>
     </ClCompile>
     <ClCompile Include="Application\Spike\Spike.cpp">
@@ -188,6 +188,8 @@
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp">
       <Filter>Application\CheckCollision</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp" />
+    <ClCompile Include="Application\Scene\SceneManager\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -442,7 +444,7 @@
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="Application\GameScene\GameScene.h">
+    <ClInclude Include="Application\Scene\BaseScene\GameScene\GameScene.h">
       <Filter>Application\GameScene</Filter>
     </ClInclude>
     <ClInclude Include="Application\Spike\Spike.h">
@@ -476,6 +478,9 @@
     <ClInclude Include="Application\CheckCollision\CheckCollision.h">
       <Filter>Application\CheckCollision</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h" />
+    <ClInclude Include="Application\Scene\SceneManager\SceneManager.h" />
+    <ClInclude Include="Application\Scene\BaseScene\BaseScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
