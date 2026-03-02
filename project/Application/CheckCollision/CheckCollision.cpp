@@ -29,7 +29,7 @@ void CheckCollision::CheckRing(Human* human) {
 			if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ playerPos.x, playerPos.z }) <= ringRadius) {
 				// 衝突
 				if (!ring->IsCoolDown(human->GetID())) { // 連続で触れられない
-					//human->OnHitRing(ring->GetBoostAmount(),ring->GetBoostMaxAmount());
+					human->OnHitRing(ring->GetBoostAmount(),ring->GetBoostMaxAmount());
 					ring->OnCollide(human->GetID());
 				}
 			}
