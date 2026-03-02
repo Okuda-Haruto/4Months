@@ -50,7 +50,7 @@ void CheckCollision::CheckSpike(Human* human) {
 		if (IsCollision(spikeSphere, playerSphere)) {
 			// 衝突
 			spike->OnCollide();
-			human->OnHitSpike();
+			human->OnHitSpike(spikeSphere.center);
 		}
 	}
 }
@@ -72,11 +72,12 @@ void CheckCollision::CheckWall(Human* human) {
 }
 
 void CheckCollision::CheckNeck(Human* human) {
+	if (human->isDrifting_ && human->IsCoilAround()) { return; }
 	for (auto& neck : necks_) {
 		Vector3 playerPos = human->GetTransform().translate;
 		Sphere playerSphere = { playerPos, 1.0f };
 		const auto& transforms = neck->GetTransforms();
-		// 最新の3つは判定無視
+		// 最新の2つは判定無視
 		if (transforms.size() > 2) {
 			for (size_t i = 0; i < transforms.size() - 2; ++i) {
 				const auto& nTransform = transforms[i];
@@ -84,10 +85,10 @@ void CheckCollision::CheckNeck(Human* human) {
 
 				// 判定
 				if (fabsf(nPos.y - playerPos.y) >= nTransform.scale.y) { // 高さが合っていたら詳細な判定
-					Sphere nSphere = { nPos, 0.3f }; // せまめ
+					Sphere nSphere = { nPos, 0.5f };
 					if (IsCollision(nSphere, playerSphere)) {
 						// 衝突
-						human->OnHitSpike();
+						human->OnHitNeck(nPos);
 					}
 				}
 			}

@@ -22,15 +22,16 @@ public:
 
 	// ヒット時
 	void OnHitRing(const float addSpeed, const float addMaxSpeed);
-	void OnHitSpike();
+	void OnHitSpike(const Vector3& pos);
 	void OnHitWall(OBB wallObb);
+	void OnHitNeck(const Vector3& pos);
 
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
 	float GetSpeed() { return fabsf(velocity_.translate.y); }
 	bool IsTurnBack() { return isTurnBack_; }
-	bool IsRewinding() { return rewindTimer_ > 0; }
+	bool IsCoilAround() { return isCoilAround_; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -69,16 +70,9 @@ protected:
 	//頭の進行角度
 	Vector3 headRotate_;
 
-	// 少し前までの位置履歴
-	std::deque<Vector3> history_;
-	const int maxHistory_ = 60;
-	// 巻き戻しタイマー
-	int rewindTimer_ = 0;
-	const int kRewindTime_ = 30;
-
 	// 無敵時間
 	int invinsibleTimer_;
-	const int invinsibleTimeOnHit_ = 60; // >= maxHistory
+	const int invinsibleTimeOnHit_ = 30;
 
 	// id
 	int characterID_ = 0;
