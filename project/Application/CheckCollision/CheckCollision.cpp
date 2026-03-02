@@ -4,11 +4,13 @@
 #include "Goal/Goal.h"
 #include "Neck/Neck.h"
 #include "Math/Collision.h"
+#include "GameCamera/GameCamera.h"
 
-void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> necks) {
+void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> necks, GameCamera* gameCamera) {
 	course_ = course;
 	goal_ = goal;
 	necks_ = necks;
+	gameCamera_ = gameCamera;
 }
 
 void CheckCollision::Update(Human* human) {
@@ -53,6 +55,7 @@ void CheckCollision::CheckSpike(Human* human) {
 			human->OnHitSpike(spikeSphere.center);
 			if (goal_->GetHuman() == human) {
 				goal_->SetHuman(nullptr);
+				gameCamera_->StartShake(1.0f, 3);
 			}
 
 		}
@@ -94,6 +97,7 @@ void CheckCollision::CheckNeck(Human* human) {
 						// 衝突
 						human->OnHitNeck(nPos);
 						//goal_->SetHuman(nullptr);
+						gameCamera_->StartShake(1.0f, 2);
 					}
 				}
 			}

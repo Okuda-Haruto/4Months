@@ -51,7 +51,33 @@ void GameCamera::Update() {
 	if (!nextCamera_) {
 		nowCamera_->Update();
 		camera_->Update(nowCamera_->GetTransform());
+
+		// カメラシェイク
+		if (shakeFrame_ > 0) {
+			shakeFrame_--;
+
+			float amp = amplitude_ * (float(shakeFrame_) / float(shakeEndFrame_));
+
+			shake_ = {
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+			};
+		} else {
+			shake_ = {};
+			amplitude_ = 0;
+		}
+		SRT shakedTransform = nowCamera_->GetTransform();
+		shakedTransform.translate += shake_;
+		// 通常カメラのビュー
+		camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(shakedTransform.scale, shakedTransform.rotate, shakedTransform.translate)));
 	} else {
 		//あとで
 	}
+}
+
+void GameCamera::StartShake(float amplitude, int frame) {
+	amplitude_ = amplitude;
+	shakeFrame_ = frame;
+	shakeEndFrame_ = frame;
 }

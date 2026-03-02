@@ -5,11 +5,12 @@ class Course;
 class Goal;
 class Human;
 class Neck;
+class GameCamera;
 
 class CheckCollision {
 public:
 	// 初期化
-	void Initialize(Course* course, Goal* goal, std::vector<Neck*> necks);
+	void Initialize(Course* course, Goal* goal, std::vector<Neck*> necks, GameCamera* gameCamera);
 	// 更新
 	void Update(Human* human);
 
@@ -32,5 +33,6 @@ private:
 	Course* course_;
 	Goal* goal_;
 	std::vector<Neck*> necks_;
+	GameCamera* gameCamera_;
 };
 

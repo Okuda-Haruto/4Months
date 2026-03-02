@@ -74,7 +74,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	for (auto& n : necks_) {
 		necks.push_back(n.get());
 	}
-	checkCollision_->Initialize(course_.get(),goal_.get(),necks);
+	checkCollision_->Initialize(course_.get(),goal_.get(),necks,gameCamera_.get());
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
