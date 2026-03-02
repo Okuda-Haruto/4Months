@@ -12,6 +12,8 @@ public:
 	// 描画
 	void Draw();
 
+	bool GetIsDrifting() const;
+
 	//Getter
 	bool GetIsTurnBack() { return isTurnBack_; }
 

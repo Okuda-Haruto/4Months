@@ -249,6 +249,9 @@ void Human::OnHitWall(OBB wallObb) {
 	transform_.rotate = Normalize(q);
 
 }
+bool Human::GetIsCoilAround() const {
+	return isCoilAround_;
+
 
 void Human::OnHitNeck(const Vector3& pos) {
 	if (invinsibleTimer_ <= 0) {
@@ -312,4 +315,5 @@ void Human::OnHitNeck(const Vector3& pos) {
 
 		transform_.rotate = Normalize(q);
 	}
+
 }

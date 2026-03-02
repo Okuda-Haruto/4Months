@@ -26,6 +26,8 @@ public:
 	void OnHitWall(OBB wallObb);
 	void OnHitNeck(const Vector3& pos);
 
+	bool GetIsCoilAround() const;
+
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
