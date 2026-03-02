@@ -149,7 +149,7 @@
       <Filter>GameEngine\Modules\Animation</Filter>
     </ClCompile>
     <ClCompile Include="Application\Scene\BaseScene\GameScene\GameScene.cpp">
-      <Filter>Application\GameScene</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene</Filter>
     </ClCompile>
     <ClCompile Include="Application\Spike\Spike.cpp">
       <Filter>Application\Spike</Filter>
@@ -175,15 +175,24 @@
     <ClCompile Include="Application\Human\Human.cpp">
       <Filter>Application\Human</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Goal\Goal.cpp" />
     <ClCompile Include="Application\HUD\HUD.cpp">
       <Filter>Application\HUD</Filter>
     </ClCompile>
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp">
       <Filter>Application\CheckCollision</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp" />
-    <ClCompile Include="Application\Scene\SceneManager\SceneManager.cpp" />
+    <ClCompile Include="Application\Goal\Goal.cpp">
+      <Filter>Application\Goal</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Scene\BaseScene\TitleScene\TitleScene.cpp">
+      <Filter>Application\Scene\BaseScene\TitleScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Scene\SceneManager\SceneManager.cpp">
+      <Filter>Application\Scene\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp">
+      <Filter>Application\Scene\SceneFactory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -433,7 +442,7 @@
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="Application\Scene\BaseScene\GameScene\GameScene.h">
-      <Filter>Application\GameScene</Filter>
+      <Filter>Application\Scene\BaseScene\GameScene</Filter>
     </ClInclude>
     <ClInclude Include="Application\Spike\Spike.h">
       <Filter>Application\Spike</Filter>
@@ -459,16 +468,27 @@
     <ClInclude Include="Application\Human\Player\Player.h">
       <Filter>Application\Human\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Goal\Goal.h" />
     <ClInclude Include="Application\HUD\HUD.h">
       <Filter>Application\HUD</Filter>
     </ClInclude>
     <ClInclude Include="Application\CheckCollision\CheckCollision.h">
       <Filter>Application\CheckCollision</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h" />
-    <ClInclude Include="Application\Scene\SceneManager\SceneManager.h" />
-    <ClInclude Include="Application\Scene\BaseScene\BaseScene.h" />
+    <ClInclude Include="Application\Goal\Goal.h">
+      <Filter>Application\Goal</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\BaseScene\BaseScene.h">
+      <Filter>Application\Scene\BaseScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\BaseScene\TitleScene\TitleScene.h">
+      <Filter>Application\Scene\BaseScene\TitleScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\SceneManager\SceneManager.h">
+      <Filter>Application\Scene\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h">
+      <Filter>Application\Scene\SceneFactory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -633,9 +653,6 @@
     <Filter Include="GameEngine\Modules\Animation">
       <UniqueIdentifier>{2c4cc0fb-6e3d-40e2-ab0e-b89fb46ab728}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\GameScene">
-      <UniqueIdentifier>{a5d22d78-633f-4270-8853-63cb1aefaf81}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Spike">
       <UniqueIdentifier>{4c0c0ae8-cee3-4019-a9c3-9fbe3ac4b112}</UniqueIdentifier>
     </Filter>
@@ -665,6 +682,27 @@
     </Filter>
     <Filter Include="Application\CheckCollision">
       <UniqueIdentifier>{364d503c-ae48-4a9f-a5b5-662661dca4bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Goal">
+      <UniqueIdentifier>{b0857759-ce34-4e3b-ae39-411d87f3d3be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene">
+      <UniqueIdentifier>{918c5dbf-3b80-44ce-9991-b1c99dbf03e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene">
+      <UniqueIdentifier>{bc83dfd7-6638-4c7a-bdcd-b6cb2f6b6d5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene">
+      <UniqueIdentifier>{a5d22d78-633f-4270-8853-63cb1aefaf81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\TitleScene">
+      <UniqueIdentifier>{10cc1519-771c-4dac-9ed2-15c1e8eb8428}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\SceneManager">
+      <UniqueIdentifier>{781a06ef-5150-4129-93ee-c0b7afe13f5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\SceneFactory">
+      <UniqueIdentifier>{4a3ab82f-3bd3-4aac-9788-ff40223038eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -87,6 +87,7 @@ void GameScene::Finalize() {
 }
 
 void GameScene::Update() {
+	Keyboard keyboard = input_->GetKeyBoard();
 
 	// プレイヤーの更新
 	player_->Update(input_);
@@ -130,8 +131,11 @@ void GameScene::Update() {
 #endif
 
 	//仮置き
-	if (input_->PushKey(DIK_R)) {
+	if (keyboard.trigger[DIK_R]) {
 		SceneManager::GetInstance()->ChangeScene("Game");
+	}
+	if (goal_->GetTransform().translate.y > 100) {
+		SceneManager::GetInstance()->ChangeScene("Title");
 	}
 }
 
