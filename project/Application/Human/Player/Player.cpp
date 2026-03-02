@@ -4,6 +4,7 @@
 void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
 	//初期化
 	Human::Initialize(position, directionalLight);
+	color_ = { 0,1,0,1 };   //首の色　緑
 }
 
 void Player::Update(const std::shared_ptr<Input> input) {
