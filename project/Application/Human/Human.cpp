@@ -21,7 +21,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 
 	characterID_ = id_++;
 
-	fallingSpeed_ = kMinSpeed_;
+	fallingSpeed_ = -kMinSpeed_;
 	speed_ = 0.2f;
 
 	isDrifting_ = false;
