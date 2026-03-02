@@ -51,7 +51,7 @@ private:
 
 	// 衝突判定(円)
 	Vector2 colliderCenter_ = {};
-	float radius_ = 10;
+	float radius_ = 20;
 
 	// 配置物
 	int ringCount_ = 50;

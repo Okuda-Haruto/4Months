@@ -72,7 +72,7 @@ void CheckCollision::CheckWall(Human* human) {
 }
 
 void CheckCollision::CheckNeck(Human* human) {
-	if (human->isDrifting_ && human->IsCoilAround()) { return; }
+	if (human->isDrifting_ && human->IsCoilAround()) { return; } // 巻きつき中は判定しない
 	for (auto& neck : necks_) {
 		Vector3 playerPos = human->GetTransform().translate;
 		Sphere playerSphere = { playerPos, 1.0f };

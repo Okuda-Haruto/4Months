@@ -23,7 +23,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
 	//ドリフト
-	if (keyboard.hold[DIK_SPACE]) {
+	if (keyboard.hold[DIK_SPACE] && unableDriftTimer_ <= 0) {
 		rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } *rotateMatrix, std::numbers::pi_v<float> / 30);
 		NextRotate = IdentityQuaternion() * rollRotate_;
 		isDrifting_ = true;
