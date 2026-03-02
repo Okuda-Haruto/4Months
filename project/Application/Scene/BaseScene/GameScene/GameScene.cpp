@@ -1,7 +1,6 @@
 #define NOMINMAX
 #include "GameScene.h"
-#include "Vector3.h"
-#include "Matrix4x4.h"
+#include "../../SceneManager/SceneManager.h"
 
 #include <algorithm>
 #include <numbers>
@@ -21,13 +20,8 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//カメラ
 	defaultCamera_ = Object::GetDefaultCamera();
+	//defaultCamera_ = make_shared<Camera>();
 	defaultCamera_->SetDebugCamera(debugCamera_);
-
-	cameraTransform_ = {
-		{ 0.0f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.0f },
-		{ 2.0f, 2.0f, -18.0f }
-	};
 
 	//光源
 	directionalLight_ = make_shared<DirectionalLight>();
@@ -42,6 +36,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	// コース
 	course_ = std::make_unique<Course>();
 	course_->Initialize();
+
 	//ゴール
 	goal_ = std::make_unique<Goal>();
 	goal_->Initialize(Vector3{ 0,-380,0 }, directionalLight_);
@@ -87,6 +82,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 }
 
+void GameScene::Finalize() {
+
+}
+
 void GameScene::Update() {
 
 	// プレイヤーの更新
@@ -129,6 +128,11 @@ void GameScene::Update() {
 	}
 	ImGui::End();
 #endif
+
+	//仮置き
+	if (input_->PushKey(DIK_R)) {
+		SceneManager::GetInstance()->ChangeScene("Game");
+	}
 }
 
 void GameScene::Draw() {

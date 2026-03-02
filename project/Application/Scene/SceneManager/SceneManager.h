@@ -1,5 +1,5 @@
 #pragma once
-#include <BaseScene/BaseScene.h>
+#include "../BaseScene/BaseScene.h"
 #include <Factory/AbstractSceneFactory/AbstractSceneFactory.h>
 
 using namespace std;
@@ -26,7 +26,7 @@ public:
 
 	//シングルトンインスタンスの取得
 	static SceneManager* GetInstance();
-	
+
 	//解放処理
 	void Finalize();
 	//更新処理

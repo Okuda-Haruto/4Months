@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include <cassert>
 
 unique_ptr<SceneManager> SceneManager::instance;
 
@@ -11,8 +12,10 @@ SceneManager* SceneManager::GetInstance() {
 
 void SceneManager::Finalize() {
 	//最期のシーンの終了と解放
-	scene_->Finalize();
-	scene_.reset();
+	if (scene_) {
+		scene_->Finalize();
+		scene_.reset();
+	}
 
 	instance.reset();
 }
@@ -30,8 +33,6 @@ void SceneManager::Update() {
 		//シーンの切り替え
 		scene_ = move(nextScene_);
 		nextScene_.reset();
-
-		scene_->SetSceneManager(this);
 
 		//次シーンを初期化
 		scene_->Initialize(input_);
