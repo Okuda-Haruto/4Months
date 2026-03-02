@@ -34,7 +34,7 @@ void Goal::Update() {
 	if (human_) {
 		SRT transform = human_->GetTransform();
 		//頭からの距離
-		Vector3 haveLength = Vector3(0, 0, 2.2f) * MakeRotateMatrix(transform.rotate);
+		Vector3 haveLength = Vector3(0, 0, 3.2f) * MakeRotateMatrix(transform.rotate);
 		transform.translate += haveLength;
 		transform.scale = transform_.scale;
 		transform_ = transform;
