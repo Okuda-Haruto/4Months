@@ -87,6 +87,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 }
 
+void GameScene::Finalize() {
+
+}
+
 void GameScene::Update() {
 
 	// プレイヤーの更新
