@@ -9,6 +9,8 @@ protected:
 	//入力
 	std::shared_ptr<Input> input_;
 public:
+
+	virtual ~BaseScene() {};
 	//初期化
 	virtual void Initialize(std::shared_ptr<Input> input) = 0;
 	//終了処理

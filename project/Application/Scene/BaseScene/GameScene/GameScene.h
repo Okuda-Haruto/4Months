@@ -27,7 +27,7 @@ private:
 	bool isUseDebugCamera_ = false;
 
 	//光源
-	DirectionalLightElement directionalLightElement_;
+	DirectionalLightElement directionalLightElement_{};
 	std::shared_ptr<DirectionalLight> directionalLight_ = nullptr;
 	UINT reflection = REFLECTION_HalfLambert;
 	float shininess_ = 40.0f;

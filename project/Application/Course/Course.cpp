@@ -21,6 +21,13 @@ Course::Course() {
 	CreateTubeCourse();
 }
 
+Course::~Course() {
+	for (auto& model_ : wallModel_) {
+		model_.reset();
+	}
+	wallModel_.clear();
+}
+
 void Course::Initialize() {
 	for (auto& ring : rings_) {
 		ring->Initialize();
