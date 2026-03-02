@@ -80,7 +80,7 @@ void Course::Initialize() {
 
 void Course::Update() {
 	for (auto& model : wallModel_) {
-		model->SetColor({ 1,1,1,0.75f });
+		model->SetColor({ 1,1,1,1 });
 	}
 
 	for (auto& ring : rings_) {
