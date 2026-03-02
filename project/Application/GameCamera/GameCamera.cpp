@@ -7,6 +7,7 @@
 void DownCamera::Initialize(Player* player) {
 	player_ = player;
 	//初期値として現在の向きを入れる
+	transform_.scale = { 1,1,1 };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	rollRotate_ = player_->GetRollRotate();
 	transform_.rotate = transform_.rotate * rollRotate_;
