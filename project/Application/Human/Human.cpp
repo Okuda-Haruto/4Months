@@ -245,6 +245,8 @@ void Human::OnHitNeck(const Vector3& pos) {
 		} else {
 			fallingSpeed_ -= 0.3f;
 		}
+		speed_ -= 0.1f;
+		if (speed_ < 0.2f) { speed_ = 0.2f; }
 		maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
 		maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 		invinsibleTimer_ = invinsibleTimeOnHit_;
@@ -267,7 +269,7 @@ void Human::OnHitNeck(const Vector3& pos) {
 		rot.m[0][0] = right.x;   rot.m[0][1] = right.y;   rot.m[0][2] = right.z;
 		rot.m[1][0] = up.x;      rot.m[1][1] = up.y;      rot.m[1][2] = up.z;
 		rot.m[2][0] = forward.x; rot.m[2][1] = forward.y; rot.m[2][2] = forward.z;
-		
+
 		Quaternion q;
 		float trace = rot.m[0][0] + rot.m[1][1] + rot.m[2][2];
 		if (trace > 0.0f) {
