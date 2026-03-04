@@ -73,19 +73,23 @@ void Human::Update() {
 			//軸回転後位置
 			if (!isTurnBack_) {
 				Vector3 rotatePos = RotateVector(
-					Vector3{ 0,0,-15 },
+					Vector3{ 0,0,-5 },
 					transform.rotate);
 				transform.translate += rotatePos;
-				if (transform.translate.y < neckTransforms[neckCoilAroundIndex_].translate.y) {
+				if (Length(transform_.translate - transform.translate) < 1.0f) {
 					isCoilAround_ = false;
+					isDrifting_ = false;
+					unableDriftTimer_ = unableDriftTime_;
 				}
 			} else {
 				Vector3 rotatePos = RotateVector(
-					Vector3{ 0,0,-15 },
+					Vector3{ 0,0,-5 },
 					transform.rotate);
 				transform.translate += rotatePos;
-				if (transform.translate.y > neckTransforms[neckCoilAroundIndex_].translate.y) {
+				if (Length(transform_.translate - transform.translate) < 1.0f) {
 					isCoilAround_ = false;
+					isDrifting_ = false;
+					unableDriftTimer_ = unableDriftTime_;
 				}
 			}
 
