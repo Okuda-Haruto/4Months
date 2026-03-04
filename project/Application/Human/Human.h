@@ -43,8 +43,9 @@ public:
 	bool isDrifting_ = false;
 
 	//setter
-	void SetNeck(Neck* neck) { neck_ = neck; }
+	void SetNecks(std::vector<std::shared_ptr<Neck>> necks) { necks_ = necks; }
 	void SetGoal(Goal* goal) { goal_ = goal; }
+	void SetSelfNeckIndex(int selfNeckIndex) { selfNeckIndex_ = selfNeckIndex; }
 	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
 
 	//getter
@@ -100,8 +101,13 @@ protected:
 
 	// id
 	int characterID_ = 0;
+
 	//軸になる可能性のある首
-	Neck* neck_;
+	std::vector<std::shared_ptr<Neck>> necks_;
+	//自分の首の番号
+	int selfNeckIndex_ = 0;
+	//自分の首が対象にならない範囲の下限
+	uint32_t noTargetMinNumber_;
 
 	//ゴール
 	Goal* goal_ = nullptr;
@@ -112,8 +118,10 @@ protected:
 	const float kCoilAroundRange_ = 4.0f;
 	//巻き付いているか
 	bool isCoilAround_ = false;
-	//現在巻き付いている首の番号
+	//現在巻き付いている首(一本)の番号
 	int32_t neckCoilAroundIndex_;
+	//現在巻き付いている首(単体)の番号
+	int32_t neckCoilAroundNumber_;
 	//線形補間位置
 	float coilAroundDistance_;
 
