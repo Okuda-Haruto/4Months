@@ -1,6 +1,6 @@
 #include "Ring.h"
 
-void Ring::Initialize(const Vector3& spawnPos) {
+void Ring::Initialize(const Vector3& spawnPos, const float radius) {
 	model_ = make_unique<Object>();
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Ring", "Ring.obj"));
 	model_->SetShininess(40.0f);
@@ -10,7 +10,7 @@ void Ring::Initialize(const Vector3& spawnPos) {
 
 	// 衝突判定
 	colliderCenter_ = transform_.translate;
-	colliderRadius_ = GameEngine::randomFloat(radiusMin_, radiusMax_);
+	colliderRadius_ = radius;
 
 	transform_.scale = { colliderRadius_,colliderHeight_,colliderRadius_ };
 }

@@ -1960,7 +1960,7 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC
         UINT16 depthOrArraySize,
         UINT16 mipLevels,
         DXGI_FORMAT format,
-        UINT sampleCount,
+        UINT sampleCount_,
         UINT sampleQuality,
         D3D12_TEXTURE_LAYOUT layout,
         D3D12_RESOURCE_FLAGS flags ) noexcept
@@ -1972,7 +1972,7 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC
         DepthOrArraySize = depthOrArraySize;
         MipLevels = mipLevels;
         Format = format;
-        SampleDesc.Count = sampleCount;
+        SampleDesc.Count = sampleCount_;
         SampleDesc.Quality = sampleQuality;
         Layout = layout;
         Flags = flags;
@@ -2010,14 +2010,14 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC
         UINT height,
         UINT16 arraySize = 1,
         UINT16 mipLevels = 0,
-        UINT sampleCount = 1,
+        UINT sampleCount_ = 1,
         UINT sampleQuality = 0,
         D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
         D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
         UINT64 alignment = 0 ) noexcept
     {
         return CD3DX12_RESOURCE_DESC( D3D12_RESOURCE_DIMENSION_TEXTURE2D, alignment, width, height, arraySize,
-            mipLevels, format, sampleCount, sampleQuality, layout, flags );
+            mipLevels, format, sampleCount_, sampleQuality, layout, flags );
     }
     static inline CD3DX12_RESOURCE_DESC Tex3D(
         DXGI_FORMAT format,
@@ -2089,7 +2089,7 @@ struct CD3DX12_RESOURCE_DESC1 : public D3D12_RESOURCE_DESC1
         UINT16 depthOrArraySize,
         UINT16 mipLevels,
         DXGI_FORMAT format,
-        UINT sampleCount,
+        UINT sampleCount_,
         UINT sampleQuality,
         D3D12_TEXTURE_LAYOUT layout,
         D3D12_RESOURCE_FLAGS flags,
@@ -2104,7 +2104,7 @@ struct CD3DX12_RESOURCE_DESC1 : public D3D12_RESOURCE_DESC1
         DepthOrArraySize = depthOrArraySize;
         MipLevels = mipLevels;
         Format = format;
-        SampleDesc.Count = sampleCount;
+        SampleDesc.Count = sampleCount_;
         SampleDesc.Quality = sampleQuality;
         Layout = layout;
         Flags = flags;
@@ -2145,7 +2145,7 @@ struct CD3DX12_RESOURCE_DESC1 : public D3D12_RESOURCE_DESC1
         UINT height,
         UINT16 arraySize = 1,
         UINT16 mipLevels = 0,
-        UINT sampleCount = 1,
+        UINT sampleCount_ = 1,
         UINT sampleQuality = 0,
         D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
         D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
@@ -2155,7 +2155,7 @@ struct CD3DX12_RESOURCE_DESC1 : public D3D12_RESOURCE_DESC1
         UINT samplerFeedbackMipRegionDepth = 0) noexcept
     {
         return CD3DX12_RESOURCE_DESC1( D3D12_RESOURCE_DIMENSION_TEXTURE2D, alignment, width, height, arraySize,
-            mipLevels, format, sampleCount, sampleQuality, layout, flags, samplerFeedbackMipRegionWidth,
+            mipLevels, format, sampleCount_, sampleQuality, layout, flags, samplerFeedbackMipRegionWidth,
             samplerFeedbackMipRegionHeight, samplerFeedbackMipRegionDepth );
     }
     static inline CD3DX12_RESOURCE_DESC1 Tex3D(

@@ -1,16 +1,16 @@
 #include "Spike.h"
 
-void Spike::Initialize(const Vector3& spawnPos) {
+void Spike::Initialize(const Vector3& spawnPos, const float radius) {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Spike", "Spike.obj"));
 	model_->SetShininess(40.0f);
 
-	transform_ = { {1,1,1},{},spawnPos };
+	transform_ = { {radius,radius,radius},{},spawnPos };
 	model_->SetTransform(transform_);
 
 	// 衝突判定
 	collider_.center = transform_.translate;
-	collider_.radius = 0.5f;
+	collider_.radius = radius;
 }
 
 void Spike::Update() {
