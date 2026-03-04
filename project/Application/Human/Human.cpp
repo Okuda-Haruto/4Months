@@ -55,7 +55,20 @@ void Human::Update() {
 
 		std::vector<SRT> neckTransforms = neck_->GetTransforms();
 		//線形補間位置を加算する
-		coilAroundDistance_ += 5.0f * speed_;
+		//下向き
+		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundIndex_].rotate).y > 0.0f) {
+			if (!isTurnBack_) {
+				coilAroundDistance_ += 5.0f * speed_;
+			} else {
+				coilAroundDistance_ -= 5.0f * speed_;
+			}
+		} else {
+			if (isTurnBack_) {
+				coilAroundDistance_ += 5.0f * speed_;
+			} else {
+				coilAroundDistance_ -= 5.0f * speed_;
+			}
+		}
 		while (coilAroundDistance_ >= 1.0f) {
 			coilAroundDistance_ -= 1.0f;
 			neckCoilAroundIndex_++;
@@ -143,28 +156,40 @@ void Human::Update() {
 		humanNearSphere.radius = kCanCoilAroundRange_;
 		std::vector<SRT> neckTransforms = neck_->GetTransforms();
 
+		float neckNearLength = -1;
+		int neckIndex = -1;
+
 		//先端に近い順に
 		for (int32_t i = 0; i < int32_t(neckTransforms.size()) - 1; i++) {
 			if (IsCollision(humanNearSphere, neckTransforms[i].translate)) {
 				//目標地点に向かう
 				Vector3 toTarget = transform_.translate - neckTransforms[i].translate;
-				Vector3 localDirection = RotateVector(toTarget, Inverse(neckTransforms[i].rotate));
 
-				transform_.rotate = LookAt(transform_.translate, neckTransforms[i].translate);
-				//近接判定に首が接触したなら巻き付く
-				neckCoilAroundIndex_ = i;
-				if (localDirection.x > 0.0f && localDirection.y < 0.0f) {
-					coilAroundDistance_ = 0.0f;
-				} else if (localDirection.x > 0.0f && localDirection.y > 0.0f) {
-					coilAroundDistance_ = 4.0f;
-				} else if (localDirection.x < 0.0f && localDirection.y > 0.0f) {
-					coilAroundDistance_ = 8.0f;
-				} else if (localDirection.x < 0.0f && localDirection.y < 0.0f) {
-					coilAroundDistance_ = 12.0f;
+				if (neckNearLength == -1 || Length(toTarget) < neckNearLength) {
+					neckNearLength = Length(toTarget);
+					neckIndex = i;
 				}
-				isCoilAround_ = true;
-				break;
 			}
+		}
+
+		if (neckIndex != -1) {
+			//目標地点に向かう
+			Vector3 toTarget = transform_.translate - neckTransforms[neckIndex].translate;
+			Vector3 localDirection = RotateVector(toTarget, Inverse(neckTransforms[neckIndex].rotate));
+
+			transform_.rotate = LookAt(transform_.translate, neckTransforms[neckIndex].translate);
+			//近接判定に首が接触したなら巻き付く
+			neckCoilAroundIndex_ = neckIndex;
+			if (localDirection.x > 0.0f && localDirection.y < 0.0f) {
+				coilAroundDistance_ = 0.0f;
+			} else if (localDirection.x > 0.0f && localDirection.y > 0.0f) {
+				coilAroundDistance_ = 4.0f;
+			} else if (localDirection.x < 0.0f && localDirection.y > 0.0f) {
+				coilAroundDistance_ = 8.0f;
+			} else if (localDirection.x < 0.0f && localDirection.y < 0.0f) {
+				coilAroundDistance_ = 12.0f;
+			}
+			isCoilAround_ = true;
 		}
 
 	} else {
