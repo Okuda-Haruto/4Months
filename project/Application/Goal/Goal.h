@@ -19,7 +19,7 @@ private:
 	float goalCoolTime_ = 0.0f;
 
 	//定位置
-	const float kBaseHeight_ = -590;
+	const float kBaseHeight_ = -530;
 
 public:
 	// 初期化

@@ -5,7 +5,7 @@
 class Spike {
 public:
 	// 初期化
-	void Initialize(const Vector3& spawnPos);
+	void Initialize(const Vector3& spawnPos, const float radius);
 	
 	// 更新
 	void Update();

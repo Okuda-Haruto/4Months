@@ -1,14 +1,6 @@
 #include "Course.h"
 
 Course::Course() {
-	// 配置物の設置
-	for (int i = 0; i < ringCount_; ++i) {
-		rings_.push_back(std::make_unique<Ring>());
-	}
-	for (int i = 0; i < spikeCount_; ++i) {
-		spikes_.push_back(std::make_unique<Spike>());
-	}
-
 	// 制御点
 	controlPoints_.push_back({});
 	controlPoints_.push_back({});
@@ -35,8 +27,8 @@ Course::Course() {
 
 	model_ = std::make_unique<Object>();
 	model_->Initialize(
-			ModelManager::GetInstance()
-			->GetModel("resources/Course", "Course.obj"));
+		ModelManager::GetInstance()
+		->GetModel("resources/Course", "Course.obj"));
 
 	model_->SetShininess(40.0f);
 	model_->SetColor({ 1,1,1,1 });
@@ -51,30 +43,7 @@ Course::~Course() {
 }
 
 void Course::Initialize() {
-	for (auto& ring : rings_) {
-		Vector3 randomPoint = GetPoint(GameEngine::randomFloat(0.0f, 1.0f));
-		Vector3 spawnPos = {
-		 randomPoint.x + GameEngine::randomFloat(-radius_ / 2, radius_ / 2),
-		 randomPoint.y,
-		 randomPoint.z + GameEngine::randomFloat(-radius_ / 2, radius_ / 2)
-		};
-		ring->Initialize(spawnPos);
-	}
-	//ソート
-	std::sort(rings_.begin(), rings_.end(),
-		[](const auto& a, const auto& b) {
-			return *a < *b;
-		});
-
-	for (auto& spike : spikes_) {
-		Vector3 randomPoint = GetPoint(GameEngine::randomFloat(0.0f, 1.0f));
-		Vector3 spawnPos = {
-		 randomPoint.x + GameEngine::randomFloat(-radius_ / 2, radius_ / 2),
-		 randomPoint.y,
-		 randomPoint.z + GameEngine::randomFloat(-radius_ / 2, radius_ / 2)
-		};
-		spike->Initialize(spawnPos);
-	}
+	ReadCSV();
 }
 
 void Course::Update() {
@@ -210,28 +179,25 @@ Quaternion Course::FromRotationMatrix(const Matrix3x3& m) {
 }
 
 void Course::CreateTubeCourse() {
-	const int sampleCount = 1000;
-
 	walls_.clear();
 	wallModel_.clear();
 
 	// 弧長テーブル
-	std::vector<float> lengthTable(sampleCount);
-	std::vector<float> tTable(sampleCount);
+	lengthTable_.resize(sampleCount_);
+	tTable_.resize(sampleCount_);
 
-	float totalLength = 0.0f;
 	Vector3 prev = GetPoint(0.0f);
-	lengthTable[0] = 0.0f;
-	tTable[0] = 0.0f;
+	lengthTable_[0] = 0.0f;
+	tTable_[0] = 0.0f;
 
-	for (int i = 1; i < sampleCount; ++i) {
-		float t = (float)i / (sampleCount - 1);
+	for (int i = 1; i < sampleCount_; ++i) {
+		float t = (float)i / (sampleCount_ - 1);
 		Vector3 p = GetPoint(t);
 
-		totalLength += Length(p - prev);
+		totalLength_ += Length(p - prev);
 
-		lengthTable[i] = totalLength;
-		tTable[i] = t;
+		lengthTable_[i] = totalLength_;
+		tTable_[i] = t;
 
 		prev = p;
 	}
@@ -245,17 +211,17 @@ void Course::CreateTubeCourse() {
 	Vector3 prevT = T0;
 
 	// 円の位置
-	for (float dist = 0.0f; dist < totalLength; dist += wallSpace_) {
+	for (float dist = 0.0f; dist < totalLength_; dist += wallSpace_) {
 		// dist → t を探す（線形探索）
 		float t = 1.0f;
 
-		for (int i = 1; i < sampleCount; ++i) {
-			if (lengthTable[i] >= dist) {
+		for (int i = 1; i < sampleCount_; ++i) {
+			if (lengthTable_[i] >= dist) {
 				float ratio =
-					(dist - lengthTable[i - 1]) /
-					(lengthTable[i] - lengthTable[i - 1]);
+					(dist - lengthTable_[i - 1]) /
+					(lengthTable_[i] - lengthTable_[i - 1]);
 
-				t = lerp(tTable[i - 1], tTable[i], ratio);
+				t = lerp(tTable_[i - 1], tTable_[i], ratio);
 				break;
 			}
 		}
@@ -336,4 +302,121 @@ void Course::CreateTubeCourse() {
 			wallModel_.push_back(std::move(model));
 		}
 	}
+}
+
+void Course::ReadCSV() {
+	// ---------
+	// 0=無
+	// 1,2,3=リング(小/中/大)
+	// 4,5,6=障害物(小/中/大)
+	// ---------
+
+	for (int i = 0; i < kLayerCount_; ++i) {
+		std::vector<std::vector<int>> layer;
+
+		// ファイルをロード
+		std::string path = "Resources/Course/LayoutCSV/Layout" + std::to_string(i) + ".csv";
+		std::ifstream file(path);
+		std::string line;
+		assert(file.is_open());
+
+		// ファイル読む
+		while (std::getline(file, line)) {
+			std::vector<int> row;
+			std::stringstream ss(line);
+			std::string cell;
+
+			while (std::getline(ss, cell, ',')) {
+				int value = std::stoi(cell);
+				row.push_back(value);
+			}
+
+			layer.push_back(row);
+		}
+		std::reverse(layer.begin(), layer.end());
+
+		// 層ごとの配置
+		for (int x = 0; x < kCSVWidth_; ++x) {
+			for (int z = 0; z < kCSVHeight_; ++z) {
+				Vector2 blockSize = { (radius_ * 2) / kCSVWidth_, (radius_ * 2) / kCSVHeight_ };
+
+				Vector3 pos = Vector3{
+					(x + 0.5f)* blockSize.x,
+					0,
+					(z + 0.5f) * blockSize.y
+				};
+				pos -= { (kCSVWidth_ * blockSize.x) / 2.0f, 0, (kCSVHeight_ * blockSize.y) / 2.0f};
+
+				float targetDist = totalLength_ * (float(i) / kLayerCount_);
+				float t = DistanceToT(targetDist);
+				pos += GetPoint(t); // コース上に移動
+
+				// 設置
+				switch (layer[z][x]) {
+				case 1:
+					AddRing(pos, 1.0f);
+					break;
+				case 2:
+					AddRing(pos, 2.0f);
+					break;
+				case 3:
+					AddRing(pos, 3.0f);
+					break;
+
+				case 4:
+					AddSpike(pos, 1.0f);
+					break;
+				case 5:
+					AddSpike(pos, 2.0f);
+					break;
+				case 6:
+					AddSpike(pos, 3.0f);
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+	}
+}
+
+void Course::AddRing(const Vector3& spawnPos, const float radius) {
+	std::unique_ptr ring = std::make_unique<Ring>();
+	ring->Initialize(spawnPos, radius);
+	rings_.push_back(std::move(ring));
+
+	//ソート
+	std::sort(rings_.begin(), rings_.end(),
+		[](const auto& a, const auto& b) {
+			return *a < *b;
+		});
+}
+
+void Course::AddSpike(const Vector3& spawnPos, const float radius) {
+	std::unique_ptr spike = std::make_unique<Spike>();
+	spike->Initialize(spawnPos, radius);
+	spikes_.push_back(std::move(spike));
+}
+
+float Course::DistanceToT(float dist) const {
+	dist = std::clamp(dist, 0.0f, totalLength_);
+
+	for (int i = 1; i < lengthTable_.size(); ++i) {
+		if (lengthTable_[i] >= dist) {
+			float segmentLength =
+				lengthTable_[i] - lengthTable_[i - 1];
+
+			float ratio =
+				(dist - lengthTable_[i - 1]) / segmentLength;
+
+			return std::lerp(
+				tTable_[i - 1],
+				tTable_[i],
+				ratio
+			);
+		}
+	}
+
+	return 1.0f;
 }

@@ -5,7 +5,7 @@
 class Ring {
 public:
 	// 初期化
-	void Initialize(const Vector3& spawnPos);
+	void Initialize(const Vector3& spawnPos, const float radius);
 
 	// 更新
 	void Update();
@@ -42,10 +42,6 @@ private:
 	Vector3 colliderCenter_;
 	float colliderRadius_;
 	float colliderHeight_ = 0.5f;
-
-	// サイズ範囲
-	float radiusMin_ = 1.0f;
-	float radiusMax_ = 3.0f;
 
 	// 出現範囲
 	float spawnRadius_ = 30;
