@@ -152,16 +152,16 @@ void GameScene::Draw() {
 	//敵の描画
 	enemy_->Draw();
 
-	//首描画
-	for (auto& neck : necks_) {
-		neck->Draw();
-	}
-
 	//ゴール描画処理
 	goal_->Draw();
 
 	// コース
 	course_->Draw(directionalLight_);
+
+	//首描画
+	for (auto& neck : necks_) {
+		neck->Draw();
+	}
 
 	// HUD
 	hud_->Draw();
