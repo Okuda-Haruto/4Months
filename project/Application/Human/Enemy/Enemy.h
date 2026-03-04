@@ -17,12 +17,9 @@ public:
 	//setter
 	void SetRings(std::vector<Ring*> rings) { rings_ = rings; }
 	void SetSpikes(std::vector<Spike*> spikes) { spikes_ = spikes; }
-	void SetNeck(std::vector<std::shared_ptr<Neck>> necks) { necks_ = necks; }
 
 private:
 	//コース
 	std::vector<Ring*> rings_;
 	std::vector<Spike*> spikes_;
-
-	std::vector<std::shared_ptr<Neck>> necks_;
 };

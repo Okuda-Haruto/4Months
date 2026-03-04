@@ -61,8 +61,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	neck = std::make_shared<Neck>();
 	neck->Initialize(enemy_.get(), directionalLight_);
 	necks_.push_back(move(neck));
-	player_->SetNeck(necks_[1].get());
-	enemy_->SetNeck(necks_);
+	player_->SetNecks(necks_);
+	player_->SetSelfNeckIndex(0);
+	enemy_->SetNecks(necks_);
+	enemy_->SetSelfNeckIndex(1);
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();

@@ -27,6 +27,8 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	isDrifting_ = false;
 	isCoilAround_ = false;
 	coilAroundDistance_ = 0.0f;
+
+	noTargetMinNumber_ = 0;
 }
 
 void Human::Update() {
@@ -45,18 +47,25 @@ void Human::Update() {
 	velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
 
 	if ((goal_->GetTransform().translate.y > transform_.translate.y) || goal_->GetHuman() == this) {
+		if (!isTurnBack_) {
+			noTargetMinNumber_ = uint32_t(necks_[selfNeckIndex_]->GetTransforms().size() - 1);
+		}
 		isTurnBack_ = true;
 	} else {
+		if (isTurnBack_) {
+			noTargetMinNumber_ = uint32_t(necks_[selfNeckIndex_]->GetTransforms().size() - 1);
+		}
 		isTurnBack_ = false;
 	}
 
 	//巻き付いているとき
 	if (isCoilAround_ && isDrifting_) {
 
-		std::vector<SRT> neckTransforms = neck_->GetTransforms();
+		std::vector<SRT> neckTransforms = necks_[neckCoilAroundIndex_]->GetTransforms();
+
 		//線形補間位置を加算する
 		//下向き
-		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundIndex_].rotate).y > 0.0f) {
+ 		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundNumber_].rotate).y > 0.0f) {
 			if (!isTurnBack_) {
 				coilAroundDistance_ += 5.0f * speed_;
 			} else {
@@ -71,17 +80,23 @@ void Human::Update() {
 		}
 		while (coilAroundDistance_ >= 1.0f) {
 			coilAroundDistance_ -= 1.0f;
-			neckCoilAroundIndex_++;
-			if (neckCoilAroundIndex_ >= neckTransforms.size()) neckCoilAroundIndex_ = int32_t(neckTransforms.size() - 1);
+			neckCoilAroundNumber_++;
+			if (neckCoilAroundNumber_ >= neckTransforms.size()) neckCoilAroundNumber_ = int32_t(neckTransforms.size() - 1);
+		}
+
+		while (coilAroundDistance_ < 0.0f) {
+			coilAroundDistance_ += 1.0f;
+			neckCoilAroundNumber_--;
+			if (neckCoilAroundNumber_ < 0) neckCoilAroundNumber_ = 0;
 		}
 
 		//軸になる位置
 		SRT transform = transform_;
 		//次の首がない場合先端の先に移動する
-		if (neckCoilAroundIndex_ + 1 >= neckTransforms.size()) {
+		if (neckCoilAroundNumber_ + 1 >= neckTransforms.size()) {
 			//線形補間で回転中心のトランスフォームを求める
-			transform.rotate = neckTransforms[neckCoilAroundIndex_].rotate;
-			transform.translate = neckTransforms[neckCoilAroundIndex_].translate;
+			transform.rotate = neckTransforms[neckCoilAroundNumber_].rotate;
+			transform.translate = neckTransforms[neckCoilAroundNumber_].translate;
 
 			//軸回転後位置
 			if (!isTurnBack_) {
@@ -110,18 +125,18 @@ void Human::Update() {
 
 			//線形補間で回転中心のトランスフォームを求める
 			transform.rotate = Slerp(
-				neckTransforms[neckCoilAroundIndex_].rotate,
-				neckTransforms[neckCoilAroundIndex_ + 1].rotate,
+				neckTransforms[neckCoilAroundNumber_].rotate,
+				neckTransforms[neckCoilAroundNumber_ + 1].rotate,
 				coilAroundDistance_);
 			transform.translate = Lerp(
-				neckTransforms[neckCoilAroundIndex_].translate,
-				neckTransforms[neckCoilAroundIndex_ + 1].translate,
+				neckTransforms[neckCoilAroundNumber_].translate,
+				neckTransforms[neckCoilAroundNumber_ + 1].translate,
 				coilAroundDistance_);
 
 			//軸回転後位置
 			Vector3 rotatePos = RotateVector(
-				Vector3{ kCoilAroundRange_ * sinf(std::numbers::pi_v<float> / 8 * (neckCoilAroundIndex_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),
-				kCoilAroundRange_ * cosf(std::numbers::pi_v<float> / 8 * (neckCoilAroundIndex_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),0 },
+				Vector3{ kCoilAroundRange_ * sinf(std::numbers::pi_v<float> / 8 * (neckCoilAroundNumber_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),
+				kCoilAroundRange_ * cosf(std::numbers::pi_v<float> / 8 * (neckCoilAroundNumber_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),0 },
 				transform.rotate);
 			transform.translate += rotatePos;
 
@@ -154,31 +169,45 @@ void Human::Update() {
 		Sphere humanNearSphere;
 		humanNearSphere.center = transform_.translate;
 		humanNearSphere.radius = kCanCoilAroundRange_;
-		std::vector<SRT> neckTransforms = neck_->GetTransforms();
 
+		//一番近い首との距離
 		float neckNearLength = -1;
+		//首(一本)の番号
 		int neckIndex = -1;
+		//首(単体)の番号
+		int neckNumber = -1;
+		for (int32_t i = 0; i < int32_t(necks_.size()); i++) {
+			std::vector<SRT> neckTransforms = necks_[i]->GetTransforms();
 
-		//先端に近い順に
-		for (int32_t i = 0; i < int32_t(neckTransforms.size()) - 1; i++) {
-			if (IsCollision(humanNearSphere, neckTransforms[i].translate)) {
-				//目標地点に向かう
-				Vector3 toTarget = transform_.translate - neckTransforms[i].translate;
+			//先端に近い順に
+			for (uint32_t j = 0; j < uint32_t(neckTransforms.size()) - 1; j++) {
 
-				if (neckNearLength == -1 || Length(toTarget) < neckNearLength) {
-					neckNearLength = Length(toTarget);
-					neckIndex = i;
+				//自分の首かつ、巻き付き不可範囲ならbreak
+				if (i == selfNeckIndex_ && j > noTargetMinNumber_) break;
+
+				//首がある程度近いか
+				if (IsCollision(humanNearSphere, neckTransforms[j].translate)) {
+
+					Vector3 toTarget = transform_.translate - neckTransforms[j].translate;
+
+					if (neckNearLength == -1 || Length(toTarget) < neckNearLength) {
+						neckNearLength = Length(toTarget);
+						neckNumber = j;
+						neckIndex = i;
+					}
 				}
 			}
 		}
 
 		if (neckIndex != -1) {
+			SRT neckTransform = necks_[neckIndex]->GetTransforms()[neckNumber];
 			//目標地点に向かう
-			Vector3 toTarget = transform_.translate - neckTransforms[neckIndex].translate;
-			Vector3 localDirection = RotateVector(toTarget, Inverse(neckTransforms[neckIndex].rotate));
+			Vector3 toTarget = transform_.translate - neckTransform.translate;
+			Vector3 localDirection = RotateVector(toTarget, Inverse(neckTransform.rotate));
 
-			transform_.rotate = LookAt(transform_.translate, neckTransforms[neckIndex].translate);
+			transform_.rotate = LookAt(transform_.translate, neckTransform.translate);
 			//近接判定に首が接触したなら巻き付く
+			neckCoilAroundNumber_ = neckNumber;
 			neckCoilAroundIndex_ = neckIndex;
 			if (localDirection.x > 0.0f && localDirection.y < 0.0f) {
 				coilAroundDistance_ = 0.0f;
