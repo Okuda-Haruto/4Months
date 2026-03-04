@@ -8,32 +8,68 @@
 void DownCamera::Initialize(Player* player) {
 	player_ = player;
 	//初期値として現在の向きを入れる
+	transform_.scale = { 1,1,1 };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	rollRotate_ = player_->GetRollRotate();
 	transform_.rotate = transform_.rotate * rollRotate_;
 	transform_.translate = player_->GetTransform().translate;
 }
-
 void DownCamera::Update() {
-	//プレイヤー座標を基にする
-	Vector3 nextTranslate = player_->GetTransform().translate;
-	rollRotate_ = Slerp(rollRotate_, player_->GetRollRotate(), 0.1f);
-	//プレイヤーのロール分回転した位置に移動
-	nextTranslate += Vector3{ kCameraPos.x, kCameraPos.y, kCameraPos.z * Lerp(1.0f, 2.0f, player_->GetCameraEffectTime()) } *MakeRotateMatrix(transform_.rotate);
-	transform_.translate = Lerp(transform_.translate, nextTranslate, 0.1f);
-	//常に下を向く
-	Quaternion nextRotate;
-	if (!player_->GetIsTurnBack()) {
-		nextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
-	} else {
-		nextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2);
-	}
-	nextRotate = nextRotate * rollRotate_;
 
-	//現在の向きと次の向きの補完
-	transform_.rotate = Slerp(transform_.rotate, nextRotate, 0.1f);
+    Vector3 nextTranslate = player_->GetTransform().translate;
+
+    bool isCoil = player_->GetIsCoilAround();
+
+    // 巻き付きに入った瞬間を検出
+    if (isCoil && !wasCoilAround_) {
+        coilLockRotate_ = transform_.rotate;  // 今の回転を保存
+    }
+
+    if (isCoil) {
+        // 巻き付き中は回転固定
+        transform_.rotate = coilLockRotate_;
+    }
+    else {
+        // 折り返し基礎回転
+        Quaternion baseRotate;
+        if (!player_->GetIsTurnBack()) {
+            baseRotate = MakeRotateAxisAngleQuaternion(
+                Vector3{ 1,0,0 },
+                -std::numbers::pi_v<float> / 2
+            );
+        }
+        else {
+            baseRotate = MakeRotateAxisAngleQuaternion(
+                Vector3{ 1,0,0 },
+                std::numbers::pi_v<float> / 2
+            );
+        }
+
+        rollRotate_ = Slerp(
+            rollRotate_,
+            player_->GetRollRotate(),
+            0.1f
+        );
+
+        Quaternion nextRotate = baseRotate * rollRotate_;
+
+        transform_.rotate = Slerp(
+            transform_.rotate,
+            nextRotate,
+            0.1f
+        );
+    }
+
+    nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
+
+    transform_.translate = Lerp(
+        transform_.translate,
+        nextTranslate,
+        0.1f
+    );
+
+    wasCoilAround_ = isCoil;
 }
-
 #pragma endregion
 
 
@@ -52,7 +88,33 @@ void GameCamera::Update() {
 	if (!nextCamera_) {
 		nowCamera_->Update();
 		camera_->Update(nowCamera_->GetTransform());
+
+		// カメラシェイク
+		if (shakeFrame_ > 0) {
+			shakeFrame_--;
+
+			float amp = amplitude_ * (float(shakeFrame_) / float(shakeEndFrame_));
+
+			shake_ = {
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
+			};
+		} else {
+			shake_ = {};
+			amplitude_ = 0;
+		}
+		SRT shakedTransform = nowCamera_->GetTransform();
+		shakedTransform.translate += shake_;
+		// 通常カメラのビュー
+		camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(shakedTransform.scale, shakedTransform.rotate, shakedTransform.translate)));
 	} else {
 		//あとで
 	}
+}
+
+void GameCamera::StartShake(float amplitude, int frame) {
+	amplitude_ = amplitude;
+	shakeFrame_ = frame;
+	shakeEndFrame_ = frame;
 }

@@ -26,6 +26,8 @@ public:
 	void Initialize(Player* player) override;
 	//更新処理
 	void Update() override;
+	bool wasCoilAround_ = false;
+	Quaternion coilLockRotate_;
 };
 
 class GameCamera {
@@ -38,9 +40,18 @@ private:
 	std::unique_ptr<BaseCamera> nowCamera_;
 	//遷移する先のカメラ
 	std::unique_ptr<BaseCamera> nextCamera_;
+
+	// シェイク
+	Vector3 shake_{};
+	int shakeFrame_ = 0;
+	int shakeEndFrame_;
+	float amplitude_ = 0;
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Camera> camera, Player* player);
 	//更新処理
 	void Update();
+
+	// シェイク
+	void StartShake(float amplitude, int frame);
 };

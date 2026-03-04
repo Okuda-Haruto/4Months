@@ -22,7 +22,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	NextRotate = NextRotate * rollRotate_;
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
-
+  
 	//パッド操作
 	if (pad.isConnected) {
 
@@ -89,4 +89,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 void Player::Draw() {
 	Human::Draw();
+}
+bool Player::GetIsDrifting() const {
+    return isDrifting_;
 }
