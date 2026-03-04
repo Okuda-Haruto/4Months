@@ -32,6 +32,8 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 void Human::Update() {
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
+	if (unableDriftTimer_ > 0) { unableDriftTimer_--; }
+
 	if (cameraEffectTime_ > 0.0f) {
 		cameraEffectTime_ -= 1.0f / 60.0f;
 		if (cameraEffectTime_ < 0.0f) {
