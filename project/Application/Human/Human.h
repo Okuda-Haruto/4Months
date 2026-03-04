@@ -86,7 +86,7 @@ protected:
 
 	// ドリフト、巻きつき不可時間
 	int unableDriftTimer_;
-	const int unableDriftTime_ = 40;
+	const int unableDriftTime_ = 120;
 
 	//カメラ演出(プレイヤー用)
 	const float kMaxCameraEffectTime_ = 1.0f;
