@@ -32,7 +32,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 
 	coilAroundStartTime_ = 0;
 	coilAroundEndTime_ = 0;
-	coilAroundStartPos_ = {};
+	coilAroundRotatePos_ = {};
 }
 
 void Human::Update() {
@@ -105,7 +105,7 @@ void Human::Update() {
 			//軸回転後位置
 			if (!isTurnBack_) {
 				Vector3 rotatePos = RotateVector(
-					Vector3{ 0,0,-5 },
+					Vector3{ 0,0,-15 },
 					transform.rotate);
 				transform.translate += rotatePos;
 				if (coilAroundEndTime_ < 1.0f) {
@@ -116,9 +116,14 @@ void Human::Update() {
 				}
 
 				//巻き付き地点に向かう
-				velocity_.translate = Lerp(Vector3{ 0,0,0 }, transform.translate - transform_.translate, coilAroundEndTime_);
+				transform_.rotate = LookAt(transform_.translate, transform.translate);
 
-				if (coilAroundEndTime_ == 1.0f) {
+				velocity_.translate = Normalize(transform.translate - transform_.translate) * speed_ * 5;
+
+				rotatePos = RotateVector(
+					Vector3{ 0,0,-5 },
+					transform.rotate);
+				if (coilAroundEndTime_ == 1.0f || neckTransforms[neckCoilAroundNumber_].translate.y + rotatePos.y > transform_.translate.y) {
 					isCoilAround_ = false;
 					isDrifting_ = false;
 					unableDriftTimer_ = unableDriftTime_;
@@ -149,33 +154,29 @@ void Human::Update() {
 				coilAroundDistance_);
 
 			//軸回転後位置
-			Vector3 rotatePos = RotateVector(
-				Vector3{ kCoilAroundRange_ * sinf(std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),
-				kCoilAroundRange_ * cosf(std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),0 },
-				transform.rotate);
-
-			rotatePos += coilAroundStartPos_
+			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_ * (1.0f - coilAroundStartTime_)) * MakeRotateZMatrix(std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_);
+			Vector3 rotatePos = RotateVector(rotateVector, transform.rotate);
 
 			//軸回転後の正確な位置
 			transform.translate += rotatePos;
 
-			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
-		}
+  			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
 
-		transform_.rotate = LookAt(transform_.translate, transform.translate);
+			transform_.rotate = LookAt(transform_.translate, transform.translate);
 
-		rotateMatrix = MakeRotateMatrix(transform_.rotate);
+			rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
-		if (coilAroundStartTime_ < 1.0f) {
-			coilAroundStartTime_ += 4.0f / 60.0f;
-			if (coilAroundStartTime_ > 1.0f) {
-				coilAroundStartTime_ = 1.0f;
+			if (coilAroundStartTime_ < 1.0f) {
+				coilAroundStartTime_ += 4.0f / 60.0f;
+				if (coilAroundStartTime_ > 1.0f) {
+					coilAroundStartTime_ = 1.0f;
+				}
 			}
+
+			//巻き付き地点に向かう
+			velocity_.translate = Lerp((transform.translate - transform_.translate) / 4, transform.translate - transform_.translate, coilAroundStartTime_);
+
 		}
-
-		//巻き付き地点に向かう
-		velocity_.translate = Lerp((transform.translate - transform_.translate) / 4, transform.translate - transform_.translate, coilAroundStartTime_);
-
 		//向いている向きに速度を向ける
 		//velocity_.translate = transform.translate - transform_.translate;
 
@@ -233,15 +234,17 @@ void Human::Update() {
 		if (neckIndex != -1) {
 			SRT neckTransform = necks_[neckIndex]->GetTransforms()[neckNumber];
 			//目標地点に向かう
-			Vector3 toTarget = transform_.translate - neckTransform.translate;
-			Vector3 localDirection = RotateVector(toTarget, Inverse(neckTransform.rotate));
+			Vector3 neckToHuman = transform_.translate - neckTransform.translate;
+			Vector3 localDirection = RotateVector(neckToHuman, Inverse(neckTransform.rotate));
+			localDirection.z = 0;
 
 			transform_.rotate = LookAt(transform_.translate, neckTransform.translate);
 			//近接判定に首が接触したなら巻き付く
 			neckCoilAroundNumber_ = neckNumber;
 			neckCoilAroundIndex_ = neckIndex;
-			coilAroundStartPos_ = Normalize(localDirection);
+			coilAroundRotatePos_ = Normalize(localDirection) * kCoilAroundRange_;	//開始地点での回転
 			coilAroundStartNumber_ = neckNumber;
+			coilAroundDistance_ = 0;
 			isCoilAround_ = true;
 		}
 

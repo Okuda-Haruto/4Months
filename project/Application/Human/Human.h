@@ -130,7 +130,7 @@ protected:
 	//巻き付き終端移動時間
 	float coilAroundEndTime_;
 	//巻き付き開始位置
-	Vector3 coilAroundStartPos_;
+	Vector3 coilAroundRotatePos_;
 	//巻き付き開始番号
 	int32_t coilAroundStartNumber_;
 
