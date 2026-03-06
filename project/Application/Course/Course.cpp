@@ -81,8 +81,7 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		spike->Draw(directionalLight);
 	}
 
-	//model_->SetDirectionalLight(directionalLight);
-	//model_->Draw3D();
+	OptionalPrimitiveManager::GetInstance()->SetDirectionalLight(directionalLight);
 }
 
 void Course::OnCollide() {
@@ -171,7 +170,8 @@ Quaternion Course::FromRotationMatrix(const Matrix3x3& m) {
 }
 
 void Course::CreateTubeCourse() {
-	walls_.clear();
+	walls_.clear();  // 当たり判定用OBB
+	// wallModel_ は不要なので削除
 
 	// 弧長テーブル作成
 	lengthTable_.resize(sampleCount_);
@@ -180,7 +180,6 @@ void Course::CreateTubeCourse() {
 	Vector3 prev = GetPoint(0.0f);
 	lengthTable_[0] = 0.0f;
 	tTable_[0] = 0.0f;
-
 	totalLength_ = 0.0f;
 
 	for (int i = 1; i < sampleCount_; ++i) {
@@ -196,128 +195,106 @@ void Course::CreateTubeCourse() {
 	}
 
 	//--------------------------------
-	// リング数
+	// 頂点・インデックス生成
 	//--------------------------------
-
-	int ringCount = int(totalLength_ / wallSpace_) + 1;
-
-	//--------------------------------
-	// 頂点・インデックス
-	//--------------------------------
-
 	std::vector<ObjectVertexData> vertices;
 	std::vector<uint32_t> indices;
 
-	vertices.reserve(ringCount * wallCount_);
-
-	//--------------------------------
 	// 初期フレーム
-	//--------------------------------
-
 	float t0 = 0.0f;
-
 	Vector3 T = Normalize(GetTangent(t0));
-
-	Vector3 upRef =
-		fabs(T.y) < 0.9f ?
-		Vector3{ 0,1,0 } :
-		Vector3{ 1,0,0 };
-
+	Vector3 upRef = fabs(T.y) < 0.9f ? Vector3{ 0,1,0 } : Vector3{ 1,0,0 };
 	Vector3 N = Normalize(Cross(upRef, T));
 	Vector3 B = Normalize(Cross(T, N));
-
 	Vector3 prevT = T;
 
-	//--------------------------------
-	// リング生成
-	//--------------------------------
+	// リング数
+	int ringCount = int(totalLength_ / wallSpace_) + 1;
 
-	for (int ring = 0; ring < ringCount; ring++) {
+	for (int ring = 0; ring < ringCount; ++ring) {
 		float dist = ring * wallSpace_;
-		float t = DistanceToT(dist);
+
+		// dist → t（線形探索）
+		float t = 1.0f;
+		for (int i = 1; i < sampleCount_; ++i) {
+			if (lengthTable_[i] >= dist) {
+				float ratio = (dist - lengthTable_[i - 1]) /
+					(lengthTable_[i] - lengthTable_[i - 1]);
+				t = lerp(tTable_[i - 1], tTable_[i], ratio);
+				break;
+			}
+		}
 
 		Vector3 center = GetPoint(t);
 		T = Normalize(GetTangent(t));
 
-		//--------------------------------
 		// Parallel Transport
-		//--------------------------------
-
 		Vector3 axis = Cross(prevT, T);
 		float len = Length(axis);
-
 		if (len > 0.0001f) {
 			axis = Normalize(axis);
-
 			float dot = std::clamp(Dot(prevT, T), -1.0f, 1.0f);
 			float angle = acos(dot);
-
-			Quaternion q =
-				MakeRotateAxisAngleQuaternion(axis, angle);
-
+			Quaternion q = MakeRotateAxisAngleQuaternion(axis, angle);
 			N = RotateVector(N, q);
 			B = RotateVector(B, q);
 		}
-
 		prevT = T;
 
-		//--------------------------------
-		// 円周頂点
-		//--------------------------------
-
-		for (int r = 0; r < wallCount_; r++) {
-			float angle =
-				2.0f * float(std::numbers::pi) * r / wallCount_;
-
-			Vector3 radial =
-				cos(angle) * N +
-				sin(angle) * B;
-
-			Vector3 pos =
-				center + radial * radius_;
+		// 円周頂点生成
+		for (int r = 0; r < wallCount_; ++r) {
+			float angle = 2.0f * float(std::numbers::pi) * r / wallCount_;
+			Vector3 radial = cosf(angle) * N + sinf(angle) * B;
+			Vector3 pos = center + radial * radius_;
 
 			ObjectVertexData v;
-
-			v.position = { pos.x,pos.y,pos.z,1.0f };
-			v.texcoord = {
-				(float)r / wallCount_,
-				(float)ring / ringCount
-			};
+			v.position = { pos.x, pos.y, pos.z, 1.0f };
 			v.normal = Normalize(radial);
-			v.boneID = {};
-			v.boneWeight = {};
-
+			v.texcoord = { (float)r / wallCount_, (float)ring / ringCount };
 			vertices.push_back(v);
+
+			// --- OBB 作成（当たり判定用） ---
+			OBB obb;
+			obb.center = pos;
+
+			// 向きベクトル
+			Vector3 forward = -radial;
+			Vector3 up = Normalize(T);
+			Vector3 right = Normalize(Cross(up, forward));
+			up = Normalize(Cross(forward, right));
+			obb.orientations[0] = right;
+			obb.orientations[1] = up;
+			obb.orientations[2] = forward;
+
+			obb.size = wallSize_;
+			walls_.push_back(obb);
 		}
 	}
 
 	//--------------------------------
-	// インデックス
+	// インデックス生成
 	//--------------------------------
-
-	for (int y = 0; y < ringCount - 1; y++) {
-		for (int x = 0; x < wallCount_; x++) {
+	for (int y = 0; y < ringCount - 1; ++y) {
+		for (int x = 0; x < wallCount_; ++x) {
 			int nextX = (x + 1) % wallCount_;
-
 			int a = y * wallCount_ + x;
 			int b = y * wallCount_ + nextX;
 			int c = (y + 1) * wallCount_ + x;
 			int d = (y + 1) * wallCount_ + nextX;
 
 			indices.push_back(a);
-			indices.push_back(b);
 			indices.push_back(c);
+			indices.push_back(b);
 
 			indices.push_back(b);
-			indices.push_back(d);
 			indices.push_back(c);
+			indices.push_back(d);
 		}
 	}
 
 	//--------------------------------
-	// GPU送信
+	// GPU 送信（描画用）
 	//--------------------------------
-
 	OptionalPrimitiveManager::GetInstance()->Build(vertices, indices);
 }
 

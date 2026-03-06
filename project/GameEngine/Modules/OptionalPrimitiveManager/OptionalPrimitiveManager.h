@@ -12,6 +12,7 @@
 #include "Line.h"
 #include "Plane.h"
 #include "AABB.h"
+#include "DirectionalLight/DirectionalLight.h"
 
 using namespace std;
 
@@ -37,6 +38,7 @@ private:
 
 	std::vector<ObjectVertexData> vertices_;
 	std::vector<uint32_t>   indices_;
+	std::shared_ptr<DirectionalLight> directionalLight_;
 
 public:
 	OptionalPrimitiveManager() = default;
@@ -58,4 +60,6 @@ public:
 	D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() { return vertexBufferView_; }
 	D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return indexBufferView_; }
 	UINT GetIndexCount() { return UINT(indices_.size()); }
+
+	void SetDirectionalLight(const std::shared_ptr<DirectionalLight>& directionalLight) { directionalLight_ = directionalLight; }
 };

@@ -1307,7 +1307,7 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
 }
 
-void GameEngine::DrawOptionalPrimitive_() {
+void GameEngine::DrawOptionalPrimitive_(std::shared_ptr<DirectionalLight> directionalLight) {
 	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
 	commandList_->SetPipelineState(object3DPipelineState_.Get());
 
@@ -1357,17 +1357,16 @@ void GameEngine::DrawOptionalPrimitive_() {
 	);
 
 	objectMaterialData_[objectIndex_]->color = { 1,1,1,1 };
-	objectMaterialData_[objectIndex_]->enableDirectionalLighting = false;
-	objectMaterialData_[objectIndex_]->enablePointLighting = false;
-	objectMaterialData_[objectIndex_]->enableSpotLighting = false;
-	objectMaterialData_[objectIndex_]->reflection = 0;
+	objectMaterialData_[objectIndex_]->enableDirectionalLighting = true;
+	objectMaterialData_[objectIndex_]->shininess = 40.0f;
 
 	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
 
+	commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(0));
 	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(1));
  	commandList_->DrawIndexedInstanced(OptionalPrimitiveManager::GetInstance()->GetIndexCount(), 1, 0, 0, 0);
 	objectIndex_++;
 }

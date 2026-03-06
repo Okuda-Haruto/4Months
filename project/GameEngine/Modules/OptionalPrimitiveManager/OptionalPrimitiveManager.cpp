@@ -21,7 +21,9 @@ void OptionalPrimitiveManager::Finalize() {
 }
 
 void OptionalPrimitiveManager::Draw() {
-	GameEngine::DrawOptionalPrimitive();
+	if (directionalLight_) {
+		GameEngine::DrawOptionalPrimitive(directionalLight_);
+	}
 }
 
 void OptionalPrimitiveManager::Build(std::vector<ObjectVertexData> vertices, std::vector<uint32_t> indices) {
