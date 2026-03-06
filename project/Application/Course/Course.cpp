@@ -82,6 +82,7 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	OptionalPrimitiveManager::GetInstance()->SetDirectionalLight(directionalLight);
+	OptionalPrimitiveManager::GetInstance()->Draw();
 }
 
 void Course::OnCollide() {
