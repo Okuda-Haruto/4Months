@@ -34,6 +34,7 @@
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
 #include "PrimitiveManager/PrimitiveManager.h"
+#include "OptionalPrimitiveManager/OptionalPrimitiveManager.h"
 #include "AudioManager/AudioManager.h"
 
 #include <vector>
@@ -213,6 +214,8 @@ private:
 	void DrawPoint_(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource);
 	void DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource);
 
+	void DrawOptionalPrimitive_();
+
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
 	// インスタンス生成
@@ -293,6 +296,8 @@ public:
 	static void DrawLine(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
 	static void DrawAABB(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
+	
+	static void DrawOptionalPrimitive() { return GetInstance()->DrawOptionalPrimitive_(); }
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }

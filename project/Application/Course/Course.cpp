@@ -1,4 +1,5 @@
 #include "Course.h"
+#include <numbers>
 
 Course::Course() {
 	// 制御点
@@ -63,9 +64,6 @@ void Course::Update() {
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Wall");
-	ImGui::Text("x = %f", wallModel_[0]->GetTransform().translate.x);
-	ImGui::Text("y = %f", wallModel_[0]->GetTransform().translate.y);
-	ImGui::Text("z = %f", wallModel_[0]->GetTransform().translate.z);
 	ImGui::DragFloat3("controlPoint0", &controlPoints_[0].x, 0.01f);
 	ImGui::DragFloat3("controlPoint1", &controlPoints_[1].x, 0.01f);
 	ImGui::DragFloat3("controlPoint2", &controlPoints_[2].x, 0.01f);
@@ -83,14 +81,8 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		spike->Draw(directionalLight);
 	}
 
-	model_->SetDirectionalLight(directionalLight);
-	model_->Draw3D();
-
-	std::list<Object*> objects;
-	for (std::unique_ptr<Object>& model : wallModel_) {
-		objects.push_back(model.get());
-	}
-	//Object::InstancingDraw3D(objects, directionalLight, nullptr, nullptr);
+	//model_->SetDirectionalLight(directionalLight);
+	//model_->Draw3D();
 }
 
 void Course::OnCollide() {
@@ -180,15 +172,16 @@ Quaternion Course::FromRotationMatrix(const Matrix3x3& m) {
 
 void Course::CreateTubeCourse() {
 	walls_.clear();
-	wallModel_.clear();
 
-	// 弧長テーブル
+	// 弧長テーブル作成
 	lengthTable_.resize(sampleCount_);
 	tTable_.resize(sampleCount_);
 
 	Vector3 prev = GetPoint(0.0f);
 	lengthTable_[0] = 0.0f;
 	tTable_[0] = 0.0f;
+
+	totalLength_ = 0.0f;
 
 	for (int i = 1; i < sampleCount_; ++i) {
 		float t = (float)i / (sampleCount_ - 1);
@@ -202,34 +195,54 @@ void Course::CreateTubeCourse() {
 		prev = p;
 	}
 
+	//--------------------------------
+	// リング数
+	//--------------------------------
+
+	int ringCount = int(totalLength_ / wallSpace_) + 1;
+
+	//--------------------------------
+	// 頂点・インデックス
+	//--------------------------------
+
+	std::vector<ObjectVertexData> vertices;
+	std::vector<uint32_t> indices;
+
+	vertices.reserve(ringCount * wallCount_);
+
+	//--------------------------------
+	// 初期フレーム
+	//--------------------------------
+
 	float t0 = 0.0f;
-	Vector3 T0 = Normalize(GetTangent(t0));
-	Vector3 upRef = fabs(T0.y) < 0.9f ? Vector3{ 0,1,0 } : Vector3{ 1,0,0 };
-	Vector3 N = Normalize(Cross(upRef, T0));
-	Vector3 B = Normalize(Cross(T0, N));
 
-	Vector3 prevT = T0;
+	Vector3 T = Normalize(GetTangent(t0));
 
-	// 円の位置
-	for (float dist = 0.0f; dist < totalLength_; dist += wallSpace_) {
-		// dist → t を探す（線形探索）
-		float t = 1.0f;
+	Vector3 upRef =
+		fabs(T.y) < 0.9f ?
+		Vector3{ 0,1,0 } :
+		Vector3{ 1,0,0 };
 
-		for (int i = 1; i < sampleCount_; ++i) {
-			if (lengthTable_[i] >= dist) {
-				float ratio =
-					(dist - lengthTable_[i - 1]) /
-					(lengthTable_[i] - lengthTable_[i - 1]);
+	Vector3 N = Normalize(Cross(upRef, T));
+	Vector3 B = Normalize(Cross(T, N));
 
-				t = lerp(tTable_[i - 1], tTable_[i], ratio);
-				break;
-			}
-		}
+	Vector3 prevT = T;
+
+	//--------------------------------
+	// リング生成
+	//--------------------------------
+
+	for (int ring = 0; ring < ringCount; ring++) {
+		float dist = ring * wallSpace_;
+		float t = DistanceToT(dist);
 
 		Vector3 center = GetPoint(t);
-		Vector3 T = Normalize(GetTangent(t));
+		T = Normalize(GetTangent(t));
 
+		//--------------------------------
 		// Parallel Transport
+		//--------------------------------
+
 		Vector3 axis = Cross(prevT, T);
 		float len = Length(axis);
 
@@ -248,60 +261,64 @@ void Course::CreateTubeCourse() {
 
 		prevT = T;
 
-		// 円状に配置
-		for (int r = 0; r < wallCount_; ++r) {
+		//--------------------------------
+		// 円周頂点
+		//--------------------------------
+
+		for (int r = 0; r < wallCount_; r++) {
 			float angle =
-				2.0f * 3.1415926535f * r / wallCount_;
+				2.0f * float(std::numbers::pi) * r / wallCount_;
 
 			Vector3 radial =
-				Normalize(cosf(angle) * N +
-					sinf(angle) * B);
+				cos(angle) * N +
+				sin(angle) * B;
 
-			Vector3 wallPos = center + radial * radius_;
+			Vector3 pos =
+				center + radial * radius_;
 
-			// 回転生成
-			Vector3 forward = -radial;
-			Vector3 up = Normalize(T);
-			Vector3 right = Normalize(Cross(up, forward));
-			up = Normalize(Cross(forward, right));
+			ObjectVertexData v;
 
-			Matrix3x3 rot;
-			rot.m[0][0] = right.x;   rot.m[0][1] = right.y;   rot.m[0][2] = right.z;
-			rot.m[1][0] = up.x;      rot.m[1][1] = up.y;      rot.m[1][2] = up.z;
-			rot.m[2][0] = forward.x; rot.m[2][1] = forward.y; rot.m[2][2] = forward.z;
+			v.position = { pos.x,pos.y,pos.z,1.0f };
+			v.texcoord = {
+				(float)r / wallCount_,
+				(float)ring / ringCount
+			};
+			v.normal = Normalize(radial);
+			v.boneID = {};
+			v.boneWeight = {};
 
-			Quaternion q = FromRotationMatrix(rot);
-
-			// OBB
-			OBB obb;
-			obb.center = wallPos;
-			obb.size = wallSize_;
-			obb.orientations[0] = right;
-			obb.orientations[1] = up;
-			obb.orientations[2] = forward;
-
-			walls_.push_back(obb);
-
-			// モデル
-			SRT transform;
-			transform.scale = wallSize_ * 2.0f;
-			transform.rotate = q;
-			transform.translate = wallPos;
-
-			std::unique_ptr<Object> model =
-				std::make_unique<Object>();
-
-			model->Initialize(
-				ModelManager::GetInstance()
-				->GetModel("resources/Course/Wall", "Wall.obj"));
-
-			model->SetShininess(40.0f);
-			model->SetColor({ 1,1,1,0.75f });
-			model->SetTransform(transform);
-
-			wallModel_.push_back(std::move(model));
+			vertices.push_back(v);
 		}
 	}
+
+	//--------------------------------
+	// インデックス
+	//--------------------------------
+
+	for (int y = 0; y < ringCount - 1; y++) {
+		for (int x = 0; x < wallCount_; x++) {
+			int nextX = (x + 1) % wallCount_;
+
+			int a = y * wallCount_ + x;
+			int b = y * wallCount_ + nextX;
+			int c = (y + 1) * wallCount_ + x;
+			int d = (y + 1) * wallCount_ + nextX;
+
+			indices.push_back(a);
+			indices.push_back(b);
+			indices.push_back(c);
+
+			indices.push_back(b);
+			indices.push_back(d);
+			indices.push_back(c);
+		}
+	}
+
+	//--------------------------------
+	// GPU送信
+	//--------------------------------
+
+	OptionalPrimitiveManager::GetInstance()->Build(vertices, indices);
 }
 
 void Course::ReadCSV() {

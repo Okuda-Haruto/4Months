@@ -193,6 +193,7 @@
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -489,6 +490,7 @@
     <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
