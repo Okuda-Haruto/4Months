@@ -249,7 +249,7 @@ void Course::CreateTubeCourse() {
 
 			ObjectVertexData v;
 			v.position = { pos.x, pos.y, pos.z, 1.0f };
-			v.normal = Normalize(radial);
+			v.normal = -Normalize(radial);
 			v.texcoord = { (float)r / wallCount_, (float)ring / ringCount };
 			vertices.push_back(v);
 

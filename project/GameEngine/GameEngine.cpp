@@ -1359,14 +1359,17 @@ void GameEngine::DrawOptionalPrimitive_(std::shared_ptr<DirectionalLight> direct
 	objectMaterialData_[objectIndex_]->color = { 1,1,1,1 };
 	objectMaterialData_[objectIndex_]->enableDirectionalLighting = true;
 	objectMaterialData_[objectIndex_]->shininess = 40.0f;
+	objectMaterialData_[objectIndex_]->reflection = REFLECTION_HalfLambert;
+	objectMaterialData_[objectIndex_]->shading = SHADING_Blinn_Phong;
 
 	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
 
-	commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(1));
+	commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(2));
+	
  	commandList_->DrawIndexedInstanced(OptionalPrimitiveManager::GetInstance()->GetIndexCount(), 1, 0, 0, 0);
 	objectIndex_++;
 }
