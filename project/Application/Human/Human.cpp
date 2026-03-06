@@ -29,6 +29,10 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	coilAroundDistance_ = 0.0f;
 
 	noTargetMinNumber_ = 0;
+
+	coilAroundStartTime_ = 0;
+	coilAroundEndTime_ = 0;
+	coilAroundStartPos_ = {};
 }
 
 void Human::Update() {
@@ -65,7 +69,7 @@ void Human::Update() {
 
 		//線形補間位置を加算する
 		//下向き
- 		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundNumber_].rotate).y > 0.0f) {
+ 		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundNumber_].rotate).y >= 0.0f) {
 			if (!isTurnBack_) {
 				coilAroundDistance_ += 5.0f * speed_;
 			} else {
@@ -104,17 +108,28 @@ void Human::Update() {
 					Vector3{ 0,0,-5 },
 					transform.rotate);
 				transform.translate += rotatePos;
-				if (Length(transform_.translate - transform.translate) < 1.0f) {
+				if (coilAroundEndTime_ < 1.0f) {
+					coilAroundEndTime_ += 2.0f / 60.0f;
+					if (coilAroundEndTime_ > 1.0f) {
+						coilAroundEndTime_ = 1.0f;
+					}
+				}
+
+				//巻き付き地点に向かう
+				velocity_.translate = Lerp(Vector3{ 0,0,0 }, transform.translate - transform_.translate, coilAroundEndTime_);
+
+				if (coilAroundEndTime_ == 1.0f) {
 					isCoilAround_ = false;
 					isDrifting_ = false;
 					unableDriftTimer_ = unableDriftTime_;
 				}
+
 			} else {
 				Vector3 rotatePos = RotateVector(
 					Vector3{ 0,0,-5 },
 					transform.rotate);
 				transform.translate += rotatePos;
-				if (Length(transform_.translate - transform.translate) < 1.0f) {
+				if (Length(transform_.translate - transform.translate) < 0.1f) {
 					isCoilAround_ = false;
 					isDrifting_ = false;
 					unableDriftTimer_ = unableDriftTime_;
@@ -135,9 +150,13 @@ void Human::Update() {
 
 			//軸回転後位置
 			Vector3 rotatePos = RotateVector(
-				Vector3{ kCoilAroundRange_ * sinf(std::numbers::pi_v<float> / 8 * (neckCoilAroundNumber_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),
-				kCoilAroundRange_ * cosf(std::numbers::pi_v<float> / 8 * (neckCoilAroundNumber_ % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),0 },
+				Vector3{ kCoilAroundRange_ * sinf(std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),
+				kCoilAroundRange_ * cosf(std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_),0 },
 				transform.rotate);
+
+			rotatePos += coilAroundStartPos_
+
+			//軸回転後の正確な位置
 			transform.translate += rotatePos;
 
 			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
@@ -147,12 +166,24 @@ void Human::Update() {
 
 		rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
+		if (coilAroundStartTime_ < 1.0f) {
+			coilAroundStartTime_ += 4.0f / 60.0f;
+			if (coilAroundStartTime_ > 1.0f) {
+				coilAroundStartTime_ = 1.0f;
+			}
+		}
+
+		//巻き付き地点に向かう
+		velocity_.translate = Lerp((transform.translate - transform_.translate) / 4, transform.translate - transform_.translate, coilAroundStartTime_);
+
 		//向いている向きに速度を向ける
-		velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_ * 5;
+		//velocity_.translate = transform.translate - transform_.translate;
 
 	} else {
 		//巻き付いていないなら切る
 		isCoilAround_ = false;
+		coilAroundStartTime_ = 0;
+		coilAroundEndTime_ = 0;
 	}
 
 	//とぐろ中(巻き付いていない)
@@ -209,15 +240,8 @@ void Human::Update() {
 			//近接判定に首が接触したなら巻き付く
 			neckCoilAroundNumber_ = neckNumber;
 			neckCoilAroundIndex_ = neckIndex;
-			if (localDirection.x > 0.0f && localDirection.y < 0.0f) {
-				coilAroundDistance_ = 0.0f;
-			} else if (localDirection.x > 0.0f && localDirection.y > 0.0f) {
-				coilAroundDistance_ = 4.0f;
-			} else if (localDirection.x < 0.0f && localDirection.y > 0.0f) {
-				coilAroundDistance_ = 8.0f;
-			} else if (localDirection.x < 0.0f && localDirection.y < 0.0f) {
-				coilAroundDistance_ = 12.0f;
-			}
+			coilAroundStartPos_ = Normalize(localDirection);
+			coilAroundStartNumber_ = neckNumber;
 			isCoilAround_ = true;
 		}
 
@@ -277,6 +301,10 @@ void Human::OnHitWall(OBB wallObb) {
 	Vector3 up = wallObb.orientations[1];
 	Vector3 forward = wallObb.orientations[2];
 
+	isCoilAround_ = false;
+	isDrifting_ = false;
+	unableDriftTimer_ = unableDriftTime_;
+
 	Matrix3x3 rot;
 	rot.m[0][0] = right.x;   rot.m[0][1] = right.y;   rot.m[0][2] = right.z;
 	rot.m[1][0] = up.x;      rot.m[1][1] = up.y;      rot.m[1][2] = up.z;
@@ -325,6 +353,10 @@ void Human::OnHitNeck(const Vector3& pos) {
 	} else {
 		fallingSpeed_ -= 0.3f;
 	}
+
+	isCoilAround_ = false;
+	isDrifting_ = false;
+	unableDriftTimer_ = unableDriftTime_;
 
 	speed_ -= 0.1f;
 	if (speed_ < 0) { speed_ = 0.1f; }

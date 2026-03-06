@@ -102,6 +102,9 @@ protected:
 	// id
 	int characterID_ = 0;
 
+	//ゴール
+	Goal* goal_ = nullptr;
+
 	//軸になる可能性のある首
 	std::vector<std::shared_ptr<Neck>> necks_;
 	//自分の首の番号
@@ -109,13 +112,10 @@ protected:
 	//自分の首が対象にならない範囲の下限
 	uint32_t noTargetMinNumber_;
 
-	//ゴール
-	Goal* goal_ = nullptr;
-
 	//巻き付き可能距離
 	const float kCanCoilAroundRange_ = 5.0f;
 	//巻き付く場合の首の中心からの距離
-	const float kCoilAroundRange_ = 4.0f;
+	const float kCoilAroundRange_ = 2.0f;
 	//巻き付いているか
 	bool isCoilAround_ = false;
 	//現在巻き付いている首(一本)の番号
@@ -124,6 +124,15 @@ protected:
 	int32_t neckCoilAroundNumber_;
 	//線形補間位置
 	float coilAroundDistance_;
+
+	//巻き付き始点移動時間
+	float coilAroundStartTime_;
+	//巻き付き終端移動時間
+	float coilAroundEndTime_;
+	//巻き付き開始位置
+	Vector3 coilAroundStartPos_;
+	//巻き付き開始番号
+	int32_t coilAroundStartNumber_;
 
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };
