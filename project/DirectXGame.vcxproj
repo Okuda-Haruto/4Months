@@ -93,6 +93,7 @@
     <ClCompile Include="Application\Human\Player\Player.cpp" />
     <ClCompile Include="Application\Spike\Spike.cpp" />
     <ClCompile Include="Application\Ring\Ring.cpp" />
+    <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Course\Course.h" />
@@ -193,6 +194,7 @@
     <ClInclude Include="Application\Spike\Spike.h" />
     <ClInclude Include="Application\Ring\Ring.h" />
     <ClInclude Include="Application\HUD\HUD.h" />
+    <ClInclude Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

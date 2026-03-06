@@ -57,6 +57,7 @@ void GameEngine::Finalize_() {
 	ModelManager::GetInstance()->Finalize();
 	SpriteManager::GetInstance()->Finalize();
 	PrimitiveManager::GetInstance()->Finalize();
+	OptionalPrimitiveManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
 	ParticleManager::GetInstance()->Finalize();
 
@@ -105,11 +106,12 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	imguiManager_->Initialize(dxCommon_.get(), winApp_.get(), srvManager_.get());
 
 	dxCommon_->DepthBufferInitialize(srvManager_.get());
-	
+
 	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
 	SpriteManager::GetInstance()->Initialize(dxCommon_.get());
 	PrimitiveManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
+	OptionalPrimitiveManager::GetInstance()->Initialize(dxCommon_.get());
 
 	//カメラ初期値
 	std::shared_ptr<Camera> DefaultCamera = std::make_shared<Camera>();
@@ -295,6 +297,7 @@ void GameEngine::PreDraw_() {
 
 void GameEngine::PostDraw_() {
 
+	OptionalPrimitiveManager::GetInstance()->Draw();
 	PrimitiveManager::GetInstance()->Draw();
 
 	imguiManager_->Draw();
@@ -322,12 +325,12 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
+
 	//オブジェクトのワールド座標
 	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//変更が必要な部分だけ変える
-	for (int i = 0; i < parts.size();i++) {
+	for (int i = 0; i < parts.size(); i++) {
 
 		//WVPデータを更新
 		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
@@ -358,7 +361,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 			objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
 		}
 
-		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);
+		objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -686,7 +689,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 }
 
 void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
-	
+
 	//上限に達していたら描画しない
 	if (instancingObjectIndex_ > kMaxInstanceIndex)return;
 
@@ -739,7 +742,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		++numInstance;
 		++objectIterator;
 	}
-	
+
 	//パーツごとにインスタシング描画
 	for (uint32_t i = 0; i < numParts; i++) {
 
@@ -816,7 +819,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 
 		//マテリアルCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
-		
+
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, 0, offsets[i].vertexStart, 0);
 
@@ -896,7 +899,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	particleMaterialData_[particleIndex_]->enableSpotLighting = false;
 	particleMaterialData_[particleIndex_]->reflection = 0;
 	particleMaterialData_[particleIndex_]->shininess = 0;
-	particleMaterialData_[particleIndex_]->color = {1.0f,1.0f,1.0f,1.0f};
+	particleMaterialData_[particleIndex_]->color = { 1.0f,1.0f,1.0f,1.0f };
 
 	particleMaterialResource_[particleIndex_]->Unmap(0, nullptr);
 
@@ -1099,7 +1102,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 		transform.scale.z = Length((*lineIterator).diff);	//直線の長さ
 		//  Y軸回り回転(θy)
 		transform.rotate.y = std::atan2((*lineIterator).diff.x, (*lineIterator).diff.z);
-		float length = Length(Vector3{(*lineIterator).diff.x, 0.0f, (*lineIterator).diff.z });
+		float length = Length(Vector3{ (*lineIterator).diff.x, 0.0f, (*lineIterator).diff.z });
 		// X軸回り回転(θx)
 		transform.rotate.x = std::atan2(-(*lineIterator).diff.y, length);
 		transform.translate = (*lineIterator).origin;	//直線の開始地点
@@ -1110,7 +1113,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->color = Vector4{1.0f,0.0f,0.0f,1.0f};
+		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->color = Vector4{ 1.0f,0.0f,0.0f,1.0f };
 
 		++numInstance;
 	}
@@ -1302,4 +1305,71 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_AABB].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
+}
+
+void GameEngine::DrawOptionalPrimitive_(std::shared_ptr<DirectionalLight> directionalLight) {
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object3DPipelineState_.Get());
+
+	commandList_->IASetVertexBuffers(0, 1, &OptionalPrimitiveManager::GetInstance()->GetVertexBufferView());
+
+	commandList_->IASetIndexBuffer(
+		&OptionalPrimitiveManager::GetInstance()->GetIndexBufferView()
+	);
+
+	commandList_->IASetPrimitiveTopology(
+		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+	);
+
+	Camera* camera = Object::GetDefaultCamera().get();
+
+	// カメラ
+	commandList_->SetGraphicsRootConstantBufferView(
+		4,
+		camera->CameraResource()->GetGPUVirtualAddress()
+	);
+
+	Matrix4x4 world = MakeAffineMatrix({ 1,1,1 }, {}, {});
+
+	Matrix4x4 wvp =
+		world *
+		camera->GetViewMatrix() *
+		camera->GetProjectionMatrix();
+
+	objectWvpResource_[objectIndex_]->Map(
+		0,
+		nullptr,
+		reinterpret_cast<void**>(&objectWvpData_[objectIndex_])
+	);
+
+	objectWvpData_[objectIndex_]->World = world;
+	objectWvpData_[objectIndex_]->WVP = wvp;
+	objectWvpData_[objectIndex_]->WorldInverseTranspose =
+		Transpose(Inverse(world));
+
+	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+
+
+	objectMaterialResource_[objectIndex_]->Map(
+		0,
+		nullptr,
+		reinterpret_cast<void**>(&objectMaterialData_[objectIndex_])
+	);
+
+	objectMaterialData_[objectIndex_]->color = { 1,1,1,1 };
+	objectMaterialData_[objectIndex_]->enableDirectionalLighting = true;
+	objectMaterialData_[objectIndex_]->shininess = 40.0f;
+	objectMaterialData_[objectIndex_]->reflection = REFLECTION_HalfLambert;
+	objectMaterialData_[objectIndex_]->shading = SHADING_Blinn_Phong;
+
+	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(2));
+	
+ 	commandList_->DrawIndexedInstanced(OptionalPrimitiveManager::GetInstance()->GetIndexCount(), 1, 0, 0, 0);
+	objectIndex_++;
 }
