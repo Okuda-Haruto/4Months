@@ -74,7 +74,6 @@ void CheckCollision::CheckWall(Human* human) {
 		if (fabsf(wall.center.y - playerPos.y) >= wall.size.y) { // 高さが合っていたら詳細な判定
 			if (IsCollision(wall, playerSphere)) {
 				// 衝突
-				course_->OnCollide();
 				human->OnHitWall(wall);
 			}
 		}

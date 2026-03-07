@@ -25,22 +25,9 @@ Course::Course() {
 
 	// 壁配置
 	CreateTubeCourse();
-
-	model_ = std::make_unique<Object>();
-	model_->Initialize(
-		ModelManager::GetInstance()
-		->GetModel("resources/Course", "Course.obj"));
-
-	model_->SetShininess(40.0f);
-	model_->SetColor({ 1,1,1,1 });
-	model_->SetTransform({ {200,200,200},{0,0,0},{0,-150,0} });
 }
 
 Course::~Course() {
-	for (auto& model_ : wallModel_) {
-		model_.reset();
-	}
-	wallModel_.clear();
 }
 
 void Course::Initialize() {
@@ -48,10 +35,6 @@ void Course::Initialize() {
 }
 
 void Course::Update() {
-	for (auto& model : wallModel_) {
-		model->SetColor({ 1,1,1,0.75f });
-	}
-
 	for (auto& ring : rings_) {
 		ring->Update();
 	}
@@ -59,8 +42,6 @@ void Course::Update() {
 	for (auto& spike : spikes_) {
 		spike->Update();
 	}
-
-	model_->Update();
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Wall");
@@ -83,12 +64,6 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 	OptionalPrimitiveManager::GetInstance()->SetDirectionalLight(directionalLight);
 	OptionalPrimitiveManager::GetInstance()->Draw();
-}
-
-void Course::OnCollide() {
-	for (auto& model : wallModel_) {
-		model->SetColor({ 1,0,0,0.75f });
-	}
 }
 
 Vector3 Course::GetPoint(float t) {
@@ -237,6 +212,8 @@ void Course::CreateTubeCourse() {
 			float dot = std::clamp(Dot(prevT, T), -1.0f, 1.0f);
 			float angle = acos(dot);
 			Quaternion q = MakeRotateAxisAngleQuaternion(axis, angle);
+			float f = 0.05f; // カーブを少し緩やかにする
+			q = Slerp(IdentityQuaternion(), q, f);
 			N = RotateVector(N, q);
 			B = RotateVector(B, q);
 		}

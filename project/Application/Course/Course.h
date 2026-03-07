@@ -18,9 +18,6 @@ public:
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
 
-	// 衝突時
-	void OnCollide();
-
 	// Getter
 	Vector2 GetColliderCenter() { return colliderCenter_; }
 	float GetColliderRadius() { return radius_; }
@@ -72,10 +69,6 @@ private:
 	const int kLayerCount_ = 10; // 何層に分けるか
 	const int kCSVWidth_ = 10; // 横
 	const int kCSVHeight_ = 10; // 縦
-
-	// モデル
-	std::unique_ptr<Object> model_;
-	std::vector<std::unique_ptr<Object>> wallModel_;
 
 	// トランスフォーム
 	SRT transform_;
