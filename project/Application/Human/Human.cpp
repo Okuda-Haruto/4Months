@@ -154,11 +154,14 @@ void Human::Update() {
 				coilAroundDistance_);
 
 			//軸回転後位置
-			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_ * (1.0f - coilAroundStartTime_)) * MakeRotateZMatrix(std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_);
-			Vector3 rotatePos = RotateVector(rotateVector, transform.rotate);
+			//回り始めは余裕のある回転をする
+			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_ * (1.0f - coilAroundStartTime_));
+			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{0,0,1}, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_));
+			//首の方向向かせるより真下向かせた方がスペースは空く(おそらく余計に回転した位置に移動させてるからギリギリな回転になっていた)
+			Vector3 rotatePos = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{1,0,0}, std::numbers::pi_v<float> / 2));
 
 			//軸回転後の正確な位置
-			transform.translate += rotatePos;
+  			transform.translate += rotatePos;
 
   			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
 
