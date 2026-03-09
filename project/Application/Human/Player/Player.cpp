@@ -31,6 +31,9 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } *rotateMatrix, std::numbers::pi_v<float> / 30);
 			NextRotate = IdentityQuaternion() * rollRotate_;
 			isDrifting_ = true;
+			if (pad.Button[PAD_BUTTON_B].trigger) {
+				StartDrifting();
+			}
 		} else {
 			//上下左右キー
 			if (pad.LeftStick.magnitude > 0.2f) {
@@ -49,6 +52,9 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } *rotateMatrix, std::numbers::pi_v<float> / 30);
 			NextRotate = IdentityQuaternion() * rollRotate_;
 			isDrifting_ = true;
+			if (keyboard.trigger[DIK_SPACE]) {
+				StartDrifting();
+			}
 		} else {
 			//上下左右キー
 			if (keyboard.hold[DIK_UP] || keyboard.hold[DIK_W] || pad.Button[PAD_BUTTON_UP].hold) {

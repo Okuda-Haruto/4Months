@@ -29,7 +29,7 @@ void DebugCamera::Update() {
 
 	cameraMode_->Update(this);
 	
-	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 2000.0f);
+	projectionMatrix_ = MakePerspectiveFovMatrix(0.6f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 2000.0f);
 }
 
 void DebugCamera::Reset() {
