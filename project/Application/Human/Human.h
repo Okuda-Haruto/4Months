@@ -136,4 +136,6 @@ protected:
 
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };
+
+	void StartDrifting();
 };

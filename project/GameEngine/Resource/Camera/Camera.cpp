@@ -11,7 +11,7 @@ Camera::Camera() {
 void Camera::Initialize(DirectXCommon* dxCommon) {
 	Matrix4x4 worldMatrix = MakeQuaternionMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f });
 	viewMatrix_ = Inverse(worldMatrix);
-	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 1000.0f);
+	projectionMatrix_ = MakePerspectiveFovMatrix(0.6f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 1000.0f);
 
 	//カメラ座標用のリソースを作る
 	cameraResource_ = dxCommon->CreateBufferResources(sizeof(CameraForGPU));
@@ -31,7 +31,7 @@ void Camera::Update(SRT transform) {
 
 	Matrix4x4 worldMatrix = MakeQuaternionMatrix({ 1.0f,1.0f,1.0f }, transform.rotate, transform.translate);
 	viewMatrix_ = Inverse(worldMatrix);
-	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 1000.0f);
+	projectionMatrix_ = MakePerspectiveFovMatrix(0.6f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 1000.0f);
 
 	//書き込むためのアドレスを取得
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
