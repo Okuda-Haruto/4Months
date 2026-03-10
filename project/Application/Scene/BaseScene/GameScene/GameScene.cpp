@@ -45,6 +45,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	player_ = std::make_unique<Player>();
 	player_->Initialize(Vector3{0,100,0}, directionalLight_);
 	player_->SetGoal(goal_.get());
+	player_->SetRings(course_->GetRings());
 
 	//相手
 	enemy_ = std::make_unique<Enemy>();
@@ -52,6 +53,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	enemy_->SetRings(course_->GetRings());
 	enemy_->SetSpikes(course_->GetSpikes());
 	enemy_->SetGoal(goal_.get());
+	enemy_->SetRings(course_->GetRings());
 
 	//首
 	std::shared_ptr<Neck> neck;

@@ -8,6 +8,7 @@ const int kMaxCharacters = 4;
 
 class Neck;
 class Goal;
+class Ring;
 
 class Human {
 public:
@@ -44,6 +45,7 @@ public:
 
 	//setter
 	void SetNecks(std::vector<std::shared_ptr<Neck>> necks) { necks_ = necks; }
+	void SetRings(std::vector<Ring*> rings) { rings_ = rings; }
 	void SetGoal(Goal* goal) { goal_ = goal; }
 	void SetSelfNeckIndex(int selfNeckIndex) { selfNeckIndex_ = selfNeckIndex; }
 	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
@@ -113,7 +115,7 @@ protected:
 	uint32_t noTargetMinNumber_;
 
 	//巻き付き可能距離
-	const float kCanCoilAroundRange_ = 5.0f;
+	const float kCanCoilAroundRange_ = 6.0f;
 	//巻き付く場合の首の中心からの距離
 	const float kCoilAroundRange_ = 2.0f;
 	//巻き付いているか
@@ -135,8 +137,9 @@ protected:
 	int32_t coilAroundStartNumber_;
 
 	bool isBreke_ = false;
-
-
+	const float collisionHomingRingLength_ = 40.0f;
+	std::vector<Ring*> rings_;
+	Ring* homingRing_ = nullptr;
 
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };

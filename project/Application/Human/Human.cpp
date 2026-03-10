@@ -1,8 +1,10 @@
 #include "Human.h"
 #include "Neck/Neck.h"
 #include "Goal/Goal.h"
+#include "Ring/Ring.h"
 #include <Lerp.h>
 #include <Collision.h>
+#include <Operation/Operation.h>
 
 #include <numbers>
 
@@ -47,10 +49,55 @@ void Human::Update() {
 		}
 	}
 
+	//ブレーキ
 	if (isBreke_) {
-		speed_ = Lerp(speed_, kMinSpeed_, 0.1f);
+		speed_ = Lerp(speed_, 0.0f, 0.4f);
+		//速度が遅いならホーミング準備
+		if (!homingRing_) {
+			float height = transform_.translate.y;
+			for (Ring* ring : rings_) {
+				if (ring->GetColliderCenter().y < height) {
+					Sphere collisionSphere;
+					collisionSphere.center = transform_.translate;
+					collisionSphere.radius = collisionHomingRingLength_;
+					//ホーミング判定とリング位置
+					if (!isTurnBack_) {
+						if (IsCollision(collisionSphere, ring->GetColliderCenter()) &&
+							ring->GetColliderCenter().y < height) {
+							homingRing_ = ring;
+							height = homingRing_->GetColliderHeight();
+						}
+					} else {
+						if (IsCollision(collisionSphere, ring->GetColliderCenter()) &&
+							ring->GetColliderCenter().y > height) {
+							homingRing_ = ring;
+							height = homingRing_->GetColliderHeight();
+						}
+					}
+				}
+			}
+		}
+		//homing対象を見る
+		if (homingRing_) {
+			if (homingRing_->GetColliderCenter().y > transform_.translate.y) {
+				homingRing_ = nullptr;
+			} else {
+				transform_.rotate = Slerp(transform_.rotate, LookAt(transform_.translate + Vector3{ 0,-2,0 }, homingRing_->GetColliderCenter()), 0.1f);
+			}
+		}
 	} else {
-		speed_ = Lerp(speed_, 0.4f, 0.1f);
+		//homing対象を見る
+		if (homingRing_) {
+			if (homingRing_->GetColliderCenter().y > transform_.translate.y) {
+				homingRing_ = nullptr;
+			} else {
+				transform_.rotate = Slerp(transform_.rotate, LookAt(transform_.translate + Vector3{ 0,-2,0 }, homingRing_->GetColliderCenter()), 0.1f);
+				speed_ = Lerp(speed_, 1.0f, 0.1f);
+			}
+		} else {
+			speed_ = Lerp(speed_, 0.4f, 0.3f);
+		}
+
 	}
 
 	//向いている向きに速度を向ける
