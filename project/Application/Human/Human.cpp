@@ -47,6 +47,12 @@ void Human::Update() {
 		}
 	}
 
+	if (isBreke_) {
+		speed_ = Lerp(speed_, kMinSpeed_, 0.1f);
+	} else {
+		speed_ = Lerp(speed_, 0.4f, 0.1f);
+	}
+
 	//向いている向きに速度を向ける
 	velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
 

@@ -134,6 +134,10 @@ protected:
 	//巻き付き開始番号
 	int32_t coilAroundStartNumber_;
 
+	bool isBreke_ = false;
+
+
+
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };
 
