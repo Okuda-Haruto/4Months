@@ -314,6 +314,7 @@ void Human::StartDrifting() {
 
 			//自分の首かつ、巻き付き不可範囲ならbreak
 			if (i == selfNeckIndex_ && j > noTargetMinNumber_) break;
+			if (neckTransforms[j].translate.y > transform_.translate.y)continue;
 
 			//首がある程度近いか
 			if (IsCollision(humanNearSphere, neckTransforms[j].translate)) {

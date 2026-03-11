@@ -53,7 +53,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			rollRotate_ = rollRotate_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 } *rotateMatrix, std::numbers::pi_v<float> / 30);
 			NextRotate = IdentityQuaternion() * rollRotate_;
 			isDrifting_ = true;
-			if (keyboard.trigger[DIK_SPACE]) {
+			if (keyboard.trigger[DIK_SPACE] || keyboard.hold[DIK_Z]) {
 				StartDrifting();
 			}
 		} else {
