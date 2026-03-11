@@ -18,6 +18,8 @@ public:
 	bool GetIsTurnBack() { return isTurnBack_; }
 
 private:
-
+	bool isCurve_ = false;
+	const float kMaxCurveTime_ = 0.4f;
+	float curveTime_ = 0.0f;
 };
 

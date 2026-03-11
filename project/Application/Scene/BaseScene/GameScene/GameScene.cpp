@@ -82,6 +82,11 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	hud_ = std::make_unique<HUD>();
 	hud_->Initialize();
 
+	object_ = std::make_unique<Object>();
+	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/Cube","Cube.obj"));
+	object_->SetColor(Vector4{ 1,0,0,1 });
+	object_->SetDirectionalLight(directionalLight_);
+
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
 #endif
@@ -157,6 +162,13 @@ void GameScene::Draw() {
 
 	// コース
 	course_->Draw(directionalLight_);
+
+	SRT transform = {};
+	transform.scale = { 40,5,20 };
+	transform.translate = { 0,-100,-10 };
+
+	object_->SetTransform(transform);
+	object_->Draw3D();
 
 	//首描画
 	for (auto& neck : necks_) {

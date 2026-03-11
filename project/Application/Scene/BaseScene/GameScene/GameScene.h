@@ -50,6 +50,8 @@ private:
 	// HUD
 	std::unique_ptr<HUD> hud_ = nullptr;
 
+	std::unique_ptr<Object> object_;
+
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Input> input) override;
