@@ -54,24 +54,24 @@ void Human::Update() {
 		speed_ = Lerp(speed_, 0.0f, 0.4f);
 		//速度が遅いならホーミング準備
 		if (!homingRing_) {
-			float height = transform_.translate.y;
+			float length = collisionHomingRingLength_;
 			for (Ring* ring : rings_) {
-				if (ring->GetColliderCenter().y < height) {
+				if (ring->GetColliderCenter().y < transform_.translate.y) {
 					Sphere collisionSphere;
 					collisionSphere.center = transform_.translate;
 					collisionSphere.radius = collisionHomingRingLength_;
 					//ホーミング判定とリング位置
 					if (!isTurnBack_) {
 						if (IsCollision(collisionSphere, ring->GetColliderCenter()) &&
-							ring->GetColliderCenter().y < height) {
+							Length(ring->GetColliderCenter() - transform_.translate) < length) {
 							homingRing_ = ring;
-							height = homingRing_->GetColliderHeight();
+							length = Length(ring->GetColliderCenter() - transform_.translate);
 						}
 					} else {
 						if (IsCollision(collisionSphere, ring->GetColliderCenter()) &&
-							ring->GetColliderCenter().y > height) {
+							Length(ring->GetColliderCenter() - transform_.translate) < length) {
 							homingRing_ = ring;
-							height = homingRing_->GetColliderHeight();
+							length = Length(ring->GetColliderCenter() - transform_.translate);
 						}
 					}
 				}
