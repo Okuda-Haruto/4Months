@@ -57,7 +57,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 				StartDrifting();
 			}
 		} else {
-			if (keyboard.hold[DIK_X]) {
+			if (keyboard.trigger[DIK_X] && !isCurve_) {
 				isCurve_ = true;
 				curveTime_ = 0;
 			}
