@@ -158,8 +158,8 @@ void Human::Update() {
 
 			//軸回転後位置
 			//回り始めは余裕のある回転をする
-			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_ * (1.0f - coilAroundStartTime_));
-			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{0,0,1}, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_));
+			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_);
+			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{0,0,1}, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16)));
 			//首の方向向かせるより真下向かせた方がスペースは空く(おそらく余計に回転した位置に移動させてるからギリギリな回転になっていた)
 			Vector3 rotatePos = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{1,0,0}, std::numbers::pi_v<float> / 2));
 
@@ -182,6 +182,14 @@ void Human::Update() {
 			//巻き付き地点に向かう
 			velocity_.translate = Lerp((transform.translate - transform_.translate) / 4, transform.translate - transform_.translate, coilAroundStartTime_);
 
+			stamina_ = kMaxStamina_;
+			if (coilAroundStartNumber_ - neckCoilAroundNumber_ >= 14) {
+				//巻き付いていないなら切る
+				isCoilAround_ = false;
+				coilAroundStartTime_ = 0;
+				coilAroundEndTime_ = 0;
+			}
+
 		}
 		//向いている向きに速度を向ける
 		//velocity_.translate = transform.translate - transform_.translate;
@@ -193,17 +201,7 @@ void Human::Update() {
 		coilAroundEndTime_ = 0;
 	}
 
-	//とぐろ中(巻き付いていない)
-	if (isDrifting_ && !isCoilAround_) {
-		//落下速度を遅くする
-		fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
-		if (!isTurnBack_) {
-			velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
-		} else {
-			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-		}
-
-	} else {
+	
 		//上向き速度 * 重力」を落下速度に加える
 		if (isTurnBack_) {
 			fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
@@ -211,7 +209,7 @@ void Human::Update() {
 			fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 		}
 		velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-	}
+	
 	if (isBrake_) {
 		velocity_.translate = {};
 	}
