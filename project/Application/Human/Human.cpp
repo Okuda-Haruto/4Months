@@ -211,7 +211,7 @@ void Human::Update() {
 		velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 	
 	if (isBrake_) {
-		velocity_.translate = {};
+		velocity_.translate *= 2;
 	}
 	transform_.translate += velocity_.translate;
 
