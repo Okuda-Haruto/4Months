@@ -80,7 +80,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	}
 
 	//現在の向きと次の向きの補完
-	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.02f);
+	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.03f);
 
 	//速度などを加算する
 	Human::Update();

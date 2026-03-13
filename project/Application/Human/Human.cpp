@@ -158,8 +158,9 @@ void Human::Update() {
 
 			//軸回転後位置
 			//回り始めは余裕のある回転をする
-			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_);
-			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{0,0,1}, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16)));
+			int32_t neckNum = coilAroundStartNumber_ - neckCoilAroundNumber_;
+			Vector3 rotateVector = (coilAroundRotatePos_)* 2;
+			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{0,0,1}, std::numbers::pi_v<float> / 8 * (neckNum % 16)));
 			//首の方向向かせるより真下向かせた方がスペースは空く(おそらく余計に回転した位置に移動させてるからギリギリな回転になっていた)
 			Vector3 rotatePos = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{1,0,0}, std::numbers::pi_v<float> / 2));
 
@@ -183,11 +184,12 @@ void Human::Update() {
 			velocity_.translate = Lerp((transform.translate - transform_.translate) / 4, transform.translate - transform_.translate, coilAroundStartTime_);
 
 			stamina_ = kMaxStamina_;
-			if (coilAroundStartNumber_ - neckCoilAroundNumber_ >= 14) {
+			if (coilAroundStartNumber_ - neckCoilAroundNumber_ >= 32 - 2) {
 				//巻き付いていないなら切る
 				isCoilAround_ = false;
 				coilAroundStartTime_ = 0;
 				coilAroundEndTime_ = 0;
+				transform_.rotate = LookAt(transform_.translate + velocity_.translate, transform.translate);
 			}
 
 		}
@@ -291,6 +293,7 @@ void Human::StartDrifting() {
 		Vector3 neckToHuman = transform_.translate - neckTransform.translate;
 		Vector3 localDirection = RotateVector(neckToHuman, Inverse(neckTransform.rotate));
 		localDirection.z = 0;
+		localDirection.y *= -1;
 
 		transform_.rotate = LookAt(transform_.translate, neckTransform.translate);
 		//近接判定に首が接触したなら巻き付く
