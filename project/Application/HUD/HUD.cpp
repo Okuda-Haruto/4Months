@@ -24,6 +24,18 @@ void HUD::Initialize() {
 	speed_->Initialize("resources/HUD/Speed/Speed.png");
 	speed_->SetPosition(speedOffset_ + Vector2{ -128,0 });
 	speed_->SetSize({ 128,64 });
+
+	staminaBack_ = std::make_unique<Sprite>();
+	staminaBack_->Initialize("resources/DebugResources/white2x2.png");
+	staminaBack_->SetPosition(Vector2{30,30});
+	staminaBack_->SetSize({ 400,50 });
+	staminaBack_->SetColor(Vector4{ 0,0,0,1 });
+
+	staminaGauge_ = std::make_unique<Sprite>();
+	staminaGauge_->Initialize("resources/DebugResources/white2x2.png");
+	staminaGauge_->SetPosition(Vector2{ 30,30 });
+	staminaGauge_->SetSize({ 400,50 });
+	staminaGauge_->SetColor(Vector4{ 0.8f,0.8f,0,1 });
 }
 
 void HUD::Update(Player* player) {
@@ -43,6 +55,9 @@ void HUD::Update(Player* player) {
 	}
 	dot_->Update();
 	speed_->Update();
+	staminaBack_->Update();
+	staminaGauge_->SetSize(Vector2{ 400 * player->GetStaminaRate(),50 });
+	staminaGauge_->Update();
 }
 
 void HUD::Draw() {
@@ -51,4 +66,7 @@ void HUD::Draw() {
 	}
 	dot_->Draw2D();
 	speed_->Draw2D();
+
+	staminaBack_->Draw2D();
+	staminaGauge_->Draw2D();
 }

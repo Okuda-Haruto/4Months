@@ -7,21 +7,16 @@ Course::Course() {
 	controlPoints_.push_back({});
 	controlPoints_.push_back({ 0,-50,0 });
 	controlPoints_.push_back({ 0,-150,0 });
-	controlPoints_.push_back({ 0,-170,5 });
-	controlPoints_.push_back({ 0,-190,10 });
-	controlPoints_.push_back({ 0,-210,15 });
-	controlPoints_.push_back({ 0,-230,20 });
-	controlPoints_.push_back({ 0,-250,25 });
-	controlPoints_.push_back({ 0,-270,30 });
-	controlPoints_.push_back({ 0,-370,30 });
-	controlPoints_.push_back({ 0,-390,25 });
-	controlPoints_.push_back({ 0,-410,20 });
-	controlPoints_.push_back({ 0,-430,15 });
-	controlPoints_.push_back({ 0,-450,10 });
-	controlPoints_.push_back({ 0,-470,5 });
-	controlPoints_.push_back({ 0,-490,0 });
-	controlPoints_.push_back({ 0,-590,0 });
-	controlPoints_.push_back({ 0,-590,0 });
+	controlPoints_.push_back({ 0,-170,0 });
+	controlPoints_.push_back({ 0,-190,0 });
+	controlPoints_.push_back({ 0,-210,0 });
+	controlPoints_.push_back({ 0,-230,0 });
+	controlPoints_.push_back({ 0,-250,0 });
+	controlPoints_.push_back({ 0,-270,0 });
+	controlPoints_.push_back({ 0,-370,0 });
+	controlPoints_.push_back({ 0,-390,0 });
+	controlPoints_.push_back({ 0,-410,0 });
+	controlPoints_.push_back({ 0,-410,0 });
 
 	// 壁配置
 	CreateTubeCourse();
@@ -35,6 +30,11 @@ void Course::Initialize() {
 }
 
 void Course::Update() {
+
+	std::erase_if(rings_, [](const auto& ring) {
+		return ring->IsDead();
+		});
+
 	for (auto& ring : rings_) {
 		ring->Update();
 	}

@@ -13,6 +13,8 @@ void Ring::Initialize(const Vector3& spawnPos, const float radius) {
 	colliderRadius_ = radius;
 
 	transform_.scale = { colliderRadius_,colliderHeight_,colliderRadius_ };
+
+	isDead_ = false;
 }
 
 void Ring::Update() {
@@ -35,6 +37,7 @@ void Ring::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 void Ring::OnCollide(const int id) {
 	model_->SetColor({ 1, 1, 1, 1 });
 	characterCoolDown[id] += boostCoolDown_;
+	isDead_ = true;
 }
 
 bool Ring::IsCoolDown(int id) {

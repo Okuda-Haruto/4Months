@@ -33,6 +33,9 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	coilAroundStartTime_ = 0;
 	coilAroundEndTime_ = 0;
 	coilAroundRotatePos_ = {};
+
+	//上昇時に耐えられる距離
+	stamina_ = kMaxStamina_;
 }
 
 void Human::Update() {
@@ -209,7 +212,15 @@ void Human::Update() {
 		}
 		velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 	}
+	if (isBrake_) {
+		velocity_.translate = {};
+	}
 	transform_.translate += velocity_.translate;
+
+	//上昇距離だけstaminaを減らす
+	if (velocity_.translate.y > 0.0f) {
+		stamina_ -= velocity_.translate.y;
+	}
 
 	// 速度が一定以下なら戻す
 	if (speed_ < kDefaultSpeed_) {
@@ -299,6 +310,8 @@ void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
 	maxRisingSpeed_ += addMaxSpeed;
 	maxFallingSpeed_ += addMaxSpeed;
 	cameraEffectTime_ = kMaxCameraEffectTime_;
+
+	stamina_ = kMaxStamina_;
 }
 
 void Human::OnHitSpike(const Vector3& pos) {

@@ -34,7 +34,6 @@ private:
 
 	// プレイヤー
 	std::unique_ptr<Player> player_ = nullptr;
-	std::unique_ptr<Enemy> enemy_ = nullptr;
 
 	//首
 	std::vector<std::shared_ptr<Neck>> necks_;

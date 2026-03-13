@@ -49,6 +49,10 @@ public:
 	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
 
 	//getter
+	float GetStaminaRate() { return stamina_ / kMaxStamina_; }
+	float IsDead() { return stamina_ <= 0.0f; }
+
+	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
 
 protected:
@@ -136,6 +140,11 @@ protected:
 
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };
+
+	bool isBrake_ = false;
+
+	const float kMaxStamina_ = 300.0f;
+	float stamina_;
 
 	void StartDrifting();
 };

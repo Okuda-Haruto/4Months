@@ -23,6 +23,7 @@ public:
 	float GetBoostAmount() { return boostSpeed; }
 	float GetBoostMaxAmount() { return boostMaxSpeed; }
 	bool IsCoolDown(const int id);
+	bool IsDead() { return isDead_; }
 
 	//ソート用
 	bool operator<(const Ring& another) const
@@ -50,12 +51,14 @@ private:
 	Vector3 spawnCenter_ = { 0, -200, 0 };
 
 	// 速度増加量
-	float boostSpeed = 0.05f;
-	float boostMaxSpeed = 0.01f;
+	float boostSpeed = 0.0f;
+	float boostMaxSpeed = 0.0f;
 	// クールダウン
 	const int boostCoolDown_ = 20;
 
 	// 触れた対象を記録して触れないようにする
 	int characterCoolDown[kMaxCharacters]{};
+
+	bool isDead_ = false;
 };
 

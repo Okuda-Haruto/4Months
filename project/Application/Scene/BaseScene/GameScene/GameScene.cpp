@@ -39,32 +39,20 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//ゴール
 	goal_ = std::make_unique<Goal>();
-	goal_->Initialize(Vector3{ 0,-500,0 }, directionalLight_);
+	goal_->Initialize(Vector3{ 0,-400,0 }, directionalLight_);
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Initialize(Vector3{0,100,0}, directionalLight_);
 	player_->SetGoal(goal_.get());
-
-	//相手
-	enemy_ = std::make_unique<Enemy>();
-	enemy_->Initialize(Vector3{ 0,100,10 }, directionalLight_);
-	enemy_->SetRings(course_->GetRings());
-	enemy_->SetSpikes(course_->GetSpikes());
-	enemy_->SetGoal(goal_.get());
-
+	
 	//首
 	std::shared_ptr<Neck> neck;
 	neck = std::make_shared<Neck>();
 	neck->Initialize(player_.get(), directionalLight_);
 	necks_.push_back(move(neck));
-	neck = std::make_shared<Neck>();
-	neck->Initialize(enemy_.get(), directionalLight_);
-	necks_.push_back(move(neck));
 	player_->SetNecks(necks_);
 	player_->SetSelfNeckIndex(0);
-	enemy_->SetNecks(necks_);
-	enemy_->SetSelfNeckIndex(1);
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
@@ -98,9 +86,6 @@ void GameScene::Update() {
 	// プレイヤーの更新
 	player_->Update(input_);
 
-	//敵の更新
-	enemy_->Update();
-
 	//カメラ更新
 	gameCamera_->Update();
 
@@ -117,7 +102,6 @@ void GameScene::Update() {
 
 	// 当たり判定
 	checkCollision_->Update(player_.get());
-	checkCollision_->Update(enemy_.get());
 
 	// HUD
 	hud_->Update(player_.get());
@@ -140,7 +124,7 @@ void GameScene::Update() {
 	if (keyboard.trigger[DIK_R]) {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
-	if (goal_->GetTransform().translate.y > 100) {
+	if (goal_->GetTransform().translate.y > 100 || player_->IsDead()) {
 		SceneManager::GetInstance()->ChangeScene("Title");
 	}
 }
@@ -148,9 +132,6 @@ void GameScene::Update() {
 void GameScene::Draw() {
 	//描画処理
 	player_->Draw();
-
-	//敵の描画
-	enemy_->Draw();
 
 	//ゴール描画処理
 	goal_->Draw();
