@@ -19,6 +19,8 @@ public:
 	// Getter
 	Sphere GetCollider() { return collider_; }
 
+	void Move(const Vector3& velocity);
+
 private:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;

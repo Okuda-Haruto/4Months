@@ -28,3 +28,7 @@ void Spike::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 void Spike::OnCollide() {
 	model_->SetColor({ 1, 1, 1, 1 });
 }
+
+void Spike::Move(const Vector3& velocity) {
+	transform_.translate += velocity;
+}

@@ -30,6 +30,9 @@ private:
 	// プレイヤーと宝箱の判定
 	void CheckGoal(Human* human);
 
+	// プレイヤーの吸い込み判定
+	void CheckVacuum(Human* human);
+
 	Course* course_;
 	Goal* goal_;
 	std::vector<Neck*> necks_;

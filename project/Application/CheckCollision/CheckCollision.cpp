@@ -19,6 +19,7 @@ void CheckCollision::Update(Human* human) {
 	CheckWall(human);
 	CheckNeck(human);
 	CheckGoal(human);
+	CheckVacuum(human);
 }
 
 void CheckCollision::CheckRing(Human* human) {
@@ -123,5 +124,38 @@ void CheckCollision::CheckGoal(Human* human) {
 	if (IsCollision(goalSphere, playerSphere)) {
 		// 衝突
 		goal_->SetHuman(human);
+	}
+}
+
+void CheckCollision::CheckVacuum(Human* human) {
+	if (human->IsVacuuming()) {
+		Sphere vacuumSphere = human->GetVacuumSphere();
+
+		// リング
+		for (auto& ring : course_->GetRings()) {
+			Vector3 ringCenter = ring->GetColliderCenter();
+			float ringHeight = ring->GetColliderHeight();
+
+			// 高さの判定
+			if (fabsf(ringCenter.y - vacuumSphere.center.y) <= ringHeight / 2.0f + vacuumSphere.radius) {
+				// 横の判定
+				float ringRadius = ring->GetColliderRadius();
+				if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ vacuumSphere.center.x, vacuumSphere.center.z }) <= ringRadius + vacuumSphere.radius) {
+					// 衝突
+					ring->Move(Normalize(vacuumSphere.center - ringCenter) * human->GetVacuumPower());
+				}
+			}
+		}
+
+		// 障害物
+		for (auto& spike : course_->GetSpikes()) {
+			Sphere spikeSphere = spike->GetCollider();
+
+			// 判定
+			if (IsCollision(spikeSphere, vacuumSphere)) {
+				// 衝突
+				spike->Move(Normalize(vacuumSphere.center - spikeSphere.center) * human->GetVacuumPower());
+			}
+		}
 	}
 }

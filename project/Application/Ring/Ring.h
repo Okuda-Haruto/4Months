@@ -24,6 +24,8 @@ public:
 	float GetBoostMaxAmount() { return boostMaxSpeed; }
 	bool IsCoolDown(const int id);
 
+	void Move(const Vector3& velocity);
+
 	//ソート用
 	bool operator<(const Ring& another) const
 	{

@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine.h"
 #include "OBB.h"
+#include "Sphere.h"
 #include <deque>
 
 static int id_ = 0;
@@ -38,6 +39,7 @@ public:
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsCoilAround() { return isCoilAround_; }
 	bool IsInvincible() { return invincibleTimer_ > 0; }
+	bool IsVacuuming() { return vacuumState_ == Vacuum; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -50,6 +52,8 @@ public:
 
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
+	Sphere GetVacuumSphere() { return Sphere(headTransform_.translate,vacuumRadius_); }
+	float GetVacuumPower() { return vacuumPower_; }
 
 protected:
 	// モデル
@@ -137,5 +141,28 @@ protected:
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };
 
+	// 吸引
+	enum VacuumState {
+		None,
+		Going,
+		Vacuum,
+		Return,
+	};
+	VacuumState vacuumState_;
+
+	// 先頭をとばすとき
+	SRT headTransform_;
+	Vector3 headDir_;
+	float headSpeed_;
+	const float headStartSpeed_ = 4.0f;
+	const float headDeceleration_ = 0.09f;
+
+	const int vacuumTime_ = 20;
+	int vacuumTimer_ = 20;
+	float vacuumRadius_ = 20.0f;
+	float vacuumPower_ = 0.5f;
+
 	void StartDrifting();
+
+	void Throw();
 };
