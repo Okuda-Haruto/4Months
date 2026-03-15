@@ -11,9 +11,23 @@ void Spike::Initialize(const Vector3& spawnPos, const float radius) {
 	// 衝突判定
 	collider_.center = transform_.translate;
 	collider_.radius = radius;
+
+	firingTime = 2.0f;
+	speed_ = 0.0f;
 }
 
 void Spike::Update() {
+	if (speed_ > 0.0f) {
+		firingTime -= 1.0f / 60.0f;
+		if (firingTime < 0.0f) {
+			isDead_ = true;
+		}
+
+		speed_ *= 1.1f;
+
+		transform_.translate += RotateVector(Vector3(0, 0, speed_), transform_.rotate);
+	}
+
 	model_->SetTransform(transform_);
 	collider_.center = transform_.translate;
 
@@ -21,8 +35,10 @@ void Spike::Update() {
 }
 
 void Spike::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
-	model_->SetDirectionalLight(directionalLight);
-	model_->Draw3D();
+	if (!isDead_) {
+		model_->SetDirectionalLight(directionalLight);
+		model_->Draw3D();
+	}
 }
 
 void Spike::OnCollide() {

@@ -35,6 +35,9 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	coilAroundStartTime_ = 0;
 	coilAroundEndTime_ = 0;
 	coilAroundRotatePos_ = {};
+
+	isBrake_ = false;
+	brakeTime_ = 0.0f;
 }
 
 void Human::Update() {
@@ -50,10 +53,14 @@ void Human::Update() {
 	}
 
 	//ブレーキ
-	if (isBreke_) {
+	if (isBrake_) {
 		speed_ = Lerp(speed_, 0.0f, 0.4f);
-		//速度が遅いならホーミング準備
-		if (!homingRing_) {
+		if (brakeTime_ < kMaxBrakeTime_) {
+			brakeTime_ += 1.0f / 60.0f;
+		}
+	} else if (brakeTime_ > 0.0f) {
+		//ホーミング準備
+		/*if (!homingRing_) {
 			float length = collisionHomingRingLength_;
 			for (Ring* ring : rings_) {
 				if (ring->GetColliderCenter().y < transform_.translate.y) {
@@ -62,12 +69,6 @@ void Human::Update() {
 					collisionSphere.radius = collisionHomingRingLength_;
 					//ホーミング判定とリング位置
 					if (!isTurnBack_) {
-						if (IsCollision(collisionSphere, ring->GetColliderCenter()) &&
-							Length(ring->GetColliderCenter() - transform_.translate) < length) {
-							homingRing_ = ring;
-							length = Length(ring->GetColliderCenter() - transform_.translate);
-						}
-					} else {
 						if (IsCollision(collisionSphere, ring->GetColliderCenter()) &&
 							Length(ring->GetColliderCenter() - transform_.translate) < length) {
 							homingRing_ = ring;
@@ -84,21 +85,19 @@ void Human::Update() {
 			} else {
 				transform_.rotate = Slerp(transform_.rotate, LookAt(transform_.translate + Vector3{ 0,-2,0 }, homingRing_->GetColliderCenter()), 0.1f);
 			}
-		}
+		}*/
+		speed_ = Lerp(speed_, 1.0f, 0.1f);
+
+		brakeTime_ -= (1.0f / 60.0f) / 2.0f;
+		brakeTime_ = max(brakeTime_, 0.0f);
 	} else {
-		//homing対象を見る
-		if (homingRing_) {
-			if (homingRing_->GetColliderCenter().y > transform_.translate.y) {
-				homingRing_ = nullptr;
-			} else {
-				transform_.rotate = Slerp(transform_.rotate, LookAt(transform_.translate + Vector3{ 0,-2,0 }, homingRing_->GetColliderCenter()), 0.1f);
-				speed_ = Lerp(speed_, 1.0f, 0.1f);
-			}
-		} else {
-			speed_ = Lerp(speed_, 0.4f, 0.3f);
-		}
+		speed_ = Lerp(speed_, 0.4f, 0.3f);
 
 	}
+
+	ImGui::Begin("brakeTime");
+	ImGui::Text("%f", brakeTime_);
+	ImGui::End();
 
 	//向いている向きに速度を向ける
 	velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
@@ -417,6 +416,8 @@ void Human::OnHitNeck(const Vector3& pos) {
 	} else {
 		fallingSpeed_ -= 0.3f;
 	}
+
+	brakeTime_ = 0.0f;
 
 	isCoilAround_ = false;
 	isDrifting_ = false;

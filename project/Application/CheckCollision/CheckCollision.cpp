@@ -51,16 +51,20 @@ void CheckCollision::CheckSpike(Human* human) {
 
 		// 判定
 		if (IsCollision(spikeSphere, playerSphere)) {
-			// 衝突
-			spike->OnCollide();
-			human->OnHitSpike(spikeSphere.center);
-			if (goal_->GetHuman() == human) {
-				goal_->SetHuman(nullptr);
+			if (human->IsDash() && human->GetSpeed() >= 0.9f) {
+				spike->SetRotate(Inverse(human->GetTransform().rotate));
+				spike->SetSpeed(human->GetSpeed() + 1.00f);
+			} else {
+				// 衝突
+				spike->OnCollide();
+				human->OnHitSpike(spikeSphere.center);
+				if (goal_->GetHuman() == human) {
+					goal_->SetHuman(nullptr);
+				}
+				if (human->GetID() == 0) {
+					gameCamera_->StartShake(1.5f, 4);
+				}
 			}
-			if (human->GetID() == 0) {
-				gameCamera_->StartShake(1.5f, 4);
-			}
-
 		}
 	}
 }

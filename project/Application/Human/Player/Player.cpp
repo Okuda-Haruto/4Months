@@ -35,7 +35,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 				StartDrifting();
 			}
 		} else {
-			isBreke_ = pad.Button[PAD_BUTTON_A].hold;
+			isBrake_ = pad.Button[PAD_BUTTON_A].hold;
 			//上下左右キー
 			if (pad.LeftStick.magnitude > 0.2f) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4 * pad.LeftStick.vector.y * pad.LeftStick.magnitude);
@@ -57,7 +57,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 				StartDrifting();
 			}
 		} else {
-			isBreke_ = keyboard.hold[DIK_X];
+			isBrake_ = keyboard.hold[DIK_X];
 			//上下左右キー
 			if (keyboard.hold[DIK_UP] || keyboard.hold[DIK_W] || pad.Button[PAD_BUTTON_UP].hold) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);

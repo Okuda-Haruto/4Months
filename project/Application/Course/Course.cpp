@@ -43,6 +43,10 @@ void Course::Update() {
 		spike->Update();
 	}
 
+	std::erase_if(spikes_, [](const auto& bullet) {
+		return bullet->IsDead();
+		});
+
 #ifdef USE_IMGUI
 	ImGui::Begin("Wall");
 	ImGui::DragFloat3("controlPoint0", &controlPoints_[0].x, 0.01f);

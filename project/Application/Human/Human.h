@@ -29,19 +29,14 @@ public:
 
 	bool GetIsCoilAround() const;
 
-	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
-	float GetSpeed() { return fabsf(velocity_.translate.y); }
 	//首の色取得
 	const Vector4& GetColor() const { return color_; }
 
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsCoilAround() { return isCoilAround_; }
 	bool IsInvincible() { return invincibleTimer_ > 0; }
-
-	//ドリフト中か
-	bool isDrifting_ = false;
 
 	//setter
 	void SetNecks(std::vector<std::shared_ptr<Neck>> necks) { necks_ = necks; }
@@ -52,6 +47,9 @@ public:
 
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
+	bool IsDash() { return brakeTime_ > 0.0f && !isBrake_; }
+	float GetSpeed() { return speed_; }
+	SRT GetTransform() { return transform_; }
 
 protected:
 	// モデル
@@ -136,7 +134,12 @@ protected:
 	//巻き付き開始番号
 	int32_t coilAroundStartNumber_;
 
-	bool isBreke_ = false;
+	//ドリフト中か
+	bool isDrifting_ = false;
+
+	bool isBrake_ = false;
+	const float kMaxBrakeTime_ = 5.0f;
+	float brakeTime_ = 0.0f;
 	const float collisionHomingRingLength_ = 40.0f;
 	std::vector<Ring*> rings_;
 	Ring* homingRing_ = nullptr;
