@@ -14,6 +14,8 @@ public:
 	// 更新
 	void Update(Human* human);
 
+	bool IsGoal() { return isGoal_; };
+
 private:
 	// プレイヤーとリングの判定
 	void CheckRing(Human* human);
@@ -37,5 +39,6 @@ private:
 	Goal* goal_;
 	std::vector<Neck*> necks_;
 	GameCamera* gameCamera_;
+	bool isGoal_ = false;
 };
 

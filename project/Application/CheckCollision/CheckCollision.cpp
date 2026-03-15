@@ -156,6 +156,16 @@ void CheckCollision::CheckVacuum(Human* human) {
 				// 衝突
 				spike->Move(Normalize(vacuumSphere.center - spikeSphere.center) * human->GetVacuumPower());
 			}
+
+		// ゴール
+		if (goal_->IsCoolTime()) return;
+		Vector3 goalPos = goal_->GetTransform().translate;
+		Sphere goalSphere = { goalPos, 2.0f };
+
+		// 判定
+		if (IsCollision(goalSphere, vacuumSphere)) {
+			// 衝突
+			isGoal_ = true;
 		}
 	}
 }
