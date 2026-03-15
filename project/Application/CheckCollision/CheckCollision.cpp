@@ -123,7 +123,7 @@ void CheckCollision::CheckGoal(Human* human) {
 	// 判定
 	if (IsCollision(goalSphere, playerSphere)) {
 		// 衝突
-		goal_->SetHuman(human);
+		isGoal_ = true;
 	}
 }
 
