@@ -50,7 +50,7 @@ private:
 	Vector3 spawnCenter_ = { 0, -200, 0 };
 
 	// 速度増加量
-	float boostSpeed = 0.05f;
+	float boostSpeed = 0.6f;
 	float boostMaxSpeed = 0.01f;
 	// クールダウン
 	const int boostCoolDown_ = 20;
