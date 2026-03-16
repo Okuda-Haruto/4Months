@@ -155,7 +155,7 @@ protected:
 	Vector3 headDir_;
 	float headSpeed_;
 	const float headStartSpeed_ = 5.0f;
-	const float headDeceleration_ = 0.15f;
+	const float headDeceleration_ = 0.2f;
 
 	const int vacuumTime_ = 20;
 	int vacuumTimer_ = 10;

@@ -73,7 +73,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
 			}
-			if ((keyboard.trigger[DIK_Q] || keyboard.trigger[DIK_RCONTROL]) && vacuumState_ == None) {
+			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_RCONTROL]) && vacuumState_ == None) {
 				Throw();
 			}
 			if (isDrifting_) {
