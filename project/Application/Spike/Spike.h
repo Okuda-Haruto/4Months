@@ -2,6 +2,8 @@
 #include "GameEngine.h"
 #include "Math/Shape/Sphere.h"
 
+class Human;
+
 class Spike {
 public:
 	// 初期化
@@ -20,6 +22,7 @@ public:
 	void SetTransform(SRT transform) { transform_ = transform; }
 	void SetRotate(Quaternion rotate) { transform_.rotate = rotate; }
 	void SetSpeed(float speed) { speed_ = speed; }
+	void SetTarget(Human* target) { target_ = target; }
 
 	// Getter
 	Sphere GetCollider() { return collider_; }
@@ -34,6 +37,8 @@ private:
 	// トランスフォーム
 	SRT transform_;
 	float speed_;
+
+	Human* target_ = nullptr;
 
 	// 衝突判定
 	Sphere collider_;

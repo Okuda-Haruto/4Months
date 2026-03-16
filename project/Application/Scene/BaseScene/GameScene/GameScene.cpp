@@ -55,6 +55,8 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	enemy_->SetGoal(goal_.get());
 	enemy_->SetRings(course_->GetRings());
 
+	course_->SetTarget(enemy_.get());
+
 	//首
 	std::shared_ptr<Neck> neck;
 	neck = std::make_shared<Neck>();

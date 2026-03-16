@@ -55,6 +55,7 @@ void Human::Update() {
 	//ブレーキ
 	if (isBrake_) {
 		speed_ = Lerp(speed_, 0.0f, 0.4f);
+		fallingSpeed_ = Lerp(fallingSpeed_, kMinSpeed_, 0.1f);
 		if (brakeTime_ < kMaxBrakeTime_) {
 			brakeTime_ += 1.0f / 60.0f;
 		}
@@ -246,21 +247,13 @@ void Human::Update() {
 	if (isDrifting_ && !isCoilAround_) {
 		//落下速度を遅くする
 		fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
-		if (!isTurnBack_) {
-			velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
-		} else {
-			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-		}
 
 	} else {
-		//上向き速度 * 重力」を落下速度に加える
-		if (isTurnBack_) {
-			fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
-		} else {
-			fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
-		}
-		velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+		fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxFallingSpeed_);
 	}
+
+	velocity_.translate -= Vector3{ 0,fallingSpeed_,0 };
+
 	transform_.translate += velocity_.translate;
 
 	// 速度が一定以下なら戻す

@@ -4,6 +4,8 @@
 #include "Spike/Spike.h"
 #include "OBB.h"
 
+class Human;
+
 class Course {
 public:
 	Course();
@@ -17,6 +19,13 @@ public:
 
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
+
+	//setter
+	void SetTarget(Human* target) {
+		for (auto& spike : spikes_) {
+			spike->SetTarget(target);
+		}
+	}
 
 	// Getter
 	Vector2 GetColliderCenter() { return colliderCenter_; }

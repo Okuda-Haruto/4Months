@@ -53,7 +53,7 @@ void CheckCollision::CheckSpike(Human* human) {
 		if (IsCollision(spikeSphere, playerSphere)) {
 			if (human->IsDash() && human->GetSpeed() >= 0.9f) {
 				spike->SetRotate(Inverse(human->GetTransform().rotate));
-				spike->SetSpeed(human->GetSpeed() + 1.00f);
+				spike->SetSpeed(human->GetSpeed());
 			} else {
 				// 衝突
 				spike->OnCollide();

@@ -67,7 +67,7 @@ protected:
 	//重力加速度
 	const float kGravity_ = 0.005f;
 	//落下最高速度
-	const float kMinSpeed_ = 0.05f;
+	const float kMinSpeed_ = 0.1f;
 	float maxFallingSpeed_ = 0.2f;
 	float maxRisingSpeed_ = 0.2f;
 	const float kDefaultMaxFallingSpeed_ = 0.2f;

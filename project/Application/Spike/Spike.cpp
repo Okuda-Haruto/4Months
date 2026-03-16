@@ -1,4 +1,5 @@
 #include "Spike.h"
+#include "Human/Human.h"
 
 void Spike::Initialize(const Vector3& spawnPos, const float radius) {
 	model_ = make_unique<Object>();
@@ -25,6 +26,10 @@ void Spike::Update() {
 
 		speed_ *= 1.1f;
 
+		if (target_) {
+			transform_.rotate = Inverse(LookAt(transform_.translate, target_->GetTransform().translate));
+		}
+
 		transform_.translate += RotateVector(Vector3(0, 0, speed_), transform_.rotate);
 	}
 
@@ -43,4 +48,5 @@ void Spike::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 void Spike::OnCollide() {
 	model_->SetColor({ 1, 1, 1, 1 });
+	isDead_ = true;
 }
