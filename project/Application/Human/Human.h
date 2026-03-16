@@ -154,11 +154,11 @@ protected:
 	SRT headTransform_;
 	Vector3 headDir_;
 	float headSpeed_;
-	const float headStartSpeed_ = 4.0f;
-	const float headDeceleration_ = 0.09f;
+	const float headStartSpeed_ = 5.0f;
+	const float headDeceleration_ = 0.15f;
 
 	const int vacuumTime_ = 20;
-	int vacuumTimer_ = 20;
+	int vacuumTimer_ = 10;
 	float vacuumRadius_ = 20.0f;
 	float vacuumPower_ = 0.5f;
 

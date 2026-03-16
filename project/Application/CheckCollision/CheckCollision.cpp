@@ -48,7 +48,7 @@ void CheckCollision::CheckSpike(Human* human) {
 	for (auto& spike : course_->GetSpikes()) {
 		Sphere spikeSphere = spike->GetCollider();
 		Vector3 playerPos = human->GetTransform().translate;
-		Sphere playerSphere = { playerPos, 1.0f };
+		Sphere playerSphere = { playerPos, 0.5f };
 
 		// 判定
 		if (IsCollision(spikeSphere, playerSphere)) {
