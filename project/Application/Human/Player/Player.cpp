@@ -84,9 +84,8 @@ void Player::Update(const std::shared_ptr<Input> input) {
 #ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
 	ImGui::DragFloat3("速度", &velocity_.translate.x);
-	if (ImGui::Button("折り返し")) {
-		isTurnBack_ = !isTurnBack_;
-	}
+	ImGui::DragFloat("speed_", &speed_);
+	ImGui::DragFloat("fallingSpeed_", &fallingSpeed_);
 	ImGui::End();
 #endif
 

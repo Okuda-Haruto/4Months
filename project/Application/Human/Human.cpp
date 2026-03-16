@@ -92,8 +92,7 @@ void Human::Update() {
 		brakeTime_ -= (1.0f / 60.0f) / 2.0f;
 		brakeTime_ = max(brakeTime_, 0.0f);
 	} else {
-		speed_ = Lerp(speed_, 0.4f, 0.3f);
-
+		speed_ = Lerp(speed_, 0.4f, 0.1f);
 	}
 
 	ImGui::Begin("brakeTime");
@@ -404,11 +403,7 @@ bool Human::GetIsCoilAround() const {
 
 void Human::OnHitNeck(const Vector3& pos) {
 	// 減速
-	if (isTurnBack_) {
-		fallingSpeed_ += 0.3f;
-	} else {
-		fallingSpeed_ -= 0.3f;
-	}
+	fallingSpeed_ = 0;
 
 	brakeTime_ = 0.0f;
 
@@ -416,7 +411,7 @@ void Human::OnHitNeck(const Vector3& pos) {
 	isDrifting_ = false;
 	unableDriftTimer_ = unableDriftTime_;
 
-	speed_ -= 0.1f;
+	speed_ = 0.1f;
 	if (speed_ < 0) { speed_ = 0.1f; }
 
 	maxRisingSpeed_ = kDefaultMaxRisingSpeed_;

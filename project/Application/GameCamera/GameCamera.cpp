@@ -32,18 +32,10 @@ void DownCamera::Update() {
     else {
         // 折り返し基礎回転
         Quaternion baseRotate;
-        if (!player_->GetIsTurnBack()) {
             baseRotate = MakeRotateAxisAngleQuaternion(
                 Vector3{ 1,0,0 },
                 -std::numbers::pi_v<float> / 2
             );
-        }
-        else {
-            baseRotate = MakeRotateAxisAngleQuaternion(
-                Vector3{ 1,0,0 },
-                std::numbers::pi_v<float> / 2
-            );
-        }
 
         rollRotate_ = Slerp(
             rollRotate_,

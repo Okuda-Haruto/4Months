@@ -138,7 +138,7 @@ protected:
 	bool isDrifting_ = false;
 
 	bool isBrake_ = false;
-	const float kMaxBrakeTime_ = 5.0f;
+	const float kMaxBrakeTime_ = 1.0f;
 	float brakeTime_ = 0.0f;
 	const float collisionHomingRingLength_ = 40.0f;
 	std::vector<Ring*> rings_;
