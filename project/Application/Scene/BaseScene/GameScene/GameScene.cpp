@@ -37,6 +37,9 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	course_ = std::make_unique<Course>();
 	course_->Initialize();
 
+	voxel_ = std::make_unique<Voxel>();
+	voxel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Face","Face.obj"), directionalLight_);
+
 	//ゴール
 	goal_ = std::make_unique<Goal>();
 	goal_->Initialize(Vector3{ 0,-500,0 }, directionalLight_);
@@ -157,6 +160,8 @@ void GameScene::Draw() {
 
 	// コース
 	course_->Draw(directionalLight_);
+
+	voxel_->Draw();
 
 	//首描画
 	for (auto& neck : necks_) {
