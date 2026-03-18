@@ -95,7 +95,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	if (ImGui::Button("折り返し")) {
 		isTurnBack_ = !isTurnBack_;
 	}
-	ImGui::DragFloat("エネルギー", &energy_, 0.1f, 0, kMaxEnergy_);
+	ImGui::DragFloat("エネルギー", &energy_, 0.5f, 0, kMaxEnergy_);
 	ImGui::End();
 #endif
 

@@ -5,7 +5,7 @@ void Spike::Initialize(const Vector3& spawnPos, const float radius) {
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Spike", "Spike.obj"));
 	model_->SetShininess(40.0f);
 
-	transform_ = { {radius,radius,radius},{},spawnPos };
+	transform_ = { {radius*2,radius*2,radius*2},{},spawnPos };
 	model_->SetTransform(transform_);
 
 	// 衝突判定
