@@ -16,6 +16,9 @@ public:
 	// 触れたとき
 	void OnCollide(const int id);
 
+	// 移動
+	void Move(const Vector3& velocity);
+
 	// Getter
 	Sphere GetCollider() { return collider_; }
 	float GetHealAmount() { return healAmount_; }

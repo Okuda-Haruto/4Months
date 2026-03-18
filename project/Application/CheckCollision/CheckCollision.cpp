@@ -68,7 +68,7 @@ void CheckCollision::CheckSpike(Human* human) {
 }
 
 void CheckCollision::CheckEnergy(Human* human) {
-	if (human->IsInvincible()) { return; } for (auto& energy : course_->GetEnergies()) {
+	for (auto& energy : course_->GetEnergies()) {
 		Sphere energySphere = energy->GetCollider();
 		Vector3 humanPos = human->GetTransform().translate;
 		Sphere humanSphere = { humanPos, 1.0f };
@@ -174,6 +174,16 @@ void CheckCollision::CheckVacuum(Human* human) {
 				// 衝突
 				spike->OnCollide();
 				spike->Move(Normalize(vacuumSphere.center - spikeSphere.center) * human->GetVacuumPower());
+			}
+		}
+
+		// エネルギー
+		for (auto& energy : course_->GetEnergies()) {
+			Sphere energySphere = energy->GetCollider();
+			// 判定
+			if (IsCollision(energySphere, vacuumSphere)) {
+				// 衝突
+				energy->Move(Normalize(vacuumSphere.center - energySphere.center) * human->GetVacuumPower());
 			}
 		}
 	}

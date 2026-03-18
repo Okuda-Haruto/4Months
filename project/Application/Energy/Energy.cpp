@@ -41,3 +41,7 @@ bool Energy::IsCoolDown(int id) {
 	}
 	return false;
 }
+
+void Energy::Move(const Vector3& velocity) {
+	transform_.translate += velocity;
+}

@@ -40,7 +40,7 @@ public:
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsCoilAround() { return isCoilAround_; }
 	bool IsInvincible() { return invincibleTimer_ > 0; }
-	bool IsVacuuming() { return vacuumState_ == Vacuum; }
+	bool IsVacuuming() { return vacuumState_ == Vacuum || vacuumState_ == Going; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -166,7 +166,7 @@ protected:
 	const float headDeceleration_ = 0.2f;
 
 	const int vacuumTime_ = 20;
-	int vacuumTimer_ = 10;
+	int vacuumTimer_ = 20;
 	float vacuumRadius_ = 20.0f;
 	float vacuumPower_ = 0.5f;
 
