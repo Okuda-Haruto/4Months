@@ -27,6 +27,10 @@ void Voxel::Initialize(std::shared_ptr<Model> face_, std::shared_ptr<Directional
 				if (x >= 7 && x <= 9 && y >= 5 && y <= 8 && z >= 7 && z <= 9) {
 					chunk.mapChip[y][z][x] = 1;
 				}
+
+				if (x >= 5 && x <= 9 && y >= 7 && y <= 8 && z >= 7 && z <= 9) {
+					chunk.mapChip[y][z][x] = 1;
+				}
 			}
 		}
 	}
