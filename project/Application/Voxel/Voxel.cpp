@@ -5,10 +5,11 @@
 #include <numbers>
 #include <cassert>
 
-void Voxel::Initialize(GameScene* gameScene ,std::shared_ptr<Model> face_, std::shared_ptr<DirectionalLight> directionalLigth) {
+void Voxel::Initialize(GameScene* gameScene ,std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth) {
 
 	gameScene_ = gameScene;
 	directionalLigth_ = directionalLigth;
+	face_ = face;
 
 	for (index_ = 0; index_ < objects_.size(); index_++) {
 		objects_[index_] = std::make_unique<Object>();
@@ -30,6 +31,54 @@ void Voxel::Initialize(GameScene* gameScene ,std::shared_ptr<Model> face_, std::
 }
 
 void Voxel::Update() {
+
+
+#ifdef USE_IMGUI
+	ImGui::Begin("マップチップCSV書き込みツール");
+
+	static int chunkIndex = 0;
+	ImGui::SliderInt("チャンク番号", &chunkIndex, 0, 3);
+	static int yIndex = 0;
+	ImGui::SliderInt("Y軸", &yIndex, 0, 15);
+	ImGui::Text("マップエディター");
+	// テクスチャID (DxLibやDirectXから取得したID)
+	ImTextureID textureID = (ImTextureID)GameEngine::GetSRVManager()->GetGPUDescriptorHandle(face_->GetTextureIndex(0)).ptr;
+	ImVec2 uv0 = ImVec2(0.0f, 0.0f); // タイルのUV開始位置
+	ImVec2 uv1 = ImVec2(1.0f, 1.0f); // タイルのUV終了位置 (例: 4x4のタイルセットの左上)
+
+	for (int z = 0; z < 16; z++) {
+		for (int x = 0; x < 16; x++) {
+			std::string id = "tile##" + std::to_string(z) + "_" + std::to_string(x);
+
+			if (chunks_[chunkIndex].mapChip[yIndex][z][x]) {
+				// クリック可能なマップチップボタン
+				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv0, uv1)) {
+					// タイルが選択された時の処理
+					chunks_[chunkIndex].mapChip[yIndex][z][x] = 0;
+				}
+			} else {
+				// クリック可能なマップチップボタン
+				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv0, uv0)) {
+					// タイルが選択された時の処理
+					chunks_[chunkIndex].mapChip[yIndex][z][x] = 1;
+				}
+			}
+
+			// グリッドを並べる
+			if (x < 15) ImGui::SameLine();
+		}
+	}
+
+	if (ImGui::Button("SAVE")) {
+		WriteChunk(chunks_[0], "resources/CSV/chunk_01.csv");
+		WriteChunk(chunks_[1], "resources/CSV/chunk_02.csv");
+		WriteChunk(chunks_[2], "resources/CSV/chunk_03.csv");
+		WriteChunk(chunks_[3], "resources/CSV/chunk_04.csv");
+	}
+
+	ImGui::End();
+
+#endif // USE_IMGUI
 
 }
 
@@ -224,4 +273,21 @@ Chunk Voxel::LoadChunk(std::string loadFile) {
 
 	file.close();
 	return chunk;
+}
+
+void Voxel::WriteChunk(const Chunk& chunk, const std::string& loadFile) {
+	std::ofstream file(loadFile);
+	assert(file.is_open());
+
+	for (int y = 0; y < 16; y++) {
+		for (int z = 0; z < 16; z++) {
+			for (int x = 0; x < 16; x++) {
+				file << int(chunk.mapChip[y][z][x]) << ",";
+			}
+			file << "\n";
+		}
+		file << "\n";
+	}
+
+	file.close();
 }

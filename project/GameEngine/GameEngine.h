@@ -216,6 +216,8 @@ private:
 
 	void DrawOptionalPrimitive_(std::shared_ptr<DirectionalLight> directionalLight);
 
+	SRVManager* GetSRVManager_() { return srvManager_.get(); }
+
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
 	// インスタンス生成
@@ -298,6 +300,8 @@ public:
 	static void DrawAABB(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
 	
 	static void DrawOptionalPrimitive(std::shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawOptionalPrimitive_(directionalLight); }
+
+	static SRVManager* GetSRVManager() { return GetInstance()->GetSRVManager_(); }
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
