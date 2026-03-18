@@ -69,7 +69,7 @@ void Human::Update() {
 
 		//線形補間位置を加算する
 		//下向き
- 		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundNumber_].rotate).y >= 0.0f) {
+		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundNumber_].rotate).y >= 0.0f) {
 			if (!isTurnBack_) {
 				coilAroundDistance_ += 5.0f * speed_;
 			} else {
@@ -156,14 +156,14 @@ void Human::Update() {
 			//軸回転後位置
 			//回り始めは余裕のある回転をする
 			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_ * (1.0f - coilAroundStartTime_));
-			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{0,0,1}, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_));
+			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 }, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_));
 			//首の方向向かせるより真下向かせた方がスペースは空く(おそらく余計に回転した位置に移動させてるからギリギリな回転になっていた)
-			Vector3 rotatePos = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{1,0,0}, std::numbers::pi_v<float> / 2));
+			Vector3 rotatePos = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2));
 
 			//軸回転後の正確な位置
-  			transform.translate += rotatePos;
+			transform.translate += rotatePos;
 
-  			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
+			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
 
 			transform_.rotate = LookAt(transform_.translate, transform.translate);
 
@@ -227,6 +227,13 @@ void Human::Update() {
 		knockbackTimer_--;
 		transform_.translate += Vector3{ 0,0,1 } *rotateMatrix * 0.2f;
 	}
+	if (isCoilAround_ && energy_) {
+		energy_ -= energyCost_;
+		if (energy_ <= 0) {
+			isCoilAround_ = false;
+			energy_ = 0;
+		}
+	}
 
 #ifdef USE_IMGUI
 
@@ -242,55 +249,57 @@ void Human::Draw() {
 void Human::StartDrifting() {
 	isDrifting_ = true;
 
-	//近接判定
-	Sphere humanNearSphere;
-	humanNearSphere.center = transform_.translate;
-	humanNearSphere.radius = kCanCoilAroundRange_;
+	if (energy_) {
+		//近接判定
+		Sphere humanNearSphere;
+		humanNearSphere.center = transform_.translate;
+		humanNearSphere.radius = kCanCoilAroundRange_;
 
-	//一番近い首との距離
-	float neckNearLength = -1;
-	//首(一本)の番号
-	int neckIndex = -1;
-	//首(単体)の番号
-	int neckNumber = -1;
-	for (int32_t i = 0; i < int32_t(necks_.size()); i++) {
-		std::vector<SRT> neckTransforms = necks_[i]->GetTransforms();
+		//一番近い首との距離
+		float neckNearLength = -1;
+		//首(一本)の番号
+		int neckIndex = -1;
+		//首(単体)の番号
+		int neckNumber = -1;
+		for (int32_t i = 0; i < int32_t(necks_.size()); i++) {
+			std::vector<SRT> neckTransforms = necks_[i]->GetTransforms();
 
-		//先端に近い順に
-		for (uint32_t j = 0; j < uint32_t(neckTransforms.size()) - 1; j++) {
+			//先端に近い順に
+			for (uint32_t j = 0; j < uint32_t(neckTransforms.size()) - 1; j++) {
 
-			//自分の首かつ、巻き付き不可範囲ならbreak
-			if (i == selfNeckIndex_ && j > noTargetMinNumber_) break;
+				//自分の首かつ、巻き付き不可範囲ならbreak
+				if (i == selfNeckIndex_ && j > noTargetMinNumber_) break;
 
-			//首がある程度近いか
-			if (IsCollision(humanNearSphere, neckTransforms[j].translate)) {
+				//首がある程度近いか
+				if (IsCollision(humanNearSphere, neckTransforms[j].translate)) {
 
-				Vector3 toTarget = transform_.translate - neckTransforms[j].translate;
+					Vector3 toTarget = transform_.translate - neckTransforms[j].translate;
 
-				if (neckNearLength == -1 || Length(toTarget) < neckNearLength) {
-					neckNearLength = Length(toTarget);
-					neckNumber = j;
-					neckIndex = i;
+					if (neckNearLength == -1 || Length(toTarget) < neckNearLength) {
+						neckNearLength = Length(toTarget);
+						neckNumber = j;
+						neckIndex = i;
+					}
 				}
 			}
 		}
-	}
 
-	if (neckIndex != -1) {
-		SRT neckTransform = necks_[neckIndex]->GetTransforms()[neckNumber];
-		//目標地点に向かう
-		Vector3 neckToHuman = transform_.translate - neckTransform.translate;
-		Vector3 localDirection = RotateVector(neckToHuman, Inverse(neckTransform.rotate));
-		localDirection.z = 0;
+		if (neckIndex != -1) {
+			SRT neckTransform = necks_[neckIndex]->GetTransforms()[neckNumber];
+			//目標地点に向かう
+			Vector3 neckToHuman = transform_.translate - neckTransform.translate;
+			Vector3 localDirection = RotateVector(neckToHuman, Inverse(neckTransform.rotate));
+			localDirection.z = 0;
 
-		transform_.rotate = LookAt(transform_.translate, neckTransform.translate);
-		//近接判定に首が接触したなら巻き付く
-		neckCoilAroundNumber_ = neckNumber;
-		neckCoilAroundIndex_ = neckIndex;
-		coilAroundRotatePos_ = Normalize(localDirection) * kCoilAroundRange_;	//開始地点での回転
-		coilAroundStartNumber_ = neckNumber;
-		coilAroundDistance_ = 0;
-		isCoilAround_ = true;
+			transform_.rotate = LookAt(transform_.translate, neckTransform.translate);
+			//近接判定に首が接触したなら巻き付く
+			neckCoilAroundNumber_ = neckNumber;
+			neckCoilAroundIndex_ = neckIndex;
+			coilAroundRotatePos_ = Normalize(localDirection) * kCoilAroundRange_;	//開始地点での回転
+			coilAroundStartNumber_ = neckNumber;
+			coilAroundDistance_ = 0;
+			isCoilAround_ = true;
+		}
 	}
 }
 
@@ -303,6 +312,13 @@ void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
 
 void Human::OnHitSpike(const Vector3& pos) {
 	OnHitNeck(pos);
+}
+
+void Human::OnHitEnergy(const float amount) {
+	energy_ += amount;
+	if (energy_ > kMaxEnergy_) {
+		energy_ = kMaxEnergy_;
+	}
 }
 
 void Human::OnHitWall(OBB wallObb) {

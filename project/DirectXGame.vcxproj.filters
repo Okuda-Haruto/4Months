@@ -194,6 +194,7 @@
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp" />
+    <ClCompile Include="Application\Energy\Energy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -491,6 +492,7 @@
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.h" />
+    <ClInclude Include="Application\Energy\Energy.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

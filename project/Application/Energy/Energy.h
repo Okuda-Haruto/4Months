@@ -1,8 +1,8 @@
 #pragma once
 #include "GameEngine.h"
 #include "Human/Human.h"
-
-class Ring {
+#include "Math/Shape/Sphere.h"
+class Energy {
 public:
 	// 初期化
 	void Initialize(const Vector3& spawnPos, const float radius);
@@ -17,16 +17,12 @@ public:
 	void OnCollide(const int id);
 
 	// Getter
-	Vector3 GetColliderCenter() { return colliderCenter_; }
-	float GetColliderRadius() { return colliderRadius_; }
-	float GetColliderHeight() { return colliderHeight_; }
-	float GetBoostAmount() { return boostSpeed; }
-	float GetBoostMaxAmount() { return boostMaxSpeed; }
+	Sphere GetCollider() { return collider_; }
+	float GetHealAmount() { return healAmount_; }
 	bool IsCoolDown(const int id);
 
 	//ソート用
-	bool operator<(const Ring& another) const
-	{
+	bool operator<(const Energy& another) const {
 		return transform_.translate.y < another.transform_.translate.y;
 	};
 
@@ -39,17 +35,16 @@ private:
 	SRT transform_;
 
 	// 衝突判定
-	Vector3 colliderCenter_;
-	float colliderRadius_;
-	float colliderHeight_ = 0.5f;
+	Sphere collider_;
 
-	// 速度増加量
-	float boostSpeed = 0.05f;
-	float boostMaxSpeed = 0.01f;
+	// 回復量
+	float healAmount_ = 10;
+
 	// クールダウン
 	const int boostCoolDown_ = 20;
 
 	// 触れた対象を記録して触れないようにする
 	int characterCoolDown[kMaxCharacters]{};
 };
+
 

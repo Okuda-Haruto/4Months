@@ -28,10 +28,5 @@ private:
 
 	// 衝突判定
 	Sphere collider_;
-
-	// 出現範囲
-	float spawnRadius_ = 30;
-	float spawnHeight_ = 300;
-	Vector3 spawnCenter_ = { 0, -200, 0 };
 };
 

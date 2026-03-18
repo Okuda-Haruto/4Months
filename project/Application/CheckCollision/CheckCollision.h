@@ -21,6 +21,9 @@ private:
 	// プレイヤーととげの判定
 	void CheckSpike(Human* human);
 
+	// プレイヤーとエネルギーの判定
+	void CheckEnergy(Human* human);
+
 	// プレイヤーと壁の判定
 	void CheckWall(Human* human);
 
