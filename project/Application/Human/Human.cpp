@@ -69,7 +69,7 @@ void Human::Update() {
 
 		//線形補間位置を加算する
 		//下向き
- 		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundNumber_].rotate).y >= 0.0f) {
+		if (RotateVector(Vector3{ 0,0,1 }, neckTransforms[neckCoilAroundNumber_].rotate).y >= 0.0f) {
 			if (!isTurnBack_) {
 				coilAroundDistance_ += 5.0f * speed_;
 			} else {
@@ -156,14 +156,14 @@ void Human::Update() {
 			//軸回転後位置
 			//回り始めは余裕のある回転をする
 			Vector3 rotateVector = (coilAroundRotatePos_ + coilAroundRotatePos_ * (1.0f - coilAroundStartTime_));
-			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{0,0,1}, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_));
+			rotateVector = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{ 0,0,1 }, std::numbers::pi_v<float> / 8 * ((neckCoilAroundNumber_ - coilAroundStartNumber_) % 16) + std::numbers::pi_v<float> / 4 * coilAroundDistance_));
 			//首の方向向かせるより真下向かせた方がスペースは空く(おそらく余計に回転した位置に移動させてるからギリギリな回転になっていた)
-			Vector3 rotatePos = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{1,0,0}, std::numbers::pi_v<float> / 2));
+			Vector3 rotatePos = RotateVector(rotateVector, MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2));
 
 			//軸回転後の正確な位置
-  			transform.translate += rotatePos;
+			transform.translate += rotatePos;
 
-  			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
+			PrimitiveManager::GetInstance()->AddPoint(transform.translate);
 
 			transform_.rotate = LookAt(transform_.translate, transform.translate);
 
@@ -211,6 +211,40 @@ void Human::Update() {
 	}
 	transform_.translate += velocity_.translate;
 
+	// 分離しているときの先頭
+	switch (vacuumState_) {
+	case None:
+		break;
+
+	case Going:
+		headTransform_.translate += headDir_ * headSpeed_;
+		headSpeed_ -= headDeceleration_;
+		if (headSpeed_ <= 0) {
+			headSpeed_ = 0;
+			vacuumTimer_ = vacuumTime_;
+			vacuumState_ = Vacuum;
+		}
+		break;
+
+	case Vacuum:
+		vacuumTimer_--;
+
+		if (vacuumTimer_ <= 0) {
+			vacuumState_ = Return;
+		}
+		break;
+
+	case Return:
+		headDir_ = Normalize(transform_.translate - headTransform_.translate);
+		headTransform_.translate += headDir_ * headSpeed_;
+		headSpeed_ += headDeceleration_;
+		if ((!isTurnBack_ && headTransform_.translate.y > transform_.translate.y) ||
+			(isTurnBack_ && headTransform_.translate.y < transform_.translate.y)) {
+			headSpeed_ = 0;
+			vacuumState_ = None;
+		}
+	}
+
 	// 速度が一定以下なら戻す
 	if (speed_ < kDefaultSpeed_) {
 		speed_ += 0.001f;
@@ -232,7 +266,11 @@ void Human::Update() {
 
 #endif
 
-	model_->SetTransform(transform_);
+	if (vacuumState_ == None) {
+		model_->SetTransform(transform_);
+	} else {
+		model_->SetTransform(headTransform_);
+	}
 }
 
 void Human::Draw() {
@@ -424,4 +462,12 @@ void Human::OnHitNeck(const Vector3& pos) {
 	}
 
 	transform_.rotate = Normalize(q);
+}
+
+void Human::Throw() {
+	headTransform_ = transform_;
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
+	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
+	headSpeed_ = headStartSpeed_;
+	vacuumState_ = Going;
 }

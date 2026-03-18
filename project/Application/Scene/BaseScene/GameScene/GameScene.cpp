@@ -143,7 +143,7 @@ void GameScene::Update() {
 	if (keyboard.trigger[DIK_R]) {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
-	if (goal_->GetTransform().translate.y > 100) {
+	if (checkCollision_->IsGoal()) {
 		SceneManager::GetInstance()->ChangeScene("Title");
 	}
 }

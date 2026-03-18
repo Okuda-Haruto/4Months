@@ -22,7 +22,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	NextRotate = NextRotate * rollRotate_;
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
-  
+
 	//パッド操作
 	if (pad.isConnected) {
 
@@ -44,6 +44,10 @@ void Player::Update(const std::shared_ptr<Input> input) {
 				unableDriftTimer_ = unableDriftTime_;
 			}
 			isDrifting_ = false;
+		}
+
+		if (pad.Button[PAD_BUTTON_Y].trigger && vacuumState_ == None) {
+			Throw();
 		}
 	} else {
 
@@ -68,6 +72,9 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			}
 			if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
 				NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+			}
+			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_RCONTROL]) && vacuumState_ == None) {
+				Throw();
 			}
 			if (isDrifting_) {
 				unableDriftTimer_ = unableDriftTime_;
@@ -97,5 +104,5 @@ void Player::Draw() {
 	Human::Draw();
 }
 bool Player::GetIsDrifting() const {
-    return isDrifting_;
+	return isDrifting_;
 }
