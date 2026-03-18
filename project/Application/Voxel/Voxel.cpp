@@ -19,24 +19,14 @@ void Voxel::Initialize(GameScene* gameScene ,std::shared_ptr<Model> face_, std::
 	index_ = 0;
 
 	Chunk chunk;
-	for (int y = 0; y < 16; y++) {
-		for (int z = 0; z < 16; z++) {
-			for (int x = 0; x < 16; x++) {
-				if (x <= 0 || x >= 15 || z <= 0 || z >= 15) {
-					chunk.mapChip[y][z][x] = 1;
-				} else {
-					chunk.mapChip[y][z][x] = 0;
-				}
-				if (y >= 7 && y <= 12) {
-					chunk.mapChip[y][z][x] = 1;
-				}
-			}
-		}
-	}
-
-	for (int i = 0; i < 4; i++) {
-		chunks_.push_back(chunk);
-	}
+	chunk = LoadChunk("resources/CSV/chunk_01.csv");
+	chunks_.push_back(chunk);
+	chunk = LoadChunk("resources/CSV/chunk_02.csv");
+	chunks_.push_back(chunk);
+	chunk = LoadChunk("resources/CSV/chunk_03.csv");
+	chunks_.push_back(chunk);
+	chunk = LoadChunk("resources/CSV/chunk_04.csv");
+	chunks_.push_back(chunk);
 }
 
 void Voxel::Update() {
@@ -191,4 +181,47 @@ void Voxel::Collision(Sphere sphere) {
 	}
 
 
+}
+
+Chunk Voxel::LoadChunk(std::string loadFile) {
+	std::ifstream file(loadFile);
+	assert(file.is_open());
+
+	Chunk chunk{};
+
+	std::string line;
+
+	int y = 0; // 高さ（層）
+	int z = 0; // 奥行き
+
+	while (std::getline(file, line)) {
+
+		// 空行 → 次の層へ
+		if (line.empty()) {
+			y++;
+			z = 0;
+			continue;
+		}
+
+		// コメント
+		if (line.rfind("//", 0) == 0) {
+			continue;
+		}
+
+		std::stringstream ss(line);
+		std::string cell;
+
+		int x = 0; // 横
+
+		// カンマ区切りで読む
+		while (std::getline(ss, cell, ',')) {
+			chunk.mapChip[y][z][x] = std::stoi(cell);
+			x++;
+		}
+
+		z++;
+	}
+
+	file.close();
+	return chunk;
 }
