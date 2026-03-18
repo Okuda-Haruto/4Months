@@ -117,8 +117,9 @@ void GameScene::Update() {
 
 	// コース
 	course_->Update();
-
-	voxel_->Collision(player_->GetVacuumSphere());
+	if (player_->IsVacuuming()) {
+		voxel_->Collision(player_->GetVacuumSphere());
+	}
 	for (auto& effect : effects_) {
 		effect->Update();
 	}
