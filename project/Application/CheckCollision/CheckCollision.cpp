@@ -17,7 +17,7 @@ void CheckCollision::Update(Human* human) {
 	CheckRing(human);
 	CheckSpike(human);
 	CheckEnergy(human);
-	CheckWall(human);
+	//CheckWall(human);
 	CheckNeck(human);
 	CheckGoal(human);
 	CheckVacuum(human);

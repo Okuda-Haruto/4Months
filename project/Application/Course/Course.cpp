@@ -71,7 +71,7 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	OptionalPrimitiveManager::GetInstance()->SetDirectionalLight(directionalLight);
-	OptionalPrimitiveManager::GetInstance()->Draw();
+	//OptionalPrimitiveManager::GetInstance()->Draw();
 }
 
 Vector3 Course::GetPoint(float t) {
