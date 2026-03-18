@@ -50,6 +50,7 @@
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\Scene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Application\Energy\Energy.cpp" />
+    <ClCompile Include="Application\Voxel\Voxel.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h" />
     <ClInclude Include="Application\Scene\SceneManager\SceneManager.h" />
     <ClInclude Include="Application\Energy\Energy.h" />
+    <ClInclude Include="Application\Voxel\Voxel.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h" />
     <ClInclude Include="GameEngine\Data\Bone.h" />

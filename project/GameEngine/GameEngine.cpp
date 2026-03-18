@@ -1307,6 +1307,13 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 }
 
 void GameEngine::DrawOptionalPrimitive_(std::shared_ptr<DirectionalLight> directionalLight) {
+	int idx = objectIndex_;
+	bool consumeIndex = true;
+	if (idx >= kMaxIndex) {
+		idx = kMaxIndex - 1;
+		consumeIndex = false;
+	}
+
 	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
 	commandList_->SetPipelineState(object3DPipelineState_.Get());
 
@@ -1335,40 +1342,43 @@ void GameEngine::DrawOptionalPrimitive_(std::shared_ptr<DirectionalLight> direct
 		camera->GetViewMatrix() *
 		camera->GetProjectionMatrix();
 
-	objectWvpResource_[objectIndex_]->Map(
+	objectWvpResource_[idx]->Map(
 		0,
 		nullptr,
-		reinterpret_cast<void**>(&objectWvpData_[objectIndex_])
+		reinterpret_cast<void**>(&objectWvpData_[idx])
 	);
 
-	objectWvpData_[objectIndex_]->World = world;
-	objectWvpData_[objectIndex_]->WVP = wvp;
-	objectWvpData_[objectIndex_]->WorldInverseTranspose =
+	objectWvpData_[idx]->World = world;
+	objectWvpData_[idx]->WVP = wvp;
+	objectWvpData_[idx]->WorldInverseTranspose =
 		Transpose(Inverse(world));
 
-	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+	objectWvpResource_[idx]->Unmap(0, nullptr);
 
 
-	objectMaterialResource_[objectIndex_]->Map(
+	objectMaterialResource_[idx]->Map(
 		0,
 		nullptr,
-		reinterpret_cast<void**>(&objectMaterialData_[objectIndex_])
+		reinterpret_cast<void**>(&objectMaterialData_[idx])
 	);
 
-	objectMaterialData_[objectIndex_]->color = { 1,1,1,1 };
-	objectMaterialData_[objectIndex_]->enableDirectionalLighting = true;
-	objectMaterialData_[objectIndex_]->shininess = 40.0f;
-	objectMaterialData_[objectIndex_]->reflection = REFLECTION_HalfLambert;
-	objectMaterialData_[objectIndex_]->shading = SHADING_Blinn_Phong;
+	objectMaterialData_[idx]->color = { 1,1,1,1 };
+	objectMaterialData_[idx]->enableDirectionalLighting = true;
+	objectMaterialData_[idx]->shininess = 40.0f;
+	objectMaterialData_[idx]->reflection = REFLECTION_HalfLambert;
+	objectMaterialData_[idx]->shading = SHADING_Blinn_Phong;
 
-	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+	objectMaterialResource_[idx]->Unmap(0, nullptr);
 
-	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[idx]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[idx]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[idx]->GetGPUVirtualAddress());
 	commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(2));
-	
- 	commandList_->DrawIndexedInstanced(OptionalPrimitiveManager::GetInstance()->GetIndexCount(), 1, 0, 0, 0);
-	objectIndex_++;
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetWhite2x2()));
+
+	commandList_->DrawIndexedInstanced(OptionalPrimitiveManager::GetInstance()->GetIndexCount(), 1, 0, 0, 0);
+
+	if (consumeIndex) {
+		objectIndex_++;
+	}
 }

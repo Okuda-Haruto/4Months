@@ -211,6 +211,40 @@ void Human::Update() {
 	}
 	transform_.translate += velocity_.translate;
 
+	// 分離しているときの先頭
+	switch (vacuumState_) {
+	case None:
+		break;
+
+	case Going:
+		headTransform_.translate += headDir_ * headSpeed_;
+		headSpeed_ -= headDeceleration_;
+		if (headSpeed_ <= 0) {
+			headSpeed_ = 0;
+			vacuumTimer_ = vacuumTime_;
+			vacuumState_ = Vacuum;
+		}
+		break;
+
+	case Vacuum:
+		vacuumTimer_--;
+
+		if (vacuumTimer_ <= 0) {
+			vacuumState_ = Return;
+		}
+		break;
+
+	case Return:
+		headDir_ = Normalize(transform_.translate - headTransform_.translate);
+		headTransform_.translate += headDir_ * headSpeed_;
+		headSpeed_ += headDeceleration_;
+		if ((!isTurnBack_ && headTransform_.translate.y > transform_.translate.y) ||
+			(isTurnBack_ && headTransform_.translate.y < transform_.translate.y)) {
+			headSpeed_ = 0;
+			vacuumState_ = None;
+		}
+	}
+
 	// 速度が一定以下なら戻す
 	if (speed_ < kDefaultSpeed_) {
 		speed_ += 0.001f;
@@ -239,7 +273,11 @@ void Human::Update() {
 
 #endif
 
-	model_->SetTransform(transform_);
+	if (vacuumState_ == None) {
+		model_->SetTransform(transform_);
+	} else {
+		model_->SetTransform(headTransform_);
+	}
 }
 
 void Human::Draw() {
@@ -440,4 +478,12 @@ void Human::OnHitNeck(const Vector3& pos) {
 	}
 
 	transform_.rotate = Normalize(q);
+}
+
+void Human::Throw() {
+	headTransform_ = transform_;
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
+	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
+	headSpeed_ = headStartSpeed_;
+	vacuumState_ = Going;
 }

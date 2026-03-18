@@ -199,6 +199,7 @@
     <ClCompile Include="Application\Energy\Energy.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Voxel\Voxel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -501,6 +502,7 @@
     <ClInclude Include="Application\Energy\Energy.h">
       <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Voxel\Voxel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
