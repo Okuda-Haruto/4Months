@@ -148,6 +148,9 @@ void GameScene::Update() {
 	ImGui::End();
 #endif
 
+
+	voxel_->Update();
+
 	//仮置き
 	if (keyboard.trigger[DIK_R]) {
 		SceneManager::GetInstance()->ChangeScene("Game");

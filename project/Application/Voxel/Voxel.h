@@ -17,13 +17,15 @@ private:
 
 	std::vector<Chunk> chunks_;
 
+	std::shared_ptr<Model> face_;
+
 	std::array<std::unique_ptr<Object>, 4096> objects_;
 	uint32_t index_ = 0;
 
 	GameScene* gameScene_;
 
 public:
-	void Initialize(GameScene* gameScene, std::shared_ptr<Model> face_, std::shared_ptr<DirectionalLight> directionalLigth);
+	void Initialize(GameScene* gameScene, std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth);
 
 	void Update();
 
@@ -35,4 +37,5 @@ private:
 	Object* AddFace(int i,int y, int z, int x, Quaternion rotate);
 
 	Chunk LoadChunk(std::string loadFile);
+	void WriteChunk(const Chunk& chunk, const std::string& loadFile);
 };
