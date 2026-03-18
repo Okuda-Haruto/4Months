@@ -337,10 +337,10 @@ void Course::ReadCSV() {
 					AddRing(pos, 1.0f);
 					break;
 				case 2:
-					AddEnergy(pos, 2.0f);
+					AddRing(pos, 2.0f);
 					break;
 				case 3:
-					AddEnergy(pos, 3.0f);
+					AddRing(pos, 3.0f);
 					break;
 
 				case 4:
@@ -355,6 +355,7 @@ void Course::ReadCSV() {
 
 				case 7:
 					AddEnergy(pos, 2.0f);
+					break;
 
 				default:
 					break;

@@ -193,8 +193,12 @@
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp" />
-    <ClCompile Include="Application\Energy\Energy.cpp" />
+    <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp">
+      <Filter>GameEngine\Modules\OptionalPrimitiveManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Energy\Energy.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -491,8 +495,12 @@
     <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.h" />
-    <ClInclude Include="Application\Energy\Energy.h" />
+    <ClInclude Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.h">
+      <Filter>GameEngine\Modules\OptionalPrimitiveManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Energy\Energy.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -707,6 +715,12 @@
     </Filter>
     <Filter Include="Application\Scene\BaseScene\GameScene\Spike">
       <UniqueIdentifier>{4c0c0ae8-cee3-4019-a9c3-9fbe3ac4b112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\OptionalPrimitiveManager">
+      <UniqueIdentifier>{5a9ee109-fcc3-48a3-92e0-77cac5a402b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Energy">
+      <UniqueIdentifier>{30dd3194-dc07-4c08-bac6-2f687edc9f5d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
