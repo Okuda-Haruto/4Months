@@ -200,6 +200,7 @@
       <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
     </ClCompile>
     <ClCompile Include="Application\Voxel\Voxel.cpp" />
+    <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -503,6 +504,7 @@
       <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
     </ClInclude>
     <ClInclude Include="Application\Voxel\Voxel.h" />
+    <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
