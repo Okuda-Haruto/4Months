@@ -1,5 +1,6 @@
 #pragma once
 #include <GameEngine.h>
+#include <Shape/Sphere.h>
 
 struct Chunk {
 	std::array<std::array<std::array<uint8_t, 16>, 16>, 16> mapChip;
@@ -7,6 +8,8 @@ struct Chunk {
 
 class Voxel {
 private:
+
+	const float scale = 3.0f;
 
 	std::shared_ptr<DirectionalLight> directionalLigth_;
 
@@ -21,6 +24,8 @@ public:
 	void Update();
 
 	void Draw();
+
+	void Collision(Sphere sphere);
 
 private:
 	Object* AddFace(int i,int y, int z, int x, Quaternion rotate);

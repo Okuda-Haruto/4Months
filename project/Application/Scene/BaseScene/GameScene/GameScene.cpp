@@ -118,6 +118,8 @@ void GameScene::Update() {
 	// コース
 	course_->Update();
 
+	voxel_->Collision(player_->GetVacuumSphere());
+
 	// 当たり判定
 	checkCollision_->Update(player_.get());
 	checkCollision_->Update(enemy_.get());
