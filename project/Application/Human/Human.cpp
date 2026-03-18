@@ -214,6 +214,7 @@ void Human::Update() {
 	// 分離しているときの先頭
 	switch (vacuumState_) {
 	case None:
+		headTransform_ = transform_;
 		break;
 
 	case Going:
