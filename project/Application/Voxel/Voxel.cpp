@@ -1,11 +1,13 @@
 #include "Voxel.h"
+#include "Scene/BaseScene/GameScene/GameScene.h"
 #include <Collision.h>
 
 #include <numbers>
 #include <cassert>
 
-void Voxel::Initialize(std::shared_ptr<Model> face_, std::shared_ptr<DirectionalLight> directionalLigth) {
+void Voxel::Initialize(GameScene* gameScene ,std::shared_ptr<Model> face_, std::shared_ptr<DirectionalLight> directionalLigth) {
 
+	gameScene_ = gameScene;
 	directionalLigth_ = directionalLigth;
 
 	for (index_ = 0; index_ < objects_.size(); index_++) {
@@ -170,6 +172,15 @@ void Voxel::Collision(Sphere sphere) {
 
 								if (IsCollision(voxelAABB, sphere)) {
 									chunks_[i].mapChip[y][z][x] = 0;
+									SRT transform;
+									transform.scale = { scale,scale,scale };
+									transform.rotate = IdentityQuaternion();
+									transform.translate = {
+										(x * scale * 2 - 16 * scale - scale / 2),
+										-(y * scale * 2) - scale / 2 - i * 32 * scale ,
+										32 * scale - (z * scale * 2 + 16 * scale) - scale / 2,
+									};
+									gameScene_->AddEffect(transform);
 								}
 							}
 						}

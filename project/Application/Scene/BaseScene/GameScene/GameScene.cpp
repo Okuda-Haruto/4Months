@@ -38,7 +38,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	course_->Initialize();
 
 	voxel_ = std::make_unique<Voxel>();
-	voxel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Face","Face.obj"), directionalLight_);
+	voxel_->Initialize(this,ModelManager::GetInstance()->GetModel("resources/Course/Face","Face.obj"), directionalLight_);
 
 	//ゴール
 	goal_ = std::make_unique<Goal>();
@@ -119,6 +119,12 @@ void GameScene::Update() {
 	course_->Update();
 
 	voxel_->Collision(player_->GetVacuumSphere());
+	for (auto& effect : effects_) {
+		effect->Update();
+	}
+	std::erase_if(effects_, [](const auto& effect) {
+		return effect->IsDead();
+		});
 
 	// 当たり判定
 	checkCollision_->Update(player_.get());
@@ -164,6 +170,9 @@ void GameScene::Draw() {
 	course_->Draw(directionalLight_);
 
 	voxel_->Draw();
+	for (auto& effect : effects_) {
+		effect->Draw();
+	}
 
 	//首描画
 	for (auto& neck : necks_) {
@@ -172,4 +181,10 @@ void GameScene::Draw() {
 
 	// HUD
 	hud_->Draw();
+}
+
+void GameScene::AddEffect(SRT transform) {
+	std::unique_ptr<Voxel_Vacuum> effect = std::make_unique<Voxel_Vacuum>();
+	effect->Initialize(transform, player_.get(), directionalLight_);
+	effects_.push_back(move(effect));
 }
