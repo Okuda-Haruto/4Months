@@ -34,4 +34,5 @@ public:
 private:
 	Object* AddFace(int i,int y, int z, int x, Quaternion rotate);
 
+	Chunk LoadChunk(std::string loadFile);
 };
