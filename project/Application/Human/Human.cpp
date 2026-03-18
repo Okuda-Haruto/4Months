@@ -255,7 +255,7 @@ void Human::Update() {
 
 	// 速度が一定以下なら戻す
 	if (speed_ < kDefaultSpeed_) {
-		speed_ += 0.001f;
+		speed_ += 0.05f;
 	}
 
 	// 無敵タイマー

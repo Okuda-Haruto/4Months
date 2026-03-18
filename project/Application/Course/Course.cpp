@@ -7,18 +7,18 @@ Course::Course() {
 	controlPoints_.push_back({});
 	controlPoints_.push_back({ 0,-50,0 });
 	controlPoints_.push_back({ 0,-150,0 });
-	controlPoints_.push_back({ 0,-170,5 });
-	controlPoints_.push_back({ 0,-190,10 });
-	controlPoints_.push_back({ 0,-210,15 });
-	controlPoints_.push_back({ 0,-230,20 });
-	controlPoints_.push_back({ 0,-250,25 });
-	controlPoints_.push_back({ 0,-270,30 });
-	controlPoints_.push_back({ 0,-370,30 });
-	controlPoints_.push_back({ 0,-390,25 });
-	controlPoints_.push_back({ 0,-410,20 });
-	controlPoints_.push_back({ 0,-430,15 });
-	controlPoints_.push_back({ 0,-450,10 });
-	controlPoints_.push_back({ 0,-470,5 });
+	//controlPoints_.push_back({ 0,-170,5 });
+	//controlPoints_.push_back({ 0,-190,10 });
+	//controlPoints_.push_back({ 0,-210,15 });
+	//controlPoints_.push_back({ 0,-230,20 });
+	//controlPoints_.push_back({ 0,-250,25 });
+	//controlPoints_.push_back({ 0,-270,30 });
+	//controlPoints_.push_back({ 0,-370,30 });
+	//controlPoints_.push_back({ 0,-390,25 });
+	//controlPoints_.push_back({ 0,-410,20 });
+	//controlPoints_.push_back({ 0,-430,15 });
+	//controlPoints_.push_back({ 0,-450,10 });
+	//controlPoints_.push_back({ 0,-470,5 });
 	controlPoints_.push_back({ 0,-490,0 });
 	controlPoints_.push_back({ 0,-590,0 });
 	controlPoints_.push_back({ 0,-590,0 });
@@ -46,15 +46,6 @@ void Course::Update() {
 	for (auto& energy : energies_) {
 		energy->Update();
 	}
-
-#ifdef USE_IMGUI
-	ImGui::Begin("Wall");
-	ImGui::DragFloat3("controlPoint0", &controlPoints_[0].x, 0.01f);
-	ImGui::DragFloat3("controlPoint1", &controlPoints_[1].x, 0.01f);
-	ImGui::DragFloat3("controlPoint2", &controlPoints_[2].x, 0.01f);
-	ImGui::DragFloat3("controlPoint3", &controlPoints_[3].x, 0.01f);
-	ImGui::End();
-#endif
 }
 
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -155,7 +146,6 @@ Quaternion Course::FromRotationMatrix(const Matrix3x3& m) {
 
 void Course::CreateTubeCourse() {
 	walls_.clear();  // 当たり判定用OBB
-	// wallModel_ は不要なので削除
 
 	// 弧長テーブル作成
 	lengthTable_.resize(sampleCount_);
@@ -334,23 +324,23 @@ void Course::ReadCSV() {
 				// 設置
 				switch (layer[z][x]) {
 				case 1:
-					AddRing(pos, 1.0f);
+					AddRing(pos, 1.5f);
 					break;
 				case 2:
-					AddRing(pos, 2.0f);
+					AddRing(pos, 3.0f);
 					break;
 				case 3:
-					AddRing(pos, 3.0f);
+					AddRing(pos, 4.5f);
 					break;
 
 				case 4:
-					AddSpike(pos, 1.0f);
+					AddSpike(pos, 1.5f);
 					break;
 				case 5:
-					AddSpike(pos, 2.0f);
+					AddSpike(pos, 3.0f);
 					break;
 				case 6:
-					AddSpike(pos, 3.0f);
+					AddSpike(pos, 4.5f);
 					break;
 
 				case 7:

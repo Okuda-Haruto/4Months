@@ -57,6 +57,7 @@ public:
 	float GetVacuumPower() { return vacuumPower_; }
 	float GetCurrentEnergy() { return energy_; }
 	float GetMaxEnergy() { return kMaxEnergy_; }
+	Sphere GetAutoPickUp(){return Sphere(transform_.translate, autoPickupRange_);}
 
 protected:
 	// モデル
@@ -94,7 +95,7 @@ protected:
 
 	// ドリフト、巻きつき不可時間
 	int unableDriftTimer_;
-	const int unableDriftTime_ = 120;
+	const int unableDriftTime_ = 40;
 
 	//カメラ演出(プレイヤー用)
 	const float kMaxCameraEffectTime_ = 1.0f;
@@ -174,6 +175,9 @@ protected:
 	int vacuumTimer_ = 20;
 	float vacuumRadius_ = 20.0f;
 	float vacuumPower_ = 0.5f;
+
+	// エネルギー自動取得
+	float autoPickupRange_ = 3.0f;
 
 	void StartDrifting();
 
