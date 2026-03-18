@@ -43,6 +43,10 @@ void Course::Update() {
 		spike->Update();
 	}
 
+	for (auto& energy : energies_) {
+		energy->Update();
+	}
+
 #ifdef USE_IMGUI
 	ImGui::Begin("Wall");
 	ImGui::DragFloat3("controlPoint0", &controlPoints_[0].x, 0.01f);
@@ -60,6 +64,10 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 	for (auto& spike : spikes_) {
 		spike->Draw(directionalLight);
+	}
+
+	for (auto& energy : energies_) {
+		energy->Draw(directionalLight);
 	}
 
 	OptionalPrimitiveManager::GetInstance()->SetDirectionalLight(directionalLight);
@@ -345,6 +353,10 @@ void Course::ReadCSV() {
 					AddSpike(pos, 3.0f);
 					break;
 
+				case 7:
+					AddEnergy(pos, 2.0f);
+					break;
+
 				default:
 					break;
 				}
@@ -369,6 +381,12 @@ void Course::AddSpike(const Vector3& spawnPos, const float radius) {
 	std::unique_ptr spike = std::make_unique<Spike>();
 	spike->Initialize(spawnPos, radius);
 	spikes_.push_back(std::move(spike));
+}
+
+void Course::AddEnergy(const Vector3& spawnPos, const float radius) {
+	std::unique_ptr energy = std::make_unique<Energy>();
+	energy->Initialize(spawnPos, radius);
+	energies_.push_back(std::move(energy));
 }
 
 float Course::DistanceToT(float dist) const {

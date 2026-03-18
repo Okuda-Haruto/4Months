@@ -24,6 +24,7 @@ public:
 	// ヒット時
 	void OnHitRing(const float addSpeed, const float addMaxSpeed);
 	void OnHitSpike(const Vector3& pos);
+	void OnHitEnergy(const float amount);
 	void OnHitWall(OBB wallObb);
 	void OnHitNeck(const Vector3& pos);
 
@@ -141,6 +142,13 @@ protected:
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };
 
+	// 最大エネルギー
+	const float kMaxEnergy_ = 100;
+	// 現在エネルギー
+	float energy_ = 50;
+	// 巻きつき中エネルギー消費量
+	float energyCost_ = 1.0f;
+  
 	// 吸引
 	enum VacuumState {
 		None,

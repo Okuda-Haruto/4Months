@@ -16,6 +16,7 @@ void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> n
 void CheckCollision::Update(Human* human) {
 	CheckRing(human);
 	CheckSpike(human);
+	CheckEnergy(human);
 	CheckWall(human);
 	CheckNeck(human);
 	CheckGoal(human);
@@ -62,6 +63,22 @@ void CheckCollision::CheckSpike(Human* human) {
 				gameCamera_->StartShake(1.5f, 4);
 			}
 
+		}
+	}
+}
+
+void CheckCollision::CheckEnergy(Human* human) {
+	if (human->IsInvincible()) { return; } for (auto& energy : course_->GetEnergies()) {
+		Sphere energySphere = energy->GetCollider();
+		Vector3 humanPos = human->GetTransform().translate;
+		Sphere humanSphere = { humanPos, 1.0f };
+		if (!energy->IsCoolDown(human->GetID())) { // 連続で触れられない
+			// 判定
+			if (IsCollision(energySphere, humanSphere)) {
+				// 衝突
+				energy->OnCollide(human->GetID());
+				human->OnHitEnergy(energy->GetHealAmount());
+			}
 		}
 	}
 }
