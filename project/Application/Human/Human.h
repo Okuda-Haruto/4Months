@@ -55,6 +55,8 @@ public:
 	float GetCameraEffectTime() { return cameraEffectTime_; }
 	Sphere GetVacuumSphere() { return Sphere(headTransform_.translate,vacuumRadius_); }
 	float GetVacuumPower() { return vacuumPower_; }
+	float GetCurrentEnergy() { return energy_; }
+	float GetMaxEnergy() { return kMaxEnergy_; }
 
 protected:
 	// モデル
@@ -164,7 +166,10 @@ protected:
 	float headSpeed_;
 	const float headStartSpeed_ = 5.0f;
 	const float headDeceleration_ = 0.2f;
+	const float returnTime_ = 60;
+	float returnTimer_ = 0;
 
+	// 吸引
 	const int vacuumTime_ = 20;
 	int vacuumTimer_ = 20;
 	float vacuumRadius_ = 20.0f;

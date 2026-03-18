@@ -231,6 +231,7 @@ void Human::Update() {
 
 		if (vacuumTimer_ <= 0) {
 			vacuumState_ = Return;
+			returnTimer_ = returnTime_;
 		}
 		break;
 
@@ -238,8 +239,14 @@ void Human::Update() {
 		headDir_ = Normalize(transform_.translate - headTransform_.translate);
 		headTransform_.translate += headDir_ * headSpeed_;
 		headSpeed_ += headDeceleration_;
-		if ((!isTurnBack_ && headTransform_.translate.y > transform_.translate.y) ||
-			(isTurnBack_ && headTransform_.translate.y < transform_.translate.y)) {
+
+		if (headTransform_.translate.y > transform_.translate.y) {
+			headSpeed_ = 0;
+			vacuumState_ = None;
+		}
+
+		returnTimer_--;
+		if (returnTimer_ <= 0) {
 			headSpeed_ = 0;
 			vacuumState_ = None;
 		}
