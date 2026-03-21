@@ -40,7 +40,7 @@ public:
 	bool IsTurnBack() { return isTurnBack_; }
 	bool IsCoilAround() { return isCoilAround_; }
 	bool IsInvincible() { return invincibleTimer_ > 0; }
-	bool IsVacuuming() { return vacuumState_ == Vacuum || vacuumState_ == Going; }
+	bool IsVacuuming() { return vacuumState_ == Vacuum; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -171,9 +171,9 @@ protected:
 	float returnTimer_ = 0;
 
 	// 吸引
-	const int vacuumTime_ = 20;
-	int vacuumTimer_ = 20;
-	float vacuumRadius_ = 20.0f;
+	const int vacuumTime_ = 40;
+	int vacuumTimer_ = 40;
+	float vacuumRadius_ = 30.0f;
 	float vacuumPower_ = 0.5f;
 
 	// エネルギー自動取得

@@ -30,5 +30,7 @@ private:
 
 	// 衝突判定
 	Sphere collider_;
+
+	Vector3 velocity_;
 };
 

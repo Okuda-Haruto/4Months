@@ -43,5 +43,6 @@ private:
 	std::vector<Neck*> necks_;
 	GameCamera* gameCamera_;
 	bool isGoal_ = false;
+	int mixType_ = 0;
 };
 

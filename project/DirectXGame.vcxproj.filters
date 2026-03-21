@@ -505,6 +505,7 @@
     </ClInclude>
     <ClInclude Include="Application\Voxel\Voxel.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
+    <ClInclude Include="Application\Mix.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
