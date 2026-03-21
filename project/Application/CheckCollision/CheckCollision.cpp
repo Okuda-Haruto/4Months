@@ -206,7 +206,6 @@ void CheckCollision::CheckVacuum(Human* human) {
 				Vector3 vel = Vector3(0, 0, 0);
 				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
 				float deltaTime = 1.0f / 60.0f;
-				energy->Move(Mix2(energySphere.center, vel, vacuumSphere.center, axis));
 				if (mixType_ == 0)energy->Move(Mix(energySphere.center, vel, vacuumSphere.center, axis));
 				if (mixType_ == 1)energy->Move(Mix2(energySphere.center, vel, vacuumSphere.center, axis));
 			}
