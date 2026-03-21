@@ -105,6 +105,7 @@
     <ClInclude Include="Application\Goal\Goal.h" />
     <ClInclude Include="Application\Human\Enemy\Enemy.h" />
     <ClInclude Include="Application\Human\Human.h" />
+    <ClInclude Include="Application\Mix.h" />
     <ClInclude Include="Application\Neck\Neck.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\Scene\BaseScene\BaseScene.h" />

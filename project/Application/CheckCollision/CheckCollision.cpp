@@ -5,6 +5,7 @@
 #include "Neck/Neck.h"
 #include "Math/Collision.h"
 #include "GameCamera/GameCamera.h"
+#include "Mix.h"
 
 void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> necks, GameCamera* gameCamera) {
 	course_ = course;
@@ -21,6 +22,15 @@ void CheckCollision::Update(Human* human) {
 	CheckNeck(human);
 	CheckGoal(human);
 	CheckVacuum(human);
+
+#ifdef USE_IMGUI
+	if (human->GetID() == 0) {
+		ImGui::Begin("かき混ぜ");
+		ImGui::Text("タイプ1:吸い込み、タイプ2:放出");
+		ImGui::SliderInt("挙動", &mixType_, 0, 1);
+		ImGui::End();
+	}
+#endif
 }
 
 void CheckCollision::CheckRing(Human* human) {
@@ -160,7 +170,12 @@ void CheckCollision::CheckVacuum(Human* human) {
 				if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ vacuumSphere.center.x, vacuumSphere.center.z }) <= ringRadius + vacuumSphere.radius) {
 					// 衝突
 					ring->OnCollide(0);
-					ring->Move(Normalize(vacuumSphere.center - ringCenter) * human->GetVacuumPower());
+					Vector3 vel = Vector3(0, 0, 0);
+					Vector3 axis = Vector3(0, 1, 0); // Y軸回転
+					float deltaTime = 1.0f / 60.0f;
+
+					if(mixType_ == 0)ring->Move(Mix(ringCenter, vel, vacuumSphere.center, axis));
+					if(mixType_ == 1)ring->Move(Mix2(ringCenter, vel, vacuumSphere.center, axis));
 				}
 			}
 		}
@@ -173,7 +188,12 @@ void CheckCollision::CheckVacuum(Human* human) {
 			if (IsCollision(spikeSphere, vacuumSphere)) {
 				// 衝突
 				spike->OnCollide();
-				spike->Move(Normalize(vacuumSphere.center - spikeSphere.center) * human->GetVacuumPower());
+
+				Vector3 vel = Vector3(0, 0, 0);
+				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
+				float deltaTime = 1.0f / 60.0f;
+				if (mixType_ == 0)spike->Move(Mix(spikeSphere.center, vel, vacuumSphere.center, axis));
+				if (mixType_ == 1)spike->Move(Mix2(spikeSphere.center, vel, vacuumSphere.center, axis));
 			}
 		}
 
@@ -183,7 +203,12 @@ void CheckCollision::CheckVacuum(Human* human) {
 			// 判定
 			if (IsCollision(energySphere, vacuumSphere)) {
 				// 衝突
-				energy->Move(Normalize(vacuumSphere.center - energySphere.center) * human->GetVacuumPower());
+				Vector3 vel = Vector3(0, 0, 0);
+				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
+				float deltaTime = 1.0f / 60.0f;
+				energy->Move(Mix2(energySphere.center, vel, vacuumSphere.center, axis));
+				if (mixType_ == 0)energy->Move(Mix(energySphere.center, vel, vacuumSphere.center, axis));
+				if (mixType_ == 1)energy->Move(Mix2(energySphere.center, vel, vacuumSphere.center, axis));
 			}
 		}
 	}
