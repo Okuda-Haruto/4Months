@@ -8,8 +8,6 @@
 #include "Goal/Goal.h"
 #include "Course/Course.h"
 #include "HUD/HUD.h"
-#include "Voxel/Voxel.h"
-#include "Effect/Voxel_Vacuum/Voxel_Vacuum.h"
 
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
@@ -46,9 +44,6 @@ private:
 	// コース
 	std::unique_ptr<Course> course_ = nullptr;
 
-	std::unique_ptr<Voxel> voxel_;
-	std::vector<std::unique_ptr<Voxel_Vacuum>> effects_;
-
 	// 当たり判定
 	std::unique_ptr<CheckCollision> checkCollision_ = nullptr;
 
@@ -64,6 +59,4 @@ public:
 	void Update() override;
 	//描画
 	void Draw() override;
-
-	void AddEffect(SRT transform);
 };

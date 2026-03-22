@@ -30,8 +30,13 @@ Course::Course() {
 Course::~Course() {
 }
 
-void Course::Initialize() {
+void Course::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
+	directionalLight_ = directionalLight;
+
 	ReadCSV();
+
+	voxel_ = std::make_unique<Voxel>();
+	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), directionalLight_);
 }
 
 void Course::Update() {
@@ -46,6 +51,12 @@ void Course::Update() {
 	for (auto& energy : energies_) {
 		energy->Update();
 	}
+
+	for (auto& box : boxes_) {
+		box->Update();
+	}
+
+	voxel_->Update();
 }
 
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -60,6 +71,12 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 	for (auto& energy : energies_) {
 		energy->Draw(directionalLight);
 	}
+
+	for (auto& box : boxes_) {
+		box->Draw();
+	}
+
+	voxel_->Draw();
 
 	OptionalPrimitiveManager::GetInstance()->SetDirectionalLight(directionalLight);
 	//OptionalPrimitiveManager::GetInstance()->Draw();
@@ -377,6 +394,12 @@ void Course::AddEnergy(const Vector3& spawnPos, const float radius) {
 	std::unique_ptr energy = std::make_unique<Energy>();
 	energy->Initialize(spawnPos, radius);
 	energies_.push_back(std::move(energy));
+}
+
+void Course::AddBox(const SRT& transform, const float radius) {
+	std::unique_ptr box = std::make_unique<Box>();
+	box->Initialize(transform, radius, directionalLight_);
+	boxes_.push_back(std::move(box));
 }
 
 float Course::DistanceToT(float dist) const {

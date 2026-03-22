@@ -3,6 +3,7 @@
 #include "Ring/Ring.h"
 #include "Spike/Spike.h"
 #include "Energy/Energy.h"
+#include "Voxel/Voxel.h"
 #include "OBB.h"
 
 class Course {
@@ -11,7 +12,7 @@ public:
 	~Course();
 
 	// 初期化
-	void Initialize();
+	void Initialize(std::shared_ptr<DirectionalLight> directionalLight);
 
 	// 更新
 	void Update();
@@ -48,6 +49,18 @@ public:
 		return energies;
 	}
 
+	std::vector<Box*> GetBoxes() {
+		std::vector<Box*> boxes;
+		for (auto& box : boxes_) {
+			boxes.push_back(box.get());
+		}
+		return boxes;
+	}
+
+	Voxel* GetVoxel() { return voxel_.get(); }
+
+	void AddBox(const SRT& transform, const float radius);
+
 private:
 	// コース中心線上の座標
 	Vector3 GetPoint(float t);
@@ -65,6 +78,8 @@ private:
 	void AddSpike(const Vector3& spawnPos, const float radius);
 	void AddEnergy(const Vector3& spawnPos, const float radius);
 
+	std::shared_ptr<DirectionalLight> directionalLight_;
+
 	// 衝突判定(円)
 	Vector2 colliderCenter_ = {};
 	float radius_ = 20;
@@ -75,6 +90,9 @@ private:
 	std::vector<std::unique_ptr<Ring>> rings_;
 	std::vector<std::unique_ptr<Spike>> spikes_;
 	std::vector < std::unique_ptr<Energy>> energies_;
+
+	std::unique_ptr<Voxel> voxel_;
+	std::vector<std::unique_ptr<Box>> boxes_;
 
 	// 配置物の読み込み関連
 	const int kLayerCount_ = 10; // 何層に分けるか

@@ -35,10 +35,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	// コース
 	course_ = std::make_unique<Course>();
-	course_->Initialize();
-
-	voxel_ = std::make_unique<Voxel>();
-	voxel_->Initialize(this,ModelManager::GetInstance()->GetModel("resources/Course/Face","Face.obj"), directionalLight_);
+	course_->Initialize(directionalLight_);
 
 	//ゴール
 	goal_ = std::make_unique<Goal>();
@@ -117,15 +114,6 @@ void GameScene::Update() {
 
 	// コース
 	course_->Update();
-	if (player_->IsVacuuming()) {
-		voxel_->Collision(player_->GetVacuumSphere());
-	}
-	for (auto& effect : effects_) {
-		effect->Update();
-	}
-	std::erase_if(effects_, [](const auto& effect) {
-		return effect->IsDead();
-		});
 
 	// 当たり判定
 	checkCollision_->Update(player_.get());
@@ -147,9 +135,6 @@ void GameScene::Update() {
 	}
 	ImGui::End();
 #endif
-
-
-	voxel_->Update();
 
 	//仮置き
 	if (keyboard.trigger[DIK_R]) {
@@ -173,11 +158,6 @@ void GameScene::Draw() {
 	// コース
 	course_->Draw(directionalLight_);
 
-	voxel_->Draw();
-	for (auto& effect : effects_) {
-		effect->Draw();
-	}
-
 	//首描画
 	for (auto& neck : necks_) {
 		neck->Draw();
@@ -185,10 +165,4 @@ void GameScene::Draw() {
 
 	// HUD
 	hud_->Draw();
-}
-
-void GameScene::AddEffect(SRT transform) {
-	std::unique_ptr<Voxel_Vacuum> effect = std::make_unique<Voxel_Vacuum>();
-	effect->Initialize(transform, player_.get(), directionalLight_);
-	effects_.push_back(move(effect));
 }

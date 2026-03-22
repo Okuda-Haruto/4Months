@@ -1,8 +1,9 @@
 #pragma once
 #include <GameEngine.h>
 #include <Shape/Sphere.h>
+#include "Box/Box.h"
 
-class GameScene;
+class Course;
 
 struct Chunk {
 	std::array<std::array<std::array<uint8_t, 16>, 16>, 16> mapChip;
@@ -22,10 +23,10 @@ private:
 	std::array<std::unique_ptr<Object>, 4096> objects_;
 	uint32_t index_ = 0;
 
-	GameScene* gameScene_;
+	Course* course_;
 
 public:
-	void Initialize(GameScene* gameScene, std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth);
+	void Initialize(Course* course, std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth);
 
 	void Update();
 
