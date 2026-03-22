@@ -327,12 +327,11 @@ void Course::ReadCSV() {
 			for (int z = 0; z < kCSVHeight_; ++z) {
 				Vector2 blockSize = { (radius_ * 2) / kCSVWidth_, (radius_ * 2) / kCSVHeight_ };
 
-				Vector3 pos = Vector3{
-					(x + 0.5f)* blockSize.x,
-					0,
-					(z + 0.5f) * blockSize.y
+				Vector3 pos = {
+				(x * blockSize.x - (kCSVWidth_ * blockSize.x) / 2.0f - blockSize.x / 4.0f),
+				0,
+				-(z * blockSize.y) + (kCSVHeight_ * blockSize.y) / 2.0f - blockSize.y / 4.0f
 				};
-				pos -= { (kCSVWidth_ * blockSize.x) / 2.0f, 0, (kCSVHeight_ * blockSize.y) / 2.0f};
 
 				float targetDist = totalLength_ * (float(i) / kLayerCount_);
 				float t = DistanceToT(targetDist);
