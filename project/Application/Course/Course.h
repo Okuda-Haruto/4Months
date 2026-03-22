@@ -67,19 +67,17 @@ private:
 
 	// 衝突判定(円)
 	Vector2 colliderCenter_ = {};
-	float radius_ = 20;
+	float radius_ = 3.0f * 16;
 
 	// 配置物
-	int ringCount_ = 50;
-	int spikeCount_ = 30;
 	std::vector<std::unique_ptr<Ring>> rings_;
 	std::vector<std::unique_ptr<Spike>> spikes_;
 	std::vector < std::unique_ptr<Energy>> energies_;
 
 	// 配置物の読み込み関連
 	const int kLayerCount_ = 10; // 何層に分けるか
-	const int kCSVWidth_ = 10; // 横
-	const int kCSVHeight_ = 10; // 縦
+	const int kCSVWidth_ = 16; // 横
+	const int kCSVHeight_ = 16; // 縦
 
 	// トランスフォーム
 	SRT transform_;
