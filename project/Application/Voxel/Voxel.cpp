@@ -1,15 +1,16 @@
 #include "Voxel.h"
 #include "Scene/BaseScene/GameScene/GameScene.h"
 #include <Collision.h>
+#include "Course/Course.h"
 
 #include <numbers>
 #include <cassert>
 
-void Voxel::Initialize(GameScene* gameScene ,std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth) {
+void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth) {
 
-	gameScene_ = gameScene;
-	directionalLigth_ = directionalLigth;
+	course_ = course;
 	face_ = face;
+	directionalLigth_ = directionalLigth;
 
 	for (index_ = 0; index_ < objects_.size(); index_++) {
 		objects_[index_] = std::make_unique<Object>();
@@ -219,7 +220,11 @@ void Voxel::Collision(Sphere sphere) {
 										-(y * scale * 2) - scale / 2 - i * 32 * scale ,
 										32 * scale - (z * scale * 2 + 16 * scale) - scale / 2,
 									};
-									gameScene_->AddEffect(transform);
+
+									//Boxにする
+									course_->AddBox(transform,scale / 2);
+
+									chunks_[i].mapChip[y][z][x] = 0;
 								}
 							}
 						}

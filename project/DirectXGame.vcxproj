@@ -39,6 +39,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Box\Box.cpp" />
     <ClCompile Include="Application\Course\Course.cpp" />
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
     <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
@@ -99,6 +100,7 @@
     <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\Box\Box.h" />
     <ClInclude Include="Application\Course\Course.h" />
     <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />

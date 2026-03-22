@@ -174,8 +174,14 @@ void CheckCollision::CheckVacuum(Human* human) {
 					Vector3 axis = Vector3(0, 1, 0); // Y軸回転
 					float deltaTime = 1.0f / 60.0f;
 
-					if(mixType_ == 0)ring->Move(Mix(ringCenter, vel, vacuumSphere.center, axis));
-					if(mixType_ == 1)ring->Move(Mix2(ringCenter, vel, vacuumSphere.center, axis));
+					float length = Length(vacuumSphere.center - ringCenter);
+					//割合で速度を変える
+					float vecuumLate = length / vacuumSphere.radius;
+					//速度
+					float speed = (1.0f - vecuumLate) * baseVacuumSpeed_;
+
+					if (mixType_ == 0)ring->Move(Mix(ringCenter, vel, vacuumSphere.center, axis) * speed);
+					if (mixType_ == 1)ring->Move(Mix2(ringCenter, vel, vacuumSphere.center, axis) * speed);
 				}
 			}
 		}
@@ -192,8 +198,14 @@ void CheckCollision::CheckVacuum(Human* human) {
 				Vector3 vel = Vector3(0, 0, 0);
 				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
 				float deltaTime = 1.0f / 60.0f;
-				if (mixType_ == 0)spike->Move(Mix(spikeSphere.center, vel, vacuumSphere.center, axis));
-				if (mixType_ == 1)spike->Move(Mix2(spikeSphere.center, vel, vacuumSphere.center, axis));
+				float length = Length(vacuumSphere.center - spikeSphere.center);
+				//割合で速度を変える
+				float vecuumLate = length / vacuumSphere.radius;
+				//速度
+				float speed = (1.0f - vecuumLate) * baseVacuumSpeed_;
+
+				if (mixType_ == 0)spike->Move(Mix(spikeSphere.center, vel, vacuumSphere.center, axis) * speed);
+				if (mixType_ == 1)spike->Move(Mix2(spikeSphere.center, vel, vacuumSphere.center, axis) * speed);
 			}
 		}
 
@@ -206,8 +218,39 @@ void CheckCollision::CheckVacuum(Human* human) {
 				Vector3 vel = Vector3(0, 0, 0);
 				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
 				float deltaTime = 1.0f / 60.0f;
-				if (mixType_ == 0)energy->Move(Mix(energySphere.center, vel, vacuumSphere.center, axis));
-				if (mixType_ == 1)energy->Move(Mix2(energySphere.center, vel, vacuumSphere.center, axis));
+
+				float length = Length(vacuumSphere.center - energySphere.center);
+				//割合で速度を変える
+				float vecuumLate = length / vacuumSphere.radius;
+				//速度
+				float speed = (1.0f - vecuumLate) * baseVacuumSpeed_;
+
+				if (mixType_ == 0)energy->Move(Mix(energySphere.center, vel, vacuumSphere.center, axis) * speed);
+				if (mixType_ == 1)energy->Move(Mix2(energySphere.center, vel, vacuumSphere.center, axis) * speed);
+			}
+		}
+
+		//ボクセル
+		course_->GetVoxel()->Collision(vacuumSphere);
+
+		//ボックス(吸い込まれてるボクセル)
+		for (auto& box : course_->GetBoxes()) {
+			Sphere boxSphere = box->GetCollider();
+			// 判定
+			if (IsCollision(boxSphere, vacuumSphere)) {
+				// 衝突
+				Vector3 vel = Vector3(0, 0, 0);
+				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
+				float deltaTime = 1.0f / 60.0f;
+
+				float length = Length(vacuumSphere.center - boxSphere.center);
+				//割合で速度を変える
+				float vecuumLate = length / vacuumSphere.radius;
+				//速度
+				float speed = (1.0f - vecuumLate) * baseVacuumSpeed_;
+
+				if (mixType_ == 0)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis) * speed);
+				if (mixType_ == 1)box->Move(Mix2(boxSphere.center, vel, vacuumSphere.center, axis) * speed);
 			}
 		}
 	}

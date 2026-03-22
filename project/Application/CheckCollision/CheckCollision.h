@@ -44,5 +44,8 @@ private:
 	GameCamera* gameCamera_;
 	bool isGoal_ = false;
 	int mixType_ = 0;
+
+	//吸い込み速度
+	const float baseVacuumSpeed_ = 3.0f;
 };
 

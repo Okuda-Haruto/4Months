@@ -201,6 +201,7 @@
     </ClCompile>
     <ClCompile Include="Application\Voxel\Voxel.cpp" />
     <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
+    <ClCompile Include="Application\Box\Box.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -506,6 +507,7 @@
     <ClInclude Include="Application\Voxel\Voxel.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
     <ClInclude Include="Application\Mix.h" />
+    <ClInclude Include="Application\Box\Box.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
