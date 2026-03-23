@@ -33,7 +33,7 @@ public:
 	SRT GetTransform() { return transform_; }
 	Quaternion GetRollRotate() { return rollRotate_; }
 	int GetID() { return characterID_; }
-	float GetSpeed() { return fabsf(velocity_.translate.y); }
+	float GetSpeed() { return speed_; }
 	//首の色取得
 	const Vector4& GetColor() const { return color_; }
 

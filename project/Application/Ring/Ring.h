@@ -43,7 +43,7 @@ private:
 	// 衝突判定
 	Vector3 colliderCenter_;
 	float colliderRadius_;
-	float colliderHeight_ = 0.5f;
+	float colliderHeight_ = 0.75f;
 
 	// 速度増加量
 	float boostSpeed = 0.05f;

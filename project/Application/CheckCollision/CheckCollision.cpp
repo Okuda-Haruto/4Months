@@ -169,7 +169,6 @@ void CheckCollision::CheckVacuum(Human* human) {
 				float ringRadius = ring->GetColliderRadius();
 				if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ vacuumSphere.center.x, vacuumSphere.center.z }) <= ringRadius + vacuumSphere.radius) {
 					// 衝突
-					ring->OnCollide(0);
 					Vector3 vel = Vector3(0, 0, 0);
 					Vector3 axis = Vector3(0, 1, 0); // Y軸回転
 					float deltaTime = 1.0f / 60.0f;
