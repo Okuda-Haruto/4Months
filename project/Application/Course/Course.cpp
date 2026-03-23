@@ -52,9 +52,18 @@ void Course::Update() {
 		energy->Update();
 	}
 
+	std::erase_if(boxes_, [](const auto& box) {
+		return box->IsDead();
+		});
+
 	for (auto& box : boxes_) {
+		if (!box) {
+			std::cout << "NULL検出\n";
+			continue;
+		}
 		box->Update();
 	}
+	SpawnBox();
 
 	voxel_->Update();
 }
@@ -72,8 +81,12 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		energy->Draw(directionalLight);
 	}
 
+	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
-		box->Draw();
+		boxObjects.push_back(box->GetObjectData());
+	}
+	if (!boxObjects.empty()) {
+		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
 	voxel_->Draw();
@@ -395,10 +408,27 @@ void Course::AddEnergy(const Vector3& spawnPos, const float radius) {
 	energies_.push_back(std::move(energy));
 }
 
-void Course::AddBox(const SRT& transform, const float radius) {
+void Course::AddBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
-	box->Initialize(transform, radius, directionalLight_);
+	box->Initialize(this, transform, velocity, radius, maxHP, directionalLight_);
 	boxes_.push_back(std::move(box));
+}
+
+void Course::AddSplitBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP) {
+	std::unique_ptr box = std::make_unique<Box>();
+	box->Initialize(this, transform, velocity, radius, maxHP, directionalLight_);
+	spawnBoxes_.push_back(std::move(box));
+}
+
+void Course::SpawnBox() {
+	size_t count = spawnBoxes_.size();
+
+	for (size_t i = 0; i < count; i++) {
+		boxes_.push_back(move(spawnBoxes_[i]));
+	}
+
+	spawnBoxes_.clear();
+
 }
 
 float Course::DistanceToT(float dist) const {
