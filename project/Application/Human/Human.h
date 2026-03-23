@@ -91,7 +91,7 @@ protected:
 
 	// 無敵時間
 	int invincibleTimer_;
-	const int invincibleTimeOnHit_ = 60;
+	const int invincibleTimeOnHit_ = 45;
 
 	// ドリフト、巻きつき不可時間
 	int unableDriftTimer_;
@@ -165,13 +165,13 @@ protected:
 	SRT headTransform_;
 	Vector3 headDir_;
 	float headSpeed_;
-	const float headStartSpeed_ = 5.0f;
-	const float headDeceleration_ = 0.2f;
-	const float returnTime_ = 60;
-	float returnTimer_ = 0;
+	float headStartSpeed_ = 5.0f;
+	float headDeceleration_ = 0.2f;
+	int returnTime_ = 60;
+	int returnTimer_ = 0;
 
 	// 吸引
-	const int vacuumTime_ = 30;
+	int vacuumTime_ = 30;
 	int vacuumTimer_ = 30;
 	float vacuumRadius_ = 30.0f;
 

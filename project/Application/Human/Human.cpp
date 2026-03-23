@@ -22,7 +22,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	characterID_ = id_++;
 
 	fallingSpeed_ = -kMinSpeed_;
-	speed_ = 0.4f;
+	speed_ = 0.3f;
 
 	isDrifting_ = false;
 	isCoilAround_ = false;
@@ -255,7 +255,7 @@ void Human::Update() {
 
 	// 速度が一定以下なら戻す
 	if (speed_ < kDefaultSpeed_) {
-		speed_ += 0.005f;
+		speed_ += 0.0025f;
 		speed_ = min(speed_, kDefaultSpeed_);
 	}
 
