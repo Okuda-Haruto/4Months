@@ -255,7 +255,8 @@ void Human::Update() {
 
 	// 速度が一定以下なら戻す
 	if (speed_ < kDefaultSpeed_) {
-		speed_ += 0.05f;
+		speed_ += 0.005f;
+		speed_ = min(speed_, kDefaultSpeed_);
 	}
 
 	// 無敵タイマー
@@ -414,6 +415,15 @@ void Human::OnHitWall(OBB wallObb) {
 
 }
 
+void Human::OnHitVoxel() {
+	Slowdown();
+
+	maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
+	maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
+	invincibleTimer_ = invincibleTimeOnHit_;
+	unableDriftTimer_ = unableDriftTime_;
+}
+
 bool Human::GetIsCoilAround() const {
 	return isCoilAround_;
 }
@@ -430,8 +440,7 @@ void Human::OnHitNeck(const Vector3& pos) {
 	isDrifting_ = false;
 	unableDriftTimer_ = unableDriftTime_;
 
-	speed_ -= 0.1f;
-	if (speed_ < 0) { speed_ = 0.1f; }
+	Slowdown();
 
 	maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
 	maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
@@ -494,4 +503,9 @@ void Human::Throw() {
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
+}
+
+void Human::Slowdown() {
+	speed_ -= 0.3f;
+	speed_ = max(0, speed_);
 }

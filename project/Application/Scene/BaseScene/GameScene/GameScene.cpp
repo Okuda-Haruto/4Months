@@ -118,6 +118,7 @@ void GameScene::Update() {
 	// 当たり判定
 	checkCollision_->Update(player_.get());
 	checkCollision_->Update(enemy_.get());
+	checkCollision_->UpdateImGui();
 
 	// HUD
 	hud_->Update(player_.get());

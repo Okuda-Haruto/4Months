@@ -18,18 +18,17 @@ void CheckCollision::Update(Human* human) {
 	CheckRing(human);
 	CheckSpike(human);
 	CheckEnergy(human);
-	//CheckWall(human);
+	CheckVoxel(human);
 	CheckNeck(human);
 	CheckGoal(human);
 	CheckVacuum(human);
+}
 
+void CheckCollision::UpdateImGui() {
 #ifdef USE_IMGUI
-	if (human->GetID() == 0) {
 		ImGui::Begin("かき混ぜ");
-		ImGui::Text("タイプ1:吸い込み、タイプ2:放出");
 		ImGui::SliderInt("挙動", &mixType_, 0, 1);
 		ImGui::End();
-	}
 #endif
 }
 
@@ -93,16 +92,23 @@ void CheckCollision::CheckEnergy(Human* human) {
 	}
 }
 
-void CheckCollision::CheckWall(Human* human) {
-	for (auto& wall : course_->GetWalls()) {
-		Vector3 playerPos = human->GetTransform().translate;
-		Sphere playerSphere = { playerPos, 1.0f };
+void CheckCollision::CheckVoxel(Human* human) {
+	if (human->IsInvincible()) { return; }
+	Vector3 playerPos = human->GetTransform().translate;
+	Sphere playerSphere = { playerPos, 1.0f };
+
+	//ボクセル
+	course_->GetVoxel()->Collision(playerSphere);
+	for (auto& box : course_->GetBoxes()) {
+		Sphere boxSphere = box->GetCollider();
 
 		// 判定
-		if (fabsf(wall.center.y - playerPos.y) >= wall.size.y) { // 高さが合っていたら詳細な判定
-			if (IsCollision(wall, playerSphere)) {
-				// 衝突
-				human->OnHitWall(wall);
+		if (IsCollision(boxSphere, playerSphere)) {
+			// 衝突
+			human->OnHitVoxel();
+			
+			if (human->GetID() == 0) {
+				gameCamera_->StartShake(1.5f, 4);
 			}
 		}
 	}
