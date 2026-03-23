@@ -167,13 +167,13 @@ protected:
 	float headSpeed_;
 	const float headStartSpeed_ = 5.0f;
 	const float headDeceleration_ = 0.2f;
-	const float returnTime_ = 60;
+	const float returnTime_ = 20;
 	float returnTimer_ = 0;
 
 	// 吸引
 	const int vacuumTime_ = 40;
 	int vacuumTimer_ = 40;
-	float vacuumRadius_ = 30.0f;
+	float vacuumRadius_ = 45.0f;
 	float vacuumPower_ = 0.5f;
 
 	// エネルギー自動取得

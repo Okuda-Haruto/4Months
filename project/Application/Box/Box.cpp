@@ -20,6 +20,7 @@ void Box::Initialize(Course* course, SRT transform, Vector3 velocity, const floa
 	collider_.center = transform_.translate;
 	collider_.radius = radius;
 
+	deathTimer_ = 2.0f;
 	isDead_ = false;
 }
 
@@ -38,6 +39,12 @@ void Box::Update() {
 				course_->AddSplitBox(newTransform, velocity_ + Normalize(newTransform.translate - transform_.translate) * 2, collider_.radius / 2, MaxHP_);
 			}
 		}
+		isDead_ = true;
+	}
+
+	deathTimer_ -= 1.0f / 60.0f;
+
+	if (deathTimer_ < 0.0f) {
 		isDead_ = true;
 	}
 

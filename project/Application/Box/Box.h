@@ -19,6 +19,8 @@ private:
 	int32_t MaxHP_;
 	int32_t HP_;
 
+	float deathTimer_;
+
 	bool isDead_;
 
 	Course* course_;
@@ -38,6 +40,7 @@ public:
 
 	//getter
 	SRT GetTransform() { return transform_; }
+	Object* GetObjectData() { return object_.get(); }
 
 	//setter
 	void SetTransform(SRT transform) { transform_ = transform; }
