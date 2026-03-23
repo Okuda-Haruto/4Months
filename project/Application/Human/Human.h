@@ -26,6 +26,7 @@ public:
 	void OnHitSpike(const Vector3& pos);
 	void OnHitEnergy(const float amount);
 	void OnHitWall(OBB wallObb);
+	void OnHitVoxel();
 	void OnHitNeck(const Vector3& pos);
 
 	bool GetIsCoilAround() const;
@@ -54,7 +55,6 @@ public:
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
 	Sphere GetVacuumSphere() { return Sphere(headTransform_.translate,vacuumRadius_); }
-	float GetVacuumPower() { return vacuumPower_; }
 	float GetCurrentEnergy() { return energy_; }
 	float GetMaxEnergy() { return kMaxEnergy_; }
 	Sphere GetAutoPickUp(){return Sphere(transform_.translate, autoPickupRange_);}
@@ -101,7 +101,7 @@ protected:
 	const float kMaxCameraEffectTime_ = 1.0f;
 	float cameraEffectTime_ = 0.0f;
 	// 最低移動速度
-	const float kDefaultSpeed_ = 0.2f;
+	const float kDefaultSpeed_ = 0.4f;
 
 	// ノックバック中
 	int knockbackTimer_;
@@ -171,10 +171,9 @@ protected:
 	float returnTimer_ = 0;
 
 	// 吸引
-	const int vacuumTime_ = 40;
-	int vacuumTimer_ = 40;
+	const int vacuumTime_ = 30;
+	int vacuumTimer_ = 30;
 	float vacuumRadius_ = 30.0f;
-	float vacuumPower_ = 0.5f;
 
 	// エネルギー自動取得
 	float autoPickupRange_ = 3.0f;
@@ -182,4 +181,5 @@ protected:
 	void StartDrifting();
 
 	void Throw();
+	void Slowdown();
 };

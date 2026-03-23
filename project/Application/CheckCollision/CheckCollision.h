@@ -13,6 +13,7 @@ public:
 	void Initialize(Course* course, Goal* goal, std::vector<Neck*> necks, GameCamera* gameCamera);
 	// 更新
 	void Update(Human* human);
+	void UpdateImGui();
 
 	bool IsGoal() { return isGoal_; };
 
@@ -26,8 +27,8 @@ private:
 	// プレイヤーとエネルギーの判定
 	void CheckEnergy(Human* human);
 
-	// プレイヤーと壁の判定
-	void CheckWall(Human* human);
+	// プレイヤーと壁(ボクセル)の判定
+	void CheckVoxel(Human* human);
 
 	// プレイヤーと軌跡の判定
 	void CheckNeck(Human* human);

@@ -19,7 +19,7 @@ Vector3 Mix(
 	const Vector3& axis) {
 
 	float baseRadiusStrength = 10.0f;
-	float swirlSpeed = 2.0f;
+	float swirlSpeed = 1.5f;
 	float noiseStrength = 1.5f;
 	float damping = 0.9f;
 	float shrinkSpeed = 2.5f;
@@ -67,7 +67,7 @@ Vector3 Mix2(
 	const Vector3& axis) {
 
 	float baseRadiusStrength = 10.0f;
-	float swirlSpeed = 2.0f;
+	float swirlSpeed = 1.5f;
 	float noiseStrength = 1.5f;
 	float damping = 0.9f;
 	float expandSpeed = 0.4f;
