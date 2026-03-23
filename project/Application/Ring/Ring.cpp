@@ -16,6 +16,9 @@ void Ring::Initialize(const Vector3& spawnPos, const float radius) {
 }
 
 void Ring::Update() {
+	velocity_ = Lerp(velocity_, Vector3{ 0,0,0 }, 0.1f);
+
+	transform_.translate += velocity_;
 	model_->SetTransform(transform_);
 	colliderCenter_ = transform_.translate;
 
@@ -45,5 +48,5 @@ bool Ring::IsCoolDown(int id) {
 }
 
 void Ring::Move(const Vector3& velocity) {
-	transform_.translate += velocity;
+	velocity_ = Lerp(velocity_, velocity, 0.5f);
 }
