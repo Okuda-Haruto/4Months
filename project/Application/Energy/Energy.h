@@ -36,6 +36,8 @@ private:
 
 	// トランスフォーム
 	SRT transform_;
+	//速度
+	Vector3 velocity_;
 
 	// 衝突判定
 	Sphere collider_;

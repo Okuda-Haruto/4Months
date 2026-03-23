@@ -16,6 +16,10 @@ void Box::Initialize(SRT transform, const float radius, std::shared_ptr<Directio
 }
 
 void Box::Update() {
+	velocity_ = Lerp(velocity_, Vector3{0,0,0}, 0.1f);
+
+	transform_.translate += velocity_;
+
 	object_->SetTransform(transform_);
 	collider_.center = transform_.translate;
 }
@@ -26,5 +30,5 @@ void Box::Draw() {
 }
 
 void Box::Move(const Vector3& velocity) {
-	transform_.translate += velocity;
+	velocity_ = Lerp(velocity_,velocity,0.5f);
 }

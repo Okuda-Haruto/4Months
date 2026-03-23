@@ -14,6 +14,10 @@ void Energy::Initialize(const Vector3& spawnPos, const float radius) {
 }
 
 void Energy::Update() {
+	velocity_ = Lerp(velocity_, Vector3{ 0,0,0 }, 0.1f);
+
+	transform_.translate += velocity_;
+
 	model_->SetTransform(transform_);
 	collider_.center = transform_.translate;
 
@@ -43,5 +47,5 @@ bool Energy::IsCoolDown(int id) {
 }
 
 void Energy::Move(const Vector3& velocity) {
-	transform_.translate += velocity;
+	velocity_ = Lerp(velocity_, velocity, 0.5f);
 }
