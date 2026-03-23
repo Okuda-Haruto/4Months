@@ -63,6 +63,7 @@ void Course::Update() {
 		}
 		box->Update();
 	}
+	SpawnBox();
 
 	voxel_->Update();
 }
@@ -80,10 +81,13 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		energy->Draw(directionalLight);
 	}
 
+	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
-		box->Draw();
+		boxObjects.push_back(box->GetObjectData());
 	}
-	SpawnBox();
+	if (!boxObjects.empty()) {
+		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
+	}
 
 	voxel_->Draw();
 

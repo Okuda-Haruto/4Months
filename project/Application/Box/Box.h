@@ -36,6 +36,8 @@ public:
 
 	void Damage(){ HP_--;}
 
+	Object* GetObjectData() { return object_.get(); }
+
 	//getter
 	SRT GetTransform() { return transform_; }
 
