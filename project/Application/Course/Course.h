@@ -59,7 +59,9 @@ public:
 
 	Voxel* GetVoxel() { return voxel_.get(); }
 
-	void AddBox(const SRT& transform, const float radius);
+	void AddBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP);
+	void AddSplitBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP);
+	void SpawnBox();
 
 private:
 	// コース中心線上の座標
@@ -91,6 +93,7 @@ private:
 
 	std::unique_ptr<Voxel> voxel_;
 	std::vector<std::unique_ptr<Box>> boxes_;
+	std::vector<std::unique_ptr<Box>> spawnBoxes_;
 
 	// 配置物の読み込み関連
 	const int kLayerCount_ = 10; // 何層に分けるか

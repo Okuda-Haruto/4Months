@@ -222,7 +222,7 @@ void Voxel::Collision(Sphere sphere) {
 									};
 
 									//Boxにする
-									course_->AddBox(transform,scale / 2);
+									course_->AddBox(transform, {}, scale / 2, 6);
 
 									chunks_[i].mapChip[y][z][x] = 0;
 								}
