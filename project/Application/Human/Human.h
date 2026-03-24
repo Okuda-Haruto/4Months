@@ -173,12 +173,10 @@ protected:
 	// 吸引
 	int vacuumTime_ = 30;
 	int vacuumTimer_ = 30;
-	float vacuumRadius_ = 30.0f;
+	float vacuumRadius_ = 30.0f; 
 
 	// エネルギー自動取得
 	float autoPickupRange_ = 3.0f;
-
-	void StartDrifting();
 
 	void Throw();
 	void Slowdown();

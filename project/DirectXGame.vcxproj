@@ -44,9 +44,7 @@
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
     <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
     <ClCompile Include="Application\Goal\Goal.cpp" />
-    <ClCompile Include="Application\Human\Enemy\Enemy.cpp" />
     <ClCompile Include="Application\Human\Human.cpp" />
-    <ClCompile Include="Application\Neck\Neck.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="Application\Scene\BaseScene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp" />
@@ -96,7 +94,6 @@
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
     <ClCompile Include="Application\Human\Player\Player.cpp" />
     <ClCompile Include="Application\Spike\Spike.cpp" />
-    <ClCompile Include="Application\Ring\Ring.cpp" />
     <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -105,10 +102,8 @@
     <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
     <ClInclude Include="Application\Goal\Goal.h" />
-    <ClInclude Include="Application\Human\Enemy\Enemy.h" />
     <ClInclude Include="Application\Human\Human.h" />
     <ClInclude Include="Application\Mix.h" />
-    <ClInclude Include="Application\Neck\Neck.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Application\Scene\BaseScene\TitleScene\TitleScene.h" />
@@ -201,7 +196,6 @@
     <ClInclude Include="Application\Scene\BaseScene\GameScene\GameScene.h" />
     <ClInclude Include="Application\Human\Player\Player.h" />
     <ClInclude Include="Application\Spike\Spike.h" />
-    <ClInclude Include="Application\Ring\Ring.h" />
     <ClInclude Include="Application\HUD\HUD.h" />
     <ClInclude Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.h" />
   </ItemGroup>

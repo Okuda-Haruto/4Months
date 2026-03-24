@@ -40,10 +40,6 @@ void Course::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 }
 
 void Course::Update() {
-	for (auto& ring : rings_) {
-		ring->Update();
-	}
-
 	for (auto& spike : spikes_) {
 		spike->Update();
 	}
@@ -69,10 +65,6 @@ void Course::Update() {
 }
 
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
-	for (auto& ring : rings_) {
-		ring->Draw(directionalLight);
-	}
-
 	for (auto& spike : spikes_) {
 		spike->Draw(directionalLight);
 	}
@@ -352,15 +344,6 @@ void Course::ReadCSV() {
 
 				// 設置
 				switch (layer[z][x]) {
-				case 1:
-					AddRing(pos, 1.5f);
-					break;
-				case 2:
-					AddRing(pos, 3.0f);
-					break;
-				case 3:
-					AddRing(pos, 4.5f);
-					break;
 
 				case 4:
 					AddSpike(pos, 1.5f);
@@ -382,18 +365,6 @@ void Course::ReadCSV() {
 			}
 		}
 	}
-}
-
-void Course::AddRing(const Vector3& spawnPos, const float radius) {
-	std::unique_ptr ring = std::make_unique<Ring>();
-	ring->Initialize(spawnPos, radius);
-	rings_.push_back(std::move(ring));
-
-	//ソート
-	std::sort(rings_.begin(), rings_.end(),
-		[](const auto& a, const auto& b) {
-			return *a < *b;
-		});
 }
 
 void Course::AddSpike(const Vector3& spawnPos, const float radius) {

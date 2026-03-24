@@ -1,6 +1,5 @@
 #pragma once
 #include "GameEngine.h"
-#include "Ring/Ring.h"
 #include "Spike/Spike.h"
 #include "Energy/Energy.h"
 #include "Voxel/Voxel.h"
@@ -24,14 +23,6 @@ public:
 	Vector2 GetColliderCenter() { return colliderCenter_; }
 	float GetColliderRadius() { return radius_; }
 	std::vector<OBB> GetWalls() { return walls_; }
-
-	std::vector<Ring*> GetRings() {
-		std::vector<Ring*> rings;
-		for (auto& ring : rings_) {
-			rings.push_back(ring.get());
-		}
-		return rings;
-	}
 
 	std::vector<Spike*> GetSpikes() {
 		std::vector<Spike*> spikes;
@@ -76,7 +67,6 @@ private:
 
 	// 読み込んで配置
 	void ReadCSV();
-	void AddRing(const Vector3& spawnPos, const float radius);
 	void AddSpike(const Vector3& spawnPos, const float radius);
 	void AddEnergy(const Vector3& spawnPos, const float radius);
 
@@ -87,7 +77,6 @@ private:
 	float radius_ = 3.0f * 16;
 
 	// 配置物
-	std::vector<std::unique_ptr<Ring>> rings_;
 	std::vector<std::unique_ptr<Spike>> spikes_;
 	std::vector < std::unique_ptr<Energy>> energies_;
 
