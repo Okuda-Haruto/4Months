@@ -408,15 +408,15 @@ void Course::AddEnergy(const Vector3& spawnPos, const float radius) {
 	energies_.push_back(std::move(energy));
 }
 
-void Course::AddBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP) {
+void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
-	box->Initialize(this, transform, velocity, radius, maxHP, directionalLight_);
+	box->Initialize(this, transform, velocity, number, vacuumSensitivity, radius, maxHP, directionalLight_);
 	boxes_.push_back(std::move(box));
 }
 
-void Course::AddSplitBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP) {
+void Course::AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
-	box->Initialize(this, transform, velocity, radius, maxHP, directionalLight_);
+	box->Initialize(this, transform, velocity, number, vacuumSensitivity, radius, maxHP, directionalLight_);
 	spawnBoxes_.push_back(std::move(box));
 }
 

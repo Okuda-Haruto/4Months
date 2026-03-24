@@ -59,8 +59,8 @@ public:
 
 	Voxel* GetVoxel() { return voxel_.get(); }
 
-	void AddBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP);
-	void AddSplitBox(const SRT& transform, Vector3 velocity, const float radius, const int32_t maxHP);
+	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP);
+	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP);
 	void SpawnBox();
 
 private:

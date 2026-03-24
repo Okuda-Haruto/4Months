@@ -53,9 +53,11 @@ struct PixelShaderOutput
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
 
-PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureColor)
+PixelShaderOutput PhangReflectionModel(VertexShaderOutput input)
 {
     PixelShaderOutput output;
+    
+    float4 textureColor = gTexture.Sample(gSampler, input.UV);
     
     float3 diffuseDirectionalLighting = { 0.0f, 0.0f, 0.0f };
     if (gMaterial.enableDirectionalLighting)
@@ -170,10 +172,13 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
 
 
 
-PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 textureColor)
+PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input)
 {
     PixelShaderOutput output;
     float3 diffuseDirectionalLighting = { 0.0f, 0.0f, 0.0f };
+
+    float4 textureColor = gTexture.Sample(gSampler, input.UV);
+    
     if (gMaterial.enableDirectionalLighting)
     {
         float cos = 1.0f;
@@ -291,7 +296,7 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
 PixelShaderOutput main(VertexShaderOutput input)
 {
     float4 transformedUV = mul(float4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
-    float4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
+    float4 textureColor = gTexture.Sample(gSampler, input.UV);
     PixelShaderOutput output;
     output.color = input.color * textureColor;
     
@@ -314,11 +319,11 @@ PixelShaderOutput main(VertexShaderOutput input)
         
     if (gMaterial.shading == 0)
     {
-        output = PhangReflectionModel(input, textureColor);
+        output = PhangReflectionModel(input);
     }
     else
     {
-        output = BlinnPhangReflectionModel(input, textureColor);
+        output = BlinnPhangReflectionModel(input);
     }
     
     return output;
