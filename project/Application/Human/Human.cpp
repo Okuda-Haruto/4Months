@@ -305,6 +305,16 @@ void Human::Throw() {
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
+	vacuumRadius_ = baseVacuumRadius_ + charge_;
+	charge_ = 0;
+	energy_ -= energyCost_;
+}
+
+void Human::Charge() {
+	if (energy_ > energyCost_) {
+		charge_ += chargeSpeed_;
+		energy_ -= chargeSpeed_;
+	}
 }
 
 void Human::Slowdown() {

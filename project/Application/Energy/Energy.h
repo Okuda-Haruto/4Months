@@ -43,7 +43,7 @@ private:
 	Sphere collider_;
 
 	// 回復量
-	float healAmount_ = 10;
+	float healAmount_ = 30;
 
 	// クールダウン
 	const int boostCoolDown_ = 20;

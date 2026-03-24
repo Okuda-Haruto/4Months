@@ -36,8 +36,14 @@ void Player::Update(const std::shared_ptr<Input> input) {
 		}
 		isDrifting_ = false;
 
-		if (pad.Button[PAD_BUTTON_Y].trigger && vacuumState_ == None) {
-			Throw();
+		if (vacuumState_ == None) {
+			if (pad.Button[PAD_BUTTON_Y].hold) {
+				Charge();
+			}
+
+			if (pad.Button[PAD_BUTTON_Y].trigger) {
+				Throw();
+			}
 		}
 	} else {
 
@@ -54,8 +60,13 @@ void Player::Update(const std::shared_ptr<Input> input) {
 		if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
 			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
 		}
-		if ((keyboard.release[DIK_Q] || keyboard.release[DIK_RCONTROL]) && vacuumState_ == None) {
-			Throw();
+		if (vacuumState_ == None) {
+			if ((keyboard.hold[DIK_Q] || keyboard.hold[DIK_RCONTROL])) {
+				Charge();
+			}
+			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_RCONTROL])) {
+				Throw();
+			}
 		}
 		if (isDrifting_) {
 			unableDriftTimer_ = unableDriftTime_;

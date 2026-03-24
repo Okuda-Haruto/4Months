@@ -149,8 +149,8 @@ protected:
 	const float kMaxEnergy_ = 100;
 	// 現在エネルギー
 	float energy_ = 50;
-	// 巻きつき中エネルギー消費量
-	float energyCost_ = 1.0f;
+	// エネルギー消費量
+	float energyCost_ = 10.0f;
   
 	// 吸引
 	enum VacuumState {
@@ -173,11 +173,16 @@ protected:
 	// 吸引
 	int vacuumTime_ = 30;
 	int vacuumTimer_ = 30;
-	float vacuumRadius_ = 30.0f; 
+	float vacuumRadius_ = 0.0f; 
+	const float baseVacuumRadius_ = 7.0f; 
+
+	float charge_ = 0;
+	const float chargeSpeed_ = 0.3f;
 
 	// エネルギー自動取得
 	float autoPickupRange_ = 3.0f;
 
 	void Throw();
+	void Charge();
 	void Slowdown();
 };
