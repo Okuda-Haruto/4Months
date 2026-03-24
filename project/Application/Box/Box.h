@@ -13,6 +13,10 @@ private:
 	//速度
 	Vector3 velocity_;
 
+	int8_t number_;
+	//どれだけ吸引されやすいか
+	float vacuumSensitivity_;
+
 	//衝突判定
 	Sphere collider_;
 
@@ -25,7 +29,7 @@ private:
 
 public:
 
-	void Initialize(Course* course, SRT transform, Vector3 velocity, const float radius, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight);
 
 	void Update();
 
@@ -40,10 +44,10 @@ public:
 
 	//getter
 	SRT GetTransform() { return transform_; }
+	Sphere GetCollider() { return collider_; }
+	int8_t GetNumber() { return number_; }
+	bool IsDead() { return isDead_; }
 
 	//setter
 	void SetTransform(SRT transform) { transform_ = transform; }
-	Sphere GetCollider() { return collider_; }
-
-	bool IsDead() { return isDead_; }
 };

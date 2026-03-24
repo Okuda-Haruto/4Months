@@ -16,6 +16,9 @@ void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, std::shared_
 		objects_[index_] = std::make_unique<Object>();
 		objects_[index_]->Initialize(face_);
 		objects_[index_]->SetShininess(0);
+		std::vector<Parts> parts = objects_[index_]->GetParts();
+		parts[0].UVtransform.scale.x = 0.5f;
+		objects_[index_]->SetParts(parts[0], 0);
 	}
 
 	index_ = 0;
@@ -44,22 +47,30 @@ void Voxel::Update() {
 	ImGui::Text("マップエディター");
 	// テクスチャID (DxLibやDirectXから取得したID)
 	ImTextureID textureID = (ImTextureID)GameEngine::GetSRVManager()->GetGPUDescriptorHandle(face_->GetTextureIndex(0)).ptr;
-	ImVec2 uv0 = ImVec2(0.0f, 0.0f); // タイルのUV開始位置
-	ImVec2 uv1 = ImVec2(1.0f, 1.0f); // タイルのUV終了位置 (例: 4x4のタイルセットの左上)
+	ImVec2 uv00 = ImVec2(0.0f, 0.0f); // タイルのUV開始位置
+	ImVec2 uv11 = ImVec2(0.5f, 1.0f); // タイルのUV終了位置 (例: 4x4のタイルセットの左上)
+	ImVec2 uv10 = ImVec2(0.5f, 0.0f); // タイルのUV開始位置
+	ImVec2 uv21 = ImVec2(1.0f, 1.0f); // タイルのUV終了位置 (例: 4x4のタイルセットの左上)
 
 	for (int z = 0; z < 16; z++) {
 		for (int x = 0; x < 16; x++) {
 			std::string id = "tile##" + std::to_string(z) + "_" + std::to_string(x);
 
-			if (chunks_[chunkIndex].mapChip[yIndex][z][x]) {
+			if (chunks_[chunkIndex].mapChip[yIndex][z][x] == 1) {
 				// クリック可能なマップチップボタン
-				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv0, uv1)) {
+				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv00, uv11)) {
+					// タイルが選択された時の処理
+					chunks_[chunkIndex].mapChip[yIndex][z][x] = 2;
+				}
+			} else if(chunks_[chunkIndex].mapChip[yIndex][z][x] == 2) {
+				// クリック可能なマップチップボタン
+				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv10, uv21)) {
 					// タイルが選択された時の処理
 					chunks_[chunkIndex].mapChip[yIndex][z][x] = 0;
 				}
 			} else {
 				// クリック可能なマップチップボタン
-				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv0, uv0)) {
+				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv00, uv00)) {
 					// タイルが選択された時の処理
 					chunks_[chunkIndex].mapChip[yIndex][z][x] = 1;
 				}
@@ -95,13 +106,13 @@ void Voxel::Draw() {
 						//上が空白
 						if (i == 0) {
 							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
+								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
 								index_++;
 							}
 						} else {
 							if (!chunks_[i - 1].mapChip[15][z][x]) {
 								if (index_ < objects_.size()) {
-									objects.push_back(AddFace(i, y, z, x, MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
+									objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
 									index_++;
 								}
 							}
@@ -109,7 +120,7 @@ void Voxel::Draw() {
 					} else {
 						if (!chunks_[i].mapChip[y - 1][z][x]) {
 							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
+								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
 								index_++;
 							}
 						}
@@ -118,7 +129,7 @@ void Voxel::Draw() {
 					if (z != 0) {
 						if (!chunks_[i].mapChip[y][z - 1][x]) {
 							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
+								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
 								index_++;
 							}
 						}
@@ -127,7 +138,7 @@ void Voxel::Draw() {
 					if (z != 15) {
 						if (!chunks_[i].mapChip[y][z + 1][x]) {
 							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, IdentityQuaternion()));
+								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], IdentityQuaternion()));
 								index_++;
 							}
 						}
@@ -136,7 +147,7 @@ void Voxel::Draw() {
 					if (x != 15) {
 						if (!chunks_[i].mapChip[y][z][x + 1]) {
 							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
+								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
 								index_++;
 							}
 						}
@@ -145,7 +156,7 @@ void Voxel::Draw() {
 					if (x != 0) {
 						if (!chunks_[i].mapChip[y][z][x - 1]) {
 							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> + std::numbers::pi_v<float> / 2)));
+								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> + std::numbers::pi_v<float> / 2)));
 								index_++;
 							}
 						}
@@ -160,7 +171,7 @@ void Voxel::Draw() {
 	index_ = 0;
 }
 
-Object* Voxel::AddFace(int i, int y, int z, int x, Quaternion rotate) {
+Object* Voxel::AddFace(int i, int y, int z, int x, int8_t number, Quaternion rotate) {
 
 	if (index_ < objects_.size()) {
 		SRT transform;
@@ -173,6 +184,11 @@ Object* Voxel::AddFace(int i, int y, int z, int x, Quaternion rotate) {
 		};
 
 		objects_[index_]->SetTransform(transform);
+		if (number > 0) {
+			std::vector<Parts> parts = objects_[index_]->GetParts();
+			parts[0].UVtransform.translate.x = 0.5f * (number - 1);
+			objects_[index_]->SetParts(parts[0], 0);
+		}
 
 		return objects_[index_].get();
 	}
@@ -200,7 +216,7 @@ void Voxel::Collision(Sphere sphere) {
 						if (sphere.center.z + sphere.radius >= 32 * scale - (z * scale * 2 + 16 * scale) - scale &&
 							sphere.center.z - sphere.radius <= 32 * scale - (z * scale * 2 + 16 * scale)) {
 							for (int x = 0; x < 16; x++) {
-								if (!chunks_[i].mapChip[y][z][x])continue;
+								if (chunks_[i].mapChip[y][z][x] == 0)continue;
 
 								AABB voxelAABB;
 								voxelAABB.min = {
@@ -211,7 +227,6 @@ void Voxel::Collision(Sphere sphere) {
 								voxelAABB.max = voxelAABB.min + Vector3{ scale * 2,scale * 2 ,scale * 2 };
 
 								if (IsCollision(voxelAABB, sphere)) {
-									chunks_[i].mapChip[y][z][x] = 0;
 									SRT transform;
 									transform.scale = { scale,scale,scale };
 									transform.rotate = IdentityQuaternion();
@@ -221,8 +236,19 @@ void Voxel::Collision(Sphere sphere) {
 										32 * scale - (z * scale * 2 + 16 * scale) - scale / 2,
 									};
 
-									//Boxにする
-									course_->AddBox(transform, {}, scale / 2, 6);
+									switch (chunks_[i].mapChip[y][z][x])
+									{
+									case 1:
+										//Boxにする
+										course_->AddBox(transform, {}, chunks_[i].mapChip[y][z][x], 0.5f, scale / 2, 6);
+										break;
+									case 2:
+										//Boxにする
+										course_->AddBox(transform, {}, chunks_[i].mapChip[y][z][x], 0.001f, scale / 2, 600);
+										break;
+									default:
+										break;
+									}
 
 									chunks_[i].mapChip[y][z][x] = 0;
 								}

@@ -35,7 +35,7 @@ public:
 	void Collision(Sphere sphere);
 
 private:
-	Object* AddFace(int i,int y, int z, int x, Quaternion rotate);
+	Object* AddFace(int i,int y, int z, int x, int8_t number, Quaternion rotate);
 
 	Chunk LoadChunk(std::string loadFile);
 	void WriteChunk(const Chunk& chunk, const std::string& loadFile);
