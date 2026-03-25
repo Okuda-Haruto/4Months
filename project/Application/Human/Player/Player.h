@@ -18,6 +18,6 @@ public:
 	bool GetIsTurnBack() { return isTurnBack_; }
 
 private:
-
+	float startTime_;
 };
 

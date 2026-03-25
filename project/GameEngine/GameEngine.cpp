@@ -159,8 +159,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	particlePipelineState_ = ParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	particleAddBrendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
-	//linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
-	//noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
