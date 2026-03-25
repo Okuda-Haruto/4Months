@@ -15,6 +15,12 @@ void Course::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 }
 
 void Course::Update() {
+	for (auto& box : boxes_) {
+		if (box->IsDead()) {
+			breakScore_++;
+		}
+	}
+
 	std::erase_if(boxes_, [](const auto& box) {
 		return box->IsDead();
 		});

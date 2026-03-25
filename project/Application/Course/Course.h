@@ -31,6 +31,8 @@ public:
 	}
 
 	Voxel* GetVoxel() { return voxel_.get(); }
+	int GetBreakScore() { return breakScore_; }
+	int GetMaxBreakScore() { return maxBreakScore_; }
 
 	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP);
 	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP);
@@ -67,6 +69,9 @@ private:
 	std::vector<float> lengthTable_;
 	std::vector<float> tTable_;
 	float totalLength_ = 0.0f;
+
+	int breakScore_ = 0;
+	int maxBreakScore_ = 50000;
 };
 
 

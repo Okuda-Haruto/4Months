@@ -90,7 +90,7 @@ void GameScene::Update() {
 	checkCollision_->UpdateImGui();
 
 	// HUD
-	hud_->Update(player_.get());
+	hud_->Update(player_.get(),course_.get());
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
