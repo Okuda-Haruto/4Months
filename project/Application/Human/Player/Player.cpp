@@ -5,6 +5,8 @@ void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight
 	//初期化
 	Human::Initialize(position, directionalLight);
 	color_ = { 0,1,0,1 };   //首の色　緑
+
+	startTime_ = 0.1f;
 }
 
 void Player::Update(const std::shared_ptr<Input> input) {
@@ -56,7 +58,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 		if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
 			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
 		}
-		if (vacuumState_ == None) {
+		if (vacuumState_ == None && startTime_ <= 0.0f) {
 			if ((keyboard.hold[DIK_Q] || keyboard.hold[DIK_SPACE])) {
 				Charge();
 			}
@@ -88,6 +90,10 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 	ImGui::End();
 #endif
+
+	if (startTime_ > 0.0f) {
+		startTime_ -= 1.0f / 60.0f;
+	}
 
 }
 
