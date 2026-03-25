@@ -242,7 +242,7 @@ void Voxel::Collision(Sphere sphere) {
 									{
 									case 1:
 										//Boxにする
-										course_->AddBox(transform, {}, chunks_[i].mapChip[y][z][x], 0.5f, scale / 2, 6);
+										course_->AddBox(transform, {}, chunks_[i].mapChip[y][z][x], 0.5f, scale / 2, GameEngine::randomInt(4,7));
 										break;
 									case 2:
 										//Boxにする
