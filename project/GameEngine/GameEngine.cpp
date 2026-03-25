@@ -793,11 +793,11 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		parts[0][i].material->color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
 
 		//マテリアルデータを更新
-		objectMaterialResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[instancingObjectIndex_]));
+		instancingObjectMaterialResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectMaterialData_[instancingObjectIndex_]));
 
-		*objectMaterialData_[instancingObjectIndex_] = *parts[0][i].material;
+		*instancingObjectMaterialData_[instancingObjectIndex_] = *parts[0][i].material;
 
-		objectMaterialResource_[instancingObjectIndex_]->Unmap(0, nullptr);
+		instancingObjectMaterialResource_[instancingObjectIndex_]->Unmap(0, nullptr);
 
 		//ライティングが必要な場合CBufferに送る
 		if (parts[0][i].material->reflection != 0 && directionalLight != nullptr) {
@@ -816,7 +816,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInstancingObjectIndex_ + instancingObjectIndex_));
 
 		//マテリアルCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(0, instancingObjectMaterialResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, 0, offsets[i].vertexStart, 0);
