@@ -190,25 +190,10 @@ void Human::Update() {
 		coilAroundEndTime_ = 0;
 	}
 
-	//とぐろ中(巻き付いていない)
-	if (isDrifting_ && !isCoilAround_) {
-		//落下速度を遅くする
-		fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
-		if (!isTurnBack_) {
-			velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
-		} else {
-			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-		}
 
-	} else {
-		//上向き速度 * 重力」を落下速度に加える
-		if (isTurnBack_) {
-			fallingSpeed_ = min(fallingSpeed_ + kGravity_, maxRisingSpeed_);
-		} else {
-			fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
-		}
-		velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-	}
+	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
+	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+	
 	transform_.translate += velocity_.translate;
 
 	// 分離しているときの先頭
@@ -352,7 +337,7 @@ void Human::StartDrifting() {
 
 void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
 	speed_ += addSpeed;
-	maxRisingSpeed_ += addMaxSpeed;
+	//maxRisingSpeed_ += addMaxSpeed;
 	maxFallingSpeed_ += addMaxSpeed;
 	cameraEffectTime_ = kMaxCameraEffectTime_;
 }
@@ -418,8 +403,8 @@ void Human::OnHitWall(OBB wallObb) {
 void Human::OnHitVoxel() {
 	Slowdown();
 
-	maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
-	maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
+	//maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
+	//maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 	invincibleTimer_ = invincibleTimeOnHit_;
 	unableDriftTimer_ = unableDriftTime_;
 }
@@ -442,8 +427,8 @@ void Human::OnHitNeck(const Vector3& pos) {
 
 	Slowdown();
 
-	maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
-	maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
+	//maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
+	//maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 	invincibleTimer_ = invincibleTimeOnHit_;
 	unableDriftTimer_ = unableDriftTime_;
 	knockbackTimer_ = kKnockbackTime_;
@@ -503,6 +488,7 @@ void Human::Throw() {
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
+	fallingSpeed_ += bounceBackSpeed_;
 }
 
 void Human::Slowdown() {
