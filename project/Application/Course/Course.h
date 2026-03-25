@@ -9,7 +9,7 @@ public:
 	~Course();
 
 	// 初期化
-	void Initialize(std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight);
 
 	// 更新
 	void Update();
@@ -41,6 +41,7 @@ public:
 private:
 	
 	std::shared_ptr<DirectionalLight> directionalLight_;
+	GameCamera* camera_;
 
 	// 衝突判定(円)
 	Vector2 colliderCenter_ = {};
