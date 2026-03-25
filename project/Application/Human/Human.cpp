@@ -63,6 +63,7 @@ void Human::Update() {
 		} else {
 			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 		}
+	}
 
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
@@ -179,7 +180,7 @@ void Human::OnHitNeck(const Vector3& pos) {
 
 	// 反射方向の計算
 	Vector3 normal = Normalize(transform_.translate - pos);
-	Vector3 reflect = velocity_.translate - normal * 2.0f * Dot(velocity_.translate, normal);
+	Vector3 reflect = velocity_.translate - /*normal*/Vector3{} * 2.0f * Dot(velocity_.translate, /*normal*/Vector3{});
 	reflect = Normalize(reflect);
 	Vector3 forward = reflect;
 
