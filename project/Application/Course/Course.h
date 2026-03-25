@@ -37,15 +37,6 @@ public:
 	void SpawnBox();
 
 private:
-	// コース中心線上の座標
-	Vector3 GetPoint(float t);
-
-	// 外壁の配置
-	Vector3 CatmullRomTangent(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, float t);
-	Vector3 GetTangent(float t);
-	Quaternion FromRotationMatrix(const Matrix3x3& m);
-	void CreateTubeCourse();
-	float DistanceToT(float dist) const;
 	
 	std::shared_ptr<DirectionalLight> directionalLight_;
 
@@ -71,7 +62,6 @@ private:
 	const int wallCount_ = 32;
 	Vector3 wallSize_ = { 1.0f,0.75f,0.1f };
 	const float wallSpace_ = 1.5f;
-	std::vector<Vector3> controlPoints_;
 
 	const int sampleCount_ = 1000;
 	std::vector<float> lengthTable_;
