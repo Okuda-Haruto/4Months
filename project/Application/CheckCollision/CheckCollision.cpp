@@ -2,7 +2,6 @@
 #include "Human/Human.h"
 #include "Course/Course.h"
 #include "Goal/Goal.h"
-#include "Math/Collision.h"
 #include "GameCamera/GameCamera.h"
 #include "Mix.h"
 
@@ -15,6 +14,7 @@ void CheckCollision::Initialize(Course* course, Goal* goal, GameCamera* gameCame
 void CheckCollision::Update(Human* human) {
 	CheckVoxel(human);
 	CheckGoal(human);
+	CheckBullet(human);
 	CheckVacuum(human);
 }
 
@@ -26,6 +26,28 @@ void CheckCollision::UpdateImGui() {
 #endif
 }
 
+void CheckCollision::CheckBullet(Human* human) {
+	if (!human->IsShooting()) return;
+
+	Sphere prev = { human->GetPrevVacuumSphere().center, 1.0f };
+	Sphere curr = { human->GetVacuumSphere().center, 1.0f };
+
+	Vector3 p0 = prev.center;
+	Vector3 p1 = curr.center;
+	float radius = prev.radius;
+
+	// ボクセル
+	course_->GetVoxel()->Collision(curr);
+
+	for (auto& box : course_->GetBoxes()) {
+		Sphere boxSphere = box->GetCollider();
+
+		if (IsHitCapsule(p0, p1, radius, boxSphere)) {
+			human->StopBullet(closest_);
+			return;
+		}
+	}
+}
 void CheckCollision::CheckVoxel(Human* human) {
 	if (human->IsInvincible()) { return; }
 	Vector3 playerPos = human->GetTransform().translate;
@@ -96,4 +118,33 @@ void CheckCollision::CheckVacuum(Human* human) {
 			}
 		}
 	}
+}
+
+bool CheckCollision::IsHitCapsule(
+	const Vector3& p0,
+	const Vector3& p1,
+	float capsuleRadius,
+	const Sphere& sphere) {
+	// 線分 p0→p1 に対する最近接点を求める
+	Vector3 seg = p1 - p0;
+	Vector3 toSphere = sphere.center - p0;
+
+	float segLenSq = Dot(seg, seg);
+
+	float t = 0.0f;
+	if (segLenSq > 0.0f) {
+		t = Dot(toSphere, seg) / segLenSq;
+		t = std::clamp(t, 0.0f, 1.0f);
+	}
+
+	// 最近接点
+	closest_ = p0 + seg * t;
+
+	// 距離判定
+	Vector3 diff = sphere.center - closest_;
+	float distSq = Dot(diff, diff);
+
+	float r = capsuleRadius + sphere.radius;
+
+	return distSq <= (r * r);
 }

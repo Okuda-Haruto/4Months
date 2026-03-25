@@ -23,7 +23,7 @@ public:
 
 	// ヒット時
 	void OnHitVoxel();
-	void OnHitNeck(const Vector3& pos);
+	void StopBullet(const Vector3& hitPos) { headTransform_.translate = hitPos; headSpeed_ = 0; }
 
 	bool GetIsCoilAround() const;
 
@@ -38,6 +38,7 @@ public:
 	bool IsCoilAround() { return isCoilAround_; }
 	bool IsInvincible() { return invincibleTimer_ > 0; }
 	bool IsVacuuming() { return vacuumState_ == Vacuum; }
+	bool IsShooting() { return vacuumState_ == Going; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -51,6 +52,7 @@ public:
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
 	Sphere GetVacuumSphere() { return Sphere(headTransform_.translate,vacuumRadius_); }
+	Sphere GetPrevVacuumSphere() { return Sphere(headPrevTransform_.translate,vacuumRadius_); }
 	float GetCharge() { return charge_; }
 	float GetMaxCharge() { return kMaxCharge_; }
 
@@ -149,6 +151,7 @@ protected:
 
 	// 先頭をとばすとき
 	SRT headTransform_;
+	SRT headPrevTransform_;
 	Vector3 headDir_;
 	float headSpeed_;
 	float headStartSpeed_ = 5.0f;

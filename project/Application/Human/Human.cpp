@@ -77,6 +77,7 @@ void Human::Update() {
 		break;
 
 	case Going:
+		headPrevTransform_ = headTransform_;
 		headTransform_.translate += headDir_ * headSpeed_;
 		headSpeed_ -= headDeceleration_;
 		if (headSpeed_ <= 0) {
@@ -97,6 +98,7 @@ void Human::Update() {
 
 	case Return:
 		headDir_ = Normalize(transform_.translate - headTransform_.translate);
+		headPrevTransform_ = headTransform_;
 		headTransform_.translate += headDir_ * headSpeed_;
 		headSpeed_ += headDeceleration_;
 
