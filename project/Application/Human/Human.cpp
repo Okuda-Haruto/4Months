@@ -67,7 +67,7 @@ void Human::Update() {
 
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-	
+
 	transform_.translate += velocity_.translate;
 
 	// 分離しているときの先頭
@@ -93,19 +93,14 @@ void Human::Update() {
 		if (vacuumTimer_ <= 0) {
 			vacuumState_ = Return;
 			returnTimer_ = returnTime_;
+			vacuumStartPos_ = headTransform_.translate;
 		}
 		break;
 
 	case Return:
-		headDir_ = Normalize(transform_.translate - headTransform_.translate);
 		headPrevTransform_ = headTransform_;
-		headTransform_.translate += headDir_ * headSpeed_;
+		headTransform_.translate = Lerp(vacuumStartPos_, transform_.translate, (1.0f - float(returnTimer_) / float(returnTime_)));
 		headSpeed_ += headDeceleration_;
-
-		if (headTransform_.translate.y > transform_.translate.y) {
-			headSpeed_ = 0;
-			vacuumState_ = None;
-		}
 
 		returnTimer_--;
 		if (returnTimer_ <= 0) {
