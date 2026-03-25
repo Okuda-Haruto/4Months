@@ -57,10 +57,10 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
 		}
 		if (vacuumState_ == None) {
-			if ((keyboard.hold[DIK_Q] || keyboard.hold[DIK_RCONTROL])) {
+			if ((keyboard.hold[DIK_Q] || keyboard.hold[DIK_SPACE])) {
 				Charge();
 			}
-			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_RCONTROL])) {
+			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_SPACE])) {
 				Throw();
 			}
 		}

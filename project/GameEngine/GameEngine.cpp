@@ -57,7 +57,6 @@ void GameEngine::Finalize_() {
 	ModelManager::GetInstance()->Finalize();
 	SpriteManager::GetInstance()->Finalize();
 	PrimitiveManager::GetInstance()->Finalize();
-	OptionalPrimitiveManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
 	ParticleManager::GetInstance()->Finalize();
 
@@ -111,7 +110,6 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
 	SpriteManager::GetInstance()->Initialize(dxCommon_.get());
 	PrimitiveManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
-	OptionalPrimitiveManager::GetInstance()->Initialize(dxCommon_.get());
 
 	//カメラ初期値
 	std::shared_ptr<Camera> DefaultCamera = std::make_shared<Camera>();
@@ -1305,81 +1303,4 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_AABB].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
-}
-
-void GameEngine::DrawOptionalPrimitive_(std::shared_ptr<DirectionalLight> directionalLight) {
-	int idx = objectIndex_;
-	bool consumeIndex = true;
-	if (idx >= kMaxIndex) {
-		idx = kMaxIndex - 1;
-		consumeIndex = false;
-	}
-
-	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
-	commandList_->SetPipelineState(object3DPipelineState_.Get());
-
-	commandList_->IASetVertexBuffers(0, 1, &OptionalPrimitiveManager::GetInstance()->GetVertexBufferView());
-
-	commandList_->IASetIndexBuffer(
-		&OptionalPrimitiveManager::GetInstance()->GetIndexBufferView()
-	);
-
-	commandList_->IASetPrimitiveTopology(
-		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-	);
-
-	Camera* camera = Object::GetDefaultCamera().get();
-
-	// カメラ
-	commandList_->SetGraphicsRootConstantBufferView(
-		4,
-		camera->CameraResource()->GetGPUVirtualAddress()
-	);
-
-	Matrix4x4 world = MakeAffineMatrix({ 1,1,1 }, {}, {});
-
-	Matrix4x4 wvp =
-		world *
-		camera->GetViewMatrix() *
-		camera->GetProjectionMatrix();
-
-	objectWvpResource_[idx]->Map(
-		0,
-		nullptr,
-		reinterpret_cast<void**>(&objectWvpData_[idx])
-	);
-
-	objectWvpData_[idx]->World = world;
-	objectWvpData_[idx]->WVP = wvp;
-	objectWvpData_[idx]->WorldInverseTranspose =
-		Transpose(Inverse(world));
-
-	objectWvpResource_[idx]->Unmap(0, nullptr);
-
-
-	objectMaterialResource_[idx]->Map(
-		0,
-		nullptr,
-		reinterpret_cast<void**>(&objectMaterialData_[idx])
-	);
-
-	objectMaterialData_[idx]->color = { 1,1,1,1 };
-	objectMaterialData_[idx]->enableDirectionalLighting = true;
-	objectMaterialData_[idx]->shininess = 40.0f;
-	objectMaterialData_[idx]->reflection = REFLECTION_HalfLambert;
-	objectMaterialData_[idx]->shading = SHADING_Blinn_Phong;
-
-	objectMaterialResource_[idx]->Unmap(0, nullptr);
-
-	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[idx]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[idx]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[idx]->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetWhite2x2()));
-
-	commandList_->DrawIndexedInstanced(OptionalPrimitiveManager::GetInstance()->GetIndexCount(), 1, 0, 0, 0);
-
-	if (consumeIndex) {
-		objectIndex_++;
-	}
 }
