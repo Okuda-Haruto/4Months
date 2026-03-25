@@ -17,13 +17,15 @@ Vector3 Mix(
 	Vector3& vel,
 	const Vector3& center,
 	const Vector3& axis,
-	float maxRadius) {
+	float maxRadius, bool reverse) {
 
 	float baseRadiusStrength = 10.0f;
 	float swirlSpeed = 1.5f;
 	float noiseStrength = 1.5f;
 	float damping = 0.9f;
 	float shrinkSpeed = 2.5f;
+
+	if (reverse)swirlSpeed *= -1.0f;
 
 	Vector3 toCenter = pos - center;
 	float dist = Length(toCenter);
