@@ -7,11 +7,12 @@ Course::Course() {
 Course::~Course() {
 }
 
-void Course::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
+void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight) {
+	camera_ = camera;
 	directionalLight_ = directionalLight;
 
 	voxel_ = std::make_unique<Voxel>();
-	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), directionalLight_);
+	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), camera_, directionalLight_);
 }
 
 void Course::Update() {
@@ -20,10 +21,6 @@ void Course::Update() {
 		});
 
 	for (auto& box : boxes_) {
-		if (!box) {
-			std::cout << "NULL検出\n";
-			continue;
-		}
 		box->Update();
 	}
 	SpawnBox();

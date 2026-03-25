@@ -2,6 +2,7 @@
 #include <GameEngine.h>
 #include <Shape/Sphere.h>
 #include "Box/Box.h"
+#include "GameCamera/GameCamera.h"
 
 class Course;
 
@@ -25,8 +26,10 @@ private:
 
 	Course* course_;
 
+	GameCamera* camera_;
+
 public:
-	void Initialize(Course* course, std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth);
+	void Initialize(Course* course, std::shared_ptr<Model> face, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLigth);
 
 	void Update();
 

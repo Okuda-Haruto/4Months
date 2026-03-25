@@ -6,10 +6,11 @@
 #include <numbers>
 #include <cassert>
 
-void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, std::shared_ptr<DirectionalLight> directionalLigth) {
+void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLigth) {
 
 	course_ = course;
 	face_ = face;
+	camera_ = camera;
 	directionalLigth_ = directionalLigth;
 
 	for (index_ = 0; index_ < objects_.size(); index_++) {
@@ -90,74 +91,124 @@ void Voxel::Update() {
 
 	ImGui::End();
 
+	SRT cameraTransform = camera_->GetTransform();
+	Vector3 cameraPosition;
+	cameraPosition.x = float(int(cameraTransform.translate.x / (scale * 2)) + 8);
+	cameraPosition.y = -float(int(cameraTransform.translate.y / (scale * 2)) % 16);
+	cameraPosition.z = float(int(cameraTransform.translate.z / (scale * 2)) + 8);
+	int cameraChunkNumber = -int(cameraTransform.translate.y / (scale * 2)) / 16;
+
+	ImGui::Begin("texts");
+	ImGui::DragFloat3("Pos", &cameraPosition.x);
+	ImGui::DragInt("num", &cameraChunkNumber);
+	ImGui::End();
+
+
 #endif // USE_IMGUI
 
 }
 
 void Voxel::Draw() {
-	std::list<Object*> objects;
+	SRT cameraTransform = camera_->GetTransform();
+	Vector3 cameraPosition;
+	cameraPosition.x = float(int(cameraTransform.translate.x / (scale * 2)) + 8);
+	cameraPosition.y = -float(int(cameraTransform.translate.y / (scale * 2)) % 16);
+	cameraPosition.z = 16 - float(int(cameraTransform.translate.z / (scale * 2)) + 8);
+	int cameraChunkNumber = -int(cameraTransform.translate.y / (scale * 2)) / 16;
+
+ 	std::list<Object*> objects;
 	for (int i = 0; i < 4; i++) {
 		for (int y = 0; y < 16; y++) {
 			for (int z = 0; z < 16; z++) {
 				for (int x = 0; x < 16; x++) {
 					if (!chunks_[i].mapChip[y][z][x])continue;
-					//上面
-					if (y == 0) {
-						//上が空白
-						if (i == 0) {
-							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
-								index_++;
+					if ((cameraPosition.y < y && cameraChunkNumber == i) || cameraChunkNumber < i) {
+						//上面
+						if (y == 0) {
+							//上が空白
+							if (i == 0) {
+								if (index_ < objects_.size()) {
+									objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
+									index_++;
+								}
+							} else {
+								if (!chunks_[i - 1].mapChip[15][z][x]) {
+									if (index_ < objects_.size()) {
+										objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
+										index_++;
+									}
+								}
 							}
 						} else {
-							if (!chunks_[i - 1].mapChip[15][z][x]) {
+							if (!chunks_[i].mapChip[y - 1][z][x]) {
 								if (index_ < objects_.size()) {
 									objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
 									index_++;
 								}
 							}
 						}
-					} else {
-						if (!chunks_[i].mapChip[y - 1][z][x]) {
-							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
-								index_++;
+						//前面
+						if (z >= cameraPosition.z) {
+							if (z != 0) {
+								if (!chunks_[i].mapChip[y][z - 1][x]) {
+									if (index_ < objects_.size()) {
+										objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
+										index_++;
+									}
+								}
+							} else {
+								if (index_ < objects_.size()) {
+									objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
+									index_++;
+								}
 							}
 						}
-					}
-					//前面
-					if (z != 0) {
-						if (!chunks_[i].mapChip[y][z - 1][x]) {
-							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
-								index_++;
+						//後面
+						if (z <= cameraPosition.z) {
+							if (z != 15) {
+								if (!chunks_[i].mapChip[y][z + 1][x]) {
+									if (index_ < objects_.size()) {
+										objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], IdentityQuaternion()));
+										index_++;
+									}
+								}
+							} else {
+								if (index_ < objects_.size()) {
+									objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], IdentityQuaternion()));
+									index_++;
+								}
 							}
 						}
-					}
-					//後面
-					if (z != 15) {
-						if (!chunks_[i].mapChip[y][z + 1][x]) {
-							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], IdentityQuaternion()));
-								index_++;
+						//右面
+						if (x <= cameraPosition.x) {
+							if (x != 15) {
+								if (!chunks_[i].mapChip[y][z][x + 1]) {
+									if (index_ < objects_.size()) {
+										objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
+										index_++;
+									}
+								}
+							} else {
+								if (index_ < objects_.size()) {
+									objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
+									index_++;
+								}
 							}
 						}
-					}
-					//右面
-					if (x != 15) {
-						if (!chunks_[i].mapChip[y][z][x + 1]) {
-							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
-								index_++;
-							}
-						}
-					}
-					//左面
-					if (x != 0) {
-						if (!chunks_[i].mapChip[y][z][x - 1]) {
-							if (index_ < objects_.size()) {
-								objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> + std::numbers::pi_v<float> / 2)));
-								index_++;
+						//左面
+						if (x >= cameraPosition.x) {
+							if (x != 0) {
+								if (!chunks_[i].mapChip[y][z][x - 1]) {
+									if (index_ < objects_.size()) {
+										objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> +std::numbers::pi_v<float> / 2)));
+										index_++;
+									}
+								}
+							} else {
+								if (index_ < objects_.size()) {
+									objects.push_back(AddFace(i, y, z, x, chunks_[i].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> +std::numbers::pi_v<float> / 2)));
+									index_++;
+								}
 							}
 						}
 					}

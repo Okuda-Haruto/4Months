@@ -33,10 +33,6 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
-	// コース
-	course_ = std::make_unique<Course>();
-	course_->Initialize(directionalLight_);
-
 	//ゴール
 	goal_ = std::make_unique<Goal>();
 	goal_->Initialize(Vector3{ 0,-500,0 }, directionalLight_);
@@ -51,6 +47,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, player_.get());
+
+	// コース
+	course_ = std::make_unique<Course>();
+	course_->Initialize(gameCamera_.get(), directionalLight_);
 
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();

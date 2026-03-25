@@ -34,7 +34,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 		}
 		isDrifting_ = false;
 
-		if (vacuumState_ == None) {
+		if (vacuumState_ == None && startTime_ <= 0.0f) {
 			if (pad.Button[PAD_BUTTON_Y].hold) {
 				Charge();
 			}

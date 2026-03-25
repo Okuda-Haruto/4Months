@@ -54,4 +54,6 @@ public:
 
 	// シェイク
 	void StartShake(float amplitude, int frame);
+
+	SRT GetTransform() { return nowCamera_->GetTransform(); }
 };
