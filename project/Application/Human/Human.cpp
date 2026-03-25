@@ -159,12 +159,13 @@ void Human::Throw() {
 	headTransform_ = transform_;
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
+	headStartSpeed_ = 2.5f + 1.5f * (charge_ / kMaxCharge_);
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
 	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
 	vacuumTime_ = int((charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime);
-	returnTime_ = vacuumTime_;
+	returnTime_ = int((charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime);
 	charge_ = 0;
 }
 

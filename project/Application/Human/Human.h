@@ -23,7 +23,7 @@ public:
 
 	// ヒット時
 	void OnHitVoxel();
-	void StopBullet(const Vector3& hitPos) { headTransform_.translate = hitPos; headSpeed_ = 0; returnTime_ /= 2; }
+	void StopBullet(const Vector3& hitPos) { headTransform_.translate = hitPos; headSpeed_ = 0; returnTime_ /= 3; }
 
 	bool GetIsCoilAround() const;
 
@@ -155,8 +155,10 @@ protected:
 	Vector3 headDir_;
 	float headSpeed_;
 	float headStartSpeed_ = 3.0f;
-	float headDeceleration_ = 0.05f;
+	float headDeceleration_ = 0.08f;
 	int returnTime_ = 30;
+	const float kMinReturnTime = 15;
+	const float kMaxReturnTime = 70;
 	int returnTimer_ = 0;
 	float bounceBackSpeed_ = 10.0f;
 
