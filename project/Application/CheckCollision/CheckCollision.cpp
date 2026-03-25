@@ -109,8 +109,8 @@ void CheckCollision::CheckVacuum(Human* human) {
 				//速度
 				float speed = (1.0f - vacuumLate) * baseVacuumSpeed_;
 
-				if (mixType_ == 0)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius) * speed);
-				if (mixType_ == 1)box->Move(Mix2(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius) * speed);
+				if (mixType_ == 0)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius,false) * speed);
+				if (mixType_ == 1)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius,true) * speed);
 
 				if (length < vacuumSphere.radius / 2.0f) {
 					box->Damage();

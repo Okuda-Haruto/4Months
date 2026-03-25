@@ -154,9 +154,9 @@ protected:
 	SRT headPrevTransform_;
 	Vector3 headDir_;
 	float headSpeed_;
-	float headStartSpeed_ = 5.0f;
-	float headDeceleration_ = 0.2f;
-	int returnTime_ = 60;
+	float headStartSpeed_ = 3.0f;
+	float headDeceleration_ = 0.05f;
+	int returnTime_ = 30;
 	int returnTimer_ = 0;
 	float bounceBackSpeed_ = 10.0f;
 
@@ -165,6 +165,7 @@ protected:
 	int vacuumTimer_ = 30;
 	float vacuumRadius_ = 0.0f; 
 	const float baseVacuumRadius_ = 7.0f; 
+	Vector3 vacuumStartPos_;
 
 	float charge_ = 0;
 	const float kChargeSpeed_ = 1.5f;
