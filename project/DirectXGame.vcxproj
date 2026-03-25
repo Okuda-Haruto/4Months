@@ -96,6 +96,7 @@
     <ClCompile Include="Application\SampleScene\SampleScene.cpp" />
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
     <ClCompile Include="Application\Human\Player\Player.cpp" />
+    <ClCompile Include="Wind.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Box\Box.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Application\Scene\BaseScene\GameScene\GameScene.h" />
     <ClInclude Include="Application\Human\Player\Player.h" />
     <ClInclude Include="Application\HUD\HUD.h" />
+    <ClInclude Include="Wind.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
