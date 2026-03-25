@@ -3,8 +3,6 @@
 #include "../BaseScene.h"
 #include <WindowsAPI/WindowsAPI.h>
 #include "Human/Player/Player.h"
-#include "Human/Enemy/Enemy.h"
-#include "Neck/Neck.h"
 #include "Goal/Goal.h"
 #include "Course/Course.h"
 #include "HUD/HUD.h"
@@ -34,10 +32,6 @@ private:
 
 	// プレイヤー
 	std::unique_ptr<Player> player_ = nullptr;
-	std::unique_ptr<Enemy> enemy_ = nullptr;
-
-	//首
-	std::vector<std::shared_ptr<Neck>> necks_;
 
 	std::unique_ptr<Goal> goal_;
 

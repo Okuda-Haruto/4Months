@@ -1,8 +1,5 @@
 #pragma once
 #include "GameEngine.h"
-#include "Ring/Ring.h"
-#include "Spike/Spike.h"
-#include "Energy/Energy.h"
 #include "Voxel/Voxel.h"
 #include "OBB.h"
 
@@ -24,30 +21,6 @@ public:
 	Vector2 GetColliderCenter() { return colliderCenter_; }
 	float GetColliderRadius() { return radius_; }
 	std::vector<OBB> GetWalls() { return walls_; }
-
-	std::vector<Ring*> GetRings() {
-		std::vector<Ring*> rings;
-		for (auto& ring : rings_) {
-			rings.push_back(ring.get());
-		}
-		return rings;
-	}
-
-	std::vector<Spike*> GetSpikes() {
-		std::vector<Spike*> spikes;
-		for (auto& spike : spikes_) {
-			spikes.push_back(spike.get());
-		}
-		return spikes;
-	}
-
-	std::vector<Energy*> GetEnergies() {
-		std::vector<Energy*> energies;
-		for (auto& energy : energies_) {
-			energies.push_back(energy.get());
-		}
-		return energies;
-	}
 
 	std::vector<Box*> GetBoxes() {
 		std::vector<Box*> boxes;
@@ -73,23 +46,13 @@ private:
 	Quaternion FromRotationMatrix(const Matrix3x3& m);
 	void CreateTubeCourse();
 	float DistanceToT(float dist) const;
-
-	// 読み込んで配置
-	void ReadCSV();
-	void AddRing(const Vector3& spawnPos, const float radius);
-	void AddSpike(const Vector3& spawnPos, const float radius);
-	void AddEnergy(const Vector3& spawnPos, const float radius);
-
+	
 	std::shared_ptr<DirectionalLight> directionalLight_;
 
 	// 衝突判定(円)
 	Vector2 colliderCenter_ = {};
 	float radius_ = 3.0f * 16;
 
-	// 配置物
-	std::vector<std::unique_ptr<Ring>> rings_;
-	std::vector<std::unique_ptr<Spike>> spikes_;
-	std::vector < std::unique_ptr<Energy>> energies_;
 
 	std::unique_ptr<Voxel> voxel_;
 	std::vector<std::unique_ptr<Box>> boxes_;

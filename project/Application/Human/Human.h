@@ -22,10 +22,6 @@ public:
 	void Draw();
 
 	// ヒット時
-	void OnHitRing(const float addSpeed, const float addMaxSpeed);
-	void OnHitSpike(const Vector3& pos);
-	void OnHitEnergy(const float amount);
-	void OnHitWall(OBB wallObb);
 	void OnHitVoxel();
 	void OnHitNeck(const Vector3& pos);
 
@@ -55,13 +51,13 @@ public:
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
 	Sphere GetVacuumSphere() { return Sphere(headTransform_.translate,vacuumRadius_); }
-	float GetCurrentEnergy() { return energy_; }
-	float GetMaxEnergy() { return kMaxEnergy_; }
-	Sphere GetAutoPickUp(){return Sphere(transform_.translate, autoPickupRange_);}
+	float GetCharge() { return charge_; }
+	float GetMaxCharge() { return kMaxCharge_; }
 
 protected:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
+	std::unique_ptr<Object> bulletModel_ = nullptr;
 
 	// トランスフォーム
 	SRT transform_;
@@ -144,13 +140,6 @@ protected:
 
 	//首の色
 	Vector4 color_ = { 1,1,1,1 };
-
-	// 最大エネルギー
-	const float kMaxEnergy_ = 100;
-	// 現在エネルギー
-	float energy_ = 50;
-	// 巻きつき中エネルギー消費量
-	float energyCost_ = 1.0f;
   
 	// 吸引
 	enum VacuumState {
@@ -173,13 +162,17 @@ protected:
 	// 吸引
 	int vacuumTime_ = 30;
 	int vacuumTimer_ = 30;
-	float vacuumRadius_ = 30.0f;
+	float vacuumRadius_ = 0.0f; 
+	const float baseVacuumRadius_ = 7.0f; 
+
+	float charge_ = 0;
+	const float kChargeSpeed_ = 0.6f;
+	const float kMaxCharge_ = 50;
 
 	// エネルギー自動取得
 	float autoPickupRange_ = 3.0f;
 
-	void StartDrifting();
-
 	void Throw();
+	void Charge();
 	void Slowdown();
 };

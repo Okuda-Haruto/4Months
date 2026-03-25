@@ -2,24 +2,18 @@
 #include "Human/Human.h"
 #include "Course/Course.h"
 #include "Goal/Goal.h"
-#include "Neck/Neck.h"
 #include "Math/Collision.h"
 #include "GameCamera/GameCamera.h"
 #include "Mix.h"
 
-void CheckCollision::Initialize(Course* course, Goal* goal, std::vector<Neck*> necks, GameCamera* gameCamera) {
+void CheckCollision::Initialize(Course* course, Goal* goal, GameCamera* gameCamera) {
 	course_ = course;
 	goal_ = goal;
-	necks_ = necks;
 	gameCamera_ = gameCamera;
 }
 
 void CheckCollision::Update(Human* human) {
-	CheckRing(human);
-	CheckSpike(human);
-	CheckEnergy(human);
 	CheckVoxel(human);
-	CheckNeck(human);
 	CheckGoal(human);
 	CheckVacuum(human);
 }
@@ -30,66 +24,6 @@ void CheckCollision::UpdateImGui() {
 		ImGui::SliderInt("挙動", &mixType_, 0, 1);
 		ImGui::End();
 #endif
-}
-
-void CheckCollision::CheckRing(Human* human) {
-	for (auto& ring : course_->GetRings()) {
-		Vector3 ringCenter = ring->GetColliderCenter();
-		float ringHeight = ring->GetColliderHeight();
-		Vector3 playerPos = human->GetTransform().translate;
-
-		// 高さの判定
-		if (fabsf(ringCenter.y - playerPos.y) <= ringHeight / 2.0f) {
-			// 横の判定
-			float ringRadius = ring->GetColliderRadius();
-			if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ playerPos.x, playerPos.z }) <= ringRadius) {
-				// 衝突
-				if (!ring->IsCoolDown(human->GetID())) { // 連続で触れられない
-					human->OnHitRing(ring->GetBoostAmount(), ring->GetBoostMaxAmount());
-					ring->OnCollide(human->GetID());
-				}
-			}
-		}
-	}
-}
-
-void CheckCollision::CheckSpike(Human* human) {
-	if (human->IsInvincible()) { return; }
-	for (auto& spike : course_->GetSpikes()) {
-		Sphere spikeSphere = spike->GetCollider();
-		Vector3 playerPos = human->GetTransform().translate;
-		Sphere playerSphere = { playerPos, 0.5f };
-
-		// 判定
-		if (IsCollision(spikeSphere, playerSphere)) {
-			// 衝突
-			spike->OnCollide();
-			human->OnHitSpike(spikeSphere.center);
-			if (goal_->GetHuman() == human) {
-				goal_->SetHuman(nullptr);
-			}
-			if (human->GetID() == 0) {
-				gameCamera_->StartShake(1.5f, 4);
-			}
-
-		}
-	}
-}
-
-void CheckCollision::CheckEnergy(Human* human) {
-	for (auto& energy : course_->GetEnergies()) {
-		Sphere energySphere = energy->GetCollider();
-		Vector3 humanPos = human->GetTransform().translate;
-		Sphere humanSphere = { humanPos, 1.0f };
-		if (!energy->IsCoolDown(human->GetID())) { // 連続で触れられない
-			// 判定
-			if (IsCollision(energySphere, humanSphere)) {
-				// 衝突
-				energy->OnCollide(human->GetID());
-				human->OnHitEnergy(energy->GetHealAmount());
-			}
-		}
-	}
 }
 
 void CheckCollision::CheckVoxel(Human* human) {
@@ -114,36 +48,6 @@ void CheckCollision::CheckVoxel(Human* human) {
 	}
 }
 
-void CheckCollision::CheckNeck(Human* human) {
-	if (human->IsInvincible()) { return; }
-	//if (human->isDrifting_ && human->IsCoilAround()) { return; } // 巻きつき中は判定しない
-	for (auto& neck : necks_) {
-		Vector3 playerPos = human->GetTransform().translate;
-		Sphere playerSphere = { playerPos, 1.0f };
-		const auto& transforms = neck->GetTransforms();
-		// 最新の2つは判定無視
-		if (transforms.size() > 2) {
-			for (size_t i = 0; i < transforms.size() - 2; ++i) {
-				const auto& nTransform = transforms[i];
-				Vector3 nPos = nTransform.translate;
-
-				// 判定
-				if (fabsf(nPos.y - playerPos.y) >= nTransform.scale.y) { // 高さが合っていたら詳細な判定
-					Sphere nSphere = { nPos, 0.5f };
-					if (IsCollision(nSphere, playerSphere)) {
-						// 衝突
-						human->OnHitNeck(nPos);
-						//goal_->SetHuman(nullptr);
-						if (human->GetID() == 0) {
-							gameCamera_->StartShake(1.5f, 4);
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
 void CheckCollision::CheckGoal(Human* human) {
 
 	if (goal_->IsCoolTime()) return;
@@ -163,77 +67,6 @@ void CheckCollision::CheckGoal(Human* human) {
 void CheckCollision::CheckVacuum(Human* human) {
 	if (human->IsVacuuming()) {
 		Sphere vacuumSphere = human->GetVacuumSphere();
-
-		// リング
-		for (auto& ring : course_->GetRings()) {
-			Vector3 ringCenter = ring->GetColliderCenter();
-			float ringHeight = ring->GetColliderHeight();
-
-			// 高さの判定
-			if (fabsf(ringCenter.y - vacuumSphere.center.y) <= ringHeight / 2.0f + vacuumSphere.radius) {
-				// 横の判定
-				float ringRadius = ring->GetColliderRadius();
-				if (Length(Vector2{ ringCenter.x, ringCenter.z } - Vector2{ vacuumSphere.center.x, vacuumSphere.center.z }) <= ringRadius + vacuumSphere.radius) {
-					// 衝突
-					Vector3 vel = Vector3(0, 0, 0);
-					Vector3 axis = Vector3(0, 1, 0); // Y軸回転
-					float deltaTime = 1.0f / 60.0f;
-
-					float length = Length(vacuumSphere.center - ringCenter);
-					//割合で速度を変える
-					float vecuumLate = length / vacuumSphere.radius;
-					//速度
-					float speed = (1.0f - vecuumLate) * baseVacuumSpeed_;
-
-					if (mixType_ == 0)ring->Move(Mix(ringCenter, vel, vacuumSphere.center, axis) * speed);
-					if (mixType_ == 1)ring->Move(Mix2(ringCenter, vel, vacuumSphere.center, axis) * speed);
-				}
-			}
-		}
-
-		// 障害物
-		for (auto& spike : course_->GetSpikes()) {
-			Sphere spikeSphere = spike->GetCollider();
-
-			// 判定
-			if (IsCollision(spikeSphere, vacuumSphere)) {
-				// 衝突
-				spike->OnCollide();
-
-				Vector3 vel = Vector3(0, 0, 0);
-				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
-				float deltaTime = 1.0f / 60.0f;
-				float length = Length(vacuumSphere.center - spikeSphere.center);
-				//割合で速度を変える
-				float vecuumLate = length / vacuumSphere.radius;
-				//速度
-				float speed = (1.0f - vecuumLate) * baseVacuumSpeed_;
-
-				if (mixType_ == 0)spike->Move(Mix(spikeSphere.center, vel, vacuumSphere.center, axis) * speed);
-				if (mixType_ == 1)spike->Move(Mix2(spikeSphere.center, vel, vacuumSphere.center, axis) * speed);
-			}
-		}
-
-		// エネルギー
-		for (auto& energy : course_->GetEnergies()) {
-			Sphere energySphere = energy->GetCollider();
-			// 判定
-			if (IsCollision(energySphere, vacuumSphere)) {
-				// 衝突
-				Vector3 vel = Vector3(0, 0, 0);
-				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
-				float deltaTime = 1.0f / 60.0f;
-
-				float length = Length(vacuumSphere.center - energySphere.center);
-				//割合で速度を変える
-				float vecuumLate = length / vacuumSphere.radius;
-				//速度
-				float speed = (1.0f - vecuumLate) * baseVacuumSpeed_;
-
-				if (mixType_ == 0)energy->Move(Mix(energySphere.center, vel, vacuumSphere.center, axis) * speed);
-				if (mixType_ == 1)energy->Move(Mix2(energySphere.center, vel, vacuumSphere.center, axis) * speed);
-			}
-		}
 
 		//ボクセル
 		course_->GetVoxel()->Collision(vacuumSphere);
