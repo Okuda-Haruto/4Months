@@ -166,7 +166,9 @@ void Voxel::Draw() {
 		}
 	}
 
-	GameEngine::DrawInstancingObject_3D(objects, directionalLigth_, nullptr, nullptr);
+	if (!objects.empty()) {
+		GameEngine::DrawInstancingObject_3D(objects, directionalLigth_, nullptr, nullptr);
+	}
 
 	index_ = 0;
 }

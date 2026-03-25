@@ -69,10 +69,10 @@ protected:
 	Quaternion rollRotate_;
 
 	//重力加速度
-	const float kGravity_ = 0.5f;
+	const float kGravity_ = 0.25f;
 	//落下最高速度
 	const float kMinSpeed_ = 0.05f;
-	float maxFallingSpeed_ = 0.5f;
+	float maxFallingSpeed_ = 1.0f;
 	//落下速度
 	float fallingSpeed_;
 
@@ -155,7 +155,7 @@ protected:
 	float headDeceleration_ = 0.2f;
 	int returnTime_ = 60;
 	int returnTimer_ = 0;
-	float bounceBackSpeed_ = 6.0f;
+	float bounceBackSpeed_ = 10.0f;
 
 	// 吸引
 	int vacuumTime_ = 30;
@@ -164,8 +164,8 @@ protected:
 	const float baseVacuumRadius_ = 7.0f; 
 
 	float charge_ = 0;
-	const float kChargeSpeed_ = 0.6f;
-	const float kMaxCharge_ = 50;
+	const float kChargeSpeed_ = 1.5f;
+	const float kMaxCharge_ = 100;
 
 	// エネルギー自動取得
 	float autoPickupRange_ = 3.0f;
