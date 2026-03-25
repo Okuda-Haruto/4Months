@@ -62,7 +62,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			if ((keyboard.hold[DIK_Q] || keyboard.hold[DIK_SPACE])) {
 				Charge();
 			}
-			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_SPACE])) {
+			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_E])) {
 				Throw();
 			}
 		}

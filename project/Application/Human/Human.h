@@ -170,9 +170,6 @@ protected:
 	const float kChargeSpeed_ = 1.5f;
 	const float kMaxCharge_ = 100;
 
-	// エネルギー自動取得
-	float autoPickupRange_ = 3.0f;
-
 	void Throw();
 	void Charge();
 	void Slowdown();

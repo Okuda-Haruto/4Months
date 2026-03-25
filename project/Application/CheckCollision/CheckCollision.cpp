@@ -29,8 +29,8 @@ void CheckCollision::UpdateImGui() {
 void CheckCollision::CheckBullet(Human* human) {
 	if (!human->IsShooting()) return;
 
-	Sphere prev = { human->GetPrevVacuumSphere().center, 1.0f };
-	Sphere curr = { human->GetVacuumSphere().center, 1.0f };
+	Sphere prev = { human->GetPrevVacuumSphere().center, 3.0f };
+	Sphere curr = { human->GetVacuumSphere().center, 3.0f };
 
 	Vector3 p0 = prev.center;
 	Vector3 p1 = curr.center;
