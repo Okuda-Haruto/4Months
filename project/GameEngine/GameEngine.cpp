@@ -161,8 +161,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	particlePipelineState_ = ParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	particleAddBrendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
-	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
-	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	//linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	//noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -779,6 +779,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 			instancingObjectData_[instancingObjectIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 			Matrix4x4 worldViewProjectionMatrix = partsMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 			instancingObjectData_[instancingObjectIndex_][numInstance]->WVP = worldViewProjectionMatrix;
+			instancingObjectData_[instancingObjectIndex_][numInstance]->UVTransform = MakeQuaternionMatrix(parts[numInstance][i].UVtransform.scale, parts[numInstance][i].UVtransform.rotate, parts[numInstance][i].UVtransform.translate);
 			instancingObjectData_[instancingObjectIndex_][numInstance]->color = parts[numInstance][i].material->color;
 
 			++numInstance;

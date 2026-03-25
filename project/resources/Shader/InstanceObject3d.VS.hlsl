@@ -5,6 +5,7 @@ struct InstancingTransformationMatrix
     float4x4 WVP;
     float4x4 World;
     float4x4 WorldInverseTranspose;
+    float4x4 UVTransform;
     float4 color;
 };
 StructuredBuffer<InstancingTransformationMatrix> gTransformationMatrixes : register(t0);
@@ -62,5 +63,6 @@ VertexShaderOutput main(VertexShaderInput input, uint instanceId : SV_InstanceID
     
     output.texcoord = input.texcoord;
     output.color = gTransformationMatrixes[instanceId].color;
+    output.UV = mul(float4(input.texcoord, 0.0f, 1.0f), gTransformationMatrixes[instanceId].UVTransform).xy;
     return output;
 }

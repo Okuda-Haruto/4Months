@@ -1,17 +1,23 @@
 #include "Box.h"
 #include "Course/Course.h"
 
-void Box::Initialize(Course* course, SRT transform, Vector3 velocity, const float radius, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight) {
+void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight) {
 
 	course_ = course;
 	MaxHP_ = maxHP;
 	HP_ = MaxHP_;
 	velocity_ = velocity;
+	number_ = number;
+	vacuumSensitivity_ = vacuumSensitivity;
 
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Block", "Block.obj"));
+	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/Face", "Block.obj"));
 	object_->SetDirectionalLight(directionalLight);
 	object_->SetShininess(0);
+	std::vector<Parts> parts = object_->GetParts();
+	parts[0].UVtransform.scale.x = 0.5f;
+	parts[0].UVtransform.translate.x = 0.5f * (number_ - 1);
+	object_->SetParts(parts[0], 0);
 
 	transform_ = transform;
 	object_->SetTransform(transform_);
@@ -35,7 +41,7 @@ void Box::Update() {
 					GameEngine::randomFloat(-newTransform.scale.y * 2,newTransform.scale.y * 2),
 					GameEngine::randomFloat(-newTransform.scale.z * 2,newTransform.scale.z * 2)
 				};
-				course_->AddSplitBox(newTransform, velocity_ + Normalize(newTransform.translate - transform_.translate) * 2, collider_.radius / 2, MaxHP_);
+				course_->AddSplitBox(newTransform, velocity_ + Normalize(newTransform.translate - transform_.translate) * 2, number_, vacuumSensitivity_, collider_.radius / 2, MaxHP_);
 			}
 		}
 		isDead_ = true;
@@ -55,5 +61,5 @@ void Box::Draw() {
 }
 
 void Box::Move(const Vector3& velocity) {
-	velocity_ = Lerp(velocity_,velocity,0.5f);
+	velocity_ = Lerp(velocity_,velocity, vacuumSensitivity_);
 }
