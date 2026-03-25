@@ -16,15 +16,14 @@ Vector3 Mix(
 	Vector3& pos,
 	Vector3& vel,
 	const Vector3& center,
-	const Vector3& axis) {
+	const Vector3& axis,
+	float maxRadius) {
 
 	float baseRadiusStrength = 10.0f;
 	float swirlSpeed = 1.5f;
 	float noiseStrength = 1.5f;
 	float damping = 0.9f;
 	float shrinkSpeed = 2.5f;
-
-	float maxRadius = 40.0f;
 
 	Vector3 toCenter = pos - center;
 	float dist = Length(toCenter);
@@ -64,15 +63,14 @@ Vector3 Mix2(
 	Vector3& pos,
 	Vector3& vel,
 	const Vector3& center,
-	const Vector3& axis) {
+	const Vector3& axis,
+	float maxRadius) {
 
 	float baseRadiusStrength = 10.0f;
 	float swirlSpeed = 1.5f;
 	float noiseStrength = 1.5f;
 	float damping = 0.9f;
 	float expandSpeed = 0.4f;
-
-	float maxRadius = 40.0f;
 
 	Vector3 toCenter = pos - center;
 	float dist = Length(toCenter);

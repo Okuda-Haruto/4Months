@@ -37,7 +37,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 				Charge();
 			}
 
-			if (pad.Button[PAD_BUTTON_Y].trigger) {
+			if (pad.Button[PAD_BUTTON_Y].release) {
 				Throw();
 			}
 		}
