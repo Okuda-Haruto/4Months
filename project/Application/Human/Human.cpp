@@ -163,6 +163,9 @@ void Human::Throw() {
 	vacuumState_ = Going;
 	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_,1.0f);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
+	vacuumTime_ = int(charge_);
+	vacuumTime_ = std::clamp(vacuumTime_, 20, 45);
+	returnTime_ = vacuumTime_;
 	charge_ = 0;
 }
 
