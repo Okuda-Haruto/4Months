@@ -161,10 +161,9 @@ void Human::Throw() {
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
-	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_,1.0f);
+	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
-	vacuumTime_ = int(charge_);
-	vacuumTime_ = std::clamp(vacuumTime_, 20, 45);
+	vacuumTime_ = int((charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime);
 	returnTime_ = vacuumTime_;
 	charge_ = 0;
 }

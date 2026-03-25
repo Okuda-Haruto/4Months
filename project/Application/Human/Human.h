@@ -23,7 +23,7 @@ public:
 
 	// ヒット時
 	void OnHitVoxel();
-	void StopBullet(const Vector3& hitPos) { headTransform_.translate = hitPos; headSpeed_ = 0; }
+	void StopBullet(const Vector3& hitPos) { headTransform_.translate = hitPos; headSpeed_ = 0; returnTime_ /= 2; }
 
 	bool GetIsCoilAround() const;
 
@@ -166,6 +166,8 @@ protected:
 	float vacuumRadius_ = 0.0f; 
 	const float baseVacuumRadius_ = 7.0f; 
 	Vector3 vacuumStartPos_;
+	const int kMinVacuumTime = 20;
+	const int kMaxVacuumTime = 40;
 
 	float charge_ = 0;
 	const float kChargeSpeed_ = 1.5f;
