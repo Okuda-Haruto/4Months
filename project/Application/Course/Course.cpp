@@ -33,25 +33,11 @@ Course::~Course() {
 void Course::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 	directionalLight_ = directionalLight;
 
-	ReadCSV();
-
 	voxel_ = std::make_unique<Voxel>();
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), directionalLight_);
 }
 
 void Course::Update() {
-	for (auto& ring : rings_) {
-		ring->Update();
-	}
-
-	for (auto& spike : spikes_) {
-		spike->Update();
-	}
-
-	for (auto& energy : energies_) {
-		energy->Update();
-	}
-
 	std::erase_if(boxes_, [](const auto& box) {
 		return box->IsDead();
 		});
@@ -69,18 +55,6 @@ void Course::Update() {
 }
 
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
-	for (auto& ring : rings_) {
-		ring->Draw(directionalLight);
-	}
-
-	for (auto& spike : spikes_) {
-		spike->Draw(directionalLight);
-	}
-
-	for (auto& energy : energies_) {
-		energy->Draw(directionalLight);
-	}
-
 	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
 		boxObjects.push_back(box->GetObjectData());
@@ -302,110 +276,6 @@ void Course::CreateTubeCourse() {
 	// GPU 送信（描画用）
 	//--------------------------------
 	OptionalPrimitiveManager::GetInstance()->Build(vertices, indices);
-}
-
-void Course::ReadCSV() {
-	// ---------
-	// 0=無
-	// 1,2,3=リング(小/中/大)
-	// 4,5,6=障害物(小/中/大)
-	// ---------
-
-	for (int i = 0; i < kLayerCount_; ++i) {
-		std::vector<std::vector<int>> layer;
-
-		// ファイルをロード
-		std::string path = "Resources/Course/LayoutCSV/Layout" + std::to_string(i) + ".csv";
-		std::ifstream file(path);
-		std::string line;
-		assert(file.is_open());
-
-		// ファイル読む
-		while (std::getline(file, line)) {
-			std::vector<int> row;
-			std::stringstream ss(line);
-			std::string cell;
-
-			while (std::getline(ss, cell, ',')) {
-				int value = std::stoi(cell);
-				row.push_back(value);
-			}
-
-			layer.push_back(row);
-		}
-		std::reverse(layer.begin(), layer.end());
-
-		// 層ごとの配置
-		for (int x = 0; x < kCSVWidth_; ++x) {
-			for (int z = 0; z < kCSVHeight_; ++z) {
-				Vector2 blockSize = { (radius_ * 2) / kCSVWidth_, (radius_ * 2) / kCSVHeight_ };
-
-				Vector3 pos = {
-				(x * blockSize.x - (kCSVWidth_ * blockSize.x) / 2.0f - blockSize.x / 4.0f),
-				0,
-				-(z * blockSize.y) + (kCSVHeight_ * blockSize.y) / 2.0f - blockSize.y / 4.0f
-				};
-
-				float targetDist = totalLength_ * (float(i) / kLayerCount_);
-				float t = DistanceToT(targetDist);
-				pos += GetPoint(t); // コース上に移動
-
-				// 設置
-				switch (layer[z][x]) {
-				case 1:
-					AddRing(pos, 1.5f);
-					break;
-				case 2:
-					AddRing(pos, 3.0f);
-					break;
-				case 3:
-					AddRing(pos, 4.5f);
-					break;
-
-				case 4:
-					AddSpike(pos, 1.5f);
-					break;
-				case 5:
-					AddSpike(pos, 3.0f);
-					break;
-				case 6:
-					AddSpike(pos, 4.5f);
-					break;
-
-				case 7:
-					AddEnergy(pos, 2.0f);
-					break;
-
-				default:
-					break;
-				}
-			}
-		}
-	}
-}
-
-void Course::AddRing(const Vector3& spawnPos, const float radius) {
-	std::unique_ptr ring = std::make_unique<Ring>();
-	ring->Initialize(spawnPos, radius);
-	rings_.push_back(std::move(ring));
-
-	//ソート
-	std::sort(rings_.begin(), rings_.end(),
-		[](const auto& a, const auto& b) {
-			return *a < *b;
-		});
-}
-
-void Course::AddSpike(const Vector3& spawnPos, const float radius) {
-	std::unique_ptr spike = std::make_unique<Spike>();
-	spike->Initialize(spawnPos, radius);
-	spikes_.push_back(std::move(spike));
-}
-
-void Course::AddEnergy(const Vector3& spawnPos, const float radius) {
-	std::unique_ptr energy = std::make_unique<Energy>();
-	energy->Initialize(spawnPos, radius);
-	energies_.push_back(std::move(energy));
 }
 
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP) {

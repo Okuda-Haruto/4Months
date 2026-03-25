@@ -157,20 +157,11 @@
     <ClCompile Include="Application\Human\Player\Player.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Human\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Ring\Ring.cpp">
-      <Filter>Application\Scene\BaseScene\GameScene\Ring</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Course\Course.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Course</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Neck\Neck.cpp">
-      <Filter>Application\Scene\BaseScene\GameScene\Neck</Filter>
-    </ClCompile>
     <ClCompile Include="Application\GameCamera\GameCamera.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\GameCamera</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Human\Enemy\Enemy.cpp">
-      <Filter>Application\Scene\BaseScene\GameScene\Human\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Application\Human\Human.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Human</Filter>
@@ -456,23 +447,14 @@
     <ClInclude Include="Application\Spike\Spike.h">
       <Filter>Application\Scene\BaseScene\GameScene\Spike</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Ring\Ring.h">
-      <Filter>Application\Scene\BaseScene\GameScene\Ring</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Course\Course.h">
       <Filter>Application\Scene\BaseScene\GameScene\Course</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Neck\Neck.h">
-      <Filter>Application\Scene\BaseScene\GameScene\Neck</Filter>
     </ClInclude>
     <ClInclude Include="Application\GameCamera\GameCamera.h">
       <Filter>Application\Scene\BaseScene\GameScene\GameCamera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Human\Human.h">
       <Filter>Application\Scene\BaseScene\GameScene\Human</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Human\Enemy\Enemy.h">
-      <Filter>Application\Scene\BaseScene\GameScene\Human\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Application\Human\Player\Player.h">
       <Filter>Application\Scene\BaseScene\GameScene\Human\Player</Filter>
