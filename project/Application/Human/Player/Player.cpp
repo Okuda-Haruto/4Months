@@ -86,7 +86,6 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	if (ImGui::Button("折り返し")) {
 		isTurnBack_ = !isTurnBack_;
 	}
-	ImGui::DragFloat("エネルギー", &energy_, 0.5f, 0, kMaxEnergy_);
 	ImGui::DragInt("まぜる時間", &vacuumTime_);
 	ImGui::DragInt("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);

@@ -8,19 +8,13 @@ public:
 	void Update(Player* player);
 	void Draw();
 
-	void UpdateSpeed(Player* player);
-	void UpdateEnergy(Player* player);
+	void UpdateCharge(Player* player);
 
 private:
-
-	std::unique_ptr<Sprite> number_[3]{};
-	std::unique_ptr<Sprite> speed_ = nullptr;
-	Vector2 speedOffset_ = { 1000,640 };
-
 	// エネルギー
-	std::unique_ptr<Sprite> energyBGSprite_ = nullptr;
-	std::unique_ptr<Sprite> currentEnergySprite_ = nullptr;
+	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
+	std::unique_ptr<Sprite> currentChargeSprite_ = nullptr;
 	float kEnergyBarWidth = 800;
-	Vector2 energyLTPos_ = { 32,720 - 64 };
+	Vector2 chargeLTPos_ = { 32,720 - 64 };
 };
 

@@ -17,12 +17,6 @@ public:
 	bool IsGoal() { return isGoal_; };
 
 private:
-	// プレイヤーととげの判定
-	void CheckSpike(Human* human);
-
-	// プレイヤーとエネルギーの判定
-	void CheckEnergy(Human* human);
-
 	// プレイヤーと壁(ボクセル)の判定
 	void CheckVoxel(Human* human);
 

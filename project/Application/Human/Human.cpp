@@ -9,6 +9,9 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	model_ = make_unique<Object>();
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
 	model_->SetShininess(30.0f);
+	bulletModel_ = make_unique<Object>();
+	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
+	bulletModel_->SetShininess(30.0f);
 	//カメラで使う
 	transform_ = {};
 	transform_.scale = { 1.0f,1.0f,1.0f };
@@ -17,6 +20,8 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	rollRotate_ = IdentityQuaternion();
 	model_->SetTransform(transform_);
 	model_->SetDirectionalLight(directionalLight);
+	bulletModel_->SetTransform(transform_);
+	bulletModel_->SetDirectionalLight(directionalLight);
 
 	characterID_ = id_++;
 
@@ -129,92 +134,20 @@ void Human::Update() {
 		knockbackTimer_--;
 		transform_.translate += Vector3{ 0,0,1 } *rotateMatrix * 0.2f;
 	}
-	if (isCoilAround_ && energy_) {
-		energy_ -= energyCost_;
-		if (energy_ <= 0) {
-			isCoilAround_ = false;
-			energy_ = 0;
-		}
-	}
 
 #ifdef USE_IMGUI
 
 #endif
 
-	if (vacuumState_ == None) {
-		model_->SetTransform(transform_);
-	} else {
-		model_->SetTransform(headTransform_);
-	}
+	model_->SetTransform(transform_);
+	bulletModel_->SetTransform(headTransform_);
 }
 
 void Human::Draw() {
 	model_->Draw3D();
-}
-
-void Human::OnHitRing(const float addSpeed, const float addMaxSpeed) {
-	speed_ += addSpeed;
-	maxRisingSpeed_ += addMaxSpeed;
-	maxFallingSpeed_ += addMaxSpeed;
-	cameraEffectTime_ = kMaxCameraEffectTime_;
-}
-
-void Human::OnHitSpike(const Vector3& pos) {
-	OnHitNeck(pos);
-}
-
-void Human::OnHitEnergy(const float amount) {
-	energy_ += amount;
-	if (energy_ > kMaxEnergy_) {
-		energy_ = kMaxEnergy_;
+	if (vacuumState_ != None) {
+		bulletModel_->Draw3D();
 	}
-}
-
-void Human::OnHitWall(OBB wallObb) {
-	// 壁の向きをrotateにコピー
-	Vector3 right = wallObb.orientations[0];
-	Vector3 up = wallObb.orientations[1];
-	Vector3 forward = wallObb.orientations[2];
-
-	isCoilAround_ = false;
-	isDrifting_ = false;
-	unableDriftTimer_ = unableDriftTime_;
-
-	Matrix3x3 rot;
-	rot.m[0][0] = right.x;   rot.m[0][1] = right.y;   rot.m[0][2] = right.z;
-	rot.m[1][0] = up.x;      rot.m[1][1] = up.y;      rot.m[1][2] = up.z;
-	rot.m[2][0] = forward.x; rot.m[2][1] = forward.y; rot.m[2][2] = forward.z;
-
-	Quaternion q;
-	float trace = rot.m[0][0] + rot.m[1][1] + rot.m[2][2];
-	if (trace > 0.0f) {
-		float s = sqrtf(trace + 1.0f) * 2.0f;
-		q.w = 0.25f * s;
-		q.x = (rot.m[2][1] - rot.m[1][2]) / s;
-		q.y = (rot.m[0][2] - rot.m[2][0]) / s;
-		q.z = (rot.m[1][0] - rot.m[0][1]) / s;
-	} else if (rot.m[0][0] > rot.m[1][1] && rot.m[0][0] > rot.m[2][2]) {
-		float s = sqrtf(1.0f + rot.m[0][0] - rot.m[1][1] - rot.m[2][2]) * 2.0f;
-		q.w = (rot.m[2][1] - rot.m[1][2]) / s;
-		q.x = 0.25f * s;
-		q.y = (rot.m[0][1] + rot.m[1][0]) / s;
-		q.z = (rot.m[0][2] + rot.m[2][0]) / s;
-	} else if (rot.m[1][1] > rot.m[2][2]) {
-		float s = sqrtf(1.0f + rot.m[1][1] - rot.m[0][0] - rot.m[2][2]) * 2.0f;
-		q.w = (rot.m[0][2] - rot.m[2][0]) / s;
-		q.x = (rot.m[0][1] + rot.m[1][0]) / s;
-		q.y = 0.25f * s;
-		q.z = (rot.m[1][2] + rot.m[2][1]) / s;
-	} else {
-		float s = sqrtf(1.0f + rot.m[2][2] - rot.m[0][0] - rot.m[1][1]) * 2.0f;
-		q.w = (rot.m[1][0] - rot.m[0][1]) / s;
-		q.x = (rot.m[0][2] + rot.m[2][0]) / s;
-		q.y = (rot.m[1][2] + rot.m[2][1]) / s;
-		q.z = 0.25f * s;
-	}
-
-	transform_.rotate = Normalize(q);
-
 }
 
 void Human::OnHitVoxel() {
@@ -299,7 +232,7 @@ void Human::OnHitNeck(const Vector3& pos) {
 	transform_.rotate = Normalize(q);
 }
 
-void Human::Throw() { 
+void Human::Throw() {
 	headTransform_ = transform_;
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
@@ -307,14 +240,11 @@ void Human::Throw() {
 	vacuumState_ = Going;
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
 	charge_ = 0;
-	energy_ -= energyCost_;
 }
 
 void Human::Charge() {
-	if (energy_ > energyCost_) {
-		charge_ += chargeSpeed_;
-		energy_ -= chargeSpeed_;
-	}
+	charge_ += kChargeSpeed_;
+	charge_ = min(charge_, kMaxCharge_);
 }
 
 void Human::Slowdown() {
