@@ -2,14 +2,16 @@
 #include "Camera/Camera.h"
 #include "Human/Player/Player.h"
 
+#include <numbers>
+
 class BaseCamera {
 protected:
 	SRT transform_;
-	Quaternion rollRotate_;
 	Player* player_;
+	std::shared_ptr<Input> input_;
 public:
 	//初期化
-	virtual void Initialize(Player* player) = 0;
+	virtual void Initialize(std::shared_ptr<Input> input, Player* player) = 0;
 	//更新処理
 	virtual void Update() = 0;
 	//Transform
@@ -21,25 +23,67 @@ class DownCamera : public BaseCamera {
 private:
 	//回転がない場合のカメラ座標
 	const Vector3 kCameraPos = { 0, 3, -30 };
+
 public:
 	//初期化
-	void Initialize(Player* player) override;
+	void Initialize(std::shared_ptr<Input> input, Player* player) override;
 	//更新処理
 	void Update() override;
-	bool wasCoilAround_ = false;
-	Quaternion coilLockRotate_;
 };
+
+//リザルトカメラ
+class ResultCamera : public BaseCamera {
+private:
+	//回転がない場合のカメラ座標
+	const Vector3 kCameraPos = { 0, 0, -300 };
+
+	//カメラ回転速度
+	const float kCameraRotateSpeed = std::numbers::pi_v<float> / 180;
+
+	//オートマになるまでの時間
+	const float kMaxReleaseKeyTime = 1.0f;
+
+	//カメラ移動モード
+	enum class CameraMode {
+		Manual,			//手動
+		Automatic_Up,	//自動上昇
+		Automatic_Down,	//自動下降
+	};
+	CameraMode mode_;
+
+	//カメラ速度
+	Vector3 velocity_;
+
+	//カメラY座標
+	float posY_;
+
+	//マニュアル移動してないならオートマにする
+	float releaseKeyTime_;
+	
+public:
+	//初期化
+	void Initialize(std::shared_ptr<Input> input, Player* player) override;
+	//更新処理
+	void Update() override;
+};
+
 
 class GameCamera {
 private:
 	//使用するカメラ
 	std::shared_ptr<Camera> camera_;
+	//入力
+	std::shared_ptr<Input> input_;
 	//プレイヤー位置
 	Player* player_;
 	//現在のカメラ
 	std::unique_ptr<BaseCamera> nowCamera_;
 	//遷移する先のカメラ
 	std::unique_ptr<BaseCamera> nextCamera_;
+
+	//カメラ遷移時間
+	float maxChangeCameraTime_;
+	float changeCameraTime_;
 
 	// シェイク
 	Vector3 shake_{};
@@ -48,9 +92,12 @@ private:
 	float amplitude_ = 0;
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Camera> camera, Player* player);
+	void Initialize(std::shared_ptr<Camera> camera, std::shared_ptr<Input> input, Player* player);
 	//更新処理
 	void Update();
+
+	//カメラ遷移
+	void ChangeCamera(const std::unique_ptr<BaseCamera>& nextCamera, float changeCameraTime);
 
 	// シェイク
 	void StartShake(float amplitude, int frame);
