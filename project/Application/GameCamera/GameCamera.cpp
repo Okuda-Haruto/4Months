@@ -67,21 +67,29 @@ void ResultCamera::Update() {
 
 	//マニュアル移動
 	if (keyboard.hold[DIK_W] || keyboard.hold[DIK_UP]) {
-		nextVelocity = { 0,4,0 };
-	} else if (keyboard.hold[DIK_S] || keyboard.hold[DIK_DOWN]) {
-		nextVelocity = { 0,-4,0 };
+		nextVelocity += { 0,1,0 };
+	}
+	if (keyboard.hold[DIK_S] || keyboard.hold[DIK_DOWN]) {
+		nextVelocity += { 0,-1,0 };
+	}
+	if (keyboard.hold[DIK_D] || keyboard.hold[DIK_RIGHT]) {
+		nextVelocity += { 1,0,0 };
+	}
+	if (keyboard.hold[DIK_A] || keyboard.hold[DIK_LEFT]) {
+		nextVelocity += { -1,0,0 };
+	}
+
+	//動かしていたらマニュアル移動
+	if (Length(nextVelocity) > 0.0f) {
+		nextVelocity = Normalize(nextVelocity) * 4.0f;
+		mode_ = CameraMode::Manual;
+		releaseKeyTime_ = 0.0f;
 	} else {
 	//動かしていない場合勝手にオートマに
 		releaseKeyTime_ += 1.0f / 60.0f;
 		if (releaseKeyTime_ > kMaxReleaseKeyTime && mode_ == CameraMode::Manual) {
 			mode_ = CameraMode::Automatic_Down;
 		}
-	}
-
-	//動かしていたらマニュアル移動
-	if (Length(nextVelocity) > 0.0f) {
-		mode_ = CameraMode::Manual;
-		releaseKeyTime_ = 0.0f;
 	}
 
 	switch (mode_)
@@ -119,7 +127,7 @@ void ResultCamera::Update() {
 	//回転したxz平面のカメラ座標にYを加える
 	transform_.translate.y = posY_;
 	//ずらして見せる
-	transform_.translate += velocity_ * 10;
+	transform_.translate += velocity_ * MakeRotateMatrix(transform_.rotate) * 10;
 }
 #pragma endregion
 
