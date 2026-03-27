@@ -21,7 +21,7 @@ private:
 
 	std::shared_ptr<Model> face_;
 
-	std::array<std::unique_ptr<Object>, 4096> objects_;
+	std::array<std::unique_ptr<Object>, 8192> objects_;
 	uint32_t index_ = 0;
 
 	Course* course_;
@@ -34,6 +34,7 @@ public:
 	void Update();
 
 	void Draw();
+	void DrawAll();
 
 	void Collision(Sphere sphere);
 
