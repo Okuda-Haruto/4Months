@@ -23,6 +23,10 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	bulletModel_->SetTransform(transform_);
 	bulletModel_->SetDirectionalLight(directionalLight);
 
+	// エフェクト
+	wind_ = make_unique<Wind>();
+	wind_->Initialize(directionalLight);
+
 	characterID_ = id_++;
 
 	fallingSpeed_ = -kMinSpeed_;
@@ -83,6 +87,7 @@ void Human::Update() {
 		if (headSpeed_ <= 0) {
 			headSpeed_ = 0;
 			vacuumTimer_ = vacuumTime_;
+			wind_->Set(headTransform_.translate, vacuumRadius_,float(vacuumTime_));
 			vacuumState_ = Vacuum;
 		}
 		break;
@@ -133,12 +138,17 @@ void Human::Update() {
 
 	model_->SetTransform(transform_);
 	bulletModel_->SetTransform(headTransform_);
+
+	wind_->Update();
 }
 
 void Human::Draw() {
 	model_->Draw3D();
 	if (vacuumState_ != None) {
 		bulletModel_->Draw3D();
+	}
+	if (vacuumState_ == Vacuum) {
+		wind_->Draw();
 	}
 }
 
