@@ -10,18 +10,23 @@ struct Chunk {
 	std::array<std::array<std::array<uint8_t, 16>, 16>, 16> mapChip;
 };
 
+struct CSVData {
+	Vector3 size;
+	std::string directoryPath;
+};
+
 class Voxel {
 private:
 
 	const float scale = 3.0f;
 
-	std::shared_ptr<DirectionalLight> directionalLigth_;
+	std::shared_ptr<DirectionalLight> directionalLight_;
 
 	std::vector<Chunk> chunks_;
 
 	std::shared_ptr<Model> face_;
 
-	std::array<std::unique_ptr<Object>, 8192> objects_;
+	std::array<std::unique_ptr<Object>, 16384> objects_;
 	uint32_t index_ = 0;
 
 	Course* course_;

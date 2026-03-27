@@ -123,10 +123,14 @@ void GameScene::Update() {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
 #ifdef USE_IMGUI
+	int score = course_->GetBreakScore();
+	int max = course_->GetMaxBreakScore();
 	ImGui::Begin("GameScene");
 	if (ImGui::Button("デバッグカメラ")) {
 		isUseDebugCamera_ = !isUseDebugCamera_;
 	}
+	ImGui::Text("スコア :%6d", score);
+	ImGui::Text("ノルマ :%6d", max);
 	ImGui::End();
 #endif
 
@@ -136,7 +140,7 @@ void GameScene::Update() {
 	}
 
 	if (player_->GetTransform().translate.y < -32 * 4 * 3.0f) {
-		if (course_->GetBreakScore() > course_->GetMaxBreakScore()) {
+		if (course_->GetBreakScore() >= course_->GetMaxBreakScore()) {
 			if (!isClear_) {
 				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
 				clearCameraTransform_.rotate = IdentityQuaternion();

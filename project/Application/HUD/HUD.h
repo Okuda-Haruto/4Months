@@ -24,6 +24,7 @@ private:
 	// 壊した量
 	std::unique_ptr<Sprite> breakBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentBreakSprite_ = nullptr;
+	std::unique_ptr<Sprite> bonustBreakSprite_ = nullptr;
 	float kBreakBarWidth = 1280 - 64;
 	Vector2 breakLTPos_ = {32, 48 };
 
