@@ -110,32 +110,6 @@ void Wind::Update() {
 				spiral_[i]->SetTransform(transform);
 			}
 		}
-
-		/*for (int i = 0; i < spiralCount_; ++i) {
-			SRT transform = spiral_[i]->GetTransform();
-
-			spiralRotate_[i] += 0.2f;
-			float angle = spiralRotate_[i];
-
-			float r = radius_ / 30.0f;
-
-			Vector3 pos;
-			pos.x = center_.x + cos(angle) * r;
-			pos.z = center_.z + sin(angle) * r;
-			pos.y = transform.translate.y;
-
-			Vector3 tangent;
-			tangent.x = -sin(angle);
-			tangent.z = cos(angle);
-			tangent.y = 0.0f;
-
-			Quaternion spiralRotate = MakespiralRotateAxisAngleQuaternion({ 0,1,0 }, angle + float(std::numbers::pi) / 2.0f);
-
-			transform.translate = pos;
-			transform.spiralRotate = spiralRotate;
-
-			spiral_[i]->SetTransform(transform);
-		}*/
 	}
 }
 
@@ -144,8 +118,8 @@ void Wind::Draw() {
 		for (int i = 0; i < activeDustCount_; ++i) {
 			dust_[i]->Draw3D();
 		}
-		for (auto& spiral : spiral_) {
-			spiral->Draw3D();
+		for (int i = 0; i < activeSpiralCount_; ++i) {
+			spiral_[i]->Draw3D();
 		}
 	}
 }
