@@ -57,6 +57,9 @@ public:
 	float GetCharge() { return charge_; }
 	float GetMaxCharge() { return kMaxCharge_; }
 
+	float GetAcc() { return acc_; }
+	float GetMaxAcc() { return maxAcc_; }
+
 protected:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
@@ -175,6 +178,9 @@ protected:
 	float charge_ = 0;
 	const float kChargeSpeed_ = 1.5f;
 	const float kMaxCharge_ = 100;
+
+	float acc_ = 0;
+	float maxAcc_ = 0.7f;
 
 	std::unique_ptr<Wind> wind_ = nullptr;
 

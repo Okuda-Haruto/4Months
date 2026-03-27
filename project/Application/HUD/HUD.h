@@ -13,7 +13,7 @@ public:
 private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);
-	void UpdateTimer(GameTimer* timer);
+	void UpdateAcceleration(Player* player);
 
 	// エネルギー
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
@@ -28,8 +28,8 @@ private:
 	Vector2 breakLTPos_ = {32, 48 };
 
 	// タイマー
-	std::unique_ptr<Sprite> timeBGSprite_ = nullptr;
-	std::unique_ptr<Sprite> currentTimeSprite_ = nullptr;
+	std::unique_ptr<Sprite> accBGSprite_ = nullptr;
+	std::unique_ptr<Sprite> currentAccSprite_ = nullptr;
 	float kTimeBarWidth = 1280 - 64;
 	Vector2 timeLTPos_ = { 32, 16 };
 

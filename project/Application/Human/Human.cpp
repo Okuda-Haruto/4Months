@@ -72,6 +72,11 @@ void Human::Update() {
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 
+	// 加速
+	acc_ += 0.0008f;
+	acc_ = min(acc_, maxAcc_);
+	velocity_.translate.y -= acc_;
+
 	transform_.translate += velocity_.translate;
 
 	// 分離しているときの先頭

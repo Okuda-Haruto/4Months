@@ -47,23 +47,23 @@ void HUD::Initialize() {
 	currentBreakSprite_->SetPosition(breakLTPos_);
 
 	// 時間
-	timeBGSprite_ = std::make_unique<Sprite>();
-	timeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	timeBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	timeBGSprite_->SetSize({ kTimeBarWidth, 32.0f });
-	timeBGSprite_->SetPosition(timeLTPos_);
+	accBGSprite_ = std::make_unique<Sprite>();
+	accBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	accBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	accBGSprite_->SetSize({ kTimeBarWidth, 32.0f });
+	accBGSprite_->SetPosition(timeLTPos_);
 
-	currentTimeSprite_ = std::make_unique<Sprite>();
-	currentTimeSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	currentTimeSprite_->SetColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	currentTimeSprite_->SetSize({ kTimeBarWidth, 32.0f });
-	currentTimeSprite_->SetPosition(timeLTPos_);
+	currentAccSprite_ = std::make_unique<Sprite>();
+	currentAccSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	currentAccSprite_->SetColor({ 0.0f, 1.0f, 1.0f, 1.0f });
+	currentAccSprite_->SetSize({ kTimeBarWidth, 32.0f });
+	currentAccSprite_->SetPosition(timeLTPos_);
 }
 
 void HUD::Update(Player* player, Course* course, GameTimer* timer) {
 	UpdateCharge(player);
 	UpdateScore(course);
-	UpdateTimer(timer);
+	UpdateAcceleration(player);
 }
 
 void HUD::Draw() {
@@ -73,8 +73,8 @@ void HUD::Draw() {
 	currentBreakSprite_->Draw2D();
 
 	// 時間
-	timeBGSprite_->Draw2D();
-	currentTimeSprite_->Draw2D();
+	accBGSprite_->Draw2D();
+	currentAccSprite_->Draw2D();
 }
 
 void HUD::UpdateCharge(Player* player) {
@@ -106,9 +106,9 @@ void HUD::UpdateScore(Course* course) {
 	currentBreakSprite_->Update();
 }
 
-void HUD::UpdateTimer(GameTimer* timer) {
-	float current = timer->GetCurrentGameTime();
-	float max = timer->GetMaxTime();
+void HUD::UpdateAcceleration(Player* player) {
+	float current = player->GetAcc();
+	float max = player->GetMaxAcc();
 	if (current < 0) return;
 
 	// 割合を求める
@@ -116,7 +116,7 @@ void HUD::UpdateTimer(GameTimer* timer) {
 	rate = min(rate, 1.0f);
 	// 残り時間に応じてスプライトのサイズ変更
 	float length = kTimeBarWidth * rate;
-	currentTimeSprite_->SetSize({ length, currentTimeSprite_->GetSize().y });
-	timeBGSprite_->Update();
-	currentTimeSprite_->Update();
+	currentAccSprite_->SetSize({ length, currentAccSprite_->GetSize().y });
+	accBGSprite_->Update();
+	currentAccSprite_->Update();
 }
