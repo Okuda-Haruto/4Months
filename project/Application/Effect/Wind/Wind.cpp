@@ -27,6 +27,7 @@ void Wind::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 }
 
 void Wind::Set(const Vector3& center, const float radius, const float animationTime) {
+	// 吸い込み開始時
 	center_ = center;
 	radius_ = radius;
 	maxAnimationTime_ = animationTime / 60.0f;
@@ -39,14 +40,15 @@ void Wind::Set(const Vector3& center, const float radius, const float animationT
 		dust_[i]->SetTransform(SRT({ 0.2f,0.2f,0.2f }, {}, translate));
 		dust_[i]->SetColor({ 0.5f,0.5f,0.5f,0.5f });
 	}
+
 	activeSpiralCount_ = int(radius) / 2 + 1;
 	activeSpiralCount_ = min(activeSpiralCount_, spiralCount_);
 	for (int i = 0; i < activeSpiralCount_; ++i) {
 		Vector3 translate = { center.x,center.y + GameEngine::randomFloat(-radius, radius), center.z };
 		spiralRotate_[i] = GameEngine::randomFloat(0, float(std::numbers::pi) * 2.0f);
-		spiralRotateSpeed_[i] = GameEngine::randomFloat(0.15f, 0.25f);
+		spiralRotateSpeed_[i] = GameEngine::randomFloat(0.15f, 0.3f);
 		Quaternion spiralRotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, spiralRotate_[i]);
-		spiralRadius_[i] = GameEngine::randomFloat(radius / 10, radius / 2);
+		spiralRadius_[i] = GameEngine::randomFloat(0, radius / 2);
 		spiral_[i]->SetTransform(SRT({ 0,0,0 }, spiralRotate, translate));
 		spiral_[i]->SetColor({ 0.8f,0.8f,0.8f,0.8f });
 	}
@@ -64,6 +66,7 @@ void Wind::Update() {
 		const float baseVacuumSpeed = 3.0f;
 		const float vacuumSensitivity = 0.1f;
 
+		// ちり
 		for (int i = 0; i < activeDustCount_; ++i) {
 			SRT transform = dust_[i]->GetTransform();
 
@@ -83,6 +86,7 @@ void Wind::Update() {
 			dust_[i]->SetTransform(transform);
 		}
 
+		// 旋風
 		for (int i = 0; i < activeSpiralCount_; ++i) {
 			SRT transform = spiral_[i]->GetTransform();
 			spiralRotate_[i] -= spiralRotateSpeed_[i];
@@ -94,6 +98,7 @@ void Wind::Update() {
 		float time = 0.1f;
 		float perFrame = 60.0f * time;
 		if (animationTime_ < time) {
+			// 開始時
 			for (int i = 0; i < activeSpiralCount_; ++i) {
 				SRT transform = spiral_[i]->GetTransform();
 				transform.scale.x += spiralRadius_[i] / perFrame;
@@ -101,7 +106,9 @@ void Wind::Update() {
 				transform.scale.z += spiralRadius_[i] / perFrame;
 				spiral_[i]->SetTransform(transform);
 			}
+
 		} else if (maxAnimationTime_ - animationTime_ < time) {
+			// 終了時
 			for (int i = 0; i < activeSpiralCount_; ++i) {
 				SRT transform = spiral_[i]->GetTransform();
 				transform.scale.x -= spiralRadius_[i] / perFrame;

@@ -60,6 +60,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	hud_ = std::make_unique<HUD>();
 	hud_->Initialize();
 
+	// 残り時間
+	timer_ = std::make_unique<GameTimer>();
+	timer_->Initialize();
+
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
 #endif
@@ -109,7 +113,8 @@ void GameScene::Update() {
 	checkCollision_->UpdateImGui();
 
 	// HUD
-	hud_->Update(player_.get(),course_.get());
+	hud_->Update(player_.get(),course_.get(),timer_.get());
+	timer_->Update();
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
