@@ -11,7 +11,7 @@ void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, GameCamera* 
 	course_ = course;
 	face_ = face;
 	camera_ = camera;
-	directionalLigth_ = directionalLigth;
+	directionalLight_ = directionalLigth;
 
 	for (index_ = 0; index_ < objects_.size(); index_++) {
 		objects_[index_] = std::make_unique<Object>();
@@ -221,7 +221,7 @@ void Voxel::Draw() {
 	}
 
 	if (!objects.empty()) {
-		GameEngine::DrawInstancingObject_3D(objects, directionalLigth_, nullptr, nullptr);
+		GameEngine::DrawInstancingObject_3D(objects, directionalLight_, nullptr, nullptr);
 	}
 }
 
@@ -322,7 +322,7 @@ void Voxel::DrawAll() {
 	
 
 	if (!objects.empty()) {
-		GameEngine::DrawInstancingObject_3D(objects, directionalLigth_, nullptr, nullptr);
+		GameEngine::DrawInstancingObject_3D(objects, directionalLight_, nullptr, nullptr);
 	}
 }
 
