@@ -129,15 +129,19 @@ void GameScene::Update() {
 	if (keyboard.trigger[DIK_R]) {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
-	if (checkCollision_->IsGoal()) {
-		if (!isClear_) {
-			clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
-			clearCameraTransform_.rotate = IdentityQuaternion();
-			clearCameraTransform_.scale = { 1,1,1 };
-			gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
+
+	if (player_->GetTransform().translate.y < -32 * 4 * 3.0f) {
+		if (course_->GetBreakScore() > course_->GetMaxBreakScore()) {
+			if (!isClear_) {
+				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
+				clearCameraTransform_.rotate = IdentityQuaternion();
+				clearCameraTransform_.scale = { 1,1,1 };
+				gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
+			}
+			isClear_ = true;
+		} else {
+			SceneManager::GetInstance()->ChangeScene("Title");
 		}
-		isClear_ = true;
-		//SceneManager::GetInstance()->ChangeScene("Result");
 	}
 
 }
@@ -152,7 +156,7 @@ void GameScene::Draw() {
 		player_->Draw();
 
 		//ゴール描画処理
-		goal_->Draw();
+		//goal_->Draw();
 
 		course_->Draw(directionalLight_);
 
