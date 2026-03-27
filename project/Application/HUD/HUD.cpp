@@ -61,7 +61,7 @@ void HUD::UpdateCharge(Player* player) {
 
 void HUD::UpdateScore(Course* course) {
 	int current = course->GetBreakScore();
-	int max = course->GetMaxBreakScore();;
+	int max = course->GetMaxBreakScore();
 	if (current < 0) return;
 
 	// 割合を求める
