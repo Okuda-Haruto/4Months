@@ -151,9 +151,6 @@
     <ClCompile Include="Application\Scene\BaseScene\GameScene\GameScene.cpp">
       <Filter>Application\Scene\BaseScene\GameScene</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Spike\Spike.cpp">
-      <Filter>Application\Scene\BaseScene\GameScene\Spike</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Human\Player\Player.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Human\Player</Filter>
     </ClCompile>
@@ -184,15 +181,12 @@
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.cpp">
-      <Filter>GameEngine\Modules\OptionalPrimitiveManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Energy\Energy.cpp">
-      <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Voxel\Voxel.cpp" />
     <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
     <ClCompile Include="Application\Box\Box.cpp" />
+    <ClCompile Include="Application\Effect\Wind\Wind.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -444,9 +438,6 @@
     <ClInclude Include="Application\Scene\BaseScene\GameScene\GameScene.h">
       <Filter>Application\Scene\BaseScene\GameScene</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Spike\Spike.h">
-      <Filter>Application\Scene\BaseScene\GameScene\Spike</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Course\Course.h">
       <Filter>Application\Scene\BaseScene\GameScene\Course</Filter>
     </ClInclude>
@@ -480,16 +471,13 @@
     <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\OptionalPrimitiveManager\OptionalPrimitiveManager.h">
-      <Filter>GameEngine\Modules\OptionalPrimitiveManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Energy\Energy.h">
-      <Filter>Application\Scene\BaseScene\GameScene\Energy</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Voxel\Voxel.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
     <ClInclude Include="Application\Mix.h" />
     <ClInclude Include="Application\Box\Box.h" />
+    <ClInclude Include="Application\Effect\Wind\Wind.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -710,6 +698,12 @@
     </Filter>
     <Filter Include="Application\Scene\BaseScene\GameScene\Energy">
       <UniqueIdentifier>{30dd3194-dc07-4c08-bac6-2f687edc9f5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Effect">
+      <UniqueIdentifier>{fadbaac4-7200-4ced-8ebd-78f09ee1c95d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Effect\Wind">
+      <UniqueIdentifier>{9972798a-db62-46fc-bc74-164d951b7a62}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

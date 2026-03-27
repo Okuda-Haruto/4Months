@@ -2,6 +2,7 @@
 #include "GameEngine.h"
 #include "OBB.h"
 #include "Sphere.h"
+#include "Effect/Wind/Wind.h"
 #include <deque>
 
 static int id_ = 0;
@@ -174,6 +175,8 @@ protected:
 	float charge_ = 0;
 	const float kChargeSpeed_ = 1.5f;
 	const float kMaxCharge_ = 100;
+
+	std::unique_ptr<Wind> wind_ = nullptr;
 
 	void Throw();
 	void Charge();

@@ -10,7 +10,7 @@ private:
 
 	SRT transform_;
 
-	const float kMaxAnimationTime_ = 1.0f;
+	const float maxAnimationTime_ = 1.0f;
 	float animationTime_;
 	bool isDead_;
 

@@ -17,12 +17,12 @@ void Voxel_Vacuum::Initialize(SRT transform, Player* player, std::shared_ptr<Dir
 }
 
 void Voxel_Vacuum::Update() {
-	if (animationTime_ < kMaxAnimationTime_) {
+	if (animationTime_ < maxAnimationTime_) {
 		animationTime_ += 1.0f / 60.0f;
 	}
 
 
-	if (animationTime_ >= kMaxAnimationTime_) {
+	if (animationTime_ >= maxAnimationTime_) {
 		isDead_ = true;
 	} else {
 

@@ -23,6 +23,6 @@ private:
 	std::unique_ptr<Sprite> breakBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentBreakSprite_ = nullptr;
 	float kBreakBarWidth = 1280 - 128;
-	Vector2 breakLTPos_ = { 32, 16 };
+	Vector2 breakLTPos_ = { 64, 16 };
 };
 
