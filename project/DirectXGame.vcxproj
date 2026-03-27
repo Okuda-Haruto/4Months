@@ -90,6 +90,7 @@
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
     <ClCompile Include="Application\Scene\BaseScene\GameScene\GameScene.cpp" />
     <ClCompile Include="Application\HUD\HUD.cpp" />
+    <ClCompile Include="Application\HUD\GameTimer\GameTimer.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
     </ClCompile>
@@ -198,6 +199,7 @@
     <ClInclude Include="Application\Human\Player\Player.h" />
     <ClInclude Include="Application\HUD\HUD.h" />
     <ClInclude Include="Application\Effect\Wind\Wind.h" />
+    <ClInclude Include="Application\HUD\GameTimer\GameTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
