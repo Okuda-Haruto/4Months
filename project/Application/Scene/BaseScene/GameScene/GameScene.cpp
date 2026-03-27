@@ -67,7 +67,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 }
 
 void GameScene::Finalize() {
-
+	
 }
 
 void GameScene::Update() {
@@ -76,8 +76,32 @@ void GameScene::Update() {
 	// プレイヤーの更新
 	player_->Update(input_);
 
-	//カメラ更新
-	gameCamera_->Update();
+	if (isClear_) {
+		if (isUp_) {
+			clearY_ += 1.0f;
+			if (clearY_ > 0) {
+				isUp_ = false;
+			}
+		} else {
+			clearY_ -= 1.0f;
+			if (clearY_ < -32 * 3.0f * 4) {
+				isUp_ = true;
+			}
+		}
+		clearCameraTransform_.rotate = clearCameraTransform_.rotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 180);
+		clearCameraTransform_.translate = RotateVector({ 0,0,-16 * 3 - 300 }, Inverse(clearCameraTransform_.rotate));
+		clearCameraTransform_.translate.y = clearY_;
+		defaultCamera_->Update(clearCameraTransform_);
+
+		//クリアしてるならタイトルに戻れる
+		if (keyboard.trigger[DIK_SPACE]) {
+			SceneManager::GetInstance()->ChangeScene("Title");
+		}
+
+	} else {
+		//カメラ更新
+		gameCamera_->Update();
+	}
 
 	//ゴール更新処理
 	goal_->Update();
@@ -111,8 +135,15 @@ void GameScene::Update() {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 	if (checkCollision_->IsGoal()) {
-		SceneManager::GetInstance()->ChangeScene("Title");
+		if (!isClear_) {
+			clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
+			clearCameraTransform_.rotate = IdentityQuaternion();
+			clearCameraTransform_.scale = { 1,1,1 };
+		}
+		isClear_ = true;
+		//SceneManager::GetInstance()->ChangeScene("Result");
 	}
+
 }
 
 void GameScene::Draw() {
@@ -123,8 +154,13 @@ void GameScene::Draw() {
 	goal_->Draw();
 
 	// コース
-	course_->Draw(directionalLight_);
+	if (isClear_) {
+		course_->DrawAll(directionalLight_);
+	} else {
+		course_->Draw(directionalLight_);
+	}
 
 	// HUD
 	hud_->Draw();
+
 }

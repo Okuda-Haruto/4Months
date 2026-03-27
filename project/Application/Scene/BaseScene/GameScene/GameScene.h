@@ -44,6 +44,15 @@ private:
 	// HUD
 	std::unique_ptr<HUD> hud_ = nullptr;
 
+	//クリアしているか
+	bool isClear_ = false;
+	//クリアカメラの座標
+	SRT clearCameraTransform_;
+	//クリアカメラのY位座標
+	float clearY_ = 0;
+	//ループカメラで上昇中か
+	bool isUp_ = false;
+
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Input> input) override;

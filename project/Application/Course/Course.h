@@ -16,6 +16,8 @@ public:
 
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
+	// 描画
+	void DrawAll(const std::shared_ptr<DirectionalLight> directionalLight);
 
 	// Getter
 	Vector2 GetColliderCenter() { return colliderCenter_; }
