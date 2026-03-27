@@ -46,7 +46,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_, player_.get());
+	gameCamera_->Initialize(defaultCamera_,input_ , player_.get());
 
 	// コース
 	course_ = std::make_unique<Course>();
@@ -88,20 +88,15 @@ void GameScene::Update() {
 				isUp_ = true;
 			}
 		}
-		clearCameraTransform_.rotate = clearCameraTransform_.rotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 180);
-		clearCameraTransform_.translate = RotateVector({ 0,0,-16 * 3 - 300 }, Inverse(clearCameraTransform_.rotate));
-		clearCameraTransform_.translate.y = clearY_;
-		defaultCamera_->Update(clearCameraTransform_);
 
 		//クリアしてるならタイトルに戻れる
 		if (keyboard.trigger[DIK_SPACE]) {
 			SceneManager::GetInstance()->ChangeScene("Title");
 		}
 
-	} else {
-		//カメラ更新
-		gameCamera_->Update();
 	}
+	//カメラ更新
+	gameCamera_->Update();
 
 	//ゴール更新処理
 	goal_->Update();
@@ -139,6 +134,7 @@ void GameScene::Update() {
 			clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
 			clearCameraTransform_.rotate = IdentityQuaternion();
 			clearCameraTransform_.scale = { 1,1,1 };
+			gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
 		}
 		isClear_ = true;
 		//SceneManager::GetInstance()->ChangeScene("Result");
@@ -147,20 +143,21 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	//描画処理
-	player_->Draw();
-
-	//ゴール描画処理
-	goal_->Draw();
 
 	// コース
 	if (isClear_) {
 		course_->DrawAll(directionalLight_);
 	} else {
-		course_->Draw(directionalLight_);
-	}
+		//描画処理
+		player_->Draw();
 
-	// HUD
-	hud_->Draw();
+		//ゴール描画処理
+		goal_->Draw();
+
+		course_->Draw(directionalLight_);
+
+		// HUD
+		hud_->Draw();
+	}
 
 }
