@@ -52,23 +52,23 @@ void HUD::Initialize() {
 	bonustBreakSprite_->SetSize({ kBreakBarWidth * 0.6f, 32.0f });
 	bonustBreakSprite_->SetPosition(Vector2{ breakLTPos_.x + kBreakBarWidth / 10 * 4,breakLTPos_.y });
 	// 時間
-	timeBGSprite_ = std::make_unique<Sprite>();
-	timeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	timeBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	timeBGSprite_->SetSize({ kTimeBarWidth, 32.0f });
-	timeBGSprite_->SetPosition(timeLTPos_);
+	countBGSprite_ = std::make_unique<Sprite>();
+	countBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	countBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	countBGSprite_->SetSize({ kCountBarWidth, 32.0f });
+	countBGSprite_->SetPosition(timeLTPos_);
 
-	currentTimeSprite_ = std::make_unique<Sprite>();
-	currentTimeSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	currentTimeSprite_->SetColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	currentTimeSprite_->SetSize({ kTimeBarWidth, 32.0f });
-	currentTimeSprite_->SetPosition(timeLTPos_);
+	currentCountSprite_ = std::make_unique<Sprite>();
+	currentCountSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	currentCountSprite_->SetColor({ 0.0f, 1.0f, 1.0f, 1.0f });
+	currentCountSprite_->SetSize({ kCountBarWidth, 32.0f });
+	currentCountSprite_->SetPosition(timeLTPos_);
 }
 
 void HUD::Update(Player* player, Course* course, GameTimer* timer) {
 	UpdateCharge(player);
 	UpdateScore(course);
-	UpdateTimer(timer);
+	UpdateVacuumCount(player);
 }
 
 void HUD::Draw() {
@@ -79,8 +79,8 @@ void HUD::Draw() {
 	bonustBreakSprite_->Draw2D();
 
 	// 時間
-	timeBGSprite_->Draw2D();
-	currentTimeSprite_->Draw2D();
+	countBGSprite_->Draw2D();
+	currentCountSprite_->Draw2D();
 }
 
 void HUD::UpdateCharge(Player* player) {
@@ -122,17 +122,17 @@ void HUD::UpdateScore(Course* course) {
 	bonustBreakSprite_->Update();
 }
 
-void HUD::UpdateTimer(GameTimer* timer) {
-	float current = timer->GetCurrentGameTime();
-	float max = timer->GetMaxTime();
+void HUD::UpdateVacuumCount(Player* player) {
+	int current = player->GetCurrentVacuumCount();
+	int max = player->GetMaxVacuumCount();
 	if (current < 0) return;
 
 	// 割合を求める
-	float rate = current / max;
+	float rate = 1.0f - float(current) / float(max);
 	rate = min(rate, 1.0f);
-	// 残り時間に応じてスプライトのサイズ変更
-	float length = kTimeBarWidth * rate;
-	currentTimeSprite_->SetSize({ length, currentTimeSprite_->GetSize().y });
-	timeBGSprite_->Update();
-	currentTimeSprite_->Update();
+	// 残り回数に応じてスプライトのサイズ変更
+	float length = kCountBarWidth * rate;
+	currentCountSprite_->SetSize({ length, currentCountSprite_->GetSize().y });
+	countBGSprite_->Update();
+	currentCountSprite_->Update();
 }

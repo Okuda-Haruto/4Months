@@ -56,6 +56,8 @@ public:
 	Sphere GetPrevVacuumSphere() { return Sphere(headPrevTransform_.translate,vacuumRadius_); }
 	float GetCharge() { return charge_; }
 	float GetMaxCharge() { return kMaxCharge_; }
+	int GetMaxVacuumCount() { return maxVacuumCount_; }
+	int GetCurrentVacuumCount() { return currentVacuumCount_; }
 
 protected:
 	// モデル
@@ -175,6 +177,9 @@ protected:
 	float charge_ = 0;
 	const float kChargeSpeed_ = 1.5f;
 	const float kMaxCharge_ = 100;
+
+	const int maxVacuumCount_ = 3;
+	int currentVacuumCount_ = 0;
 
 	std::unique_ptr<Wind> wind_ = nullptr;
 

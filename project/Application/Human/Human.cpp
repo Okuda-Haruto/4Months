@@ -41,6 +41,8 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	coilAroundStartTime_ = 0;
 	coilAroundEndTime_ = 0;
 	coilAroundRotatePos_ = {};
+
+	currentVacuumCount_ = 0;
 }
 
 void Human::Update() {
@@ -166,6 +168,7 @@ bool Human::GetIsCoilAround() const {
 }
 
 void Human::Throw() {
+	if (currentVacuumCount_ >= maxVacuumCount_) { return; }
 	headTransform_ = transform_;
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
@@ -177,9 +180,11 @@ void Human::Throw() {
 	vacuumTime_ = int((charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime);
 	returnTime_ = int((charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime);
 	charge_ = 0;
+	currentVacuumCount_++;
 }
 
 void Human::Charge() {
+	if (currentVacuumCount_ >= maxVacuumCount_) { return; }
 	charge_ += kChargeSpeed_;
 	charge_ = min(charge_, kMaxCharge_);
 }
