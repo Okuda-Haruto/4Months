@@ -19,6 +19,7 @@ public:
 
 	// 予測(当たらないなら止まる座標)
 	Vector3 HitPreview(Human* human);
+	bool IsPreviewHit() { return isPreviewHit_; };
 private:
 	void CheckBullet(Human* human);
 
@@ -39,6 +40,7 @@ private:
 	bool isGoal_ = false;
 	int mixType_ = 0;
 	Vector3 closest_ = {};
+	bool isPreviewHit_ = false;
 
 	//吸い込み速度
 	const float baseVacuumSpeed_ = 3.0f;
