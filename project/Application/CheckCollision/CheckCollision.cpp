@@ -113,7 +113,7 @@ void CheckCollision::CheckVacuum(Human* human) {
 				if (mixType_ == 0)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius, false) * speed);
 				if (mixType_ == 1)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius, true) * speed);
 
-				if (length < vacuumSphere.radius / 2.0f) {
+				if (length < vacuumSphere.radius * 0.66f) {
 					box->Damage();
 				}
 			}

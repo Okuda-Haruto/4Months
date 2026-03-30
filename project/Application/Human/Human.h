@@ -78,7 +78,7 @@ protected:
 	const float kGravity_ = 0.25f;
 	//落下最高速度
 	const float kMinSpeed_ = 0.05f;
-	float maxFallingSpeed_ = 1.0f;
+	float maxFallingSpeed_ = 2.25f;
 	//落下速度
 	float fallingSpeed_;
 
@@ -164,7 +164,7 @@ protected:
 	const float kMinReturnTime = 15;
 	const float kMaxReturnTime = 70;
 	int returnTimer_ = 0;
-	float bounceBackSpeed_ = 10.0f;
+	float bounceBackSpeed_ = 13.5f;
 
 	// 吸引
 	int vacuumTime_ = 30;
