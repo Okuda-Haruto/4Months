@@ -296,6 +296,7 @@ void GameEngine::PreDraw_() {
 void GameEngine::PostDraw_() {
 
 	PrimitiveManager::GetInstance()->Draw();
+	PrimitiveManager::GetInstance()->Reset();
 
 	imguiManager_->Draw();
 

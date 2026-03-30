@@ -165,6 +165,8 @@ void GameCamera::Update() {
 		}
 		SRT shakedTransform = nowCamera_->GetTransform();
 		shakedTransform.translate += shake_;
+
+		transform_ = shakedTransform;
 		// 通常カメラのビュー
 		camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(shakedTransform.scale, shakedTransform.rotate, shakedTransform.translate)));
 	//カメラ遷移
@@ -201,6 +203,7 @@ void GameCamera::Update() {
 			SRT shakedTransform = nowCamera_->GetTransform();
 			shakedTransform.translate += shake_;
 
+			transform_ = shakedTransform;
 			// 通常カメラのビュー
 			camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(shakedTransform.scale, shakedTransform.rotate, shakedTransform.translate)));
 			return;
@@ -234,6 +237,8 @@ void GameCamera::Update() {
 			amplitude_ = 0;
 		}
 		lerpTransform.translate += shake_;
+
+		transform_ = lerpTransform;
 		// 通常カメラのビュー
 		camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(lerpTransform.scale, lerpTransform.rotate, lerpTransform.translate)));
 	}

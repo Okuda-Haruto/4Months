@@ -11,8 +11,12 @@ void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> di
 	camera_ = camera;
 	directionalLight_ = directionalLight;
 
+	CSVData data;
+	data.size = { 2,6,2 };
+	data.directoryPath = "resources/CSV";
+
 	voxel_ = std::make_unique<Voxel>();
-	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), camera_, directionalLight_);
+	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), data, camera_, directionalLight_);
 }
 
 void Course::Update() {
