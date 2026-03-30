@@ -80,6 +80,7 @@ void GameScene::Finalize() {
 
 void GameScene::Update() {
 	Keyboard keyboard = input_->GetKeyBoard();
+	Pad pad = input_->GetPad(0);
 
 	// プレイヤーの更新
 	player_->Update(input_);
@@ -98,7 +99,7 @@ void GameScene::Update() {
 		}
 
 		//クリアしてるならタイトルに戻れる
-		if (keyboard.trigger[DIK_SPACE]) {
+		if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
 			SceneManager::GetInstance()->ChangeScene("Title");
 		}
 
