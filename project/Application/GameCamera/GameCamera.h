@@ -22,7 +22,7 @@ public:
 class DownCamera : public BaseCamera {
 private:
 	//回転がない場合のカメラ座標
-	const Vector3 kCameraPos = { 0, 3, -30 };
+	const Vector3 kCameraPos = { 0, 0, -30 };
 
 public:
 	//初期化
@@ -90,6 +90,9 @@ private:
 	int shakeFrame_ = 0;
 	int shakeEndFrame_;
 	float amplitude_ = 0;
+
+	//getter用
+	SRT transform_;
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Camera> camera, std::shared_ptr<Input> input, Player* player);
@@ -102,5 +105,5 @@ public:
 	// シェイク
 	void StartShake(float amplitude, int frame);
 
-	SRT GetTransform() { return nowCamera_->GetTransform(); }
+	SRT GetTransform() { return transform_; }
 };

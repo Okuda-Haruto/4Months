@@ -58,6 +58,7 @@ public:
 	float GetCharge() { return charge_; }
 	float GetMaxCharge() { return kMaxCharge_; }
 	Vector3 GetVacuumStartPos() { return vacuumStartPos_; }
+	float GetFallingSpeed() { return fallingSpeed_; }
 
 protected:
 	// モデル

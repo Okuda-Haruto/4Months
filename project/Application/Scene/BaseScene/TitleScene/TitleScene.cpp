@@ -20,7 +20,7 @@ void TitleScene::Update() {
 
 	title_Sprite_->Update();
 
-	if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_Y].trigger) {
+	if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 }

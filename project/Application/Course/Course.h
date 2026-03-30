@@ -32,6 +32,14 @@ public:
 		return boxes;
 	}
 
+	std::vector<Box*> GetSpawnBoxes() {
+		std::vector<Box*> boxes;
+		for (auto& box : spawnBoxes_) {
+			boxes.push_back(box.get());
+		}
+		return boxes;
+	}
+
 	Voxel* GetVoxel() { return voxel_.get(); }
 	int GetBreakScore() { return breakScore_; }
 	int GetMaxBreakScore() { return maxBreakScore_; }
