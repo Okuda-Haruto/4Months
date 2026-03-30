@@ -15,10 +15,11 @@ private:
 	bool canDraw_ = false;
 	Vector3 hitPos_{};
 	std::unique_ptr<Object> circle_ = nullptr;
-	std::vector<std::unique_ptr<Object>> radModel_;
+	std::unique_ptr<Object> radModel_ = nullptr;
+	std::vector<std::unique_ptr<Object>> rotateModel_;
 
 	int rotateCount_ = 8;
 	float rotateSpeed_ = 0.2f;
-	std::vector<float> radRotate_;
+	std::vector<float> rotate_;
 };
 

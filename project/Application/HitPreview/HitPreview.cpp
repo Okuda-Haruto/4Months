@@ -10,21 +10,27 @@ void HitPreview::Initialize(const std::shared_ptr<DirectionalLight> directionalL
 	circle_->SetDirectionalLight(directionalLight);
 	circle_->SetColor({ 1,1,1,0.5f });
 
+	radModel_ = make_unique<Object>();
+	radModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/Circle", "circle.obj"));
+	radModel_->SetShininess(30.0f);
+	radModel_->SetDirectionalLight(directionalLight);
+	radModel_->SetColor({ 1,0,0,0.7f });
+
 	for (int i = 0; i < rotateCount_; ++i) {
-		std::unique_ptr<Object> radModel = make_unique<Object>();
-		radModel->Initialize(ModelManager::GetInstance()->GetModel("resources/Effect/Wind/Spiral", "Spiral.obj"));
-		radModel->SetShininess(30.0f);
-		radModel->SetDirectionalLight(directionalLight);
-		radModel_.push_back(std::move(radModel));
+		std::unique_ptr<Object> rotateModel = make_unique<Object>();
+		rotateModel->Initialize(ModelManager::GetInstance()->GetModel("resources/Effect/Wind/Spiral", "Spiral.obj"));
+		rotateModel->SetShininess(30.0f);
+		rotateModel->SetDirectionalLight(directionalLight);
+		rotateModel_.push_back(std::move(rotateModel));
 
 		float t = float(i) / rotateCount_;
 		float angle = t * float(std::numbers::pi) * 2.0f;
 
-		radRotate_.push_back(angle); // 等間隔角度
+		rotate_.push_back(angle); // 等間隔角度
 
 		Quaternion rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, angle);
-		radModel_[i]->SetTransform(SRT({ 1,1,1 }, rotate, {}));
-		radModel_[i]->SetColor({ 1,1,1,0.5f });
+		rotateModel_[i]->SetTransform(SRT({ 1,1,1 }, rotate, {}));
+		rotateModel_[i]->SetColor({ 1,1,1,1.0f });
 	}
 }
 
@@ -35,17 +41,16 @@ void HitPreview::Update(Player* player, CheckCollision* checkCollision) {
 		canDraw_ = true;
 
 		for (int i = 0; i < rotateCount_; ++i) {
-			SRT transform = radModel_[i]->GetTransform();
-			radRotate_[i] -= rotateSpeed_;
-			Quaternion rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, radRotate_[i]);
+			SRT transform = rotateModel_[i]->GetTransform();
+			rotate_[i] -= rotateSpeed_;
+			Quaternion rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_[i]);
 			float radius = player->GetVacuumSphere().radius;
 			radius /= 3.0f;
 			transform.scale = { radius,1,radius };
 			transform.rotate = rotate;
 			transform.translate = { hitPos_.x, hitPos_.y, hitPos_.z };
-			radModel_[i]->SetTransform(transform);
+			rotateModel_[i]->SetTransform(transform);
 		}
-
 	} else {
 		canDraw_ = false;
 	}
@@ -54,8 +59,9 @@ void HitPreview::Update(Player* player, CheckCollision* checkCollision) {
 void HitPreview::Draw() {
 	if (canDraw_) {
 		circle_->Draw3D();
+		radModel_->Draw3D();
 
-		for (auto& model : radModel_) {
+		for (auto& model : rotateModel_) {
 			model->Draw3D();
 		}
 	}
@@ -66,8 +72,12 @@ void HitPreview::Simulate(Player* player, CheckCollision* checkCollision) {
 	hitPos_ = checkCollision->HitPreview(player);
 
 	// 表示設定
-	circle_->SetTransform(SRT{ {1,1,1},{},hitPos_});
-	for (auto& model : radModel_) {
+	circle_->SetTransform(SRT{ {1,1,1},{},hitPos_ });
+	float radius = player->GetVacuumSphere().radius;
+	radius /= 3.0f;
+	radModel_->SetTransform(SRT{ { radius,1,radius },{},hitPos_ });
+
+	for (auto& model : rotateModel_) {
 		model->SetTransform(SRT{ {1,1,1},{},hitPos_ });
 	}
 }
