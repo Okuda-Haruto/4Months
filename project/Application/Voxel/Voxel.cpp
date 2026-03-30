@@ -283,7 +283,7 @@ void Voxel::Collision(Sphere sphere) {
 
 void Voxel::DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslate, Vector3 cameraChunkNumber) {
 	for (int y = 0; y < 16; y++) {
-		if ((cameraTranslate.y < y && cameraChunkNumber.y == chunkY) || (cameraChunkNumber.y + 3 >= chunkY && cameraChunkNumber.y < chunkY)) {
+		if ((cameraTranslate.y < y && cameraChunkNumber.y == chunkY) || (cameraChunkNumber.y + 4 >= chunkY && cameraChunkNumber.y < chunkY)) {
 			for (int z = 0; z < 16; z++) {
 				for (int x = 0; x < 16; x++) {
 					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x])continue;

@@ -312,7 +312,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     float near = saturate((gCamera.nearDist - dist) / gCamera.nearTransparentDist);
     float far = saturate((dist - gCamera.farDist) / gCamera.farTransparentDist);
 
-    output.color.a *= 1.0f - max(near, far);
+    float fog = 1.0f - max(near, far);
     
     if (gMaterial.reflection <= 0 || gMaterial.reflection > 2)
         return output;
@@ -326,5 +326,19 @@ PixelShaderOutput main(VertexShaderOutput input)
         output = BlinnPhangReflectionModel(input);
     }
     
-    return output;
+    if (fog >= 0.5f)
+    {
+        output.color.r = output.color.r * (fog * 2 - 1) + 0.2f * (2.0f - fog * 2);
+        output.color.g = output.color.g * (fog * 2 - 1) + 0.35f * (2.0f - fog * 2);
+        output.color.b = output.color.b * (fog * 2 - 1) + 0.6f * (2.0f - fog * 2);
+    }
+    else
+    {
+        output.color.r = 0.2f * (fog * 2) + 0.1f * (1.0f - fog * 2);
+        output.color.g = 0.35f * (fog * 2) + 0.25f * (1.0f - fog * 2);
+        output.color.b = 0.6f * (fog * 2) + 0.5f * (1.0f - fog * 2);
+    }
+    
+    return
+output;
 }
