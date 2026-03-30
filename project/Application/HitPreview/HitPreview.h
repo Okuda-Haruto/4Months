@@ -21,5 +21,6 @@ private:
 	int rotateCount_ = 8;
 	float rotateSpeed_ = 0.2f;
 	std::vector<float> rotate_;
+	bool isHit_ = false;
 };
 

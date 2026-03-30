@@ -8,13 +8,13 @@ void HitPreview::Initialize(const std::shared_ptr<DirectionalLight> directionalL
 	circle_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/Circle", "circle.obj"));
 	circle_->SetShininess(30.0f);
 	circle_->SetDirectionalLight(directionalLight);
-	circle_->SetColor({ 1,1,1,0.5f });
+	circle_->SetColor({ 1,1,1,0.8f });
 
 	radModel_ = make_unique<Object>();
 	radModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/Circle", "circle.obj"));
 	radModel_->SetShininess(30.0f);
 	radModel_->SetDirectionalLight(directionalLight);
-	radModel_->SetColor({ 1,0,0,0.7f });
+	radModel_->SetColor({ 1,0,0,0.2f });
 
 	for (int i = 0; i < rotateCount_; ++i) {
 		std::unique_ptr<Object> rotateModel = make_unique<Object>();
@@ -51,6 +51,12 @@ void HitPreview::Update(Player* player, CheckCollision* checkCollision) {
 			transform.translate = { hitPos_.x, hitPos_.y, hitPos_.z };
 			rotateModel_[i]->SetTransform(transform);
 		}
+
+		if (player->GetCharge() == player->GetMaxCharge()) {
+			radModel_->SetColor({ 1, 1, 0, 0.2f });
+		} else {
+			radModel_->SetColor({ 1, 0, 0, 0.2f });
+		}
 	} else {
 		canDraw_ = false;
 	}
@@ -58,12 +64,13 @@ void HitPreview::Update(Player* player, CheckCollision* checkCollision) {
 
 void HitPreview::Draw() {
 	if (canDraw_) {
-		circle_->Draw3D();
 		radModel_->Draw3D();
 
 		for (auto& model : rotateModel_) {
 			model->Draw3D();
 		}
+
+		circle_->Draw3D();
 	}
 }
 
@@ -72,7 +79,14 @@ void HitPreview::Simulate(Player* player, CheckCollision* checkCollision) {
 	hitPos_ = checkCollision->HitPreview(player);
 
 	// 表示設定
-	circle_->SetTransform(SRT{ {1,1,1},{},hitPos_ });
+	isHit_ = checkCollision->IsPreviewHit();
+	if (isHit_) {
+		circle_->SetColor({ 1,0,0,0.8f });
+	} else {
+		circle_->SetColor({ 1,1,1,0.8f });
+	}
+	circle_->SetTransform(SRT{ {1.25f,1.25f,1.25f},{},hitPos_ });
+
 	float radius = player->GetVacuumSphere().radius;
 	radius /= 3.0f;
 	radModel_->SetTransform(SRT{ { radius,1,radius },{},hitPos_ });

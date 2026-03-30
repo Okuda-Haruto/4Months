@@ -52,7 +52,7 @@ void CheckCollision::CheckBullet(Human* human) {
 void CheckCollision::CheckVoxel(Human* human) {
 	if (human->IsInvincible()) { return; }
 	Vector3 playerPos = human->GetTransform().translate;
-	Sphere playerSphere = { playerPos, 1.0f };
+	Sphere playerSphere = { playerPos, 2.0f };
 
 	//ボクセル
 	course_->GetVoxel()->Collision(playerSphere);
@@ -63,10 +63,6 @@ void CheckCollision::CheckVoxel(Human* human) {
 		if (IsCollision(boxSphere, playerSphere)) {
 			// 衝突
 			human->OnHitVoxel();
-
-			if (human->GetID() == 0) {
-				gameCamera_->StartShake(1.5f, 4);
-			}
 		}
 	}
 }
@@ -171,8 +167,10 @@ Vector3 CheckCollision::HitPreview(Human* human) {
 		Sphere boxSphere = box->GetCollider();
 
 		if (IsHitCapsule(p0, p1, radius, boxSphere)) {
+			isPreviewHit_ = true;
 			return closest_ - dir * 3.0f;
 		}
 	}
+	isPreviewHit_ = false;
 	return goal.center;
 }

@@ -40,6 +40,11 @@ public:
 	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP);
 	void SpawnBox();
 
+	struct Section {
+		float start;
+		float goal;
+	};
+	std::vector<Section> GetSections() { return sections_; }
 private:
 	
 	std::shared_ptr<DirectionalLight> directionalLight_;
@@ -48,7 +53,6 @@ private:
 	// 衝突判定(円)
 	Vector2 colliderCenter_ = {};
 	float radius_ = 3.0f * 16;
-
 
 	std::unique_ptr<Voxel> voxel_;
 	std::vector<std::unique_ptr<Box>> boxes_;
@@ -75,6 +79,7 @@ private:
 
 	int breakScore_ = 0;
 	int maxBreakScore_ = 50000;
+	std::vector<Section> sections_;
 };
 
 

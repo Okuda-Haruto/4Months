@@ -8,7 +8,7 @@ void HUD::Initialize() {
 	chargeBGSprite_ = std::make_unique<Sprite>();
 	chargeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
 	chargeBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	chargeBGSprite_->SetSize({kEnergyBarWidth, 32.0f });
+	chargeBGSprite_->SetSize({ kEnergyBarWidth, 32.0f });
 	chargeBGSprite_->SetPosition(chargeLTPos_);
 
 	// 現在チャージ量
@@ -25,20 +25,6 @@ void HUD::Initialize() {
 	breakBGSprite_->SetSize({ kBreakBarWidth, 32.0f });
 	breakBGSprite_->SetPosition(breakLTPos_);
 
-	// ノルマの線背景
-	//clearBarSprite_ = std::make_unique<Sprite>();
-	//clearBarSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	//clearBarSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	//clearBarSprite_->SetSize({ kBreakBarWidth, 32.0f });
-	//clearBarSprite_->SetPosition(breakLTPos_);
-
-	//// ボーナス背景
-	//bonusBreakSprite_ = std::make_unique<Sprite>();
-	//bonusBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	//bonusBreakSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	//bonusBreakSprite_->SetSize({ kBreakBarWidth, 32.0f });
-	//bonusBreakSprite_->SetPosition(breakLTPos_);
-
 	// 現在破壊量
 	currentBreakSprite_ = std::make_unique<Sprite>();
 	currentBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
@@ -46,11 +32,11 @@ void HUD::Initialize() {
 	currentBreakSprite_->SetSize({ kBreakBarWidth * 0.4f, 32.0f });
 	currentBreakSprite_->SetPosition(breakLTPos_);
 
-	bonustBreakSprite_ = std::make_unique<Sprite>();
-	bonustBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	bonustBreakSprite_->SetColor({ 1.0f, 0.6f, 0.6f, 1.0f });
-	bonustBreakSprite_->SetSize({ kBreakBarWidth * 0.6f, 32.0f });
-	bonustBreakSprite_->SetPosition(Vector2{ breakLTPos_.x + kBreakBarWidth / 10 * 4,breakLTPos_.y });
+	bonusBreakSprite_ = std::make_unique<Sprite>();
+	bonusBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	bonusBreakSprite_->SetColor({ 1.0f, 0.6f, 0.6f, 1.0f });
+	bonusBreakSprite_->SetSize({ kBreakBarWidth * 0.6f, 32.0f });
+	bonusBreakSprite_->SetPosition(Vector2{ breakLTPos_.x + kBreakBarWidth / 10 * 4,breakLTPos_.y });
 	// 時間
 	timeBGSprite_ = std::make_unique<Sprite>();
 	timeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
@@ -63,12 +49,27 @@ void HUD::Initialize() {
 	currentTimeSprite_->SetColor({ 0.0f, 1.0f, 1.0f, 1.0f });
 	currentTimeSprite_->SetSize({ kTimeBarWidth, 32.0f });
 	currentTimeSprite_->SetPosition(timeLTPos_);
+
+	// 区間
+	sectionSprite_ = std::make_unique<Sprite>();
+	sectionSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	sectionSprite_->SetColor({ 0.2f,0.2f,0.2f, 1.0f });
+	sectionSprite_->SetSize(sectionBarSize_);
+	sectionSprite_->SetPosition(sectionLTPos_);
+	sectionSprite_->Update();
+	progressSprite_ = std::make_unique<Sprite>();
+	progressSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	progressSprite_->SetColor({ 1.0f,1.0f,1.0f, 1.0f });
+	progressSprite_->SetSize({ sectionBarSize_.x,0 });
+	progressSprite_->SetPosition(sectionLTPos_);
+	progressSprite_->Update();
 }
 
 void HUD::Update(Player* player, Course* course, GameTimer* timer) {
 	UpdateCharge(player);
 	UpdateScore(course);
-	UpdateTimer(timer); 
+	UpdateTimer(timer);
+	UpdateSection(player,course);
 }
 
 void HUD::Draw() {
@@ -76,11 +77,15 @@ void HUD::Draw() {
 	currentChargeSprite_->Draw2D();
 	breakBGSprite_->Draw2D();
 	currentBreakSprite_->Draw2D();
-	bonustBreakSprite_->Draw2D();
+	bonusBreakSprite_->Draw2D();
 
 	// 時間
 	timeBGSprite_->Draw2D();
 	currentTimeSprite_->Draw2D();
+
+	// 区間
+	sectionSprite_->Draw2D();
+	progressSprite_->Draw2D();
 }
 
 void HUD::UpdateCharge(Player* player) {
@@ -92,7 +97,7 @@ void HUD::UpdateCharge(Player* player) {
 	float rate = current / max;
 	// 溜め量に応じてスプライトのサイズ変更
 	float length = kEnergyBarWidth * rate;
-	currentChargeSprite_->SetSize({ length, currentChargeSprite_->GetSize().y});
+	currentChargeSprite_->SetSize({ length, currentChargeSprite_->GetSize().y });
 	chargeBGSprite_->Update();
 	currentChargeSprite_->Update();
 }
@@ -118,8 +123,8 @@ void HUD::UpdateScore(Course* course) {
 	// HP量に応じてスプライトのサイズ変更
 	length = kBreakBarWidth * 0.6f * rate;
 
-	bonustBreakSprite_->SetSize({ length, bonustBreakSprite_->GetSize().y });
-	bonustBreakSprite_->Update();
+	bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
+	bonusBreakSprite_->Update();
 }
 
 void HUD::UpdateTimer(GameTimer* timer) {
@@ -135,4 +140,20 @@ void HUD::UpdateTimer(GameTimer* timer) {
 	currentTimeSprite_->SetSize({ length, currentTimeSprite_->GetSize().y });
 	timeBGSprite_->Update();
 	currentTimeSprite_->Update();
+}
+
+void HUD::UpdateSection(Player* player,Course* course) {
+	float start = course->GetSections()[0].start;
+	float current = player->GetTransform().translate.y;
+	float goal = course->GetSections()[0].goal;
+	if (current > 0) return;
+
+	// 割合を求める
+	float rate = (current - start) / (goal - start);
+	rate = min(rate, 1.0f);
+	// 進度に応じてスプライトのサイズ変更
+	float length = sectionBarSize_.y * rate;
+	progressSprite_->SetSize({ sectionBarSize_.x, length});
+	sectionSprite_->Update();
+	progressSprite_->Update();
 }

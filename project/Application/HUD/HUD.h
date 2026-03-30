@@ -14,17 +14,18 @@ private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);
 	void UpdateTimer(GameTimer* timer);
+	void UpdateSection(Player* player, Course* course);
 
 	// エネルギー
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentChargeSprite_ = nullptr;
-	float kEnergyBarWidth = 1280 - 64;
-	Vector2 chargeLTPos_ = { 32,720 - 64 };
+	float kEnergyBarWidth = 256.0f;
+	Vector2 chargeLTPos_ = { 640-128,720 - 64 };
 
 	// 壊した量
 	std::unique_ptr<Sprite> breakBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentBreakSprite_ = nullptr;
-	std::unique_ptr<Sprite> bonustBreakSprite_ = nullptr;
+	std::unique_ptr<Sprite> bonusBreakSprite_ = nullptr;
 	float kBreakBarWidth = 1280 - 64;
 	Vector2 breakLTPos_ = {32, 48 };
 
@@ -34,8 +35,11 @@ private:
 	float kTimeBarWidth = 1280 - 64;
 	Vector2 timeLTPos_ = { 32, 16 };
 
-	std::unique_ptr<Sprite> clearBarSprite_ = nullptr;
-	std::unique_ptr<Sprite> bonusBreakSprite_ = nullptr;
-
+	// 区間の進度
+	std::unique_ptr<Sprite> sectionSprite_ = nullptr;
+	std::unique_ptr<Sprite> progressSprite_ = nullptr;
+	Vector2 sectionBarSize_ = { 32,450 };
+	Vector2 sectionLTPos_ = { 1280 - 48, 150};
+	int currentSection_ = 0;
 };
 
