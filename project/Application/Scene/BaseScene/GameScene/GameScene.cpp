@@ -39,7 +39,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3{0,100,0}, directionalLight_);
+	player_->Initialize(Vector3{0,200,0}, directionalLight_);
 	player_->SetGoal(goal_.get());
 
 	player_->SetSelfNeckIndex(0);
