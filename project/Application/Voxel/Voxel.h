@@ -37,7 +37,7 @@ private:
 	std::shared_ptr<Model> face_;
 
 	//描画可能なオブジェクト
-	std::array<std::unique_ptr<Object>, 16384> objects_;
+	std::array<std::unique_ptr<Object>, 32768> objects_;
 	//実際に描画するリスト
 	std::list<Object*> drawOdjects_;
 	uint32_t index_ = 0;
@@ -62,6 +62,7 @@ public:
 private:
 
 	void DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslate, Vector3 cameraChunkNumber);
+	void DrawChunkAll(int chunkY, int chunkZ, int chunkX, Vector3 cameraChunkNumber);
 
 	Object* AddFace(int chunkY, int chunkZ, int chunkX, int y, int z, int x, int8_t number, Quaternion rotate);
 

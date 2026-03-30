@@ -139,7 +139,7 @@ void GameScene::Update() {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
-	if (player_->GetTransform().translate.y < -32 * 4 * 3.0f) {
+	if (player_->GetTransform().translate.y < -32 * 6 * 3.0f) {
 		if (course_->GetBreakScore() >= course_->GetMaxBreakScore()) {
 			if (!isClear_) {
 				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
