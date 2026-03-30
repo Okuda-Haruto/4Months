@@ -171,6 +171,8 @@ Vector3 CheckCollision::HitPreview(Human* human) {
 			return closest_ - dir * 3.0f;
 		}
 	}
+
+
 	isPreviewHit_ = false;
 	return goal.center;
 }

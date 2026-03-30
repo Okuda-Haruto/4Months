@@ -5,13 +5,13 @@
 
 void HitPreview::Initialize(const std::shared_ptr<DirectionalLight> directionalLight) {
 	circle_ = make_unique<Object>();
-	circle_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/Circle", "circle.obj"));
+	circle_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/LineCircle", "Circle.obj"));
 	circle_->SetShininess(30.0f);
 	circle_->SetDirectionalLight(directionalLight);
 	circle_->SetColor({ 1,1,1,0.8f });
 
 	radModel_ = make_unique<Object>();
-	radModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/Circle", "circle.obj"));
+	radModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/Circle", "Circle.obj"));
 	radModel_->SetShininess(30.0f);
 	radModel_->SetDirectionalLight(directionalLight);
 	radModel_->SetColor({ 1,0,0,0.2f });
@@ -81,11 +81,11 @@ void HitPreview::Simulate(Player* player, CheckCollision* checkCollision) {
 	// 表示設定
 	isHit_ = checkCollision->IsPreviewHit();
 	if (isHit_) {
-		circle_->SetColor({ 1,0,0,0.8f });
+		circle_->SetColor({ 1,0,0,1 });
 	} else {
-		circle_->SetColor({ 1,1,1,0.8f });
+		circle_->SetColor({ 1,1,1,1 });
 	}
-	circle_->SetTransform(SRT{ {1.25f,1.25f,1.25f},{},hitPos_ });
+	circle_->SetTransform(SRT{ {3,1,3},{},hitPos_ });
 
 	float radius = player->GetVacuumSphere().radius;
 	radius /= 3.0f;

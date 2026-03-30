@@ -153,12 +153,7 @@ void Human::Draw() {
 }
 
 void Human::OnHitVoxel() {
-	Slowdown();
-
-	//maxRisingSpeed_ = kDefaultMaxRisingSpeed_;
-	//maxFallingSpeed_ = kDefaultMaxFallingSpeed_;
 	invincibleTimer_ = invincibleTimeOnHit_;
-	unableDriftTimer_ = unableDriftTime_;
 }
 
 bool Human::GetIsCoilAround() const {
