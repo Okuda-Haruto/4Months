@@ -40,6 +40,8 @@ private:
 	bool isGoal_ = false;
 	int mixType_ = 0;
 	Vector3 closest_ = {};
+	
+	// 当たったかどうか
 	bool isPreviewHit_ = false;
 
 	//吸い込み速度

@@ -159,7 +159,7 @@ Vector3 CheckCollision::HitPreview(Human* human) {
 	Vector3 curr = start.center;
 	while (curr.y < goal.center.y) {
 		course_->GetVoxel()->Collision({ curr,3.0f });
-		curr += dir * goal.radius;
+		curr += dir * goal.radius / 3.0f;
 	}
 	course_->GetVoxel()->Collision(goal);
 
@@ -171,7 +171,6 @@ Vector3 CheckCollision::HitPreview(Human* human) {
 			return closest_ - dir * 3.0f;
 		}
 	}
-
 
 	isPreviewHit_ = false;
 	return goal.center;
