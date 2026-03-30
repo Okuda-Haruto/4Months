@@ -23,55 +23,46 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
 	//パッド操作
-	if (pad.isConnected) {
 
-		//上下左右キー
+	Vector2 vector{};
+
+		//スティック操作
 		if (pad.LeftStick.magnitude > 0.2f) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4 * pad.LeftStick.vector.y * pad.LeftStick.magnitude);
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4 * pad.LeftStick.vector.x * pad.LeftStick.magnitude);
+			vector = { pad.LeftStick.vector.x * pad.LeftStick.magnitude, pad.LeftStick.vector.y * pad.LeftStick.magnitude };
 		}
-		if (isDrifting_) {
-			unableDriftTimer_ = unableDriftTime_;
-		}
-		isDrifting_ = false;
-
-		if (vacuumState_ == None && startTime_ <= 0.0f) {
-			if (pad.Button[PAD_BUTTON_Y].hold) {
-				Charge();
-			}
-
-			if (pad.Button[PAD_BUTTON_Y].release) {
-				Throw();
-			}
-		}
-	} else {
 
 		//上下左右キー
 		if (keyboard.hold[DIK_UP] || keyboard.hold[DIK_W] || pad.Button[PAD_BUTTON_UP].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+			vector.y += 1.0f;
 		}
 		if (keyboard.hold[DIK_DOWN] || keyboard.hold[DIK_S] || pad.Button[PAD_BUTTON_DOWN].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+			vector.y -= 1.0f;
 		}
 		if (keyboard.hold[DIK_RIGHT] || keyboard.hold[DIK_D] || pad.Button[PAD_BUTTON_RIGHT].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4);
+			vector.x += 1.0f;
 		}
 		if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, std::numbers::pi_v<float> / 4);
+			vector.x -= 1.0f;
 		}
 		if (vacuumState_ == None && startTime_ <= 0.0f) {
-			if ((keyboard.hold[DIK_Q] || keyboard.hold[DIK_SPACE])) {
+			if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold)) {
 				Charge();
 			}
-			if ((keyboard.release[DIK_Q] || keyboard.release[DIK_SPACE])) {
+			if ((keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release)) {
 				Throw();
 			}
 		}
-		if (isDrifting_) {
-			unableDriftTimer_ = unableDriftTime_;
+
+		if (Length(vector) > 0.0f) {
+			if (Length(vector) > 1.0f) {
+				vector = Normalize(vector);
+			}
+			
+			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4 * vector.y);
+			rotateMatrix = MakeRotateMatrix(NextRotate);
+			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4 * vector.x);
 		}
-		isDrifting_ = false;
-	}
+
 
 	//現在の向きと次の向きの補完
 	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f);

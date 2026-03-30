@@ -23,8 +23,8 @@ Vector2 Subtract(const Vector2& v1, const Vector2& v2) {
 //スカラー倍
 Vector2 Multiply(float scalar, const Vector2& v) {
 	Vector2 AnswerVector;
-	AnswerVector.x = scalar - v.x;
-	AnswerVector.y = scalar - v.y;
+	AnswerVector.x = scalar * v.x;
+	AnswerVector.y = scalar * v.y;
 	return AnswerVector;
 }
 //内積

@@ -32,6 +32,7 @@ void DownCamera::Update() {
 	);
 
 	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
+	transform_.translate.y += player_->GetFallingSpeed() * 0.75f;
 
 	transform_.translate = Lerp(
 		transform_.translate,
@@ -61,9 +62,14 @@ void ResultCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
 }
 void ResultCamera::Update() {
 	Keyboard keyboard = input_->GetKeyBoard();
+	Pad pad = input_->GetPad(0);
 
 	//カメラ移動
 	Vector3 nextVelocity{};
+
+	if (pad.LeftStick.magnitude > 0.2f) {//スティック操作
+		nextVelocity = { pad.LeftStick.vector.x * pad.LeftStick.magnitude, pad.LeftStick.vector.y * pad.LeftStick.magnitude,0.0f };
+	}
 
 	//マニュアル移動
 	if (keyboard.hold[DIK_W] || keyboard.hold[DIK_UP]) {
@@ -114,8 +120,8 @@ void ResultCamera::Update() {
 			mode_ = CameraMode::Automatic_Down;
 		}
 	}
-	if (posY_ < -32 * 4 * 3.0f + 16.0f * 3.0f) {
-		posY_ = -32 * 4 * 3.0f + 16.0f * 3.0f;
+	if (posY_ < -32 * 6 * 3.0f + 16.0f * 3.0f) {
+		posY_ = -32 * 6 * 3.0f + 16.0f * 3.0f;
 		if (mode_ == CameraMode::Automatic_Down) {
 			mode_ = CameraMode::Automatic_Up;
 		}
