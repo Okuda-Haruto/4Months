@@ -7,6 +7,7 @@
 #include "Course/Course.h"
 #include "HUD/HUD.h"
 #include "HUD/GameTimer/GameTimer.h"
+#include "HitPreview/HitPreview.h"
 
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
@@ -46,6 +47,8 @@ private:
 	std::unique_ptr<HUD> hud_ = nullptr;
 	// 残り時間タイマー
 	std::unique_ptr<GameTimer> timer_ = nullptr;
+	// 予測表示
+	std::unique_ptr<HitPreview> hitPreview_ = nullptr;
 
 	//クリアしているか
 	bool isClear_ = false;

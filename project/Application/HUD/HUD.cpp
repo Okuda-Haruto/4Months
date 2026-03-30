@@ -68,7 +68,7 @@ void HUD::Initialize() {
 void HUD::Update(Player* player, Course* course, GameTimer* timer) {
 	UpdateCharge(player);
 	UpdateScore(course);
-	UpdateTimer(timer);
+	UpdateTimer(timer); 
 }
 
 void HUD::Draw() {

@@ -182,9 +182,31 @@ void Human::Throw() {
 void Human::Charge() {
 	charge_ += kChargeSpeed_;
 	charge_ = min(charge_, kMaxCharge_);
+	vacuumRadius_ = baseVacuumRadius_ + charge_;
+
+	vacuumStartPos_ = CalcVacuumPosition();
+	isCharging_ = true;
 }
 
 void Human::Slowdown() {
 	speed_ -= 0.3f;
 	speed_ = max(0, speed_);
+}
+
+Vector3 Human::CalcVacuumPosition() {
+	// 初速
+	float v0 = headStartSpeed_;
+
+	// 減速
+	float a = headDeceleration_;
+
+	// 移動距離
+	float distance = (v0 * v0) / (2.0f * a);
+
+	// 向き（Throwと同じ）
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
+	Vector3 dir = Vector3{ 0,0,1 } *rotateMatrix;
+
+	// 最終位置
+	return transform_.translate + dir * distance;
 }

@@ -188,6 +188,7 @@
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClCompile>
     <ClCompile Include="Application\HUD\GameTimer\GameTimer.cpp" />
+    <ClCompile Include="Application\HitPreview\HitPreview.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -480,6 +481,7 @@
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClInclude>
     <ClInclude Include="Application\HUD\GameTimer\GameTimer.h" />
+    <ClInclude Include="Application\HitPreview\HitPreview.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
