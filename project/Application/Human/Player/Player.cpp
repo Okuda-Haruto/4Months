@@ -12,6 +12,7 @@ void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight
 void Player::Update(const std::shared_ptr<Input> input) {
 	Keyboard keyboard = input->GetKeyBoard();
 	Pad pad = input->GetPad(0);
+	isCharging_ = false;
 
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;

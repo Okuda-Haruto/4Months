@@ -40,6 +40,7 @@ public:
 	bool IsInvincible() { return invincibleTimer_ > 0; }
 	bool IsVacuuming() { return vacuumState_ == Vacuum; }
 	bool IsShooting() { return vacuumState_ == Going; }
+	bool IsCharging() { return isCharging_; }
 
 	//ドリフト中か
 	bool isDrifting_ = false;
@@ -56,6 +57,7 @@ public:
 	Sphere GetPrevVacuumSphere() { return Sphere(headPrevTransform_.translate,vacuumRadius_); }
 	float GetCharge() { return charge_; }
 	float GetMaxCharge() { return kMaxCharge_; }
+	Vector3 GetVacuumStartPos() { return vacuumStartPos_; }
 
 protected:
 	// モデル
@@ -175,10 +177,12 @@ protected:
 	float charge_ = 0;
 	const float kChargeSpeed_ = 1.5f;
 	const float kMaxCharge_ = 100;
+	bool isCharging_ = false;
 
 	std::unique_ptr<Wind> wind_ = nullptr;
 
 	void Throw();
 	void Charge();
 	void Slowdown();
+	Vector3 CalcVacuumPosition();
 };

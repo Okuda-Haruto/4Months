@@ -17,6 +17,8 @@ public:
 
 	bool IsGoal() { return isGoal_; };
 
+	// 予測(当たらないなら止まる座標)
+	Vector3 HitPreview(Human* human);
 private:
 	void CheckBullet(Human* human);
 

@@ -20,9 +20,9 @@ void CheckCollision::Update(Human* human) {
 
 void CheckCollision::UpdateImGui() {
 #ifdef USE_IMGUI
-		ImGui::Begin("かき混ぜ");
-		ImGui::SliderInt("挙動", &mixType_, 0, 1);
-		ImGui::End();
+	ImGui::Begin("かき混ぜ");
+	ImGui::SliderInt("挙動", &mixType_, 0, 1);
+	ImGui::End();
 #endif
 }
 
@@ -48,6 +48,7 @@ void CheckCollision::CheckBullet(Human* human) {
 		}
 	}
 }
+
 void CheckCollision::CheckVoxel(Human* human) {
 	if (human->IsInvincible()) { return; }
 	Vector3 playerPos = human->GetTransform().translate;
@@ -62,7 +63,7 @@ void CheckCollision::CheckVoxel(Human* human) {
 		if (IsCollision(boxSphere, playerSphere)) {
 			// 衝突
 			human->OnHitVoxel();
-			
+
 			if (human->GetID() == 0) {
 				gameCamera_->StartShake(1.5f, 4);
 			}
@@ -109,8 +110,8 @@ void CheckCollision::CheckVacuum(Human* human) {
 				//速度
 				float speed = (1.0f - vacuumLate) * baseVacuumSpeed_;
 
-				if (mixType_ == 0)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius,false) * speed);
-				if (mixType_ == 1)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius,true) * speed);
+				if (mixType_ == 0)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius, false) * speed);
+				if (mixType_ == 1)box->Move(Mix(boxSphere.center, vel, vacuumSphere.center, axis, vacuumSphere.radius, true) * speed);
 
 				if (length < vacuumSphere.radius / 2.0f) {
 					box->Damage();
@@ -147,4 +148,31 @@ bool CheckCollision::IsHitCapsule(
 	float r = capsuleRadius + sphere.radius;
 
 	return distSq <= (r * r);
+}
+
+Vector3 CheckCollision::HitPreview(Human* human) {
+	Sphere start = { human->GetTransform().translate, 3.0f };
+	Sphere goal = { human->GetVacuumStartPos(), 3.0f };
+
+	Vector3 p0 = start.center;
+	Vector3 p1 = goal.center;
+	float radius = start.radius;
+
+	// ボクセル
+	Vector3 dir = Normalize(goal.center - start.center);
+	Vector3 curr = start.center;
+	while (curr.y < goal.center.y) {
+		course_->GetVoxel()->Collision({ curr,3.0f });
+		curr += dir * goal.radius;
+	}
+	course_->GetVoxel()->Collision(goal);
+
+	for (auto& box : course_->GetBoxes()) {
+		Sphere boxSphere = box->GetCollider();
+
+		if (IsHitCapsule(p0, p1, radius, boxSphere)) {
+			return closest_ - dir * 3.0f;
+		}
+	}
+	return goal.center;
 }

@@ -60,6 +60,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	hud_ = std::make_unique<HUD>();
 	hud_->Initialize();
 
+	// 予測表示
+	hitPreview_ = std::make_unique<HitPreview>();
+	hitPreview_->Initialize(directionalLight_);
+
 	// 残り時間
 	timer_ = std::make_unique<GameTimer>();
 	timer_->Initialize();
@@ -116,6 +120,9 @@ void GameScene::Update() {
 	hud_->Update(player_.get(),course_.get(),timer_.get());
 	timer_->Update();
 
+	// 予測表示
+	hitPreview_->Update(player_.get(),checkCollision_.get());
+
 	//カメラアップデート
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
@@ -168,6 +175,8 @@ void GameScene::Draw() {
 		//goal_->Draw();
 
 		course_->Draw(directionalLight_);
+
+		hitPreview_->Draw();
 
 		// HUD
 		hud_->Draw();
