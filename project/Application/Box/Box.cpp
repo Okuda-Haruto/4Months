@@ -1,7 +1,7 @@
 #include "Box.h"
 #include "Course/Course.h"
 
-void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight) {
+void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight) {
 
 	course_ = course;
 	MaxHP_ = maxHP;
@@ -23,8 +23,8 @@ void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t num
 	object_->SetTransform(transform_);
 
 	// 衝突判定
-	collider_.center = transform_.translate;
-	collider_.radius = radius;
+	collider_.min = transform_.translate - transform_.scale / 2;
+	collider_.max = collider_.min + transform_.scale;
 
 	isDead_ = false;
 }
@@ -32,19 +32,7 @@ void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t num
 void Box::Update() {
 
 	if (HP_ <= 0) {
-		if (collider_.radius >= 0.1f) {
-			for (int i = 0; i < 2; i++) {
-				SRT newTransform = transform_;
-				newTransform.scale /= 2;
-				newTransform.translate += Vector3{
-					GameEngine::randomFloat(-newTransform.scale.x * 2,newTransform.scale.x * 2),
-					GameEngine::randomFloat(-newTransform.scale.y * 2,newTransform.scale.y * 2),
-					GameEngine::randomFloat(-newTransform.scale.z * 2,newTransform.scale.z * 2)
-				};
-				course_->AddSplitBox(newTransform, velocity_ + Normalize(newTransform.translate - transform_.translate) * 2, number_, vacuumSensitivity_, collider_.radius / 2, MaxHP_);
-			}
-		}
-		isDead_ = true;
+		Break();
 	}
 
 	velocity_ = Lerp(velocity_, Vector3{0,0,0}, 0.1f);
@@ -52,7 +40,10 @@ void Box::Update() {
 	transform_.translate += velocity_;
 
 	object_->SetTransform(transform_);
-	collider_.center = transform_.translate;
+
+	// 衝突判定
+	collider_.min = transform_.translate - transform_.scale / 2;
+	collider_.max = collider_.min + transform_.scale;
 }
 
 void Box::Draw() {
@@ -62,4 +53,22 @@ void Box::Draw() {
 
 void Box::Move(const Vector3& velocity) {
 	velocity_ = Lerp(velocity_,velocity, vacuumSensitivity_);
+}
+
+void Box::Break() {
+	if (!isDead_) {
+		if (transform_.scale.x >= 0.25f) {
+			for (int i = 0; i < 2; i++) {
+				SRT newTransform = transform_;
+				newTransform.scale /= 2;
+				newTransform.translate += Vector3{
+					GameEngine::randomFloat(-newTransform.scale.x * 2,newTransform.scale.x * 2),
+					GameEngine::randomFloat(-newTransform.scale.y * 2,newTransform.scale.y * 2),
+					GameEngine::randomFloat(-newTransform.scale.z * 2,newTransform.scale.z * 2)
+				};
+				course_->AddSplitBox(newTransform, velocity_ + Normalize(newTransform.translate - transform_.translate) * 2, number_, vacuumSensitivity_, MaxHP_);
+			}
+		}
+		isDead_ = true;
+	}
 }

@@ -45,6 +45,8 @@ private:
 
 	// HUD
 	std::unique_ptr<HUD> hud_ = nullptr;
+	const float kMamStartTime = 3.0f;
+	float startTime_;
 	// 残り時間タイマー
 	std::unique_ptr<GameTimer> timer_ = nullptr;
 	// 予測表示
@@ -58,6 +60,8 @@ private:
 	float clearY_ = 0;
 	//ループカメラで上昇中か
 	bool isUp_ = false;
+
+	int32_t chunkHeight_;
 
 public:
 	//初期化

@@ -4,7 +4,6 @@
 void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
 	//初期化
 	Human::Initialize(position, directionalLight);
-	color_ = { 0,1,0,1 };   //首の色　緑
 
 	startTime_ = 0.1f;
 }
@@ -18,7 +17,6 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	Quaternion NextRotate;
 
 	NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
-	NextRotate = NextRotate * rollRotate_;
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
@@ -73,9 +71,6 @@ void Player::Update(const std::shared_ptr<Input> input) {
 #ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
 	ImGui::DragFloat3("速度", &velocity_.translate.x);
-	if (ImGui::Button("折り返し")) {
-		isTurnBack_ = !isTurnBack_;
-	}
 	ImGui::DragInt("まぜる時間", &vacuumTime_);
 	ImGui::DragInt("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);
@@ -91,7 +86,4 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 void Player::Draw() {
 	Human::Draw();
-}
-bool Player::GetIsDrifting() const {
-	return isDrifting_;
 }

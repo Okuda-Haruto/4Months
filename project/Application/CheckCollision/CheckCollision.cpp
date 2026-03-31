@@ -40,9 +40,9 @@ void CheckCollision::CheckBullet(Human* human) {
 	course_->GetVoxel()->Collision(curr);
 
 	for (auto& box : course_->GetBoxes()) {
-		Sphere boxSphere = box->GetCollider();
+		AABB boxAABB = box->GetCollider();
 
-		if (IsHitCapsule(p0, p1, radius, boxSphere)) {
+		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
 			human->StopBullet(closest_);
 			return;
 		}
@@ -52,17 +52,20 @@ void CheckCollision::CheckBullet(Human* human) {
 void CheckCollision::CheckVoxel(Human* human) {
 	if (human->IsInvincible()) { return; }
 	Vector3 playerPos = human->GetTransform().translate;
-	Sphere playerSphere = { playerPos, 2.0f };
+	Sphere playerSphere = { playerPos, 4.0f };
 
 	//ボクセル
 	course_->GetVoxel()->Collision(playerSphere);
+
 	for (auto& box : course_->GetBoxes()) {
-		Sphere boxSphere = box->GetCollider();
+		AABB boxAABB = box->GetCollider();
+		playerSphere.radius = 3;
 
 		// 判定
-		if (IsCollision(boxSphere, playerSphere)) {
+		if (IsCollision(boxAABB, playerSphere)) {
 			// 衝突
-			human->OnHitVoxel();
+			human->OnHitVoxel(box->GetTransform().translate);
+			box->Damage(4);
 		}
 	}
 }
@@ -92,21 +95,22 @@ void CheckCollision::CheckVacuum(Human* human) {
 
 		//ボックス(吸い込まれてるボクセル)
 		for (auto& box : course_->GetBoxes()) {
-			Sphere boxSphere = box->GetCollider();
+			AABB boxAABB = box->GetCollider();
 			// 判定
-			if (IsCollision(boxSphere, vacuumSphere)) {
+			if (IsCollision(boxAABB, vacuumSphere)) {
+				Vector3 boxPos = box->GetTransform().translate;
 				// 衝突
 				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
 				float deltaTime = 1.0f / 60.0f;
 
-				float length = Length(vacuumSphere.center - boxSphere.center);
+				float length = Length(vacuumSphere.center - boxPos);
 				//割合で速度を変える
 				float vacuumLate = length / vacuumSphere.radius;
 				//速度
 				float speed = (1.0f - vacuumLate) * baseVacuumSpeed_;
 
-				if (mixType_ == 0)box->Move(Mix(boxSphere.center, vacuumSphere.center, axis, 1.5f, vacuumSphere.radius, false) * speed);
-				if (mixType_ == 1)box->Move(Mix(boxSphere.center, vacuumSphere.center, axis, 1.5f, vacuumSphere.radius, true) * speed);
+				if (mixType_ == 0)box->Move(Mix(boxPos, vacuumSphere.center, axis, 1.5f, vacuumSphere.radius, false) * speed);
+				if (mixType_ == 1)box->Move(Mix(boxPos, vacuumSphere.center, axis, 1.5f, vacuumSphere.radius, true) * speed);
 
 				if (length < vacuumSphere.radius * 0.66f) {
 					box->Damage();
@@ -116,33 +120,44 @@ void CheckCollision::CheckVacuum(Human* human) {
 	}
 }
 
+// AABB上の最近点
+Vector3 ClosestPointAABB(const Vector3& p, const AABB& aabb)
+{
+	Vector3 result;
+	result.x = std::clamp(p.x, aabb.min.x, aabb.max.x);
+	result.y = std::clamp(p.y, aabb.min.y, aabb.max.y);
+	result.z = std::clamp(p.z, aabb.min.z, aabb.max.z);
+	return result;
+}
+
 bool CheckCollision::IsHitCapsule(
 	const Vector3& p0,
-	const Vector3& p1,
-	float capsuleRadius,
-	const Sphere& sphere) {
-	// 線分 p0→p1 に対する最近接点を求める
-	Vector3 seg = p1 - p0;
-	Vector3 toSphere = sphere.center - p0;
+	const Vector3& p1, 
+	float capsuleRadius, 
+	const AABB& aabb)
+{
+	// AABBの中心
+	Vector3 center = (aabb.min + aabb.max) * 0.5f;
 
+	Vector3 seg = p1 - p0;
 	float segLenSq = Dot(seg, seg);
 
 	float t = 0.0f;
 	if (segLenSq > 0.0f) {
-		t = Dot(toSphere, seg) / segLenSq;
+		t = Dot(center - p0, seg) / segLenSq;
 		t = std::clamp(t, 0.0f, 1.0f);
 	}
 
-	// 最近接点
 	closest_ = p0 + seg * t;
 
-	// 距離判定
-	Vector3 diff = sphere.center - closest_;
+	// AABB上の最近点
+	Vector3 closestOnBox = ClosestPointAABB(closest_, aabb);
+
+	// 距離チェック
+	Vector3 diff = closest_ - closestOnBox;
 	float distSq = Dot(diff, diff);
 
-	float r = capsuleRadius + sphere.radius;
-
-	return distSq <= (r * r);
+	return distSq <= (capsuleRadius * capsuleRadius);
 }
 
 Vector3 CheckCollision::HitPreview(Human* human) {
@@ -163,9 +178,9 @@ Vector3 CheckCollision::HitPreview(Human* human) {
 	course_->GetVoxel()->Collision(goal);
 
 	for (auto& box : course_->GetBoxes()) {
-		Sphere boxSphere = box->GetCollider();
+		AABB boxAABB = box->GetCollider();
 
-		if (IsHitCapsule(p0, p1, radius, boxSphere)) {
+		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
 			isPreviewHit_ = true;
 			return closest_ - dir * 3.0f;
 		}
