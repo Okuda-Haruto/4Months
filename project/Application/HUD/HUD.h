@@ -6,7 +6,7 @@ class Course;
 class GameTimer;
 class HUD {
 public:
-	void Initialize();
+	void Initialize(Input* input);
 	void Update(Player* player,Course* course,GameTimer* timer);
 	void Draw();
 
@@ -15,6 +15,7 @@ private:
 	void UpdateScore(Course* course);
 	void UpdateTimer(GameTimer* timer);
 	void UpdateSection(Player* player, Course* course);
+	void UpdateInfo();
 
 	// エネルギー
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
@@ -41,5 +42,11 @@ private:
 	Vector2 sectionBarSize_ = { 32,450 };
 	Vector2 sectionLTPos_ = { 1280 - 48, 150};
 	int currentSection_ = 0;
+
+	// エネルギー
+	std::unique_ptr<Sprite> infoSprite_ = nullptr;
+	Vector2 infoLTPos_ = { 12,720 - (62 + 12) };
+
+	Input* input_;
 };
 
