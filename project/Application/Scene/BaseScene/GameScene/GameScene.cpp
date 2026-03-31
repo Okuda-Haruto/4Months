@@ -123,7 +123,7 @@ void GameScene::Update() {
 
 	// 予測表示
 	hitPreview_->Update(player_.get(),checkCollision_.get());
-
+	
 	//カメラアップデート
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
