@@ -40,9 +40,6 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	//プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Initialize(Vector3{0,200,0}, directionalLight_);
-	player_->SetGoal(goal_.get());
-
-	player_->SetSelfNeckIndex(0);
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
@@ -51,6 +48,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	// コース
 	course_ = std::make_unique<Course>();
 	course_->Initialize(gameCamera_.get(), directionalLight_);
+	chunkHeight_ = int(course_->GetChunkData().size.y);
 
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();
@@ -147,7 +145,7 @@ void GameScene::Update() {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
-	if (player_->GetTransform().translate.y < -32 * 6 * 3.0f) {
+	if (player_->GetTransform().translate.y < -32 * chunkHeight_ * 3.0f) {
 		if (course_->GetBreakScore() >= course_->GetMaxBreakScore()) {
 			if (!isClear_) {
 				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };

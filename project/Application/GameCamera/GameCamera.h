@@ -91,6 +91,9 @@ private:
 	int shakeEndFrame_;
 	float amplitude_ = 0;
 
+	//チャンクのサイズ
+	int32_t chunkHeight_;
+
 	//getter用
 	SRT transform_;
 public:
@@ -106,4 +109,6 @@ public:
 	void StartShake(float amplitude, int frame);
 
 	SRT GetTransform() { return transform_; }
+
+	void SetChunkHeight(int32_t chunkHeight) { chunkHeight_ = chunkHeight; }
 };

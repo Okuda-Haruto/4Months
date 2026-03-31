@@ -18,7 +18,7 @@ private:
 	float vacuumSensitivity_;
 
 	//衝突判定
-	Sphere collider_;
+	AABB collider_;
 
 	int32_t MaxHP_;
 	int32_t HP_;
@@ -29,7 +29,7 @@ private:
 
 public:
 
-	void Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight);
 
 	void Update();
 
@@ -38,13 +38,14 @@ public:
 	// 移動
 	void Move(const Vector3& velocity);
 
-	void Damage(){ HP_--;}
+	void Damage(int damage = 1){ HP_ -= damage;}
+	void Break();
 
 	Object* GetObjectData() { return object_.get(); }
 
 	//getter
 	SRT GetTransform() { return transform_; }
-	Sphere GetCollider() { return collider_; }
+	AABB GetCollider() { return collider_; }
 	int8_t GetNumber() { return number_; }
 	bool IsDead() { return isDead_; }
 

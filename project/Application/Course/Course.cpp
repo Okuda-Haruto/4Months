@@ -11,14 +11,13 @@ void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> di
 	camera_ = camera;
 	directionalLight_ = directionalLight;
 
-	CSVData data;
-	data.size = { 2,6,2 };
-	data.directoryPath = "resources/CSV";
+	chunkData_.size = { 2,12,2 };
+	chunkData_.directoryPath = "resources/CSV";
 
 	voxel_ = std::make_unique<Voxel>();
-	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), data, camera_, directionalLight_);
+	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
   
-  sections_.push_back({ 0,-32 * 4 * 3.0f });
+	sections_.push_back({ 0,-32 * 4 * 3.0f });
 	sections_.push_back({ -32 * 4 * 3.0f, -1000 });
 
 }
@@ -66,15 +65,15 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 	voxel_->DrawAll();
 }
 
-void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP) {
+void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
-	box->Initialize(this, transform, velocity, number, vacuumSensitivity, radius, maxHP, directionalLight_);
+	box->Initialize(this, transform, velocity, number, vacuumSensitivity, maxHP, directionalLight_);
 	boxes_.push_back(std::move(box));
 }
 
-void Course::AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP) {
+void Course::AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
-	box->Initialize(this, transform, velocity, number, vacuumSensitivity, radius, maxHP, directionalLight_);
+	box->Initialize(this, transform, velocity, number, vacuumSensitivity, maxHP, directionalLight_);
 	spawnBoxes_.push_back(std::move(box));
 }
 
