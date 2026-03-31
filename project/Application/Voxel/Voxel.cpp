@@ -242,6 +242,8 @@ void Voxel::Collision(Sphere sphere) {
 
 										if (IsCollision(voxelAABB, sphere)) {
 
+											//PrimitiveManager::GetInstance()->AddAABB(voxelAABB);
+
 											SRT transform;
 											transform.scale = { scale,scale,scale };
 											transform.rotate = IdentityQuaternion();
@@ -255,11 +257,11 @@ void Voxel::Collision(Sphere sphere) {
 											{
 											case 1:
 												//Boxにする
-												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.5f, scale / 2, GameEngine::randomInt(4, 7));
+												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.5f, GameEngine::randomInt(4, 7));
 												break;
 											case 2:
 												//Boxにする
-												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.05f, scale / 2, 14);
+												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.05f, 14);
 												break;
 											default:
 												break;

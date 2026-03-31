@@ -43,9 +43,10 @@ public:
 	Voxel* GetVoxel() { return voxel_.get(); }
 	int GetBreakScore() { return breakScore_; }
 	int GetMaxBreakScore() { return maxBreakScore_; }
+	CSVData GetChunkData() { return chunkData_; }
 
-	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP);
-	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float radius, const int32_t maxHP);
+	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP);
+	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP);
 	void SpawnBox();
 
 	struct Section {
@@ -70,6 +71,9 @@ private:
 	const int kLayerCount_ = 10; // 何層に分けるか
 	const int kCSVWidth_ = 16; // 横
 	const int kCSVHeight_ = 16; // 縦
+
+	//チャンクデータ
+	CSVData chunkData_;
 
 	// トランスフォーム
 	SRT transform_;

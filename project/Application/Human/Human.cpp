@@ -17,7 +17,6 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	transform_.scale = { 1.0f,1.0f,1.0f };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	transform_.translate = position;
-	rollRotate_ = IdentityQuaternion();
 	model_->SetTransform(transform_);
 	model_->SetDirectionalLight(directionalLight);
 	bulletModel_->SetTransform(transform_);
@@ -27,26 +26,12 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	wind_ = make_unique<Wind>();
 	wind_->Initialize(directionalLight);
 
-	characterID_ = id_++;
-
 	fallingSpeed_ = -kMinSpeed_;
 	speed_ = 0.3f;
-
-	isDrifting_ = false;
-	isCoilAround_ = false;
-	coilAroundDistance_ = 0.0f;
-
-	noTargetMinNumber_ = 0;
-
-	coilAroundStartTime_ = 0;
-	coilAroundEndTime_ = 0;
-	coilAroundRotatePos_ = {};
 }
 
 void Human::Update() {
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
-
-	if (unableDriftTimer_ > 0) { unableDriftTimer_--; }
 
 	if (cameraEffectTime_ > 0.0f) {
 		cameraEffectTime_ -= 1.0f / 60.0f;
@@ -57,17 +42,6 @@ void Human::Update() {
 
 	//向いている向きに速度を向ける
 	velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
-
-	//とぐろ中(巻き付いていない)
-	if (isDrifting_ && !isCoilAround_) {
-		//落下速度を遅くする
-		fallingSpeed_ = Lerp<float>(fallingSpeed_, kMinSpeed_, 0.1f);
-		if (!isTurnBack_) {
-			velocity_.translate += Vector3{ 0,-fallingSpeed_,0 };
-		} else {
-			velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-		}
-	}
 
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
@@ -114,19 +88,10 @@ void Human::Update() {
 		}
 	}
 
-	// 速度が一定以下なら戻す
-	if (speed_ < kDefaultSpeed_) {
-		speed_ += 0.0025f;
-		speed_ = min(speed_, kDefaultSpeed_);
-	}
+	speed_ = Lerp(speed_, kDefaultSpeed_, 0.05f);
+	
 
-	// 無敵タイマー
-	if (invincibleTimer_) {
-		invincibleTimer_--;
-	}
-	if (unableDriftTimer_) {
-		unableDriftTimer_--;
-	}
+
 	if (knockbackTimer_) {
 		knockbackTimer_--;
 		transform_.translate += Vector3{ 0,0,1 } *rotateMatrix * 0.2f;
@@ -152,7 +117,12 @@ void Human::Draw() {
 	}
 }
 
-void Human::OnHitVoxel() {
+void Human::OnHitVoxel(Vector3 translate) {
+	Slowdown();
+
+	transform_.rotate = LookAt(translate, transform_.translate);
+	fallingSpeed_ = 1.0f;
+	speed_ = 1.0f;
 	invincibleTimer_ = invincibleTimeOnHit_;
 }
 

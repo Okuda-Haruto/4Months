@@ -14,9 +14,6 @@ public:
 
 	bool GetIsDrifting() const;
 
-	//Getter
-	bool GetIsTurnBack() { return isTurnBack_; }
-
 private:
 	float startTime_;
 };

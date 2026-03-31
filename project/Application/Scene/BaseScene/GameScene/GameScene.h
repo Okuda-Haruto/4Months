@@ -59,6 +59,8 @@ private:
 	//ループカメラで上昇中か
 	bool isUp_ = false;
 
+	int32_t chunkHeight_;
+
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Input> input) override;
