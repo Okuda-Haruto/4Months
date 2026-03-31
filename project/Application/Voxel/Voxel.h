@@ -49,6 +49,7 @@ private:
 	//セーブするときに使う
 	CSVData data_;
 
+	int minDrawChunkY_ = 0;
 public:
 	void Initialize(Course* course, std::shared_ptr<Model> face, CSVData data, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLigth);
 

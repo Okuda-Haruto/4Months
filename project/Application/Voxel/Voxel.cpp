@@ -51,7 +51,7 @@ void Voxel::Update() {
 
 #ifdef USE_IMGUI
 	ImGui::Begin("マップチップCSV書き込みツール");
-
+	ImGui::SliderInt("描画開始チャンクY", &minDrawChunkY_, 0, int(data_.size.y - 1));
 	static int chunkIndexY = 0;
 	static int chunkIndexZ = 0;
 	static int chunkIndexX = 0;
@@ -136,7 +136,7 @@ void Voxel::Draw() {
 	cameraChunkNumber.y = -float(int(cameraTransform.translate.y / (scale * 2)) / 16);
 	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
 
-	for (int y = 0; y < chunks_.size(); y++) {
+	for (int y = minDrawChunkY_; y < chunks_.size(); y++) {
 		for (int z = 0; z < chunks_[y].size(); z++) {
 			for (int x = 0; x < chunks_[y][z].size(); x++) {
 				DrawChunk(y, z, x, cameraPosition, cameraChunkNumber);
