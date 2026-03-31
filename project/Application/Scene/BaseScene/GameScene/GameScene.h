@@ -45,6 +45,8 @@ private:
 
 	// HUD
 	std::unique_ptr<HUD> hud_ = nullptr;
+	const float kMamStartTime = 3.0f;
+	float startTime_;
 	// 残り時間タイマー
 	std::unique_ptr<GameTimer> timer_ = nullptr;
 	// 予測表示

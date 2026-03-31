@@ -72,14 +72,23 @@ void HUD::Initialize(Input* input) {
 	infoSprite_->SetSize(Vector2{ 471.0f,62.0f });
 	infoSprite_->SetTextureSize(Vector2{ 471.0f,62.0f });
 	infoSprite_->SetPosition(infoLTPos_);
+
+	startNumSprite_ = std::make_unique<Sprite>();
+	startNumSprite_->Initialize("./resources/HUD/Start_Nums.png");
+	startNumSprite_->SetSize(Vector2{ 50,61.0f });
+	startNumSprite_->SetTextureSize(Vector2{ 50.0f,61.0f });
+	startNumSprite_->SetPosition(startNumPos_);
+	startNumSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
+	startNumIsDraw_ = true;
 }
 
-void HUD::Update(Player* player, Course* course, GameTimer* timer) {
+void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum) {
 	UpdateCharge(player);
 	UpdateScore(course);
 	UpdateTimer(timer);
 	UpdateSection(player,course);
 	UpdateInfo();
+	UpdateStartNum(startNum);
 }
 
 void HUD::Draw() {
@@ -98,6 +107,10 @@ void HUD::Draw() {
 	progressSprite_->Draw2D();
 
 	infoSprite_->Draw2D();
+
+	if (startNumIsDraw_) {
+		startNumSprite_->Draw2D();
+	}
 }
 
 void HUD::UpdateCharge(Player* player) {
@@ -177,4 +190,15 @@ void HUD::UpdateInfo() {
 		infoSprite_->SetTextureLeftTop(Vector2{ 0.0f,0.0f });
 	}
 	infoSprite_->Update();
+}
+
+void HUD::UpdateStartNum(int num) {
+
+	if (num == 0) {
+		startNumIsDraw_ = false;
+		return;
+	}
+
+	startNumSprite_->SetTextureLeftTop(Vector2{ 150.0f - 50.0f * num,0.0f });
+	startNumSprite_->Update();
 }
