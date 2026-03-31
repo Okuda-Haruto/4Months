@@ -54,6 +54,28 @@ void Wind::Set(const Vector3& center, const float radius, const float animationT
 	}
 }
 
+void Wind::SetTitle(const Vector3& center, const float radius, const float animationTime) {
+	// 吸い込み開始時
+	center_ = center;
+	radius_ = radius;
+	maxAnimationTime_ = animationTime / 60.0f;
+	animationTime_ = 0;
+
+	activeDustCount_ = 0;
+
+	activeSpiralCount_ = int(radius) + 1;
+	activeSpiralCount_ = min(activeSpiralCount_, spiralCount_);
+	for (int i = 0; i < activeSpiralCount_; ++i) {
+		Vector3 translate = { center.x,center.y + GameEngine::randomFloat(-radius, radius), center.z };
+		spiralRotate_[i] = GameEngine::randomFloat(0, float(std::numbers::pi) * 2.0f);
+		spiralRotateSpeed_[i] = GameEngine::randomFloat(0.15f, 0.3f);
+		Quaternion spiralRotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, spiralRotate_[i]);
+		spiralRadius_[i] = GameEngine::randomFloat(0, radius / 2);
+		spiral_[i]->SetTransform(SRT({ 0,0,0 }, spiralRotate, translate));
+		spiral_[i]->SetColor({ 0.8f,0.8f,0.8f,0.8f });
+	}
+}
+
 void Wind::Update() {
 	if (animationTime_ < maxAnimationTime_) {
 		animationTime_ += 1.0f / 60.0f;
@@ -75,9 +97,8 @@ void Wind::Update() {
 			float vacuumLate = length / radius_;
 			float speed = (1.0f - vacuumLate) * baseVacuumSpeed;
 			speed += 0.25f;
-			Vector3 vec = {};
 
-			Vector3 velTarget = Mix(transform.translate, vec, center_, axis, radius_, false) * speed;
+			Vector3 velTarget = Mix(transform.translate, center_, axis, 1.5f, radius_, false) * speed;
 
 			velocity_[i] = Lerp(velocity_[i], velTarget, vacuumSensitivity);
 			velocity_[i] = Lerp(velocity_[i], Vector3{ 0,0,0 }, 0.1f);

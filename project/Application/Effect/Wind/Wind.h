@@ -5,6 +5,7 @@ class Wind {
 public:
 	void Initialize(std::shared_ptr<DirectionalLight> directionalLight);
 	void Set(const Vector3& center, const float radius, const float animationTime);
+	void SetTitle(const Vector3& center, const float radius, const float animationTime);
 	void Update();
 	void Draw();
 

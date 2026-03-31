@@ -100,7 +100,6 @@ void CheckCollision::CheckVacuum(Human* human) {
 			if (IsCollision(boxAABB, vacuumSphere)) {
 				Vector3 boxPos = box->GetTransform().translate;
 				// 衝突
-				Vector3 vel = Vector3(0, 0, 0);
 				Vector3 axis = Vector3(0, 1, 0); // Y軸回転
 				float deltaTime = 1.0f / 60.0f;
 
@@ -110,8 +109,8 @@ void CheckCollision::CheckVacuum(Human* human) {
 				//速度
 				float speed = (1.0f - vacuumLate) * baseVacuumSpeed_;
 
-				if (mixType_ == 0)box->Move(Mix(boxPos, vel, vacuumSphere.center, axis, vacuumSphere.radius, false) * speed);
-				if (mixType_ == 1)box->Move(Mix(boxPos, vel, vacuumSphere.center, axis, vacuumSphere.radius, true) * speed);
+				if (mixType_ == 0)box->Move(Mix(boxPos, vacuumSphere.center, axis, 1.5f, vacuumSphere.radius, false) * speed);
+				if (mixType_ == 1)box->Move(Mix(boxPos, vacuumSphere.center, axis, 1.5f, vacuumSphere.radius, true) * speed);
 
 				if (length < vacuumSphere.radius * 0.66f) {
 					box->Damage();

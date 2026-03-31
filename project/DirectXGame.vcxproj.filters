@@ -189,6 +189,7 @@
     </ClCompile>
     <ClCompile Include="Application\HUD\GameTimer\GameTimer.cpp" />
     <ClCompile Include="Application\HitPreview\HitPreview.cpp" />
+    <ClCompile Include="Application\TitleMoji\TitleMoji.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -482,6 +483,7 @@
     </ClInclude>
     <ClInclude Include="Application\HUD\GameTimer\GameTimer.h" />
     <ClInclude Include="Application\HitPreview\HitPreview.h" />
+    <ClInclude Include="Application\TitleMoji\TitleMoji.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

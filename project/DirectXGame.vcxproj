@@ -99,6 +99,7 @@
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
     <ClCompile Include="Application\Human\Player\Player.cpp" />
     <ClCompile Include="Application\Effect\Wind\Wind.cpp" />
+    <ClCompile Include="Application\TitleMoji\TitleMoji.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Box\Box.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="Application\Effect\Wind\Wind.h" />
     <ClInclude Include="Application\HUD\GameTimer\GameTimer.h" />
     <ClInclude Include="Application\HitPreview\HitPreview.h" />
+    <ClInclude Include="Application\TitleMoji\TitleMoji.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
