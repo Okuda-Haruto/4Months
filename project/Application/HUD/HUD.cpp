@@ -3,7 +3,9 @@
 #include "Course/Course.h"
 #include "GameTimer/GameTimer.h"
 
-void HUD::Initialize() {
+void HUD::Initialize(Input* input) {
+	input_ = input;
+
 	// チャージ背景
 	chargeBGSprite_ = std::make_unique<Sprite>();
 	chargeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
@@ -63,6 +65,13 @@ void HUD::Initialize() {
 	progressSprite_->SetSize({ sectionBarSize_.x,0 });
 	progressSprite_->SetPosition(sectionLTPos_);
 	progressSprite_->Update();
+
+	//情報
+	infoSprite_ = std::make_unique<Sprite>();
+	infoSprite_->Initialize("./resources/HUD/Info.png");
+	infoSprite_->SetSize(Vector2{ 471.0f,62.0f });
+	infoSprite_->SetTextureSize(Vector2{ 471.0f,62.0f });
+	infoSprite_->SetPosition(infoLTPos_);
 }
 
 void HUD::Update(Player* player, Course* course, GameTimer* timer) {
@@ -70,6 +79,7 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer) {
 	UpdateScore(course);
 	UpdateTimer(timer);
 	UpdateSection(player,course);
+	UpdateInfo();
 }
 
 void HUD::Draw() {
@@ -86,6 +96,8 @@ void HUD::Draw() {
 	// 区間
 	sectionSprite_->Draw2D();
 	progressSprite_->Draw2D();
+
+	infoSprite_->Draw2D();
 }
 
 void HUD::UpdateCharge(Player* player) {
@@ -156,4 +168,13 @@ void HUD::UpdateSection(Player* player,Course* course) {
 	progressSprite_->SetSize({ sectionBarSize_.x, length});
 	sectionSprite_->Update();
 	progressSprite_->Update();
+}
+
+void HUD::UpdateInfo() {
+	if (input_->GetPad(0).isConnected) {
+		infoSprite_->SetTextureLeftTop(Vector2{ 0.0f,62.0f });
+	} else {
+		infoSprite_->SetTextureLeftTop(Vector2{ 0.0f,0.0f });
+	}
+	infoSprite_->Update();
 }
