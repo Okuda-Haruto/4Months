@@ -16,7 +16,6 @@ void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> di
 
 	voxel_ = std::make_unique<Voxel>();
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
-  
 	sections_.push_back({ 0,-32 * 4 * 3.0f });
 	sections_.push_back({ -32 * 4 * 3.0f, -1000 });
 

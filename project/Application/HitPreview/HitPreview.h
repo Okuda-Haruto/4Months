@@ -19,7 +19,7 @@ private:
 	std::vector<std::unique_ptr<Object>> rotateModel_;
 
 	int rotateCount_ = 8;
-	float rotateSpeed_ = 0.2f;
+	float rotateSpeed_ = 0.05f;
 	std::vector<float> rotate_;
 	bool isHit_ = false;
 };

@@ -123,13 +123,17 @@ void Human::OnHitVoxel(Vector3 translate) {
 	transform_.rotate = LookAt(translate, transform_.translate);
 	fallingSpeed_ = 1.0f;
 	speed_ = 1.0f;
+	invincibleTimer_ = invincibleTimeOnHit_;
+}
+
+bool Human::GetIsCoilAround() const {
+	return isCoilAround_;
 }
 
 void Human::Throw() {
 	headTransform_ = transform_;
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
-	headStartSpeed_ = 2.5f + 1.5f * (charge_ / kMaxCharge_);
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
 	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
@@ -143,6 +147,7 @@ void Human::Charge() {
 	charge_ += kChargeSpeed_;
 	charge_ = min(charge_, kMaxCharge_);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
+	headStartSpeed_ = 2.5f + 1.5f * (charge_ / kMaxCharge_);
 
 	vacuumStartPos_ = CalcVacuumPosition();
 	isCharging_ = true;

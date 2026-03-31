@@ -79,7 +79,7 @@ protected:
 	const float kMaxCameraEffectTime_ = 1.0f;
 	float cameraEffectTime_ = 0.0f;
 	// 最低移動速度
-	const float kDefaultSpeed_ = 0.4f;
+	const float kDefaultSpeed_ = 0.6f;
 
 	// ノックバック中
 	int knockbackTimer_;
