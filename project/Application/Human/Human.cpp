@@ -123,11 +123,6 @@ void Human::OnHitVoxel(Vector3 translate) {
 	transform_.rotate = LookAt(translate, transform_.translate);
 	fallingSpeed_ = 1.0f;
 	speed_ = 1.0f;
-	invincibleTimer_ = invincibleTimeOnHit_;
-}
-
-bool Human::GetIsCoilAround() const {
-	return isCoilAround_;
 }
 
 void Human::Throw() {
