@@ -12,7 +12,7 @@ void DownCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
 	//初期値として現在の向きを入れる
 	transform_.scale = { 1,1,1 };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
-	transform_.translate = player_->GetTransform().translate;
+	transform_.translate = player_->GetTransform().translate + Vector3{0,50,0};
 }
 void DownCamera::Update() {
 
