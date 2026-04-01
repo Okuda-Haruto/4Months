@@ -1,6 +1,7 @@
 #include "GameTimer.h"
 
-void GameTimer::Initialize() {
+void GameTimer::Initialize(float maxTime) {
+	maxTime_ = maxTime;
 	currentTime_ = maxTime_;
 }
 

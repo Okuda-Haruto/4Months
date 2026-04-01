@@ -6,7 +6,6 @@
 #include "Goal/Goal.h"
 #include "Course/Course.h"
 #include "HUD/HUD.h"
-#include "HUD/GameTimer/GameTimer.h"
 #include "HitPreview/HitPreview.h"
 
 #include "CheckCollision/CheckCollision.h"
@@ -47,8 +46,7 @@ private:
 	std::unique_ptr<HUD> hud_ = nullptr;
 	const float kMamStartTime = 3.0f;
 	float startTime_;
-	// 残り時間タイマー
-	std::unique_ptr<GameTimer> timer_ = nullptr;
+
 	// 予測表示
 	std::unique_ptr<HitPreview> hitPreview_ = nullptr;
 

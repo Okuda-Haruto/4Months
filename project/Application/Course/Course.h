@@ -2,6 +2,7 @@
 #include "GameEngine.h"
 #include "Voxel/Voxel.h"
 #include "OBB.h"
+#include "Section/Section.h"
 
 class Course {
 public:
@@ -12,7 +13,7 @@ public:
 	void Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight);
 
 	// 更新
-	void Update();
+	void Update(float playerY);
 
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
@@ -41,19 +42,19 @@ public:
 	}
 
 	Voxel* GetVoxel() { return voxel_.get(); }
-	int GetBreakScore() { return breakScore_; }
-	int GetMaxBreakScore() { return maxBreakScore_; }
 	CSVData GetChunkData() { return chunkData_; }
 
 	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP);
 	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP);
 	void SpawnBox();
 
-	struct Section {
-		float start;
-		float goal;
-	};
-	std::vector<Section> GetSections() { return sections_; }
+	// 区間追加
+	void AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore);
+
+	Section* GetCurrentSection() { return currentSection_; }
+	int GetCurrentSectionNumber() { return currentSectionNum_; }
+	bool isFailed() { return isFailed_; }
+	bool isAllCleared() { return isAllCleared_; }
 private:
 	
 	std::shared_ptr<DirectionalLight> directionalLight_;
@@ -89,9 +90,12 @@ private:
 	std::vector<float> tTable_;
 	float totalLength_ = 0.0f;
 
-	int breakScore_ = 0;
-	int maxBreakScore_ = 50000;
-	std::vector<Section> sections_;
+	std::vector<std::unique_ptr<Section>> sections_;
+	Section* currentSection_ = nullptr;
+	int currentSectionNum_ = 0;
+
+	bool isFailed_ = false;
+	bool isAllCleared_ = false;
 };
 
 

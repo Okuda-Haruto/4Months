@@ -1,7 +1,6 @@
 #include "HUD.h"
 #include "Human/Player/Player.h"
 #include "Course/Course.h"
-#include "GameTimer/GameTimer.h"
 
 void HUD::Initialize(Input* input) {
 	input_ = input;
@@ -31,14 +30,14 @@ void HUD::Initialize(Input* input) {
 	currentBreakSprite_ = std::make_unique<Sprite>();
 	currentBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
 	currentBreakSprite_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	currentBreakSprite_->SetSize({ kBreakBarWidth * 0.4f, 32.0f });
+	currentBreakSprite_->SetSize({ kBreakBarWidth, 32.0f });
 	currentBreakSprite_->SetPosition(breakLTPos_);
 
 	bonusBreakSprite_ = std::make_unique<Sprite>();
 	bonusBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
 	bonusBreakSprite_->SetColor({ 1.0f, 0.6f, 0.6f, 1.0f });
-	bonusBreakSprite_->SetSize({ kBreakBarWidth * 0.6f, 32.0f });
-	bonusBreakSprite_->SetPosition(Vector2{ breakLTPos_.x + kBreakBarWidth / 10 * 4,breakLTPos_.y });
+	bonusBreakSprite_->SetSize({ kBreakBarWidth, 32.0f });
+	bonusBreakSprite_->SetPosition(breakLTPos_);
 	// 時間
 	timeBGSprite_ = std::make_unique<Sprite>();
 	timeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
@@ -85,8 +84,8 @@ void HUD::Initialize(Input* input) {
 void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum) {
 	UpdateCharge(player);
 	UpdateScore(course);
-	UpdateTimer(timer);
-	UpdateSection(player,course);
+	UpdateTimer(course);
+	UpdateSection(player, course);
 	UpdateInfo();
 	UpdateStartNum(startNum);
 }
@@ -95,8 +94,9 @@ void HUD::Draw() {
 	chargeBGSprite_->Draw2D();
 	currentChargeSprite_->Draw2D();
 	breakBGSprite_->Draw2D();
-	currentBreakSprite_->Draw2D();
 	bonusBreakSprite_->Draw2D();
+	currentBreakSprite_->Draw2D();
+
 
 	// 時間
 	timeBGSprite_->Draw2D();
@@ -128,38 +128,39 @@ void HUD::UpdateCharge(Player* player) {
 }
 
 void HUD::UpdateScore(Course* course) {
-	int current = course->GetBreakScore();
-	int max = course->GetMaxBreakScore();
+	Section* currentSection = course->GetCurrentSection();
+	int current = currentSection->GetCurrentScore();
+	int clear = currentSection->GetClearScore();
+	int max = currentSection->GetMaxScore();
 	if (current < 0) return;
 
 	// 割合を求める
-	float rate = float(current) / float(max);
-	rate = min(rate, 1.0f);
-	// HP量に応じてスプライトのサイズ変更
-	float length = kBreakBarWidth * 0.4f * rate;
+	float rate = float(current) / float(clear);
+	rate = clamp(rate, 0.0f, 1.0f);
+	// 必要スコアに応じてスプライトのサイズ変更
+	float length = kBreakBarWidth * rate * (1.0f - bonusRate_);
 	currentBreakSprite_->SetSize({ length, currentBreakSprite_->GetSize().y });
+	currentBreakSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y });
 	breakBGSprite_->Update();
 	currentBreakSprite_->Update();
 
 	// 割合を求める
-	rate = float(current - max) / (float(max) / 4 * 6);
-	rate = min(rate, 1.0f);
-	if (rate < 0) return;
-	// HP量に応じてスプライトのサイズ変更
-	length = kBreakBarWidth * 0.6f * rate;
-
+	rate = 0;
+	if(currentSection->IsCleared()) {
+		rate = float(current - clear) / float(max);
+		rate = clamp(rate, 0.0f, 1.0f);
+	}
+	// 最大スコアに応じてスプライトのサイズ変更
+	length = kBreakBarWidth * rate * bonusRate_;
 	bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
+	bonusBreakSprite_->SetPosition({ breakLTPos_.x + kBreakBarWidth * (1 - bonusRate_), breakLTPos_.y });
 	bonusBreakSprite_->Update();
 }
 
-void HUD::UpdateTimer(GameTimer* timer) {
-	float current = timer->GetCurrentGameTime();
-	float max = timer->GetMaxTime();
-	if (current < 0) return;
+void HUD::UpdateTimer(Course* course) {
+	Section* currentSection = course->GetCurrentSection();
+	float rate = currentSection->GetTimer()->GetTimeRate();
 
-	// 割合を求める
-	float rate = current / max;
-	rate = min(rate, 1.0f);
 	// 残り時間に応じてスプライトのサイズ変更
 	float length = kTimeBarWidth * rate;
 	currentTimeSprite_->SetSize({ length, currentTimeSprite_->GetSize().y });
@@ -167,18 +168,13 @@ void HUD::UpdateTimer(GameTimer* timer) {
 	currentTimeSprite_->Update();
 }
 
-void HUD::UpdateSection(Player* player,Course* course) {
-	float start = course->GetSections()[0].start;
-	float current = player->GetTransform().translate.y;
-	float goal = course->GetSections()[0].goal;
-	if (current > 0) return;
+void HUD::UpdateSection(Player* player, Course* course) {
+	Section* currentSection = course->GetCurrentSection();
+	float rate = currentSection->GetPositionRate();
 
-	// 割合を求める
-	float rate = (current - start) / (goal - start);
-	rate = min(rate, 1.0f);
 	// 進度に応じてスプライトのサイズ変更
 	float length = sectionBarSize_.y * rate;
-	progressSprite_->SetSize({ sectionBarSize_.x, length});
+	progressSprite_->SetSize({ sectionBarSize_.x, length });
 	sectionSprite_->Update();
 	progressSprite_->Update();
 }
