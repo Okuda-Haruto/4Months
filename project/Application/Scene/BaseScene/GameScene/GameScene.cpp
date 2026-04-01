@@ -39,11 +39,11 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3{0,200,0}, directionalLight_);
+	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_);
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_,input_ , player_.get());
+	gameCamera_->Initialize(defaultCamera_, input_, player_.get());
 
 	// コース
 	course_ = std::make_unique<Course>();
@@ -52,7 +52,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();
-	checkCollision_->Initialize(course_.get(),goal_.get(),gameCamera_.get());
+	checkCollision_->Initialize(course_.get(), goal_.get(), gameCamera_.get());
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
@@ -61,10 +61,6 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	// 予測表示
 	hitPreview_ = std::make_unique<HitPreview>();
 	hitPreview_->Initialize(directionalLight_);
-
-	// 残り時間
-	timer_ = std::make_unique<GameTimer>();
-	timer_->Initialize();
 
 	startTime_ = kMamStartTime;
 
@@ -75,7 +71,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 }
 
 void GameScene::Finalize() {
-	
+
 }
 
 void GameScene::Update() {
@@ -112,7 +108,7 @@ void GameScene::Update() {
 		goal_->Update();
 
 		// コース
-		course_->Update();
+		course_->Update(player_->GetTransform().translate.y);
 
 		// 当たり判定
 		checkCollision_->Update(player_.get());
@@ -120,8 +116,6 @@ void GameScene::Update() {
 
 		// 予測表示
 		hitPreview_->Update(player_.get(), checkCollision_.get());
-
-		timer_->Update();
 	}
 
 	//カメラ更新
@@ -134,17 +128,16 @@ void GameScene::Update() {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
 	// HUD
-	hud_->Update(player_.get(), course_.get(), timer_.get(),int(std::ceil(startTime_)));
+	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(std::ceil(startTime_)));
 
 #ifdef USE_IMGUI
-	int score = course_->GetBreakScore();
-	int max = course_->GetMaxBreakScore();
+	int section = course_->GetCurrentSectionNumber();
+
 	ImGui::Begin("GameScene");
 	if (ImGui::Button("デバッグカメラ")) {
 		isUseDebugCamera_ = !isUseDebugCamera_;
 	}
-	ImGui::Text("スコア :%6d", score);
-	ImGui::Text("ノルマ :%6d", max);
+	ImGui::Text("現在区間 : %d", section);
 	ImGui::End();
 #endif
 
@@ -153,20 +146,19 @@ void GameScene::Update() {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
-	if (player_->GetTransform().translate.y < -32 * chunkHeight_ * 3.0f) {
-		if (course_->GetBreakScore() >= course_->GetMaxBreakScore()) {
-			if (!isClear_) {
-				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
-				clearCameraTransform_.rotate = IdentityQuaternion();
-				clearCameraTransform_.scale = { 1,1,1 };
-				gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
-			}
-			isClear_ = true;
-		} else {
-			SceneManager::GetInstance()->ChangeScene("Title");
+	if (course_->isAllCleared()) {
+		if (!isClear_) {
+			// クリア
+			clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
+			clearCameraTransform_.rotate = IdentityQuaternion();
+			clearCameraTransform_.scale = { 1,1,1 };
+			gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
 		}
+		isClear_ = true;
+	} else if (course_->isFailed()) {
+		// 失敗
+		SceneManager::GetInstance()->ChangeScene("Title");
 	}
-
 }
 
 void GameScene::Draw() {

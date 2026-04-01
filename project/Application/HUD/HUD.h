@@ -13,7 +13,7 @@ public:
 private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);
-	void UpdateTimer(GameTimer* timer);
+	void UpdateTimer(Course* course);
 	void UpdateSection(Player* player, Course* course);
 	void UpdateInfo();
 	void UpdateStartNum(int num);
@@ -29,6 +29,7 @@ private:
 	std::unique_ptr<Sprite> currentBreakSprite_ = nullptr;
 	std::unique_ptr<Sprite> bonusBreakSprite_ = nullptr;
 	float kBreakBarWidth = 1280 - 64;
+	float bonusRate_ = 0.6f; // ボーナス部分の見た目の長さ
 	Vector2 breakLTPos_ = {32, 48 };
 
 	// タイマー
@@ -42,7 +43,6 @@ private:
 	std::unique_ptr<Sprite> progressSprite_ = nullptr;
 	Vector2 sectionBarSize_ = { 32,450 };
 	Vector2 sectionLTPos_ = { 1280 - 48, 150};
-	int currentSection_ = 0;
 
 	// エネルギー
 	std::unique_ptr<Sprite> infoSprite_ = nullptr;

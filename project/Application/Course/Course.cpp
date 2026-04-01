@@ -16,15 +16,34 @@ void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> di
 
 	voxel_ = std::make_unique<Voxel>();
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
-	sections_.push_back({ 0,-32 * 4 * 3.0f });
-	sections_.push_back({ -32 * 4 * 3.0f, -1000 });
 
+	// 区間の設定(上~下)
+	AddSection(0, 2, 30, 5000, 75000);
+	currentSection_ = sections_[0].get();
 }
 
-void Course::Update() {
+void Course::Update(float playerY) {
+	// 今いる区間
+	for (int i = currentSectionNum_; i < sections_.size(); ++i) { // 今より上に行っても区間は戻らない
+		if (sections_[i]->IsEnter(playerY)) {
+			currentSectionNum_ = i;
+			currentSection_ = sections_[i].get();
+		}
+
+		if (!sections_[i]->IsCleared() &&
+			sections_[i]->IsOver(playerY)) {
+			isFailed_ = true;
+		}
+	}
+	currentSection_->Update(playerY);
+	// クリア条件
+	if (sections_.back()->IsCleared() && sections_.back()->IsOver(playerY)) {
+		isAllCleared_ = true;
+	}
+
 	for (auto& box : boxes_) {
 		if (box->IsDead()) {
-			breakScore_++;
+			sections_[currentSectionNum_]->AddBreak(1);
 		}
 	}
 
@@ -85,4 +104,10 @@ void Course::SpawnBox() {
 
 	spawnBoxes_.clear();
 
+}
+
+void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore) {
+	std::unique_ptr<Section> newSection = std::make_unique<Section>();
+	newSection->Initialize(startChunkY, endChunkY, maxSeconds, clearScore, maxScore);
+	sections_.push_back(std::move(newSection));
 }
