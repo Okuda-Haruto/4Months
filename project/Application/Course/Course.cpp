@@ -11,7 +11,7 @@ void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> di
 	camera_ = camera;
 	directionalLight_ = directionalLight;
 
-	chunkData_.size = { 2,24,2 };
+	chunkData_.size = { 2,18,2 };
 	chunkData_.directoryPath = "resources/CSV";
 
 	voxel_ = std::make_unique<Voxel>();
