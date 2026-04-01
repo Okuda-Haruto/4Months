@@ -30,8 +30,9 @@ void Course::Update(float playerY) {
 			currentSection_ = sections_[i].get();
 		}
 
-		if (!sections_[i]->IsCleared() &&
-			sections_[i]->IsOver(playerY)) {
+		if ((!sections_[i]->IsCleared() &&
+			sections_[i]->IsOver(playerY)) || 
+			sections_[i]->GetTimer()->GetTimeRate() == 0) {
 			isFailed_ = true;
 		}
 	}
