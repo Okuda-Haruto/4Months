@@ -71,6 +71,8 @@ void TitleScene::Update() {
 }
 
 void TitleScene::Draw() {
-	//title_Sprite_->Draw2D();
+	title_Sprite_->Draw2D();
+
 	logo_->Draw();
+
 }
