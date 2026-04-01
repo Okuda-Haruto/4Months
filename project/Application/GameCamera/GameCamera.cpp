@@ -120,8 +120,8 @@ void ResultCamera::Update() {
 			mode_ = CameraMode::Automatic_Down;
 		}
 	}
-	if (posY_ < -32 * 6 * 3.0f + 16.0f * 3.0f) {
-		posY_ = -32 * 6 * 3.0f + 16.0f * 3.0f;
+	if (posY_ < -32 * 24 * 3.0f + 16.0f * 3.0f) {
+		posY_ = -32 * 24 * 3.0f + 16.0f * 3.0f;
 		if (mode_ == CameraMode::Automatic_Down) {
 			mode_ = CameraMode::Automatic_Up;
 		}
