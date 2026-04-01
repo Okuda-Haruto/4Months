@@ -18,7 +18,7 @@ void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> di
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
 
 	// 区間の設定(上~下)
-	AddSection(0, 2, 30, 5000, 75000);
+	AddSection(0, 18, 30, 50000, 75000);
 	currentSection_ = sections_[0].get();
 }
 
