@@ -8,13 +8,12 @@ void HitPreview::Initialize(const std::shared_ptr<DirectionalLight> directionalL
 	circle_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/LineCircle", "LineCircle.obj"));
 	circle_->SetShininess(30.0f);
 	circle_->SetDirectionalLight(directionalLight);
-	circle_->SetColor({ 1,1,1,0.8f });
+	circle_->SetColor({ 1,1,1,0.5f });
 
 	radModel_ = make_unique<Object>();
 	radModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/HitPreview/Circle", "Circle.obj"));
 	radModel_->SetShininess(30.0f);
 	radModel_->SetDirectionalLight(directionalLight);
-	radModel_->SetColor({ 1,0,0,0.2f });
 
 	for (int i = 0; i < rotateCount_; ++i) {
 		std::unique_ptr<Object> rotateModel = make_unique<Object>();
@@ -30,7 +29,6 @@ void HitPreview::Initialize(const std::shared_ptr<DirectionalLight> directionalL
 
 		Quaternion rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, angle);
 		rotateModel_[i]->SetTransform(SRT({ 1,1,1 }, rotate, {}));
-		rotateModel_[i]->SetColor({ 1,1,1,1.0f });
 	}
 }
 
@@ -50,16 +48,29 @@ void HitPreview::Update(Player* player, CheckCollision* checkCollision) {
 			transform.rotate = rotate;
 			transform.translate = { hitPos_.x, hitPos_.y, hitPos_.z };
 			rotateModel_[i]->SetTransform(transform);
+
+			// 溜め満タン時
+			if (player->GetCharge() == player->GetMaxCharge()) {
+				rotateModel_[i]->SetColor({ 1, 1, 0, 1 });
+			} else {
+				rotateModel_[i]->SetColor({ 1, 1, 1, 1 });
+			}
 		}
 
 		if (player->GetCharge() == player->GetMaxCharge()) {
-			radModel_->SetColor({ 1, 1, 0, 0.2f });
+			circle_->SetColor({ 1, 1, 0, 1 });
 		} else {
-			radModel_->SetColor({ 1, 0, 0, 0.2f });
+			circle_->SetColor({ 1, 1, 1, 1 });
 		}
 	} else {
 		canDraw_ = false;
 	}
+
+	circle_->Update();
+	for (auto& rot : rotateModel_) {
+		rot->Update();
+	}
+	radModel_->Update();
 }
 
 void HitPreview::Draw() {
@@ -78,13 +89,14 @@ void HitPreview::Simulate(Player* player, CheckCollision* checkCollision) {
 	// 途中で当たるか判定
 	hitPos_ = checkCollision->HitPreview(player);
 
-	// 表示設定
+	// 表示設定(ヒット予測時)
 	isHit_ = checkCollision->IsPreviewHit();
 	if (isHit_) {
-		circle_->SetColor({ 1,0,0,1 });
+		radModel_->SetColor({ 1,0,0,0.3f });
 	} else {
-		circle_->SetColor({ 1,1,1,1 });
+		radModel_->SetColor({ 1,1,1,0.1f });
 	}
+
 	float rot = rotate_[0];
 	rot -= rotateSpeed_ * 2;
 	Quaternion rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rot);
