@@ -45,9 +45,9 @@ void Human::Update() {
 
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
-
-	transform_.translate += velocity_.translate;
-
+	if (!stop) {
+		transform_.translate += velocity_.translate;
+	}
 	// 分離しているときの先頭
 	switch (vacuumState_) {
 	case None:

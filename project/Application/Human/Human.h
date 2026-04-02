@@ -127,4 +127,6 @@ protected:
 	void Charge();
 	void Slowdown();
 	Vector3 CalcVacuumPosition();
+
+	bool stop;
 };
