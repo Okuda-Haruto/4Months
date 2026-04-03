@@ -51,18 +51,21 @@ void CheckCollision::CheckBullet(Human* human) {
 
 void CheckCollision::CheckVoxel(Human* human) {
 	if (human->IsInvincible()) { return; }
-	Vector3 playerPos = human->GetTransform().translate;
-	Sphere playerSphere = { playerPos, 4.0f };
+	Sphere prev = { human->GetTransform().translate, 3.0f };
+	Sphere curr = { prev.center + human->GetVelocity(), 3.0f };
+
+	Vector3 p0 = prev.center;
+	Vector3 p1 = curr.center;
+	float radius = prev.radius;
 
 	//ボクセル
-	course_->GetVoxel()->Collision(playerSphere);
+	course_->GetVoxel()->Collision(curr);
 
 	for (auto& box : course_->GetBoxes()) {
 		AABB boxAABB = box->GetCollider();
-		playerSphere.radius = 3;
 
 		// 判定
-		if (IsCollision(boxAABB, playerSphere)) {
+		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
 			// 衝突
 			if (box->GetTransform().scale.x > 1.0f) {
 				human->OnHitVoxel(boxAABB);

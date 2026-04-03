@@ -225,10 +225,10 @@ void Voxel::Collision(Sphere sphere) {
 				if (IsCollision(chunkAABB, sphere)) {
 					for (int y = 0; y < 16; y++) {
 						if (sphere.center.y + sphere.radius >= chunkOrigin.y + voxelSize * (16 - y) &&
-							sphere.center.y - sphere.radius <= chunkOrigin.y + (voxelSize + 1) * (16 - y)) {
+							sphere.center.y - sphere.radius <= chunkOrigin.y + voxelSize * (16 - y + 1)) {
 							for (int z = 0; z < 16; z++) {
 								if (sphere.center.z + sphere.radius >= chunkOrigin.z + voxelSize * z &&
-									sphere.center.z - sphere.radius <= chunkOrigin.z + (voxelSize + 1) * z) {
+									sphere.center.z - sphere.radius <= chunkOrigin.z + voxelSize * (z + 1)){
 									for (int x = 0; x < 16; x++) {
 										if (chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x] == 0)continue;
 
@@ -400,7 +400,7 @@ void Voxel::DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslat
 									index_++;
 								}
 							} else {
-								if (!chunks_[chunkY][chunkZ][chunkX - 1].mapChip[y][15][x]) {
+								if (!chunks_[chunkY][chunkZ][chunkX - 1].mapChip[y][z][15]) {
 									if (index_ < objects_.size()) {
 										drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, -std::numbers::pi_v<float> / 2)));
 										index_++;
