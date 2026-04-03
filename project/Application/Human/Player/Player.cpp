@@ -49,9 +49,6 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			if ((keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release)) {
 				Throw();
 			}
-			if ((keyboard.release[DIK_G] || pad.Button[PAD_BUTTON_B].release)) {
-				stop = true;
-			}
 		}
 
 		if (Length(vector) > 0.0f) {
@@ -77,6 +74,10 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	ImGui::DragInt("まぜる時間", &vacuumTime_);
 	ImGui::DragInt("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);
+
+	if ((keyboard.release[DIK_G] || pad.Button[PAD_BUTTON_LSTICK].release)) {
+		stop = !stop;
+	}
 
 	ImGui::End();
 #endif
