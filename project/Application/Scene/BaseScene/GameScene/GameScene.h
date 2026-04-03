@@ -7,7 +7,7 @@
 #include "Course/Course.h"
 #include "HUD/HUD.h"
 #include "HitPreview/HitPreview.h"
-
+#include "StartCountdown/StartCountdown.h"
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
 
@@ -44,11 +44,12 @@ private:
 
 	// HUD
 	std::unique_ptr<HUD> hud_ = nullptr;
-	const float kMamStartTime = 3.0f;
-	float startTime_;
 
 	// 予測表示
 	std::unique_ptr<HitPreview> hitPreview_ = nullptr;
+
+	// 開始カウントダウン
+	std::unique_ptr<StartCountdown> startCountdown_ = nullptr;
 
 	//クリアしているか
 	bool isClear_ = false;

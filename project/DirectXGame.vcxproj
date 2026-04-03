@@ -101,6 +101,7 @@
     <ClCompile Include="Application\Effect\Wind\Wind.cpp" />
     <ClCompile Include="Application\TitleMoji\TitleMoji.cpp" />
     <ClCompile Include="Application\Course\Section\Section.cpp" />
+    <ClCompile Include="Application\StartCountdown\StartCountdown.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Box\Box.h" />
@@ -206,6 +207,7 @@
     <ClInclude Include="Application\HitPreview\HitPreview.h" />
     <ClInclude Include="Application\TitleMoji\TitleMoji.h" />
     <ClInclude Include="Application\Course\Section\Section.h" />
+    <ClInclude Include="Application\StartCountdown\StartCountdown.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
