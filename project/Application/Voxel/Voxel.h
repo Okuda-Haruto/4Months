@@ -59,6 +59,9 @@ public:
 
 	void Collision(Sphere sphere);
 
+	// 衝突位置を返す
+	std::optional<Vector3> CollisionCheck(Sphere sphere);
+
 private:
 
 	void DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslate, Vector3 cameraChunkNumber);

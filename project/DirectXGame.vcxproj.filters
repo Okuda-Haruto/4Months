@@ -187,9 +187,10 @@
     <ClCompile Include="Application\Effect\Wind\Wind.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClCompile>
-    <ClCompile Include="Application\HUD\GameTimer\GameTimer.cpp" />
+    <ClCompile Include="Application\Course\Section\GameTimer\GameTimer.cpp" />
     <ClCompile Include="Application\HitPreview\HitPreview.cpp" />
     <ClCompile Include="Application\TitleMoji\TitleMoji.cpp" />
+    <ClCompile Include="Application\Course\Section\Section.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -481,9 +482,10 @@
     <ClInclude Include="Application\Effect\Wind\Wind.h">
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClInclude>
-    <ClInclude Include="Application\HUD\GameTimer\GameTimer.h" />
+    <ClInclude Include="Application\Course\Section\GameTimer\GameTimer.h" />
     <ClInclude Include="Application\HitPreview\HitPreview.h" />
     <ClInclude Include="Application\TitleMoji\TitleMoji.h" />
+    <ClInclude Include="Application\Course\Section\Section.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

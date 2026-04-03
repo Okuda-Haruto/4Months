@@ -125,8 +125,7 @@ void CheckCollision::CheckVacuum(Human* human) {
 }
 
 // AABB上の最近点
-Vector3 ClosestPointAABB(const Vector3& p, const AABB& aabb)
-{
+Vector3 ClosestPointAABB(const Vector3& p, const AABB& aabb) {
 	Vector3 result;
 	result.x = std::clamp(p.x, aabb.min.x, aabb.max.x);
 	result.y = std::clamp(p.y, aabb.min.y, aabb.max.y);
@@ -136,10 +135,9 @@ Vector3 ClosestPointAABB(const Vector3& p, const AABB& aabb)
 
 bool CheckCollision::IsHitCapsule(
 	const Vector3& p0,
-	const Vector3& p1, 
-	float capsuleRadius, 
-	const AABB& aabb)
-{
+	const Vector3& p1,
+	float capsuleRadius,
+	const AABB& aabb) {
 	// AABBの中心
 	Vector3 center = (aabb.min + aabb.max) * 0.5f;
 
@@ -175,9 +173,14 @@ Vector3 CheckCollision::HitPreview(Human* human) {
 	// ボクセル
 	Vector3 dir = Normalize(goal.center - start.center);
 	Vector3 curr = start.center;
-	while (curr.y < goal.center.y) {
-		course_->GetVoxel()->Collision({ curr,3.0f });
-		curr += dir * goal.radius / 3.0f;
+	while (curr.y > goal.center.y) {
+		// 当たっていればその座標
+		std::optional<Vector3> hitPosOpt = course_->GetVoxel()->CollisionCheck({ curr,3.0f });
+		if (hitPosOpt.has_value()) {
+			isPreviewHit_ = true;
+			return hitPosOpt.value();
+		}
+		curr += dir * (goal.radius / 2.0f);
 	}
 	course_->GetVoxel()->Collision(goal);
 
@@ -186,7 +189,7 @@ Vector3 CheckCollision::HitPreview(Human* human) {
 
 		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
 			isPreviewHit_ = true;
-			return closest_ - dir * 3.0f;
+			return closest_ - dir * 3.2f;
 		}
 	}
 

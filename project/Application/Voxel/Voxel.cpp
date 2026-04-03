@@ -27,7 +27,7 @@ void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, CSVData data
 	std::string str;
 	Chunk chunk;
 	//サイズ変更
- 	chunks_.resize(int(data.size.y));
+	chunks_.resize(int(data.size.y));
 	for (int y = 0; y < data.size.y; y++) {
 		//サイズ変更
 		chunks_[y].resize(int(data.size.z));
@@ -77,14 +77,14 @@ void Voxel::Update() {
 			}
 			uv11.x = float(chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x]) / int(VOXEL_TILE_END - 1);
 
-				// クリック可能なマップチップボタン
-				if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv00, uv11)) {
-					// タイルが選択された時の処理
-					chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x]++;
-					if (chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] >= VOXEL_TILE_END) {
-						chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] = TILE_None;
-					}
+			// クリック可能なマップチップボタン
+			if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv00, uv11)) {
+				// タイルが選択された時の処理
+				chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x]++;
+				if (chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] >= VOXEL_TILE_END) {
+					chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] = TILE_None;
 				}
+			}
 
 			// グリッドを並べる
 			if (x < 15) ImGui::SameLine();
@@ -167,7 +167,7 @@ void Voxel::DrawAll() {
 			}
 		}
 	}
-	
+
 
 	if (!drawOdjects_.empty()) {
 		GameEngine::DrawInstancingObject_3D(drawOdjects_, directionalLight_, nullptr, nullptr);
@@ -253,8 +253,7 @@ void Voxel::Collision(Sphere sphere) {
 												voxelAABB.min.z + voxelSize * 0.5f
 											};
 
-											switch (chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x])
-											{
+											switch (chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]) {
 											case 1:
 												//Boxにする
 												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.5f, GameEngine::randomInt(4, 7));
@@ -617,4 +616,73 @@ void Voxel::WriteChunk(const Chunk& chunk, const std::string& loadFile) {
 	}
 
 	file.close();
+}
+
+std::optional<Vector3> Voxel::CollisionCheck(Sphere sphere) {
+
+	float minDistSq = FLT_MAX;
+	Vector3 bestPoint;
+	bool found = false;
+
+	for (int chunkY = 0; chunkY < chunks_.size(); chunkY++) {
+		for (int chunkZ = 0; chunkZ < chunks_[chunkY].size(); chunkZ++) {
+			for (int chunkX = 0; chunkX < chunks_[chunkY][chunkZ].size(); chunkX++) {
+
+				float voxelSize = scale * 2.0f;
+				float chunkSize = voxelSize * 16.0f;
+
+				Vector3 chunkOrigin = {
+					chunkX * chunkSize - chunkSize / 2 * data_.size.x,
+					-((chunkY + 1) * chunkSize),
+					chunkZ * chunkSize - chunkSize / 2 * data_.size.z
+				};
+
+				AABB chunkAABB;
+				chunkAABB.min = chunkOrigin;
+				chunkAABB.max = chunkOrigin + Vector3{ chunkSize, chunkSize, chunkSize };
+
+				if (!IsCollision(chunkAABB, sphere)) continue;
+
+				for (int y = 0; y < 16; y++) {
+					for (int z = 0; z < 16; z++) {
+						for (int x = 0; x < 16; x++) {
+
+							if (chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x] == 0) continue;
+
+							AABB voxelAABB;
+							voxelAABB.min = {
+								chunkOrigin.x + voxelSize * x,
+								chunkOrigin.y + voxelSize * (16 - y),
+								chunkOrigin.z + voxelSize * z
+							};
+							voxelAABB.max = voxelAABB.min + Vector3{ voxelSize, voxelSize, voxelSize };
+
+							if (!IsCollision(voxelAABB, sphere)) continue;
+
+							// 最近接点
+							Vector3 closest;
+							closest.x = std::clamp(sphere.center.x, voxelAABB.min.x, voxelAABB.max.x);
+							closest.y = std::clamp(sphere.center.y, voxelAABB.min.y, voxelAABB.max.y);
+							closest.z = std::clamp(sphere.center.z, voxelAABB.min.z, voxelAABB.max.z);
+
+							// 距離²
+							float dx = sphere.center.x - closest.x;
+							float dy = sphere.center.y - closest.y;
+							float dz = sphere.center.z - closest.z;
+							float distSq = dx * dx + dy * dy + dz * dz;
+
+							if (distSq < minDistSq) {
+								minDistSq = distSq;
+								bestPoint = closest;
+								found = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (found) return bestPoint;
+	return std::nullopt;
 }

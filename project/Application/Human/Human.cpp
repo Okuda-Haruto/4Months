@@ -53,8 +53,9 @@ void Human::Update() {
 		knockBackAcceleration_ = {};
 	}
 
-	transform_.translate += velocity_.translate + knockBackVelocity_;
-
+	if (!stop) {
+		transform_.translate += velocity_.translate + knockBackVelocity_;
+	}
 	// 分離しているときの先頭
 	switch (vacuumState_) {
 	case None:

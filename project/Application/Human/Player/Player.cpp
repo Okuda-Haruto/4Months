@@ -60,7 +60,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			rotateMatrix = MakeRotateMatrix(NextRotate);
 			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4 * vector.x);
 		}
-
+		
 
 	//現在の向きと次の向きの補完
 	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f);
@@ -74,6 +74,10 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	ImGui::DragInt("まぜる時間", &vacuumTime_);
 	ImGui::DragInt("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);
+
+	if ((keyboard.release[DIK_G] || pad.Button[PAD_BUTTON_LSTICK].release)) {
+		stop = !stop;
+	}
 
 	ImGui::End();
 #endif
