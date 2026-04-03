@@ -10,6 +10,8 @@ public:
 	void Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera);
 	void Draw();
 
+	void SetPauseDisplay(bool isOn);
+
 private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);

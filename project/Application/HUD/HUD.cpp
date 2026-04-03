@@ -122,6 +122,20 @@ void HUD::Draw() {
 	}
 }
 
+void HUD::SetPauseDisplay(bool isOn) {
+	if (isOn) {
+		Vector4 color;
+		color = canShoot_->GetColor();
+		color.w = 0.25f;
+		canShoot_->SetColor(color);
+	} else {
+		Vector4 color;
+		color = canShoot_->GetColor();
+		color.w = 1.0f;
+		canShoot_->SetColor(color);
+	}
+}
+
 void HUD::UpdateCharge(Player* player) {
 	float current = player->GetCharge();
 	float max = player->GetMaxCharge();

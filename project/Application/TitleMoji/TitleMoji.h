@@ -11,7 +11,7 @@ public:
 private:
 	void LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> directionalLight);
 
-	std::vector<std::unique_ptr<Object>> blocks;
+	std::vector<std::unique_ptr<Object>> blocks_;
 	std::vector<Vector3> positions_;
 	std::vector<float> timers_;
 	float blockSize_ = 1.0f;

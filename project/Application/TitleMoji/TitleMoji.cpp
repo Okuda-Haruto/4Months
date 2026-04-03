@@ -26,11 +26,11 @@ void TitleMoji::Update() {
 		timer_ += 1.0f / 60.0f;
 		timer_ = min(timer_, vacuumEndTime_);
 
-		for (int i = 0; i < blocks.size(); ++i) {
+		for (int i = 0; i < blocks_.size(); ++i) {
 			timers_[i] += 1.0f / 60.0f;
 			timers_[i] = min(timers_[i], vacuumTime_);
 
-			SRT transform = blocks[i]->GetTransform();
+			SRT transform = blocks_[i]->GetTransform();
 			// 移動
 			Vector3 logoVel = Normalize(positions_[i] - transform.translate) * 1.2f;
 			if (timers_[i] > 1.0f) { Vector3 logoVel = Normalize(positions_[i] - transform.translate) * 3.0f; }
@@ -39,8 +39,8 @@ void TitleMoji::Update() {
 			transform.translate += Lerp(rotateVel, logoVel, rate);
 			if (rate == 1) { transform.translate = positions_[i]; }
 
-			blocks[i]->SetTransform(transform);
-			blocks[i]->Update();
+			blocks_[i]->SetTransform(transform);
+			blocks_[i]->Update();
 		}
 
 		wind_->Update();
@@ -56,7 +56,7 @@ void TitleMoji::Update() {
 }
 
 void TitleMoji::Draw() {
-	for (auto& block : blocks) {
+	for (auto& block : blocks_) {
 		block->Draw3D();
 	}
 
@@ -108,7 +108,7 @@ void TitleMoji::LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> 
 				parts[0].UVtransform.scale.x = 0.5f;
 				parts[0].UVtransform.translate.x = 0.5f;
 				object->SetParts(parts[0], 0);
-				blocks.push_back(std::move(object));
+				blocks_.push_back(std::move(object));
 				timers_.push_back(0 - pos.y / 40); // ここの調整で組みあがり速度
 			}
 		}
@@ -116,16 +116,16 @@ void TitleMoji::LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> 
 
 	int index = 0;
 
-	int side = int(ceil(cbrt(float(blocks.size()))));
+	int side = int(ceil(cbrt(float(blocks_.size()))));
 	int sideX = side;
 	int sideY = side;
-	int sideZ = int(ceil(float(blocks.size()) / (sideX * sideY)));
+	int sideZ = int(ceil(float(blocks_.size()) / (sideX * sideY)));
 
 	for (int z = 0; z < sideZ; z++) {
 		for (int y = 0; y < sideY; y++) {
 			for (int x = 0; x < sideX; x++) {
 
-				if (index >= int(blocks.size())) break;
+				if (index >= int(blocks_.size())) break;
 
 				Vector3 pos;
 				float spacing = blockSize_ * 1.2f;
@@ -135,10 +135,10 @@ void TitleMoji::LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> 
 				pos.y = (y - half) * spacing;
 				pos.z = (z - half) * spacing;
 
-				SRT transform = blocks[index]->GetTransform();
+				SRT transform = blocks_[index]->GetTransform();
 				transform.scale = { scale_, scale_, scale_ };
 				transform.translate = pos;
-				blocks[index]->SetTransform(transform);
+				blocks_[index]->SetTransform(transform);
 
 				index++;
 			}
