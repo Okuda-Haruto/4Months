@@ -64,8 +64,12 @@ void CheckCollision::CheckVoxel(Human* human) {
 		// 判定
 		if (IsCollision(boxAABB, playerSphere)) {
 			// 衝突
-			human->OnHitVoxel(box->GetTransform().translate);
-			box->Damage(4);
+			if (box->GetTransform().scale.x > 1.0f) {
+				human->OnHitVoxel(boxAABB);
+				box->Damage(4);
+			} else {
+				box->Break();
+			}
 		}
 	}
 }

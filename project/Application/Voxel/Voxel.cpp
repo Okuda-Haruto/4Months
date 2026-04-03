@@ -339,7 +339,7 @@ void Voxel::DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslat
 							}
 						}
 					}
-					if ((cameraTranslate.z < z && int(cameraChunkNumber.z) == chunkZ) || int(cameraChunkNumber.z) < chunkZ) {
+					if ((cameraTranslate.z <= z && int(cameraChunkNumber.z) == chunkZ) || int(cameraChunkNumber.z) < chunkZ) {
 						//後面
 						if (z <= 0) {
 							//前が空白
@@ -392,7 +392,7 @@ void Voxel::DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslat
 						}
 					}
 					//左面
-					if ((cameraTranslate.x < x && int(cameraChunkNumber.x) == chunkX) || int(cameraChunkNumber.x) < chunkX) {
+					if ((cameraTranslate.x <= x && int(cameraChunkNumber.x) == chunkX) || int(cameraChunkNumber.x) < chunkX) {
 						if (x <= 0) {
 							//前が空白
 							if (chunkX <= 0) {
