@@ -48,10 +48,15 @@ void Human::Update() {
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 
-	if (Length(knockBackAcceleration_) != 0) {
+	//NANチェック
+	float len = Length(knockBackAcceleration_);
+
+	if (len > 1e-6f && std::isfinite(len)) {
 		knockBackVelocity_ = Normalize(knockBackAcceleration_) * kNockBackSpeed_;
-		knockBackAcceleration_ = {};
+		knockBackVelocity_.y *= kNockBackFallingSpeed_ / kNockBackSpeed_;
 	}
+
+	knockBackAcceleration_ = {};
 
 	if (!stop) {
 		transform_.translate += velocity_.translate + knockBackVelocity_;
@@ -141,7 +146,7 @@ void Human::OnHitVoxel(AABB aabb) {
 		knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
 	}
 
-	fallingSpeed_ = 1.0f;
+	fallingSpeed_ = 0.0f;
 	speed_ = 1.0f;
 }
 

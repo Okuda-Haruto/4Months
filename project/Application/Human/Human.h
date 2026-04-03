@@ -28,6 +28,7 @@ public:
 
 	SRT GetTransform() { return transform_; }
 	float GetSpeed() { return speed_; }
+	Vector3 GetVelocity() { return velocity_.translate + knockBackVelocity_; }
 
 	bool IsInvincible() { return invincibleTimer_ > 0; }
 	bool IsVacuuming() { return vacuumState_ == Vacuum; }
@@ -84,7 +85,8 @@ protected:
 	// ノックバック中
 	Vector3 knockBackAcceleration_;
 	Vector3 knockBackVelocity_;
-	const float kNockBackSpeed_ = 3.0f;
+	const float kNockBackSpeed_ = 1.5f;
+	const float kNockBackFallingSpeed_ = 4.0f;
 
 	// 吸引
 	enum VacuumState {
