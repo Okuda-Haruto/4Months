@@ -28,6 +28,8 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 
 	fallingSpeed_ = -kMinSpeed_;
 	speed_ = 0.3f;
+	knockBackAcceleration_ = {};
+	knockBackVelocity_ = {};
 }
 
 void Human::Update() {
@@ -41,12 +43,18 @@ void Human::Update() {
 	}
 
 	//向いている向きに速度を向ける
-	velocity_.translate = Vector3{ 0,0,1 } *rotateMatrix * speed_;
+	velocity_.translate += Vector3{ 0,0,1 } *rotateMatrix * speed_;
 
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+
+	if (Length(knockBackAcceleration_) != 0) {
+		knockBackVelocity_ = Normalize(knockBackAcceleration_) * kNockBackSpeed_;
+		knockBackAcceleration_ = {};
+	}
+
 	if (!stop) {
-		transform_.translate += velocity_.translate;
+		transform_.translate += velocity_.translate + knockBackVelocity_;
 	}
 	// 分離しているときの先頭
 	switch (vacuumState_) {
@@ -89,13 +97,12 @@ void Human::Update() {
 	}
 
 	speed_ = Lerp(speed_, kDefaultSpeed_, 0.05f);
+
+	knockBackVelocity_.x = Lerp(knockBackVelocity_.x, 0.0f, 0.1f);
+	knockBackVelocity_.y = Lerp(knockBackVelocity_.y, 0.0f, 0.1f);
+	knockBackVelocity_.z = Lerp(knockBackVelocity_.z, 0.0f, 0.1f);
 	
-
-
-	if (knockbackTimer_) {
-		knockbackTimer_--;
-		transform_.translate += Vector3{ 0,0,1 } *rotateMatrix * 0.2f;
-	}
+	velocity_ = {};
 
 #ifdef USE_IMGUI
 
@@ -117,10 +124,23 @@ void Human::Draw() {
 	}
 }
 
-void Human::OnHitVoxel(Vector3 translate) {
+void Human::OnHitVoxel(AABB aabb) {
 	Slowdown();
 
-	transform_.rotate = LookAt(translate, transform_.translate);
+	Vector3 closest;
+
+	closest.x = std::clamp(transform_.translate.x, aabb.min.x, aabb.max.x) - transform_.translate.x;
+	closest.y = std::clamp(transform_.translate.y, aabb.min.y, aabb.max.y) - transform_.translate.y;
+	closest.z = std::clamp(transform_.translate.z, aabb.min.z, aabb.max.z) - transform_.translate.z;
+
+	if (fabsf(closest.x) >= fabsf(closest.y) && fabsf(closest.x) >= fabsf(closest.z)) {
+		knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
+	} else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
+		knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
+	} else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
+		knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
+	}
+
 	fallingSpeed_ = 1.0f;
 	speed_ = 1.0f;
 }

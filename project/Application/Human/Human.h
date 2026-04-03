@@ -23,7 +23,7 @@ public:
 	void Draw();
 
 	// ヒット時
-	void OnHitVoxel(Vector3 translate);
+	void OnHitVoxel(AABB aabb);
 	void StopBullet(const Vector3& hitPos) { headTransform_.translate = hitPos; headSpeed_ = 0; returnTime_ /= 3; }
 
 	SRT GetTransform() { return transform_; }
@@ -82,8 +82,9 @@ protected:
 	const float kDefaultSpeed_ = 0.6f;
 
 	// ノックバック中
-	int knockbackTimer_;
-	const int kKnockbackTime_ = 20;
+	Vector3 knockBackAcceleration_;
+	Vector3 knockBackVelocity_;
+	const float kNockBackSpeed_ = 3.0f;
 
 	// 吸引
 	enum VacuumState {
