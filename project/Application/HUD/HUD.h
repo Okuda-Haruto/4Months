@@ -7,7 +7,7 @@ class GameTimer;
 class HUD {
 public:
 	void Initialize(Input* input);
-	void Update(Player* player,Course* course,GameTimer* timer,int startNum);
+	void Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera);
 	void Draw();
 
 private:
@@ -17,6 +17,9 @@ private:
 	void UpdateSection(Player* player, Course* course);
 	void UpdateInfo();
 	void UpdateStartNum(int num);
+	void UpdateReload(Player* player, std::shared_ptr<Camera> camera);
+
+	Vector4 Transform(const Vector4& vector, const Matrix4x4& matrix);
 
 	// エネルギー
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
@@ -51,6 +54,9 @@ private:
 	std::unique_ptr<Sprite> startNumSprite_ = nullptr;
 	Vector2 startNumPos_ = { 640,360 };
 	bool startNumIsDraw_;
+
+	std::unique_ptr<Sprite> canShoot_ = nullptr;
+	bool drawCanShoot_ = false;
 
 	Input* input_;
 };

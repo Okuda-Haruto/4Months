@@ -128,7 +128,7 @@ void GameScene::Update() {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
 	// HUD
-	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(std::ceil(startTime_)));
+	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(std::ceil(startTime_)),gameCamera_->GetCamera());
 
 #ifdef USE_IMGUI
 	int section = course_->GetCurrentSectionNumber();
