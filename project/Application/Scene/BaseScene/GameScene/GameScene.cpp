@@ -156,7 +156,7 @@ void GameScene::Update() {
 	}
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
-	hud_->Update(player_.get(), course_.get(), timer_.get(), int(std::ceil(startTime_)), clearCount_);
+	hud_->Update(player_.get(), course_.get(), timer_.get(), int(std::ceil(startTime_)));
 #ifdef USE_IMGUI
 	int score = course_->GetBreakScore();
 	int max = course_->GetMaxBreakScore();
