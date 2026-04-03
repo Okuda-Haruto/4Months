@@ -8,6 +8,10 @@
 
 using namespace std;
 
+namespace {
+	bool sWasAchieved = false;
+}
+
 void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	input_ = input;
@@ -20,7 +24,6 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//カメラ
 	defaultCamera_ = Object::GetDefaultCamera();
-	//defaultCamera_ = make_shared<Camera>();
 	defaultCamera_->SetDebugCamera(debugCamera_);
 
 	//光源
@@ -39,11 +42,11 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3{0,200,0}, directionalLight_);
+	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_);
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_,input_ , player_.get());
+	gameCamera_->Initialize(defaultCamera_, input_, player_.get());
 
 	// コース
 	course_ = std::make_unique<Course>();
@@ -52,7 +55,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();
-	checkCollision_->Initialize(course_.get(),goal_.get(),gameCamera_.get());
+	checkCollision_->Initialize(course_.get(), goal_.get(), gameCamera_.get());
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
@@ -67,7 +70,9 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	timer_->Initialize();
 
 	startTime_ = kMamStartTime;
-
+	hud_->ResetGoal();
+	sWasAchieved = false;
+	clearCount_ = 0;
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
 #endif
@@ -75,16 +80,20 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 }
 
 void GameScene::Finalize() {
-	
+
 }
 
 void GameScene::Update() {
 	Keyboard keyboard = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
 
+	float clearBorderY = -32 * chunkHeight_ * 3.0f;
+	bool isReachedClearY = player_->GetTransform().translate.y < clearBorderY;
+
 	if (startTime_ > 0.0f) {
 		startTime_ -= 2.0f / 60.0f;
-	} else {
+	}
+	else {
 		// プレイヤーの更新
 		player_->Update(input_);
 
@@ -94,48 +103,60 @@ void GameScene::Update() {
 				if (clearY_ > 0) {
 					isUp_ = false;
 				}
-			} else {
+			}
+			else {
 				clearY_ -= 1.0f;
 				if (clearY_ < -32 * 3.0f * 4) {
 					isUp_ = true;
 				}
 			}
 
-			//クリアしてるならタイトルに戻れる
 			if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
 				SceneManager::GetInstance()->ChangeScene("Title");
+				return;
 			}
-
 		}
 
-		//ゴール更新処理
 		goal_->Update();
-
-		// コース
 		course_->Update();
 
-		// 当たり判定
 		checkCollision_->Update(player_.get());
 		checkCollision_->UpdateImGui();
 
-		// 予測表示
 		hitPreview_->Update(player_.get(), checkCollision_.get());
 
 		timer_->Update();
+
+		clearBorderY = -32 * chunkHeight_ * 3.0f;
+		isReachedClearY = player_->GetTransform().translate.y < clearBorderY;
+
+		// =========================
+		// ■ 制限時間切れ
+		// =========================
+		if (timer_->GetCurrentGameTime() <= 0.0f) {
+			if (!isReachedClearY) {
+				SceneManager::GetInstance()->ChangeScene("Title");
+				return;
+			}
+		}
 	}
 
-	//カメラ更新
 	gameCamera_->Update();
 
-	//カメラアップデート
+	bool nowAchieved = course_->GetBreakScore() >= course_->GetMaxBreakScore();
+
+	if (nowAchieved && !sWasAchieved) {
+		hud_->OnGoalAchieved();
+	}
+
+	sWasAchieved = nowAchieved;
+
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
 	}
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
-	// HUD
-	hud_->Update(player_.get(), course_.get(), timer_.get(),int(std::ceil(startTime_)));
-
+	hud_->Update(player_.get(), course_.get(), timer_.get(), int(std::ceil(startTime_)), clearCount_);
 #ifdef USE_IMGUI
 	int score = course_->GetBreakScore();
 	int max = course_->GetMaxBreakScore();
@@ -148,22 +169,36 @@ void GameScene::Update() {
 	ImGui::End();
 #endif
 
-	//仮置き
 	if (keyboard.trigger[DIK_R]) {
 		SceneManager::GetInstance()->ChangeScene("Game");
+		return;
 	}
 
+	// =========================
+	// ■ クリアY到達
+	// =========================
 	if (player_->GetTransform().translate.y < -32 * chunkHeight_ * 3.0f) {
+
 		if (course_->GetBreakScore() >= course_->GetMaxBreakScore()) {
-			if (!isClear_) {
-				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
-				clearCameraTransform_.rotate = IdentityQuaternion();
-				clearCameraTransform_.scale = { 1,1,1 };
-				gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
-			}
-			isClear_ = true;
-		} else {
+
+			timer_->Initialize();
+			clearCount_++;   // ★追加
+			// ★追加ここ
+			startTime_ = kMamStartTime;
+			course_->Initialize(gameCamera_.get(), directionalLight_);
+			chunkHeight_ = int(course_->GetChunkData().size.y);
+
+			checkCollision_->Initialize(course_.get(), goal_.get(), gameCamera_.get());
+
+			player_->Initialize(Vector3{ 0,200,0 }, directionalLight_);
+
+			hud_->ResetGoal();
+			sWasAchieved = false;
+
+		}
+		else {
 			SceneManager::GetInstance()->ChangeScene("Title");
+			return;
 		}
 	}
 
@@ -171,21 +206,13 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
-	// コース
 	if (isClear_) {
 		course_->DrawAll(directionalLight_);
-	} else {
-		//描画処理
+	}
+	else {
 		player_->Draw();
-
-		//ゴール描画処理
-		//goal_->Draw();
-
 		course_->Draw(directionalLight_);
-
 		hitPreview_->Draw();
-
-		// HUD
 		hud_->Draw();
 	}
 

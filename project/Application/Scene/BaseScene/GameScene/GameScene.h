@@ -51,7 +51,7 @@ private:
 	std::unique_ptr<GameTimer> timer_ = nullptr;
 	// 予測表示
 	std::unique_ptr<HitPreview> hitPreview_ = nullptr;
-
+	int clearCount_ = 0;
 	//クリアしているか
 	bool isClear_ = false;
 	//クリアカメラの座標

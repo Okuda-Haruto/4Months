@@ -9,7 +9,17 @@ public:
 	void Initialize(Input* input);
 	void Update(Player* player,Course* course,GameTimer* timer,int startNum);
 	void Draw();
+	// ★追加（内部処理）
+	void UpdateGoalAchieved();
+	void ResetGoal();
+	// ★追加（変数）
+	bool isGoalAchieved_ = false;
+	float goalAchievedTimer_ = 0.0f;
+	const float kGoalDisplayTime_ = 2.0f;
 
+
+	// ★追加（public関数）
+	void OnGoalAchieved();
 private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);
@@ -52,6 +62,8 @@ private:
 	Vector2 startNumPos_ = { 640,360 };
 	bool startNumIsDraw_;
 
+	std::unique_ptr<Sprite> goalSprite_;
+	std::unique_ptr<Sprite> normaSprite_;
 	Input* input_;
 };
 

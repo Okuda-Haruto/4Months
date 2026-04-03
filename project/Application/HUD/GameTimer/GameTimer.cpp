@@ -7,3 +7,6 @@ void GameTimer::Initialize() {
 void GameTimer::Update() {
 	currentTime_ -= 1.0f / 60.0f;
 }
+float GameTimer::GetCurrentTime() const {
+	return currentTime_;
+}

@@ -6,7 +6,7 @@ public:
 
 	float GetCurrentGameTime() { return currentTime_; }
 	float GetMaxTime() { return maxTime_; }
-
+	float GetCurrentTime() const; // ← これ追加
 private:
 	float currentTime_ = 30;
 	const float maxTime_ = 30;

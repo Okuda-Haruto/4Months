@@ -6,21 +6,32 @@ Course::Course() {
 
 Course::~Course() {
 }
-
 void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight) {
 	camera_ = camera;
 	directionalLight_ = directionalLight;
 
-	chunkData_.size = { 2,18,2 };
+	// =========================
+	// ■ リセット（進行だけ）
+	// =========================
+	breakScore_ = 0;
+	//boxes_.clear();
+	//spawnBoxes_.clear();
+	sections_.clear();
+
+	chunkData_.size = { 2,12,2 };
 	chunkData_.directoryPath = "resources/CSV";
 
-	voxel_ = std::make_unique<Voxel>();
-	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
+	// =========================
+	// ■ voxelは一度だけ生成
+	// =========================
+	if (!voxel_) {
+		voxel_ = std::make_unique<Voxel>();
+		voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
+	}
+
 	sections_.push_back({ 0,-32 * 4 * 3.0f });
 	sections_.push_back({ -32 * 4 * 3.0f, -1000 });
-
 }
-
 void Course::Update() {
 	for (auto& box : boxes_) {
 		if (box->IsDead()) {

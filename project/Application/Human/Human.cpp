@@ -120,9 +120,14 @@ void Human::Draw() {
 void Human::OnHitVoxel(Vector3 translate) {
 	Slowdown();
 
-	transform_.rotate = LookAt(translate, transform_.translate);
-	fallingSpeed_ = 1.0f;
-	speed_ = 1.0f;
+	// 向きは変えない（←削除）
+	// transform_.rotate = LookAt(translate, transform_.translate);
+
+	// 上方向に強めに跳ねる
+	fallingSpeed_ = 7.5f; // ←ここ調整ポイント（元は1.0f）
+
+	// 前進速度は維持 or 少しだけ回復にする
+	speed_ = max(speed_, 0.5f); // 急に1.0に固定しない方が自然
 }
 
 void Human::Throw() {

@@ -80,6 +80,21 @@ void HUD::Initialize(Input* input) {
 	startNumSprite_->SetPosition(startNumPos_);
 	startNumSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	startNumIsDraw_ = true;
+
+	isGoalAchieved_ = true;
+	goalAchievedTimer_ = 999.0f;
+	goalSprite_ = std::make_unique<Sprite>();
+	goalSprite_->Initialize("./resources/HUD/norma_Dontclear.png"); // 好きな画像
+	goalSprite_->SetSize(Vector2{ 400.0f, 160.0f });
+	goalSprite_->SetPosition(Vector2{ 640.0f, 100.0f }); // 画面中央あたり
+	goalSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
+
+	
+	normaSprite_ = std::make_unique<Sprite>();
+	normaSprite_->Initialize("./resources/HUD/norma_clear.png"); // 未達成用
+	normaSprite_->SetSize(Vector2{ 400.0f, 160.0f });
+	normaSprite_->SetPosition(Vector2{ 640.0f, 100.0f });
+	normaSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 }
 
 void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum) {
@@ -89,6 +104,8 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum)
 	UpdateSection(player,course);
 	UpdateInfo();
 	UpdateStartNum(startNum);
+
+	UpdateGoalAchieved(); // ★追加
 }
 
 void HUD::Draw() {
@@ -107,7 +124,16 @@ void HUD::Draw() {
 	progressSprite_->Draw2D();
 
 	infoSprite_->Draw2D();
-
+	// ★常にどっちかは表示
+	if (isGoalAchieved_) {
+		normaSprite_->Update();
+		normaSprite_->Draw2D();
+	}
+	else {
+		
+goalSprite_->Update();
+goalSprite_->Draw2D();
+	}
 	if (startNumIsDraw_) {
 		startNumSprite_->Draw2D();
 	}
@@ -126,7 +152,6 @@ void HUD::UpdateCharge(Player* player) {
 	chargeBGSprite_->Update();
 	currentChargeSprite_->Update();
 }
-
 void HUD::UpdateScore(Course* course) {
 	int current = course->GetBreakScore();
 	int max = course->GetMaxBreakScore();
@@ -135,38 +160,39 @@ void HUD::UpdateScore(Course* course) {
 	// 割合を求める
 	float rate = float(current) / float(max);
 	rate = min(rate, 1.0f);
-	// HP量に応じてスプライトのサイズ変更
+
+	// 現在ノルマ分のゲージ
 	float length = kBreakBarWidth * 0.4f * rate;
 	currentBreakSprite_->SetSize({ length, currentBreakSprite_->GetSize().y });
 	breakBGSprite_->Update();
 	currentBreakSprite_->Update();
 
-	// 割合を求める
+	// ボーナス分のゲージ
 	rate = float(current - max) / (float(max) / 4 * 6);
 	rate = min(rate, 1.0f);
-	if (rate < 0) return;
-	// HP量に応じてスプライトのサイズ変更
-	length = kBreakBarWidth * 0.6f * rate;
+	rate = max(rate, 0.0f);
 
+	length = kBreakBarWidth * 0.6f * rate;
 	bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
 	bonusBreakSprite_->Update();
 }
-
 void HUD::UpdateTimer(GameTimer* timer) {
 	float current = timer->GetCurrentGameTime();
 	float max = timer->GetMaxTime();
-	if (current < 0) return;
+
+	if (current < 0) current = 0;
 
 	// 割合を求める
 	float rate = current / max;
 	rate = min(rate, 1.0f);
+
 	// 残り時間に応じてスプライトのサイズ変更
 	float length = kTimeBarWidth * rate;
 	currentTimeSprite_->SetSize({ length, currentTimeSprite_->GetSize().y });
+
 	timeBGSprite_->Update();
 	currentTimeSprite_->Update();
 }
-
 void HUD::UpdateSection(Player* player,Course* course) {
 	float start = course->GetSections()[0].start;
 	float current = player->GetTransform().translate.y;
@@ -194,6 +220,9 @@ void HUD::UpdateInfo() {
 
 void HUD::UpdateStartNum(int num) {
 
+	// ★追加
+	startNumIsDraw_ = true;
+
 	if (num == 0) {
 		startNumIsDraw_ = false;
 		return;
@@ -201,4 +230,21 @@ void HUD::UpdateStartNum(int num) {
 
 	startNumSprite_->SetTextureLeftTop(Vector2{ 150.0f - 50.0f * num,0.0f });
 	startNumSprite_->Update();
+}
+void HUD::UpdateGoalAchieved() {
+
+	//if (!isGoalAchieved_) return;
+
+	//goalAchievedTimer_ -= 1.0f / 60.0f;
+
+	//if (goalAchievedTimer_ <= 0.0f) {
+	//	isGoalAchieved_ = false;
+	//}
+}
+void HUD::OnGoalAchieved() {
+	isGoalAchieved_ = true;
+	goalAchievedTimer_ = kGoalDisplayTime_;
+}
+void HUD::ResetGoal() {
+	isGoalAchieved_ = false;
 }
