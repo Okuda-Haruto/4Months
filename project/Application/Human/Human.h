@@ -33,6 +33,7 @@ public:
 	bool IsInvincible() { return invincibleTimer_ > 0; }
 	bool IsVacuuming() { return vacuumState_ == Vacuum; }
 	bool IsShooting() { return vacuumState_ == Going; }
+	bool CanShoot() { return vacuumState_ == None; }
 	bool IsCharging() { return isCharging_; }
 
 	//ドリフト中か

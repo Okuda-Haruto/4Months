@@ -111,4 +111,6 @@ public:
 	SRT GetTransform() { return transform_; }
 
 	void SetChunkHeight(int32_t chunkHeight) { chunkHeight_ = chunkHeight; }
+
+	std::shared_ptr<Camera> GetCamera() { return camera_; }
 };

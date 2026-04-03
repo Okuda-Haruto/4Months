@@ -79,15 +79,23 @@ void HUD::Initialize(Input* input) {
 	startNumSprite_->SetPosition(startNumPos_);
 	startNumSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	startNumIsDraw_ = true;
+
+	canShoot_ = std::make_unique<Sprite>();
+	canShoot_->Initialize("./resources/HUD/CanShoot.png");
+	canShoot_->SetSize(Vector2{ 180.0f,40.0f });
+	canShoot_->SetTextureSize(Vector2{ 180.0f,40.0f });
+	canShoot_->SetPosition({640,300});
+	canShoot_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 }
 
-void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum) {
+void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera) {
 	UpdateCharge(player);
 	UpdateScore(course);
 	UpdateTimer(course);
 	UpdateSection(player, course);
 	UpdateInfo();
 	UpdateStartNum(startNum);
+	UpdateReload(player,camera);
 }
 
 void HUD::Draw() {
@@ -107,6 +115,7 @@ void HUD::Draw() {
 	progressSprite_->Draw2D();
 
 	infoSprite_->Draw2D();
+	canShoot_->Draw2D();
 
 	if (startNumIsDraw_) {
 		startNumSprite_->Draw2D();
@@ -197,4 +206,51 @@ void HUD::UpdateStartNum(int num) {
 
 	startNumSprite_->SetTextureLeftTop(Vector2{ 150.0f - 50.0f * num,0.0f });
 	startNumSprite_->Update();
+}
+
+void HUD::UpdateReload(Player* player, std::shared_ptr<Camera> camera) {
+	Matrix4x4 viewProjection = camera->GetViewMatrix() * camera->GetProjectionMatrix();
+
+	// 修正後
+	Vector3 pos = player->GetTransform().translate;
+	Vector4 worldPos = { pos.x, pos.y, pos.z, 1.0f };
+	Vector4 clipPos = Transform(worldPos, viewProjection);
+
+	// w除算
+	Vector3 ndc;
+	ndc.x = clipPos.x / clipPos.w;
+	ndc.y = clipPos.y / clipPos.w;
+	ndc.z = clipPos.z / clipPos.w;
+
+	// スクリーン変換
+	Vector2 screen;
+	screen.x = (ndc.x + 1.0f) * 0.5f * 1280;
+	screen.y = (1.0f - ndc.y) * 0.5f * 720;
+
+	drawCanShoot_ = player->CanShoot();
+	if (drawCanShoot_) {
+		canShoot_->SetTextureLeftTop({ 0,0 });
+	} else {
+		canShoot_->SetTextureLeftTop({ 0,40 });
+	}
+	canShoot_->SetPosition(screen + Vector2{0,-50});
+	canShoot_->Update();
+}
+
+Vector4 HUD::Transform(const Vector4& vector, const Matrix4x4& matrix) {
+	// 座標変換した結果
+	Vector4 transform;
+
+	transform.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + vector.w * matrix.m[3][0];
+	transform.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + vector.w * matrix.m[3][1];
+	transform.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + vector.w * matrix.m[3][2];
+	transform.w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + vector.w * matrix.m[3][3];
+
+	assert(transform.w != 0.0f);
+	transform.x /= transform.w;
+	transform.y /= transform.w;
+	transform.z /= transform.w;
+	transform.w /= transform.w;
+
+	return transform;
 }
