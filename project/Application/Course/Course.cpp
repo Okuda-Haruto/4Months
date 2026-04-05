@@ -84,6 +84,18 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 	voxel_->DrawAll();
 }
 
+void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
+	std::list<Object*> boxObjects;
+	for (auto& box : boxes_) {
+		boxObjects.push_back(box->GetObjectData());
+	}
+	if (!boxObjects.empty()) {
+		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
+	}
+
+	voxel_->DrawUp();
+}
+
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
 	box->Initialize(this, transform, velocity, number, vacuumSensitivity, maxHP, directionalLight_);

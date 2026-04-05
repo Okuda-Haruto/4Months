@@ -11,7 +11,6 @@ void StartCountdown::Initialize(std::shared_ptr<DirectionalLight> directionalLig
 	LoadCSV("resources/Countdown/1.csv", directionalLight, 1);
 	LoadCSV("resources/Countdown/2.csv", directionalLight, 2);
 	LoadCSV("resources/Countdown/3.csv", directionalLight, 3);
-	timer_ = -0.5f;
 }
 
 void StartCountdown::Update() {
@@ -20,7 +19,13 @@ void StartCountdown::Update() {
 	SRT transform{};
 
 	switch (state_) {
+	case State::PreStart:
+		// 待機(スタート前カメラ)
+		timer_ += 1.0f / 60.0f;
+		timer_ = min(timer_, preStartTime_);
+		break;
 	case State::Start:
+		// 初期配置につく
 		timer_ += 1.0f / 60.0f;
 		timer_ = min(timer_, startTime_);
 
@@ -35,22 +40,19 @@ void StartCountdown::Update() {
 			blocks_[i]->SetTransform(transform);
 		}
 
-		if (timer_ == startTime_) {
+		if (timer_ >= startTime_) {
 			count_--;
 
 			timer_ = 0;
 			state_ = State::Wait;
 		}
-		
-		State::Vacuum;
-
 		break;
 	case State::Wait:
 		timer_ += 1.0f / 60.0f;
 
 		timer_ = min(timer_, waitTime_);
 
-		if (timer_ == waitTime_) {
+		if (timer_ >= waitTime_) {
 			// 次の形タイマーに変更
 			timers_.clear();
 			for (auto& pos : positions_[count_]) {
@@ -85,7 +87,7 @@ void StartCountdown::Update() {
 			blocks_[i]->Update();
 		}
 
-		if (timer_ == vacuumEndTime_) {
+		if (timer_ >= vacuumEndTime_) {
 			timer_ = 0;
 
 			// 次のカウントに移動or終了

@@ -126,7 +126,7 @@ void HUD::SetPauseDisplay(bool isOn) {
 	if (isOn) {
 		Vector4 color;
 		color = canShoot_->GetColor();
-		color.w = 0.25f;
+		color.w = 0.0f;
 		canShoot_->SetColor(color);
 	} else {
 		Vector4 color;
