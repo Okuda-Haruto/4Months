@@ -12,7 +12,7 @@ void DownCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
 	//初期値として現在の向きを入れる
 	transform_.scale = { 1,1,1 };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
-	transform_.translate = player_->GetTransform().translate + Vector3{0,50,0};
+	transform_.translate = player_->GetTransform().translate + Vector3{ 0,50,0 };
 }
 void DownCamera::Update() {
 
@@ -73,16 +73,16 @@ void ResultCamera::Update() {
 
 	//マニュアル移動
 	if (keyboard.hold[DIK_W] || keyboard.hold[DIK_UP]) {
-		nextVelocity += { 0,1,0 };
+		nextVelocity += { 0, 1, 0 };
 	}
 	if (keyboard.hold[DIK_S] || keyboard.hold[DIK_DOWN]) {
-		nextVelocity += { 0,-1,0 };
+		nextVelocity += { 0, -1, 0 };
 	}
 	if (keyboard.hold[DIK_D] || keyboard.hold[DIK_RIGHT]) {
-		nextVelocity += { 1,0,0 };
+		nextVelocity += { 1, 0, 0 };
 	}
 	if (keyboard.hold[DIK_A] || keyboard.hold[DIK_LEFT]) {
-		nextVelocity += { -1,0,0 };
+		nextVelocity += { -1, 0, 0 };
 	}
 
 	//動かしていたらマニュアル移動
@@ -91,15 +91,14 @@ void ResultCamera::Update() {
 		mode_ = CameraMode::Manual;
 		releaseKeyTime_ = 0.0f;
 	} else {
-	//動かしていない場合勝手にオートマに
+		//動かしていない場合勝手にオートマに
 		releaseKeyTime_ += 1.0f / 60.0f;
 		if (releaseKeyTime_ > kMaxReleaseKeyTime && mode_ == CameraMode::Manual) {
 			mode_ = CameraMode::Automatic_Down;
 		}
 	}
 
-	switch (mode_)
-	{
+	switch (mode_) {
 	case CameraMode::Automatic_Up:
 		nextVelocity = { 0,1,0 };
 		break;
@@ -143,8 +142,8 @@ void GameCamera::Initialize(std::shared_ptr<Camera> camera, std::shared_ptr<Inpu
 	input_ = input;
 	player_ = player;
 
-	//一旦落下カメラを初期値に
-	nowCamera_ = std::make_unique<DownCamera>();
+	// 初期値
+	nowCamera_ = std::make_unique<StartCamera>();
 	nowCamera_->Initialize(input_, player);
 }
 
@@ -175,7 +174,7 @@ void GameCamera::Update() {
 		transform_ = shakedTransform;
 		// 通常カメラのビュー
 		camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(shakedTransform.scale, shakedTransform.rotate, shakedTransform.translate)));
-	//カメラ遷移
+		//カメラ遷移
 	} else {
 		//遷移タイマー
 		if (changeCameraTime_ < maxChangeCameraTime_) {
@@ -213,7 +212,7 @@ void GameCamera::Update() {
 			// 通常カメラのビュー
 			camera_->SetViewMatrix(Inverse(MakeQuaternionMatrix(shakedTransform.scale, shakedTransform.rotate, shakedTransform.translate)));
 			return;
-		}  
+		}
 		//遷移中なら両方を更新
 		nowCamera_->Update();
 
@@ -224,7 +223,7 @@ void GameCamera::Update() {
 		SRT nextTransform = nextCamera_->GetTransform();
 		lerpTransform.scale = { 1,1,1 };
 		lerpTransform.rotate = Slerp(nowTransform.rotate, nextTransform.rotate, 1.0f - powf(1.0f - changeCameraTime_ / maxChangeCameraTime_, 2));
-		lerpTransform.translate = Lerp(nowTransform.translate, nextTransform.translate, 1.0f - powf(1.0f - changeCameraTime_ / maxChangeCameraTime_,2));
+		lerpTransform.translate = Lerp(nowTransform.translate, nextTransform.translate, 1.0f - powf(1.0f - changeCameraTime_ / maxChangeCameraTime_, 2));
 
 		camera_->Update(lerpTransform);
 		// カメラシェイク
@@ -253,15 +252,118 @@ void GameCamera::Update() {
 void GameCamera::ChangeCamera(const std::unique_ptr<BaseCamera>& nextCamera, float changeCameraTime) {
 	nextCamera_ = std::move(const_cast<std::unique_ptr<BaseCamera>&>(nextCamera));
 	nextCamera_->Initialize(input_, player_);
-	
+
 	//カメラ遷移時間
 	maxChangeCameraTime_ = changeCameraTime;
 	changeCameraTime_ = 0.0f;
-
 }
 
 void GameCamera::StartShake(float amplitude, int frame) {
 	amplitude_ = amplitude;
 	shakeFrame_ = frame;
 	shakeEndFrame_ = frame;
+}
+
+#pragma region ゲーム開始前カメラ
+
+void StartCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
+	input_ = input;
+	player_ = player;
+
+	transform_.scale = { 1,1,1 };
+}
+
+void StartCamera::Update() {
+	timer_ += 1.0f / 60.0f;
+	float t = 0;
+	Vector3 target{0,0,0};
+	float radius = 0;
+	float angle = 0;
+	Vector3 offset{};
+	float height = 0;
+	Vector3 finalPos{};
+	Quaternion finalRot{};
+
+	t = timer_ / risingTime_;
+	t = std::clamp(t, 0.0f, 1.0f);
+
+	radius = 250.0f;
+	angle = t * std::numbers::pi_v<float> *2.0f - std::numbers::pi_v<float> / 2.0f;
+
+	offset = {
+		cosf(angle) * radius,
+		0,
+		sinf(angle) * radius
+	};
+
+	height = Lerp(-1000.0f, 0.0f, t); // 移動範囲
+
+	Vector3 basePos = target + offset;
+	basePos.y += height;
+
+	transform_.translate = basePos;
+
+	// 回転（補間あり）
+	Quaternion targetRot = LookAt(transform_.translate, target);
+
+	transform_.rotate = Slerp(
+		transform_.rotate,
+		targetRot,
+		0.5f
+	);
+}
+
+#pragma endregion
+
+Quaternion StartCamera::LookAt(const Vector3& eye, const Vector3& target) {
+	Vector3 forward = Normalize(target - eye);
+
+	Vector3 up = { 0,1,0 };
+
+	if (fabs(Dot(forward, up)) > 0.99f) {
+		up = { 0,0,1 };
+	}
+
+	Vector3 right = Normalize(Cross(up, forward));
+	Vector3 newUp = Cross(forward, right);
+
+	Matrix4x4 m;
+	m.m[0][0] = right.x;   m.m[0][1] = right.y;   m.m[0][2] = right.z;
+	m.m[1][0] = newUp.x;   m.m[1][1] = newUp.y;   m.m[1][2] = newUp.z;
+	m.m[2][0] = forward.x; m.m[2][1] = forward.y; m.m[2][2] = forward.z;
+
+	return Normalize(MatrixToQuaternion(m));
+}
+
+Quaternion StartCamera::MatrixToQuaternion(const Matrix4x4& m) {
+	Quaternion q{};
+	float trace = m.m[0][0] + m.m[1][1] + m.m[2][2];
+
+	if (trace > 0.0f) {
+		float s = sqrtf(trace + 1.0f) * 2.0f; // S=4*qw
+		q.w = 0.25f * s;
+		q.x = (m.m[2][1] - m.m[1][2]) / s;
+		q.y = (m.m[0][2] - m.m[2][0]) / s;
+		q.z = (m.m[1][0] - m.m[0][1]) / s;
+	} else if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2]) {
+		float s = sqrtf(1.0f + m.m[0][0] - m.m[1][1] - m.m[2][2]) * 2.0f;
+		q.w = (m.m[2][1] - m.m[1][2]) / s;
+		q.x = 0.25f * s;
+		q.y = (m.m[0][1] + m.m[1][0]) / s;
+		q.z = (m.m[0][2] + m.m[2][0]) / s;
+	} else if (m.m[1][1] > m.m[2][2]) {
+		float s = sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]) * 2.0f;
+		q.w = (m.m[0][2] - m.m[2][0]) / s;
+		q.x = (m.m[0][1] + m.m[1][0]) / s;
+		q.y = 0.25f * s;
+		q.z = (m.m[1][2] + m.m[2][1]) / s;
+	} else {
+		float s = sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]) * 2.0f;
+		q.w = (m.m[1][0] - m.m[0][1]) / s;
+		q.x = (m.m[0][2] + m.m[2][0]) / s;
+		q.y = (m.m[1][2] + m.m[2][1]) / s;
+		q.z = 0.25f * s;
+	}
+
+	return Normalize(q);
 }

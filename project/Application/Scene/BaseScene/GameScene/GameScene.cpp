@@ -83,6 +83,11 @@ void GameScene::Update() {
 	if (!startCountdown_->IsEnd()) {
 		// 開始カウントダウン
 		startCountdown_->Update();
+
+		// ゲーム中のカメラに移行
+		if (startCountdown_->IsDownCameraTime()) {
+			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
+		}
 	} else {
 		// プレイヤーの更新
 		player_->Update(input_);
@@ -133,7 +138,7 @@ void GameScene::Update() {
 	hud_->SetPauseDisplay(!startCountdown_->IsEnd());
 
 	// HUD
-	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0),gameCamera_->GetCamera());
+	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
 
 #ifdef USE_IMGUI
 	int section = course_->GetCurrentSectionNumber();
@@ -167,10 +172,11 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-
 	// コース
 	if (isClear_) {
 		course_->DrawAll(directionalLight_);
+	} else if (startCountdown_->IsPreStart()) {
+		course_->DrawUp(directionalLight_);
 	} else {
 		//描画処理
 		player_->Draw();

@@ -56,6 +56,7 @@ public:
 
 	void Draw();
 	void DrawAll();
+	void DrawUp();
 
 	void Collision(Sphere sphere);
 
@@ -66,6 +67,7 @@ private:
 
 	void DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslate, Vector3 cameraChunkNumber);
 	void DrawChunkAll(int chunkY, int chunkZ, int chunkX, Vector3 cameraChunkNumber);
+	void DrawChunkAllUp(int chunkY, int chunkZ, int chunkX, Vector3 cameraChunkNumber, int maxUpRange);
 
 	Object* AddFace(int chunkY, int chunkZ, int chunkX, int y, int z, int x, int8_t number, Quaternion rotate);
 
