@@ -62,6 +62,8 @@ private:
 
 	int32_t chunkHeight_;
 
+	float skipHold_ = 0;
+
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Input> input) override;

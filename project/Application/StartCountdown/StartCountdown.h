@@ -17,6 +17,7 @@ public:
 		}
 		return false;
 	}
+	void SkipPreStart() { timer_ = -0.5f; state_ = State::Start; }
 private:
 	void LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> directionalLight, int countNumber);
 

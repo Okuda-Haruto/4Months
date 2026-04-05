@@ -88,6 +88,16 @@ void GameScene::Update() {
 		if (startCountdown_->IsDownCameraTime()) {
 			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 		}
+
+		if (keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) {
+			skipHold_ += 1.0f / 60.0f;
+			if (skipHold_ > 0.5f) {
+				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+				startCountdown_->SkipPreStart();
+			}
+		} else {
+			skipHold_ = 0;
+		}
 	} else {
 		// プレイヤーの更新
 		player_->Update(input_);
