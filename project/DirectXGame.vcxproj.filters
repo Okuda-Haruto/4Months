@@ -202,6 +202,7 @@
     <ClCompile Include="Application\Course\Section\GameTimer\GameTimer.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Effect\Stars\Stars.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -508,6 +509,7 @@
     <ClInclude Include="Application\Course\Section\GameTimer\GameTimer.h">
       <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Effect\Stars\Stars.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

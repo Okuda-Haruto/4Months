@@ -56,7 +56,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
-	hud_->Initialize(input.get());
+	hud_->Initialize(input.get(), gameCamera_->GetCamera());
 
 	// 予測表示
 	hitPreview_ = std::make_unique<HitPreview>();
