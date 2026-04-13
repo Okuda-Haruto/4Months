@@ -100,10 +100,9 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	UpdateReload(player, camera);
 
 	// エフェクト
-	for (auto& pos : course->GetBreakPos()) {
-		if (GameEngine::randomInt(1, 500) == 1) {
-			stars_->AddStar(pos);
-		}
+	auto pos = course->GetBreakPos();
+	for (int i = 0; i < int(pos.size()); i += 800) {
+		stars_->AddStar(pos[i]);
 	}
 	Vector2 center = currentBreakSprite_->GetSize();
 	center.x += bonusBreakSprite_->GetSize().x;

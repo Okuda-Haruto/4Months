@@ -53,7 +53,7 @@ private:
 		int score;
 	};
 	// スコアに反映までの時間
-	float scoreDelay_ = 1.0f;
+	float scoreDelay_ = 4.0f / 5.0f;
 	std::vector<Delay> delay_;
 
 	// 区間

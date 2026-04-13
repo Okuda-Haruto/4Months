@@ -82,7 +82,7 @@ void Sprite::Initialize(const std::string& textureFilePath) {
 void Sprite::Update() {
 	transform_ = {
 		{size_.x,size_.y,1.0f},
-		{0.0f,0.0f,rotation_ },
+		MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, rotation_),
 		{position_.x,position_.y,0.0f}
 	};
 

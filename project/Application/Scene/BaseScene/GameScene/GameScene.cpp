@@ -89,7 +89,7 @@ void GameScene::Update() {
 			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 		}
 
-		if (keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) {
+		if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
 			skipHold_ += 1.0f / 60.0f;
 			if (skipHold_ > 0.5f) {
 				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);

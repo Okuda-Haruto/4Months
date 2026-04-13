@@ -59,6 +59,8 @@ private:
 	bool drawCanShoot_ = false;
 
 	Input* input_;
+
+	// ゲージ増加エフェクト
 	std::unique_ptr<Stars> stars_;
 };
 
