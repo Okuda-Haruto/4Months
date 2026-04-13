@@ -136,3 +136,23 @@ public:
 
 	std::shared_ptr<Camera> GetCamera() { return camera_; }
 };
+
+class StartCamera : public BaseCamera{
+private:
+	const float risingTime_ = 3.0f;
+	float timer_ = 0;
+
+	// カメラ回転速度
+	const float kCameraRotateSpeed = std::numbers::pi_v<float> / 180;
+
+	// 上昇速度
+	const float kRiseSpeed = 1.0f;
+	
+public:
+	//初期化
+	void Initialize(std::shared_ptr<Input> input, Player* player) override;
+	//更新処理
+	void Update() override;
+	Quaternion LookAt(const Vector3& eye, const Vector3& target);
+	Quaternion MatrixToQuaternion(const Matrix4x4& m);
+};

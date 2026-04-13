@@ -187,11 +187,21 @@
     <ClCompile Include="Application\Effect\Wind\Wind.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Course\Section\GameTimer\GameTimer.cpp" />
-    <ClCompile Include="Application\HitPreview\HitPreview.cpp" />
-    <ClCompile Include="Application\TitleMoji\TitleMoji.cpp" />
-    <ClCompile Include="Application\Course\Section\Section.cpp" />
-    <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp" />
+    <ClCompile Include="Application\HitPreview\HitPreview.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\HitPreview</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\StartCountdown\StartCountdown.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\StartCountdown</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\TitleMoji\TitleMoji.cpp">
+      <Filter>Application\Scene\BaseScene\TitleScene\TitleMoji</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Course\Section\Section.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\Course\Section</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Course\Section\GameTimer\GameTimer.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -483,11 +493,21 @@
     <ClInclude Include="Application\Effect\Wind\Wind.h">
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Course\Section\GameTimer\GameTimer.h" />
-    <ClInclude Include="Application\HitPreview\HitPreview.h" />
-    <ClInclude Include="Application\TitleMoji\TitleMoji.h" />
-    <ClInclude Include="Application\Course\Section\Section.h" />
-    <ClInclude Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.h" />
+    <ClInclude Include="Application\HitPreview\HitPreview.h">
+      <Filter>Application\Scene\BaseScene\GameScene\HitPreview</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\StartCountdown\StartCountdown.h">
+      <Filter>Application\Scene\BaseScene\GameScene\StartCountdown</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\TitleMoji\TitleMoji.h">
+      <Filter>Application\Scene\BaseScene\TitleScene\TitleMoji</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Course\Section\Section.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Course\Section</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Course\Section\GameTimer\GameTimer.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -714,6 +734,21 @@
     </Filter>
     <Filter Include="Application\Scene\BaseScene\GameScene\Effect\Wind">
       <UniqueIdentifier>{9972798a-db62-46fc-bc74-164d951b7a62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\HitPreview">
+      <UniqueIdentifier>{fa7fcfe8-cb70-43a2-ad43-fc87a9f18f0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\StartCountdown">
+      <UniqueIdentifier>{1dae6745-2903-4a06-806d-1e2c0d565f67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\TitleScene\TitleMoji">
+      <UniqueIdentifier>{cead1d9b-938f-46a4-91b5-ee8468e1beeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Course\Section">
+      <UniqueIdentifier>{4e92d47c-1438-4c63-8789-d2491c348ac9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Course\Section\GameTimer">
+      <UniqueIdentifier>{4ad0d169-c6ff-431c-9654-0cd394e38bad}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

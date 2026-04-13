@@ -66,7 +66,9 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	hitPreview_ = std::make_unique<HitPreview>();
 	hitPreview_->Initialize(directionalLight_);
 
-	startTime_ = kMamStartTime;
+	// 開始カウントダウン
+	startCountdown_ = std::make_unique<StartCountdown>();
+	startCountdown_->Initialize(directionalLight_);
 
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
@@ -82,8 +84,24 @@ void GameScene::Update() {
 	Keyboard keyboard = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
 
-	if (startTime_ > 0.0f) {
-		startTime_ -= 2.0f / 60.0f;
+	if (!startCountdown_->IsEnd()) {
+		// 開始カウントダウン
+		startCountdown_->Update();
+
+		// ゲーム中のカメラに移行
+		if (startCountdown_->IsDownCameraTime()) {
+			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
+		}
+
+		if (keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) {
+			skipHold_ += 1.0f / 60.0f;
+			if (skipHold_ > 0.5f) {
+				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+				startCountdown_->SkipPreStart();
+			}
+		} else {
+			skipHold_ = 0;
+		}
 	} else {
 		// プレイヤーの更新
 		player_->Update(input_);
@@ -131,8 +149,10 @@ void GameScene::Update() {
 	}
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
+	hud_->SetPauseDisplay(!startCountdown_->IsEnd());
+
 	// HUD
-	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(std::ceil(startTime_)),gameCamera_->GetCamera());
+	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
 
 #ifdef USE_IMGUI
 	int section = course_->GetCurrentSectionNumber();
@@ -166,10 +186,11 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-
 	// コース
 	if (isClear_) {
 		course_->DrawAll(directionalLight_);
+	} else if (startCountdown_->IsPreStart()) {
+		course_->DrawUp(directionalLight_);
 	} else {
 		//描画処理
 		player_->Draw();
@@ -183,6 +204,9 @@ void GameScene::Draw() {
 
 		// HUD
 		hud_->Draw();
+
+		// 開始カウントダウン
+		startCountdown_->Draw();
 	}
 
 }
