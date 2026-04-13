@@ -18,7 +18,7 @@ void Stars::Initialize(std::shared_ptr<Camera> camera) {
 
 	for (int i = 0; i < kMaxStarCount; ++i) {
 		std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
-		sprite->Initialize("./resources/Effect/Star/Star.png");
+		sprite->Initialize("resources/Effect/Star/Star.png");
 		sprite->SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
 		sprite->SetSize(size_);
 		sprite->SetAnchorPoint({ 0.5f, 0.5f });
@@ -31,7 +31,7 @@ void Stars::Initialize(std::shared_ptr<Camera> camera) {
 
 	for (int i = 0; i < kMaxFlashCount; ++i) {
 		std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
-		sprite->Initialize("./resources/Effect/Star/Star.png");
+		sprite->Initialize("resources/Effect/Star/Star.png");
 		sprite->SetColor({ 1.0f, 1.0f, 0.3f, 1.0f });
 		sprite->SetSize(size_);
 		sprite->SetAnchorPoint({ 0.5f, 0.5f });
