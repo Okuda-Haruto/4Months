@@ -21,6 +21,8 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 }
 
 void Course::Update(float playerY) {
+	breakPos_.clear();
+
 	// 今いる区間
 	for (int i = currentSectionNum_; i < sections_.size(); ++i) { // 今より上に行っても区間は戻らない
 		if (sections_[i]->IsEnter(playerY)) {
@@ -43,6 +45,7 @@ void Course::Update(float playerY) {
 	for (auto& box : boxes_) {
 		if (box->IsDead()) {
 			sections_[currentSectionNum_]->AddBreak(1);
+			breakPos_.push_back(box->GetTransform().translate);
 		}
 	}
 

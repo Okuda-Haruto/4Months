@@ -81,6 +81,8 @@ public:
 	//描画
 	void Draw2D();
 
+	void Draw2DAdd(); // 加算ブレンド
+
 	const Vector2& GetPosition() const { return position_; }
 	void SetPosition(const Vector2& position) { position_ = position; }
 	const float& GetRotation() const { return rotation_; }

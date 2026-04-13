@@ -82,7 +82,7 @@ void Sprite::Initialize(const std::string& textureFilePath) {
 void Sprite::Update() {
 	transform_ = {
 		{size_.x,size_.y,1.0f},
-		{0.0f,0.0f,rotation_ },
+		MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, rotation_),
 		{position_.x,position_.y,0.0f}
 	};
 
@@ -130,6 +130,10 @@ void Sprite::Update() {
 
 void Sprite::Draw2D() {
 	GameEngine::DrawSprite_2D(this);
+}
+
+void Sprite::Draw2DAdd() {
+	GameEngine::DrawSpriteAdditive(this);
 }
 
 void Sprite::SetTextue(const std::string& textureFilePath) {

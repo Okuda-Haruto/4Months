@@ -1,17 +1,17 @@
 #pragma once
 #include "GameEngine.h"
+#include "Effect/Stars/Stars.h"
 
 class Player;
 class Course;
 class GameTimer;
 class HUD {
 public:
-	void Initialize(Input* input);
+	void Initialize(Input* input, std::shared_ptr<Camera> camera);
 	void Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera);
 	void Draw();
 
 	void SetPauseDisplay(bool isOn);
-
 private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);
@@ -20,8 +20,6 @@ private:
 	void UpdateInfo();
 	void UpdateStartNum(int num);
 	void UpdateReload(Player* player, std::shared_ptr<Camera> camera);
-
-	Vector4 Transform(const Vector4& vector, const Matrix4x4& matrix);
 
 	// エネルギー
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
@@ -61,5 +59,10 @@ private:
 	bool drawCanShoot_ = false;
 
 	Input* input_;
+
+	// ゲージ増加エフェクト
+	std::unique_ptr<Stars> stars_;
 };
 
+inline Vector4 Transform(const Vector4& vector, const Matrix4x4& matrix);
+inline Vector2 ToScreen(std::shared_ptr<Camera> camera, Vector3 worldPos);
