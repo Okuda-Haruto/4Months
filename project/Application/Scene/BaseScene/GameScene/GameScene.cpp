@@ -43,11 +43,15 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_, input_, player_.get());
+	gameCamera_->Initialize(defaultCamera_, std::make_unique<DownCamera>(), input_, player_.get());
+
+	CSVData courseData;
+	courseData.size = { 2,18,2 };
+	courseData.directoryPath = "resources/CSV";
 
 	// コース
 	course_ = std::make_unique<Course>();
-	course_->Initialize(gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData, gameCamera_.get(), directionalLight_);
 	chunkHeight_ = int(course_->GetChunkData().size.y);
 
 	// 当たり判定

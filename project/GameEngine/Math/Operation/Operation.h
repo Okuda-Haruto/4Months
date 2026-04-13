@@ -90,10 +90,14 @@ Vector4 NormalizeWeights(const Vector4& v);
 // 線形補間
 Vector4 Lerp(Vector4 a, Vector4 b, float t);
 
+Vector3 ToVector3Direction(Vector4 v);
+
 Vector4 operator+(const Vector4& v1, const Vector4& v2);
 Vector4 operator-(const Vector4& v1, const Vector4& v2);
 Vector4 operator*(float s, const Vector4& v);
 Vector4 operator*(const Vector4& v, float s);
+Vector4 operator*(Matrix4x4 m, const Vector4& v);
+Vector4 operator*(const Vector4& v, Matrix4x4 m);
 Vector4 operator/(const Vector4& v, float s);
 Vector4 operator-(const Vector4& v);
 Vector4 operator+(const Vector4& v);

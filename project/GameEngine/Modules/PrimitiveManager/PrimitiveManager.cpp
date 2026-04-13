@@ -201,19 +201,19 @@ void PrimitiveManager::Finalize() {
 }
 
 void PrimitiveManager::Draw() {
-	std::list<Line> lines;
+	std::list<PrimitiveLine> lines;
 	for (int i = 0; i < lineIndex_; i++) {
 		lines.push_back(line_[i]);
 	}
 	if (!lines.empty())GameEngine::DrawLine(lines,primitiveResource_[SHAPE_Line]);
 
-	std::list<Vector3> points;
+	std::list<PrimitivePoint> points;
 	for (int i = 0; i < pointIndex_; i++) {
 		points.push_back(point_[i]);
 	}
 	if (!points.empty())GameEngine::DrawPoint(points, primitiveResource_[SHAPE_Point]);
 
-	std::list<AABB> aabbs;
+	std::list<PrimitiveAABB> aabbs;
 	for (int i = 0; i < aabbIndex_; i++) {
 		aabbs.push_back(aabb_[i]);
 	}

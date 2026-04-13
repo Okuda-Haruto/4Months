@@ -300,10 +300,26 @@ Vector4 Lerp(Vector4 a, Vector4 b, float t) {
 	return AnswerVector;
 }
 
+Vector4 Multiply(const Matrix4x4& M, const Vector4& v)
+{
+	Vector4 r;
+
+	r.x = M.m[0][0] * v.x + M.m[0][1] * v.y + M.m[0][2] * v.z + M.m[0][3] * v.w;
+	r.y = M.m[1][0] * v.x + M.m[1][1] * v.y + M.m[1][2] * v.z + M.m[1][3] * v.w;
+	r.z = M.m[2][0] * v.x + M.m[2][1] * v.y + M.m[2][2] * v.z + M.m[2][3] * v.w;
+	r.w = M.m[3][0] * v.x + M.m[3][1] * v.y + M.m[3][2] * v.z + M.m[3][3] * v.w;
+
+	return r;
+}
+
+Vector3 ToVector3Direction(Vector4 v) { return Vector3{ v.x,v.y,v.z }; }
+
 Vector4 operator+(const Vector4& v1, const Vector4& v2) { return Add(v1, v2); }
 Vector4 operator-(const Vector4& v1, const Vector4& v2) { return Subtract(v1, v2); }
 Vector4 operator*(float s, const Vector4& v) { return Multiply(s, v); }
 Vector4 operator*(const Vector4& v, float s) { return s * v; }
+Vector4 operator*(Matrix4x4 m, const Vector4& v) { return Multiply(m, v); }
+Vector4 operator*(const Vector4& v, Matrix4x4 m) { return m * v; }
 Vector4 operator/(const Vector4& v, float s) { return Multiply(1.0f / s, v); }
 Vector4 operator-(const Vector4& v) { return { -v.x,-v.y }; }
 Vector4 operator+(const Vector4& v) { return v; }

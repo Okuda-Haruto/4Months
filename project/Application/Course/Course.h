@@ -4,19 +4,27 @@
 #include "OBB.h"
 #include "Section/Section.h"
 
+//コースファイルデータ
+struct CourseData {
+	CSVData data;
+	std::string fileName;
+};
+
 class Course {
 public:
 	Course();
 	~Course();
 
 	// 初期化
-	void Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight);
 
 	// 更新
 	void Update(float playerY);
 
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
+	// 描画
+	void Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> directionalLight);
 	// 描画
 	void DrawAll(const std::shared_ptr<DirectionalLight> directionalLight);
 

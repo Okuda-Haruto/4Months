@@ -221,11 +221,32 @@ bool IsCollision(const AABB& aabb, const Ray& ray) {
 		(aabb.min.y - ray.origin.y) / ray.diff.y,
 		(aabb.min.z - ray.origin.z) / ray.diff.z,
 	};
+	//Nan対策
+	if ((aabb.min.x - ray.origin.x) == 0 && ray.diff.x == 0) {
+		min.x = (aabb.min.x - (ray.origin.x - 0.00001f)) / (ray.diff.x - 0.00001f);
+	}
+	if ((aabb.min.y - ray.origin.y) == 0 && ray.diff.y == 0) {
+		min.y = (aabb.min.y - (ray.origin.y - 0.00001f)) / (ray.diff.y - 0.00001f);
+	}
+	if ((aabb.min.z - ray.origin.z) == 0 && ray.diff.z == 0) {
+		min.z = (aabb.min.z - (ray.origin.z - 0.00001f)) / (ray.diff.z - 0.00001f);
+	}
+
 	Vector3 max = {
 		(aabb.max.x - ray.origin.x) / ray.diff.x,
 		(aabb.max.y - ray.origin.y) / ray.diff.y,
 		(aabb.max.z - ray.origin.z) / ray.diff.z,
 	};
+	//Nan対策
+	if ((aabb.max.x - ray.origin.x) == 0 && ray.diff.x == 0) {
+		max.x = (aabb.max.x - (ray.origin.x - 0.00001f)) / (ray.diff.x - 0.00001f);
+	}
+	if ((aabb.max.y - ray.origin.y) == 0 && ray.diff.y == 0) {
+		max.y = (aabb.max.y - (ray.origin.y - 0.00001f)) / (ray.diff.y - 0.00001f);
+	}
+	if ((aabb.max.z - ray.origin.z) == 0 && ray.diff.z == 0) {
+		max.z = (aabb.max.z - (ray.origin.z - 0.00001f)) / (ray.diff.z - 0.00001f);
+	}
 
 	float tNearX = std::min(min.x, max.x), tFarX = std::max(min.x, max.x);
 	float tNearY = std::min(min.y, max.y), tFarY = std::max(min.y, max.y);
@@ -236,11 +257,80 @@ bool IsCollision(const AABB& aabb, const Ray& ray) {
 	//AABBとの衝突点(貫通点)のtが大きい方
 	float tmax = std::min(std::min(tFarX, tFarY), tFarZ);
 
+	if (fabsf(tmin) == INFINITY || fabsf(tmax) == INFINITY) {
+		return true;
+	}
+
 	if (tmin <= tmax && tmax >= 0.0f) {
 		return true;
 	}
 	return false;
 }
+
+Vector3 GetHitNormal(const AABB& aabb, const Ray& ray) {
+	Vector3 min = {
+		(aabb.min.x - ray.origin.x) / ray.diff.x,
+		(aabb.min.y - ray.origin.y) / ray.diff.y,
+		(aabb.min.z - ray.origin.z) / ray.diff.z,
+	};
+	//Nan対策
+	if ((aabb.min.x - ray.origin.x) == 0 && ray.diff.x == 0) {
+		min.x = (aabb.min.x - (ray.origin.x - 0.00001f)) / (ray.diff.x - 0.00001f);
+	}
+	if ((aabb.min.y - ray.origin.y) == 0 && ray.diff.y == 0) {
+		min.y = (aabb.min.y - (ray.origin.y - 0.00001f)) / (ray.diff.y - 0.00001f);
+	}
+	if ((aabb.min.z - ray.origin.z) == 0 && ray.diff.z == 0) {
+		min.z = (aabb.min.z - (ray.origin.z - 0.00001f)) / (ray.diff.z - 0.00001f);
+	}
+
+	Vector3 max = {
+		(aabb.max.x - ray.origin.x) / ray.diff.x,
+		(aabb.max.y - ray.origin.y) / ray.diff.y,
+		(aabb.max.z - ray.origin.z) / ray.diff.z,
+	};
+	//Nan対策
+	if ((aabb.max.x - ray.origin.x) == 0 && ray.diff.x == 0) {
+		max.x = (aabb.max.x - (ray.origin.x - 0.00001f)) / (ray.diff.x - 0.00001f);
+	}
+	if ((aabb.max.y - ray.origin.y) == 0 && ray.diff.y == 0) {
+		max.y = (aabb.max.y - (ray.origin.y - 0.00001f)) / (ray.diff.y - 0.00001f);
+	}
+	if ((aabb.max.z - ray.origin.z) == 0 && ray.diff.z == 0) {
+		max.z = (aabb.max.z - (ray.origin.z - 0.00001f)) / (ray.diff.z - 0.00001f);
+	}
+
+	float tNearX = std::min(min.x, max.x), tFarX = std::max(min.x, max.x);
+	float tNearY = std::min(min.y, max.y), tFarY = std::max(min.y, max.y);
+	float tNearZ = std::min(min.z, max.z), tFarZ = std::max(min.z, max.z);
+
+	//接触した面
+	float tmin = tNearX;
+	int hitAxis = 0;
+
+	if (tNearY > tmin) {
+		tmin = tNearY;
+		hitAxis = 1;
+	}
+	if (tNearZ > tmin) {
+		tmin = tNearZ;
+		hitAxis = 2;
+	}
+
+	Vector3 normal = { 0,0,0 };
+
+	//法線
+	if (hitAxis == 0) {
+		normal.x = (min.x < max.x) ? -1.0f : 1.0f;
+	} else if (hitAxis == 1) {
+		normal.y = (min.y < max.y) ? -1.0f : 1.0f;
+	} else {
+		normal.z = (min.z < max.z) ? -1.0f : 1.0f;
+	}
+
+	return normal;
+}
+
 
 //AABBと線分の衝突
 bool IsCollision(const AABB& aabb, const Segment& segment) {

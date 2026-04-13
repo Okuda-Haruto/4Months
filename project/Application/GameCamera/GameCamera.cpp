@@ -137,15 +137,65 @@ void ResultCamera::Update() {
 }
 #pragma endregion
 
+#pragma region エディターカメラ
 
-void GameCamera::Initialize(std::shared_ptr<Camera> camera, std::shared_ptr<Input> input, Player* player) {
+#ifdef USE_IMGUI
+
+void EditorCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
+	input_ = input;
+	player_ = player;
+
+	//初期値として現在の向きを入れる
+	transform_.scale = { 1,1,1 };
+	transform_.rotate = IdentityQuaternion();
+
+	cameraPos_ = { 0, 0, -150 };
+	yaw_ = IdentityQuaternion();
+	pitch_ = IdentityQuaternion();
+
+	centerPoint_ = {};
+}
+
+void EditorCamera::Update() {
+	Mouse mouse = input_->GetMouse();
+
+	//ホイールクリックで移動
+	if (mouse.click[MOUSE_BOTTON_WHEEL].hold) {
+		Vector3 XZMovement = { mouse.Movement.x,0.0f,mouse.Movement.y };
+
+		centerPoint_.x += RotateVector(XZMovement / 30, transform_.rotate).x;
+		centerPoint_.z += -RotateVector(XZMovement / 30, transform_.rotate).z;
+	}
+
+	//右クリック中は回転と拡縮
+	if (mouse.click[MOUSE_BOTTON_RIGHT].hold) {
+		yaw_ = yaw_ * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, -std::numbers::pi_v<float> / 360 * mouse.Movement.x);
+		pitch_ = pitch_ * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 360 * mouse.Movement.y);
+
+		//ホイール拡縮
+		cameraPos_.z += mouse.Movement.z / 120;
+	} else {
+		//ホイールy軸移動
+		centerPoint_.y += mouse.Movement.z / 120;
+	}
+	transform_.rotate = pitch_ * yaw_;
+	transform_.translate = cameraPos_ * MakeRotateMatrix(transform_.rotate) + centerPoint_;
+}
+
+#endif // USE_IMGUI
+
+#pragma endregion
+
+void GameCamera::Initialize(std::shared_ptr<Camera> camera, const std::unique_ptr<BaseCamera>& nowCameraMode, std::shared_ptr<Input> input, Player* player) {
 	camera_ = camera;
 	input_ = input;
 	player_ = player;
 
 	//一旦落下カメラを初期値に
-	nowCamera_ = std::make_unique<DownCamera>();
-	nowCamera_->Initialize(input_, player);
+	if (nowCameraMode) {
+		nowCamera_ = std::move(const_cast<std::unique_ptr<BaseCamera>&>(nowCameraMode));
+		nowCamera_->Initialize(input_, player_);
+	}
 }
 
 void GameCamera::Update() {

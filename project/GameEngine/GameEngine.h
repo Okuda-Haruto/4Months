@@ -89,9 +89,9 @@ public:
 	//描画可能なモデルの数(通常)
 	static const int16_t kMaxIndex = 1024;
 	//描画可能なモデルの数(インスタシング)
-	static const int16_t kMaxInstanceIndex = 2;
+	static const int16_t kMaxInstanceIndex = 8;
 	//インスタンス数
-	static const uint32_t kMaxNumInstance = 32768;
+	static const uint32_t kMaxNumInstance = 16384;
 private:
 #pragma region object
 	int16_t objectIndex_;
@@ -209,9 +209,9 @@ private:
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
 
-	void DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource);
-	void DrawPoint_(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource);
-	void DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawAABB_(std::list<PrimitiveManager::PrimitiveAABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource);
 
 	SRVManager* GetSRVManager_() { return srvManager_.get(); }
 
@@ -292,9 +292,9 @@ public:
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
 
-	static void DrawLine(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
-	static void DrawPoint(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
-	static void DrawAABB(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
+	static void DrawLine(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
+	static void DrawPoint(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
+	static void DrawAABB(std::list<PrimitiveManager::PrimitiveAABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
 	
 	static SRVManager* GetSRVManager() { return GetInstance()->GetSRVManager_(); }
 

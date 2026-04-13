@@ -191,6 +191,7 @@
     <ClCompile Include="Application\HitPreview\HitPreview.cpp" />
     <ClCompile Include="Application\TitleMoji\TitleMoji.cpp" />
     <ClCompile Include="Application\Course\Section\Section.cpp" />
+    <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -486,6 +487,7 @@
     <ClInclude Include="Application\HitPreview\HitPreview.h" />
     <ClInclude Include="Application\TitleMoji\TitleMoji.h" />
     <ClInclude Include="Application\Course\Section\Section.h" />
+    <ClInclude Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
