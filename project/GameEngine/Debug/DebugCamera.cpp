@@ -141,7 +141,7 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 	Vector3 sphericalCoordinates = debugCamera->GetSphericalCoordinates();
 
 	//移動
-	if (mouse.click[MOUSE_BOTTON_WHEEL] && (key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT])) {
+	if (mouse.click[MOUSE_BOTTON_WHEEL].hold && (key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT])) {
 		if (mouse.Movement.x != 0.0f || mouse.Movement.y != 0.0f) {
 			Vector3 move{};
 			move.x = -mouse.Movement.x / 10.0f;
@@ -161,7 +161,7 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 		sphericalCoordinates.x = std::min(sphericalCoordinates.x, 0.0f);
 	}
 	//回転
-	if (mouse.click[MOUSE_BOTTON_WHEEL] && !(key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT])) {
+	if (mouse.click[MOUSE_BOTTON_WHEEL].hold && !(key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT])) {
 		if (mouse.Movement.x != 0.0f || mouse.Movement.y != 0.0f) {
 			const float speedX = mouse.Movement.y / (90.0f * std::numbers::pi_v<float>);
 			const float speedY = -mouse.Movement.x / (90.0f * std::numbers::pi_v<float>);

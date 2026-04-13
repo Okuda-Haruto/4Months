@@ -18,7 +18,7 @@ void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, CSVData data
 		objects_[index_]->Initialize(face_);
 		objects_[index_]->SetShininess(0);
 		std::vector<Parts> parts = objects_[index_]->GetParts();
-		parts[0].UVtransform.scale.x = 0.5f;
+		parts[0].UVtransform.scale.x = 1.0f / (VOXEL_TILE_END - 1);
 		objects_[index_]->SetParts(parts[0], 0);
 	}
 
@@ -66,7 +66,7 @@ void Voxel::Update() {
 	ImVec2 uv00 = ImVec2(0.0f, 0.0f); // タイルのUV開始位置
 	ImVec2 uv11 = ImVec2(0.0f, 1.0f); // タイルのUV終了位置 (例: 4x4のタイルセットの左上)
 
-	for (int z = 0; z < 16; z++) {
+	for (int z = 15; z >= 0; z--) {
 		for (int x = 0; x < 16; x++) {
 			std::string id = "tile##" + std::to_string(z) + "_" + std::to_string(x);
 			//TILEの見た目変更
@@ -150,6 +150,30 @@ void Voxel::Draw() {
 	}
 }
 
+void Voxel::Draw(AABB drawRange) {
+	index_ = 0;
+
+	SRT cameraTransform = camera_->GetTransform();
+	Vector3 cameraChunkNumber;
+	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) / 16);
+	cameraChunkNumber.y = -float(int(cameraTransform.translate.y / (scale * 2)) / 16);
+	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
+
+	for (int y = int(drawRange.min.y); y < int(drawRange.max.y); y++) {
+		for (int z = int(drawRange.min.z); z < int(drawRange.max.z); z++) {
+			for (int x = int(drawRange.min.x); x < int(drawRange.max.x); x++) {
+				DrawChunkAll(y, z, x, cameraChunkNumber);
+			}
+		}
+	}
+
+
+	if (!drawOdjects_.empty()) {
+		GameEngine::DrawInstancingObject_3D(drawOdjects_, directionalLight_, nullptr, nullptr);
+		drawOdjects_.clear();
+	}
+}
+
 void Voxel::DrawAll() {
 
 	index_ = 0;
@@ -161,9 +185,12 @@ void Voxel::DrawAll() {
 	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
 
 	for (int y = 0; y < chunks_.size(); y++) {
-		for (int z = 0; z < chunks_[y].size(); z++) {
-			for (int x = 0; x < chunks_[y][z].size(); x++) {
-				DrawChunkAll(y, z, x, cameraChunkNumber);
+		//範囲を絞る
+		if ((cameraChunkNumber.y + 1 >= y && cameraChunkNumber.y - 1 <= y)) {
+			for (int z = 0; z < chunks_[y].size(); z++) {
+				for (int x = 0; x < chunks_[y][z].size(); x++) {
+					DrawChunkAll(y, z, x, cameraChunkNumber);
+				}
 			}
 		}
 	}
@@ -224,7 +251,7 @@ Object* Voxel::AddFace(int chunkY, int chunkZ, int chunkX, int y, int z, int x, 
 		objects_[index_]->SetTransform(transform);
 		if (number > 0) {
 			std::vector<Parts> parts = objects_[index_]->GetParts();
-			parts[0].UVtransform.translate.x = 0.5f * (number - 1);
+			parts[0].UVtransform.translate.x = (1.0f / (VOXEL_TILE_END - 1)) * (number - 1);
 			objects_[index_]->SetParts(parts[0], 0);
 		}
 
@@ -311,6 +338,74 @@ void Voxel::Collision(Sphere sphere) {
 	}
 
 
+}
+
+CollisionVoxel Voxel::GetCollisionVoxel(Ray ray, AABB chunkRate) {
+	CollisionVoxel collisionVoxel{};
+
+	for (int chunkY = int(chunkRate.min.y); chunkY < int(chunkRate.max.y); chunkY++) {
+		for (int chunkZ = int(chunkRate.min.z); chunkZ < int(chunkRate.max.z); chunkZ++) {
+			for (int chunkX = int(chunkRate.min.x); chunkX < int(chunkRate.max.x); chunkX++) {
+				AABB chunkAABB;
+				float voxelSize = scale * 2.0f;
+				float chunkSize = voxelSize * 16.0f;
+
+				Vector3 chunkOrigin = {
+					chunkX * chunkSize - chunkSize / 2 * data_.size.x,
+					-((chunkY + 1) * chunkSize),
+					chunkZ * chunkSize - chunkSize / 2 * data_.size.z
+				};
+
+				chunkAABB.min = chunkOrigin;
+				chunkAABB.max = chunkOrigin + Vector3{ chunkSize, chunkSize, chunkSize };
+
+				if (IsCollision(chunkAABB, ray)) {
+					for (int y = 0; y < 16; y++) {
+						for (int z = 0; z < 16; z++) {
+							for (int x = 0; x < 16; x++) {
+								if (chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x] == 0)continue;
+
+								AABB voxelAABB;
+								voxelAABB.min = {
+									chunkOrigin.x + voxelSize * x,
+									chunkOrigin.y + voxelSize * (15 - y),
+									chunkOrigin.z + voxelSize * z
+								};
+								voxelAABB.max = voxelAABB.min + Vector3{ voxelSize, voxelSize, voxelSize };
+
+								if (IsCollision(voxelAABB, ray)) {
+
+									Vector3 translate = {
+										voxelAABB.min.x + voxelSize * 0.5f,
+										voxelAABB.min.y - voxelSize * 0.5f,
+										voxelAABB.min.z + voxelSize * 0.5f
+									};
+
+									if (Length(collisionVoxel.translate - ray.origin) > Length(translate - ray.origin) || Length(collisionVoxel.normal) < 0.5f) {
+										collisionVoxel.normal = GetHitNormal(voxelAABB, ray);
+										collisionVoxel.chunkPos = {
+											float(chunkX),
+											float(chunkY),
+											float(chunkZ)
+										};
+										collisionVoxel.mapChipPos = {
+											float(x),
+											float(y),
+											float(z)
+										};
+										collisionVoxel.translate = translate;
+									}
+								}
+							}
+						}
+					}
+				}
+
+			}
+		}
+	}
+
+	return collisionVoxel;
 }
 
 void Voxel::DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslate, Vector3 cameraChunkNumber) {
@@ -455,128 +550,126 @@ void Voxel::DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslat
 
 void Voxel::DrawChunkAll(int chunkY, int chunkZ, int chunkX, Vector3 cameraChunkNumber) {
 	for (int y = 0; y < 16; y++) {
-		if ((cameraChunkNumber.y + 1 >= chunkY && cameraChunkNumber.y - 1 <= chunkY)) {
-			for (int z = 0; z < 16; z++) {
-				for (int x = 0; x < 16; x++) {
-					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x])continue;
-					//上面
-					if (y <= 0) {
-						//上が空白
-						if (chunkY <= 0) {
-							if (index_ < objects_.size()) {
-								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
-								index_++;
-							}
-						} else {
-							if (!chunks_[chunkY - 1][chunkZ][chunkX].mapChip[15][z][x]) {
-								if (index_ < objects_.size()) {
-									drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
-									index_++;
-								}
-							}
+		for (int z = 0; z < 16; z++) {
+			for (int x = 0; x < 16; x++) {
+				if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x])continue;
+				//上面
+				if (y <= 0) {
+					//上が空白
+					if (chunkY <= 0) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
+							index_++;
 						}
 					} else {
-						if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y - 1][z][x]) {
+						if (!chunks_[chunkY - 1][chunkZ][chunkX].mapChip[15][z][x]) {
 							if (index_ < objects_.size()) {
 								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
 								index_++;
 							}
 						}
 					}
-					//前面
-					if (z >= 15) {
-						//前が空白
-						if (chunkZ >= chunks_[chunkY].size() - 1) {
+				} else {
+					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y - 1][z][x]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+				}
+				//前面
+				if (z >= 15) {
+					//前が空白
+					if (chunkZ >= chunks_[chunkY].size() - 1) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
+							index_++;
+						}
+					} else {
+						if (!chunks_[chunkY][chunkZ + 1][chunkX].mapChip[y][0][x]) {
 							if (index_ < objects_.size()) {
 								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
 								index_++;
 							}
-						} else {
-							if (!chunks_[chunkY][chunkZ + 1][chunkX].mapChip[y][0][x]) {
-								if (index_ < objects_.size()) {
-									drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
-									index_++;
-								}
-							}
-						}
-					} else {
-						if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z + 1][x]) {
-							if (index_ < objects_.size()) {
-								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
-								index_++;
-							}
 						}
 					}
-					//後面
-					if (z <= 0) {
-						//前が空白
-						if (chunkZ <= 0) {
-							if (index_ < objects_.size()) {
-								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], IdentityQuaternion()));
-								index_++;
-							}
-						} else {
-							if (!chunks_[chunkY][chunkZ - 1][chunkX].mapChip[y][15][x]) {
-								if (index_ < objects_.size()) {
-									drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], IdentityQuaternion()));
-									index_++;
-								}
-							}
+				} else {
+					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z + 1][x]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>)));
+							index_++;
+						}
+					}
+				}
+				//後面
+				if (z <= 0) {
+					//前が空白
+					if (chunkZ <= 0) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], IdentityQuaternion()));
+							index_++;
 						}
 					} else {
-						if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z - 1][x]) {
+						if (!chunks_[chunkY][chunkZ - 1][chunkX].mapChip[y][15][x]) {
 							if (index_ < objects_.size()) {
 								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], IdentityQuaternion()));
 								index_++;
 							}
 						}
 					}
-					//右面
-					if (x >= 15) {
-						//前が空白
-						if (chunkX >= chunks_[chunkY][chunkZ].size() - 1) {
-							if (index_ < objects_.size()) {
-								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
-								index_++;
-							}
-						} else {
-							if (!chunks_[chunkY][chunkZ][chunkX + 1].mapChip[y][z][0]) {
-								if (index_ < objects_.size()) {
-									drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
-									index_++;
-								}
-							}
+				} else {
+					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z - 1][x]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], IdentityQuaternion()));
+							index_++;
+						}
+					}
+				}
+				//右面
+				if (x >= 15) {
+					//前が空白
+					if (chunkX >= chunks_[chunkY][chunkZ].size() - 1) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
 						}
 					} else {
-						if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x + 1]) {
+						if (!chunks_[chunkY][chunkZ][chunkX + 1].mapChip[y][z][0]) {
 							if (index_ < objects_.size()) {
 								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
 								index_++;
 							}
 						}
 					}
-					//左面
-					if (x <= 0) {
-						//前が空白
-						if (chunkX <= 0) {
-							if (index_ < objects_.size()) {
-								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, -std::numbers::pi_v<float> / 2)));
-								index_++;
-							}
-						} else {
-							if (!chunks_[chunkY][chunkZ][chunkX - 1].mapChip[y][15][x]) {
-								if (index_ < objects_.size()) {
-									drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, -std::numbers::pi_v<float> / 2)));
-									index_++;
-								}
-							}
+				} else {
+					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x + 1]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+				}
+				//左面
+				if (x <= 0) {
+					//前が空白
+					if (chunkX <= 0) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, -std::numbers::pi_v<float> / 2)));
+							index_++;
 						}
 					} else {
-						if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x - 1]) {
+						if (!chunks_[chunkY][chunkZ][chunkX - 1].mapChip[y][z][15]) {
 							if (index_ < objects_.size()) {
 								drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, -std::numbers::pi_v<float> / 2)));
 								index_++;
 							}
+						}
+					}
+				} else {
+					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x - 1]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, -std::numbers::pi_v<float> / 2)));
+							index_++;
 						}
 					}
 				}
@@ -861,4 +954,53 @@ std::optional<Vector3> Voxel::CollisionCheck(Sphere sphere) {
 
 	if (found) return bestPoint;
 	return std::nullopt;
+}
+
+//チャンク縦回転
+void Voxel::ChunkVerticalRotation(Vector3 chunkPos) {
+	Chunk newChunk{};
+	for (int y = 0; y < 16; y++) {
+		for (int z = 0; z < 16; z++) {
+			newChunk.mapChip[y][z] = chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[15 - z][y];
+		}
+	}
+	
+	chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)] = newChunk;
+}
+
+//チャンク横回転
+void Voxel::ChunkHorizontalRotation(Vector3 chunkPos) {
+	Chunk newChunk{};
+	for (int y = 0; y < 16; y++) {
+		for (int z = 0; z < 16; z++) {
+			for (int x = 0; x < 16; x++) {
+				newChunk.mapChip[y][z][x] = chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y][15 - x][z];
+			}
+		}
+	}
+
+	chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)] = newChunk;
+}
+
+//チャンクコピー
+void Voxel::ChunkCopy(Vector3 fromChunkPos, Vector3 toChunkPos) {
+	chunks_[int(toChunkPos.y)][int(toChunkPos.z)][int(toChunkPos.x)] = chunks_[int(fromChunkPos.y)][int(fromChunkPos.z)][int(fromChunkPos.x)];
+}
+
+//チャンク交換
+void Voxel::ChunkSwap(Vector3 fromChunkPos, Vector3 toChunkPos) {
+	Chunk keepChunk = chunks_[int(toChunkPos.y)][int(toChunkPos.z)][int(toChunkPos.x)];
+	chunks_[int(toChunkPos.y)][int(toChunkPos.z)][int(toChunkPos.x)] = chunks_[int(fromChunkPos.y)][int(fromChunkPos.z)][int(fromChunkPos.x)];
+	chunks_[int(fromChunkPos.y)][int(fromChunkPos.z)][int(fromChunkPos.x)] = keepChunk;
+}
+
+void Voxel::Save(const std::string& directoryPath) {
+	for (int y = 0; y < chunks_.size(); y++) {
+		for (int z = 0; z < chunks_[y].size(); z++) {
+			for (int x = 0; x < chunks_[y][z].size(); x++) {
+				std::string str = data_.directoryPath + "/chunk_" + std::to_string(y) + "_" + std::to_string(z) + "_" + std::to_string(x) + ".csv";
+				WriteChunk(chunks_[y][z][x], str);
+			}
+		}
+	}
 }

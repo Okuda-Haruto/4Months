@@ -35,11 +35,18 @@ enum MOUSE_BUTTON {
 	MOUSE_BOTTON_WHEEL	//ホイールクリック
 };
 
+struct MouseTrigger {
+	bool hold = {};	//押している
+	bool idle = {};	//離している
+	bool trigger = {};	//押した瞬間
+	bool release = {};	//離した瞬間
+};
+
 //マウス入力
 struct Mouse {
 	Vector2 Position;	//マウス座標
 	Vector3 Movement;	//マウス移動量
-	bool click[3];		//マウスクリック	列挙型[MOUSE_BOTTON]の列挙子を使用すること
+	MouseTrigger click[3];		//マウスクリック	列挙型[MOUSE_BOTTON]の列挙子を使用すること
 };
 
 #pragma endregion

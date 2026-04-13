@@ -4,6 +4,13 @@
 #include "Box/Box.h"
 #include "GameCamera/GameCamera.h"
 
+struct CollisionVoxel {
+	Vector3 normal;
+	Vector3 chunkPos;
+	Vector3 mapChipPos;
+	Vector3 translate;
+};
+
 enum VOXEL_TILE {
 	TILE_None,
 	TILE_TEST_01,
@@ -55,13 +62,32 @@ public:
 	void Update();
 
 	void Draw();
+	void Draw(AABB drawRange);
 	void DrawAll();
 	void DrawUp();
 
 	void Collision(Sphere sphere);
 
+	CollisionVoxel GetCollisionVoxel(Ray ray, AABB chunkRate);
+
 	// 衝突位置を返す
 	std::optional<Vector3> CollisionCheck(Sphere sphere);
+
+	std::vector<std::vector<std::vector<Chunk>>> GetChunks() { return chunks_; }
+
+	//ボクセルのセット
+	void SetVoxel(Vector3 chunkPos, int y, int z, int x, uint8_t voxelNum) { chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y][z][x] = voxelNum; }
+	//チャンク縦回転
+	void ChunkVerticalRotation(Vector3 chunkPos);
+	//チャンク横回転
+	void ChunkHorizontalRotation(Vector3 chunkPos);
+	//チャンクコピー
+	void ChunkCopy(Vector3 fromChunkPos, Vector3 toChunkPos);
+	//チャンク交換
+	void ChunkSwap(Vector3 fromChunkPos, Vector3 toChunkPos);
+
+	//セーブ
+	void Save(const std::string& directoryPath);
 
 private:
 
