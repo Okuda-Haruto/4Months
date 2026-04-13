@@ -7,12 +7,10 @@ Course::Course() {
 Course::~Course() {
 }
 
-void Course::Initialize(GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight) {
+void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight) {
+	chunkData_ = chunkData;
 	camera_ = camera;
-	directionalLight_ = directionalLight;
-
-	chunkData_.size = { 2,18,2 };
-	chunkData_.directoryPath = "resources/CSV";
+	directionalLight_ = directionalLight; chunkData_;
 
 	voxel_ = std::make_unique<Voxel>();
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
@@ -70,6 +68,19 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	voxel_->Draw();
+}
+
+// 描画
+void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> directionalLight) {
+	std::list<Object*> boxObjects;
+	for (auto& box : boxes_) {
+		boxObjects.push_back(box->GetObjectData());
+	}
+	if (!boxObjects.empty()) {
+		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
+	}
+
+	voxel_->Draw(drawRange);
 }
 
 void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {

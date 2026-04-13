@@ -363,3 +363,5 @@ MigrationBackup/
 
 generated/
 **/imgui.ini
+
+**/RecentFile.csv

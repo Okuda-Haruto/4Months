@@ -40,6 +40,9 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere);
 bool IsCollision(const AABB& aabb, const Line& line);
 //AABBと半直線の衝突
 bool IsCollision(const AABB& aabb, const Ray& ray);
+//接面
+Vector3 GetHitNormal(const AABB& aabb, const Ray& ray);
+
 //AABBと線分の衝突
 bool IsCollision(const AABB& aabb, const Segment& segment);
 //OBBと球の衝突

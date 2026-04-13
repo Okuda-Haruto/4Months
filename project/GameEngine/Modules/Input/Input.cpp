@@ -70,7 +70,10 @@ void Input::Update() {
 	mouse_.Position = { float(p.x),float(p.y) };
 	mouse_.Movement = { float(mouseState_.lX),float(mouseState_.lY),float(mouseState_.lZ) };
 	for (int i = 0; i < 3; i++) {
-		mouse_.click[i] = mouseState_.rgbButtons[i];
+		mouse_.click[i].hold = mouseState_.rgbButtons[i];
+		mouse_.click[i].idle = ~mouseState_.rgbButtons[i];
+		mouse_.click[i].trigger = mouseState_.rgbButtons[i] & ~preMouseState_.rgbButtons[i];
+		mouse_.click[i].release = ~mouseState_.rgbButtons[i] & preMouseState_.rgbButtons[i];
 	}
 
 	//パッド入力

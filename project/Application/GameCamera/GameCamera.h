@@ -67,6 +67,28 @@ public:
 	void Update() override;
 };
 
+#ifdef USE_IMGUI
+//エディターカメラ
+class EditorCamera : public BaseCamera {
+private:
+	//回転がない場合のカメラ座標
+	Vector3 cameraPos_;
+
+	Quaternion yaw_;
+	Quaternion pitch_;
+
+	//カメラY座標
+	Vector3 centerPoint_;
+
+public:
+	//初期化
+	void Initialize(std::shared_ptr<Input> input, Player* player) override;
+	//更新処理
+	void Update() override;
+};
+#endif // USE_IMGUI
+
+
 
 class GameCamera {
 private:
@@ -98,7 +120,7 @@ private:
 	SRT transform_;
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Camera> camera, std::shared_ptr<Input> input, Player* player);
+	void Initialize(std::shared_ptr<Camera> camera, const std::unique_ptr<BaseCamera>& nowCameraMode, std::shared_ptr<Input> input, Player* player);
 	//更新処理
 	void Update();
 

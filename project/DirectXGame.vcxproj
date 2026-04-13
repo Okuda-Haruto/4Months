@@ -50,6 +50,7 @@
     <ClCompile Include="Application\Goal\Goal.cpp" />
     <ClCompile Include="Application\Human\Human.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
+    <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp" />
     <ClCompile Include="Application\Scene\BaseScene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\Scene\SceneManager\SceneManager.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="Application\Mix.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\Scene\BaseScene\BaseScene.h" />
+    <ClInclude Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.h" />
     <ClInclude Include="Application\Scene\BaseScene\TitleScene\TitleScene.h" />
     <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h" />
     <ClInclude Include="Application\Scene\SceneManager\SceneManager.h" />

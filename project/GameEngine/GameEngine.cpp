@@ -1061,7 +1061,7 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 	instancingSpriteIndex_++;
 }
 
-void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) {
+void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
 	commandList_->SetPipelineState(noDepthLinePipelineState_.Get());	//PSOを設定
@@ -1090,21 +1090,18 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 	}
 
 	uint32_t numInstance = 0;
-	for (std::list<Line>::iterator lineIterator = lines.begin();
+	for (std::list<PrimitiveManager::PrimitiveLine>::iterator lineIterator = lines.begin();
 		lineIterator != lines.end(); ++lineIterator) {
 
 		if (numInstance >= PrimitiveManager::kMaxNumPrimitive)break;
 
 		SRT transform{};
-		transform.scale.x = Length((*lineIterator).diff);	//直線の長さ
-		transform.scale.y = Length((*lineIterator).diff);	//直線の長さ
-		transform.scale.z = Length((*lineIterator).diff);	//直線の長さ
+		transform.scale.x = Length((*lineIterator).line.diff);	//直線の長さ
+		transform.scale.y = Length((*lineIterator).line.diff);	//直線の長さ
+		transform.scale.z = Length((*lineIterator).line.diff);	//直線の長さ
 		//  Y軸回り回転(θy)
-		transform.rotate.y = std::atan2((*lineIterator).diff.x, (*lineIterator).diff.z);
-		float length = Length(Vector3{ (*lineIterator).diff.x, 0.0f, (*lineIterator).diff.z });
-		// X軸回り回転(θx)
-		transform.rotate.x = std::atan2(-(*lineIterator).diff.y, length);
-		transform.translate = (*lineIterator).origin;	//直線の開始地点
+		transform.rotate = LookAt(Vector3{ 0,0,0 }, (*lineIterator).line.diff);
+		transform.translate = (*lineIterator).line.origin;	//直線の開始地点
 
 		Matrix4x4 worldMatrix = MakeQuaternionMatrix(transform.scale, transform.rotate, transform.translate);
 
@@ -1112,7 +1109,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->color = Vector4{ 1.0f,0.0f,0.0f,1.0f };
+		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->color = (*lineIterator).color;
 
 		++numInstance;
 	}
@@ -1147,7 +1144,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
 }
 
-void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) {
+void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
 	commandList_->SetPipelineState(noDepthLinePipelineState_.Get());	//PSOを設定
@@ -1176,14 +1173,14 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 	}
 
 	uint32_t numInstance = 0;
-	for (std::list<Vector3>::iterator pointIterator = points.begin();
+	for (std::list<PrimitiveManager::PrimitivePoint>::iterator pointIterator = points.begin();
 		pointIterator != points.end(); ++pointIterator) {
 
 		if (numInstance >= PrimitiveManager::kMaxNumPrimitive)break;
 
 		SRT transform{};
 		transform.scale = Vector3{ 1.0f,1.0f,1.0f };
-		transform.translate = (*pointIterator);	//特に言うことはない
+		transform.translate = (*pointIterator).point;	//特に言うことはない
 
 		Matrix4x4 worldMatrix = MakeQuaternionMatrix(transform.scale, transform.rotate, transform.translate);
 
@@ -1191,7 +1188,7 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->color = Vector4{ 1.0f,0.0f,0.0f,1.0f };
+		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->color = (*pointIterator).color;
 
 		++numInstance;
 	}
@@ -1226,7 +1223,7 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
 }
 
-void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) {
+void GameEngine::DrawAABB_(std::list<PrimitiveManager::PrimitiveAABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
 	commandList_->SetPipelineState(noDepthLinePipelineState_.Get());	//PSOを設定
@@ -1255,15 +1252,15 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 	}
 
 	uint32_t numInstance = 0;
-	for (std::list<AABB>::iterator aabbIterator = aabbs.begin();
+	for (std::list<PrimitiveManager::PrimitiveAABB>::iterator aabbIterator = aabbs.begin();
 		aabbIterator != aabbs.end(); ++aabbIterator) {
 
 		if (numInstance >= PrimitiveManager::kMaxNumPrimitive)break;
 
 		SRT transform{};
 		transform.scale = Vector3{ 1.0f,1.0f,1.0f };
-		transform.translate = (*aabbIterator).min;	//AABBの開始地点
-		transform.scale = (*aabbIterator).max - (*aabbIterator).min;	//AABBの終了地点
+		transform.translate = (*aabbIterator).aabb.min;	//AABBの開始地点
+		transform.scale = (*aabbIterator).aabb.max - (*aabbIterator).aabb.min;	//AABBの終了地点
 
 		Matrix4x4 worldMatrix = MakeQuaternionMatrix(transform.scale, transform.rotate, transform.translate);
 
@@ -1271,7 +1268,7 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->color = Vector4{ 1.0f,0.0f,0.0f,1.0f };
+		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->color = (*aabbIterator).color;
 
 		++numInstance;
 	}
