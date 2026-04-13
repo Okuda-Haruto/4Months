@@ -21,6 +21,7 @@ void Wind::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 		model->SetShininess(0);
 		spiral_.push_back(std::move(model));
 		spiralRadius_.push_back({});
+		spiralRadius_.push_back({});
 		spiralRotate_.push_back({});
 		spiralRotateSpeed_.push_back({});
 	}

@@ -203,6 +203,8 @@
       <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
     </ClCompile>
     <ClCompile Include="Application\Effect\Stars\Stars.cpp" />
+    <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp" />
+    <ClCompile Include="Application\Effect\PlayerRotation\PlayerRotation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -510,6 +512,8 @@
       <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
     </ClInclude>
     <ClInclude Include="Application\Effect\Stars\Stars.h" />
+    <ClInclude Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.h" />
+    <ClInclude Include="Application\Effect\PlayerRotation\PlayerRotation.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
