@@ -132,6 +132,10 @@ void Sprite::Draw2D() {
 	GameEngine::DrawSprite_2D(this);
 }
 
+void Sprite::Draw2DAdd() {
+	GameEngine::DrawSpriteAdditive(this);
+}
+
 void Sprite::SetTextue(const std::string& textureFilePath) {
 	textureIndex_ = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
 }

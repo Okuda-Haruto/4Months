@@ -82,6 +82,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddBrendPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> spriteAdditivePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
 
@@ -176,7 +177,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> fogResource_;
 	Fog* fogData_;
-	
+
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
 	//オーディオ宛先	生ポインタ以外はほぼ使えない
@@ -190,7 +191,7 @@ private:
 	void Initialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
 
 	float randomFloat_(float minFloat, float maxFloat);
-	int32_t randomInt_(int32_t minInt,int32_t maxInt);
+	int32_t randomInt_(int32_t minInt, int32_t maxInt);
 
 	bool StartFlame_();
 	bool WindowState_();
@@ -207,6 +208,7 @@ private:
 	void DrawParticle_(ParticleGroup particleGroup);
 
 	void DrawSprite_2D_(Sprite* sprite);
+	void DrawSpriteAdditive_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
 
 	void DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource);
@@ -288,14 +290,15 @@ public:
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
-	
+
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
+	static void DrawSpriteAdditive(Sprite* sprite) { return GetInstance()->DrawSpriteAdditive_(sprite); }
 	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
 
 	static void DrawLine(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
 	static void DrawAABB(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
-	
+
 	static SRVManager* GetSRVManager() { return GetInstance()->GetSRVManager_(); }
 
 	[[nodiscard]]
