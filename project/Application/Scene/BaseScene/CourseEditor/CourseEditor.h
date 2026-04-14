@@ -30,6 +30,9 @@ private:
 	SRT  cursorVoxelTransform_;
 	bool isCursorVoxel_;
 
+	std::unique_ptr<GoalBarrier> barrier_;
+
+	float time_;
 
 	//コース
 	std::unique_ptr<Course> course_;

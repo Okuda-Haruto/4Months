@@ -132,6 +132,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(Object3DVertexShaderBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.PS.hlsl", L"ps_6_0");
 	assert(Object3DPixelShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object3DNoFogPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D_NoFog.PS.hlsl", L"ps_6_0");
+	assert(Object3DNoFogPixelShaderBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> Object2DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.VS.hlsl", L"vs_6_0");
 	assert(Object2DVertexShaderBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> Object2DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.PS.hlsl", L"ps_6_0");
@@ -155,9 +157,11 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	object3DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	object2DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object2DVertexShaderBlob.Get(), Object2DPixelShaderBlob.Get());
 	noDepthObjectPipelineState_ = NoDepthTrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
+	noFogObject3DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DNoFogPixelShaderBlob.Get());
+	addBlendNoFogObjectPipelineState_ = AddBlendTrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DNoFogPixelShaderBlob.Get());
 	instancingObjectPipelineState_ = InstancingTrianglePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
 	particlePipelineState_ = ParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	particleAddBrendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particleAddBlendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
 	spriteAdditivePipelineState_ = SpriteAdditivePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
@@ -315,6 +319,201 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
 	commandList_->SetPipelineState(object3DPipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+
+	//変更が必要な部分だけ変える
+	for (int i = 0; i < parts.size(); i++) {
+
+		//WVPデータを更新
+		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
+
+		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
+		if (parts[i].parent) {
+			//親を持つPartsのローカル座標
+			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			partsMatrix = partsMatrix * parentMatrix;
+		} else {
+			//ワールド座標を親に持つPartsのローカル座標
+			partsMatrix = partsMatrix * worldMatrix;
+		}
+
+		objectWvpData_[objectIndex_]->World = partsMatrix;
+		objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
+		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
+
+		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+
+		//ボーンデータ
+		objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
+
+		std::vector<Bone> bones = object->GetBones();
+		for (int i = 0; i < bones.size(); i++) {
+			if (i > 128)break;
+			objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
+		}
+
+		objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
+
+		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
+		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
+		parts[i].material->enablePointLighting = pointLight != nullptr;
+		parts[i].material->enableSpotLighting = spotLight != nullptr;
+
+		//マテリアルデータを更新
+		objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
+
+		*objectMaterialData_[objectIndex_] = *parts[i].material;
+
+		objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+
+		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[i].textureIndex));
+
+		//ライティングが必要な場合CBufferに送る
+		if (parts[i].material->reflection != 0 && directionalLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+		}
+		if (parts[i].material->reflection != 0 && pointLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
+		}
+		if (parts[i].material->reflection != 0 && spotLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+		}
+
+		//マテリアルCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+		//wvp用のCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+		//ボーンCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
+
+		//描画(DrawCall)
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
+
+		objectIndex_++;
+	}
+}
+
+void GameEngine::DrawNoFogObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time) {
+
+	//上限に達していたら描画しない
+	if (objectIndex_ >= kMaxIndex)return;
+
+	std::vector<Parts> parts = object->GetParts();
+	std::vector<Offset> offsets = object->GetOffsets();
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(noFogObject3DPipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+
+	//変更が必要な部分だけ変える
+	for (int i = 0; i < parts.size(); i++) {
+
+		//WVPデータを更新
+		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
+
+		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
+		if (parts[i].parent) {
+			//親を持つPartsのローカル座標
+			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			partsMatrix = partsMatrix * parentMatrix;
+		} else {
+			//ワールド座標を親に持つPartsのローカル座標
+			partsMatrix = partsMatrix * worldMatrix;
+		}
+
+		objectWvpData_[objectIndex_]->World = partsMatrix;
+		objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
+		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
+
+		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+
+		//ボーンデータ
+		objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
+
+		std::vector<Bone> bones = object->GetBones();
+		for (int i = 0; i < bones.size(); i++) {
+			if (i > 128)break;
+			objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
+		}
+
+		objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
+
+		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
+		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
+		parts[i].material->enablePointLighting = pointLight != nullptr;
+		parts[i].material->enableSpotLighting = spotLight != nullptr;
+
+		//マテリアルデータを更新
+		objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
+
+		*objectMaterialData_[objectIndex_] = *parts[i].material;
+
+		objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+
+		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[i].textureIndex));
+
+		//ライティングが必要な場合CBufferに送る
+		if (parts[i].material->reflection != 0 && directionalLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+		}
+		if (parts[i].material->reflection != 0 && pointLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
+		}
+		if (parts[i].material->reflection != 0 && spotLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+		}
+
+		//マテリアルCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+		//wvp用のCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+		//ボーンCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
+
+		//描画(DrawCall)
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
+
+		objectIndex_++;
+	}
+}
+
+void GameEngine::DrawAddBlendObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time) {
+	//上限に達していたら描画しない
+	if (objectIndex_ >= kMaxIndex)return;
+
+	std::vector<Parts> parts = object->GetParts();
+	std::vector<Offset> offsets = object->GetOffsets();
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(addBlendNoFogObjectPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定

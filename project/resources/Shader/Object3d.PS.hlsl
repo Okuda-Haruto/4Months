@@ -300,6 +300,18 @@ PixelShaderOutput main(VertexShaderOutput input)
         discard;
     }
     
+    if (gMaterial.reflection >= 1 && gMaterial.reflection <= 2)
+    {
+        if (gMaterial.shading == 0)
+        {
+            output = PhangReflectionModel(input, textureColor);
+        }
+        else
+        {
+            output = BlinnPhangReflectionModel(input, textureColor);
+        }
+    }
+    
     float3 diff = input.worldPosition - gCamera.WorldPosition;
 
     float dist = length(diff);
@@ -309,27 +321,20 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     float fog = 1.0f - max(near, far);
     
+    float fogColorStart = 0.75f;
+
+    float t = saturate((fog - fogColorStart) / (1.0f - fogColorStart));
+    float a = saturate(fog / fogColorStart);
+
+    float3 fogColor = float3(0.2f, 0.35f, 0.6f);
+
+    output.color.rgb = lerp(fogColor, output.color.rgb, t);
+    output.color.a *= a;
+    
     if (output.color.a == 0.0)
     {
         discard;
     }
-    
-    
-    if (gMaterial.reflection <= 0 || gMaterial.reflection > 2)
-        return output;
-        
-    if (gMaterial.shading == 0)
-    {
-        output = PhangReflectionModel(input, textureColor);
-    } 
-    else
-    {
-        output = BlinnPhangReflectionModel(input, textureColor);
-    }
-    
-    output.color.r = output.color.r * fog + 0.2f * (1.0f - fog);
-    output.color.g = output.color.g * fog + 0.35f * (1.0f - fog);
-    output.color.b = output.color.b * fog + 0.6f * (1.0f - fog);
     
     return output;
 }
