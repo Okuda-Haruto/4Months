@@ -64,6 +64,8 @@ public:
 	int GetCurrentSectionNumber() { return currentSectionNum_; }
 	bool isFailed() { return isFailed_; }
 	bool isAllCleared() { return isAllCleared_; }
+
+	std::vector<Vector3> GetBreakPos() { return breakPos_; }
 private:
 	
 	std::shared_ptr<DirectionalLight> directionalLight_;
@@ -91,6 +93,9 @@ private:
 
 	bool isFailed_ = false;
 	bool isAllCleared_ = false;
+
+	// 破壊された場所
+	std::vector<Vector3> breakPos_;
 };
 
 

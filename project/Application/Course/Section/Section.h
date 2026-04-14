@@ -8,7 +8,17 @@ public:
 	void Update(float playerY);
 
 	// スコア追加
-	void AddBreak(int breakCount) { breakScore_ += breakCount; }
+	void AddBreak(int breakCount) {
+		// 同じ秒数があれば一つにまとめる
+		for (auto& d : delay_) {
+			if (fabs(d.time - scoreDelay_) < 0.0001f) {
+				d.score += breakCount;
+				return;
+			}
+		}
+		// なければ新規追加
+		delay_.push_back(Delay{ scoreDelay_, breakCount });
+	}
 
 	// この区間に入っているか
 	bool IsEnter(float y) { return startY_ >= y && y > endY_; }
@@ -37,6 +47,14 @@ private:
 	int breakScore_ = 0;
 	int clearBreakScore_ = 0;
 	int maxBreakScore_ = 0;
+
+	struct Delay {
+		float time;
+		int score;
+	};
+	// スコアに反映までの時間
+	float scoreDelay_ = 4.0f / 5.0f;
+	std::vector<Delay> delay_;
 
 	// 区間
 	float startY_ = 0;

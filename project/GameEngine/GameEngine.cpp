@@ -163,6 +163,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	particlePipelineState_ = ParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	particleAddBlendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
+	spriteAdditivePipelineState_ = SpriteAdditivePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	//XAudioエンジンのインスタンスを生成
@@ -1168,7 +1169,59 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex_]->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(1, spriteWvpResource_[spriteIndex_]->GetGPUVirtualAddress());
-	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えてよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//ドローコール
+	commandList_->DrawIndexedInstanced(6, 1, 0, 0, 0);
+
+	spriteIndex_++;
+}
+
+void GameEngine::DrawSpriteAdditive_(Sprite* sprite) {
+
+	//上限に達していたら描画しない
+	if (spriteIndex_ > kMaxIndex)return;
+
+	Matrix4x4 viewMatrix = MakeIdentity4x4();
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+
+	//WVPデータを更新
+	spriteWvpResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex_]));
+
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
+	spriteWvpData_[spriteIndex_]->World = worldMatrix;
+	spriteWvpData_[spriteIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
+	spriteWvpData_[spriteIndex_]->WVP = worldViewProjectionMatrix;
+
+	spriteWvpResource_[spriteIndex_]->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	spriteMaterialResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[spriteIndex_]));
+
+	spriteMaterialData_[spriteIndex_]->color = sprite->GetColor();
+	spriteMaterialData_[spriteIndex_]->uvTransform = MakeQuaternionMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
+	spriteMaterialData_[spriteIndex_]->reflection = 0;
+	spriteMaterialData_[spriteIndex_]->enableDirectionalLighting = false;
+	spriteMaterialData_[spriteIndex_]->enablePointLighting = false;
+	spriteMaterialData_[spriteIndex_]->enableSpotLighting = false;
+	spriteMaterialData_[spriteIndex_]->shininess = 0.0f;
+
+	spriteMaterialResource_[spriteIndex_]->Unmap(0, nullptr);
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(spriteRootSignature_.Get());
+	// 加算ブレンド用のPSO
+	commandList_->SetPipelineState(spriteAdditivePipelineState_.Get());	//PSOを設定
+	commandList_->IASetVertexBuffers(0, 1, &sprite->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&sprite->GetIBV());	//IBVを設定
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(sprite->GetTextureIndex()));
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex_]->GetGPUVirtualAddress());
+	//TransformationMatrixCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, spriteWvpResource_[spriteIndex_]->GetGPUVirtualAddress());
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えてよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//ドローコール
 	commandList_->DrawIndexedInstanced(6, 1, 0, 0, 0);

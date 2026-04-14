@@ -60,7 +60,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
-	hud_->Initialize(input.get());
+	hud_->Initialize(input.get(), gameCamera_->GetCamera());
 
 	// 予測表示
 	hitPreview_ = std::make_unique<HitPreview>();
@@ -93,7 +93,7 @@ void GameScene::Update() {
 			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 		}
 
-		if (keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) {
+		if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
 			skipHold_ += 1.0f / 60.0f;
 			if (skipHold_ > 0.5f) {
 				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);

@@ -2,8 +2,10 @@
 #include "Human/Player/Player.h"
 #include "Course/Course.h"
 
-void HUD::Initialize(Input* input) {
+void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	input_ = input;
+	stars_ = std::make_unique<Stars>();
+	stars_->Initialize(camera);
 
 	// チャージ背景
 	chargeBGSprite_ = std::make_unique<Sprite>();
@@ -84,7 +86,7 @@ void HUD::Initialize(Input* input) {
 	canShoot_->Initialize("./resources/HUD/CanShoot.png");
 	canShoot_->SetSize(Vector2{ 180.0f,40.0f });
 	canShoot_->SetTextureSize(Vector2{ 180.0f,40.0f });
-	canShoot_->SetPosition({640,300});
+	canShoot_->SetPosition({ 640,300 });
 	canShoot_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 }
 
@@ -95,7 +97,17 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	UpdateSection(player, course);
 	UpdateInfo();
 	UpdateStartNum(startNum);
-	UpdateReload(player,camera);
+	UpdateReload(player, camera);
+
+	// エフェクト
+	auto pos = course->GetBreakPos();
+	for (int i = 0; i < int(pos.size()); i += 800) {
+		stars_->AddStar(pos[i]);
+	}
+	Vector2 center = currentBreakSprite_->GetSize();
+	center.x += bonusBreakSprite_->GetSize().x;
+	center.y /= 2.0f;
+	stars_->Update(breakLTPos_ + center);
 }
 
 void HUD::Draw() {
@@ -104,7 +116,6 @@ void HUD::Draw() {
 	breakBGSprite_->Draw2D();
 	bonusBreakSprite_->Draw2D();
 	currentBreakSprite_->Draw2D();
-
 
 	// 時間
 	timeBGSprite_->Draw2D();
@@ -120,6 +131,9 @@ void HUD::Draw() {
 	if (startNumIsDraw_) {
 		startNumSprite_->Draw2D();
 	}
+
+	// エフェクト
+	stars_->Draw();
 }
 
 void HUD::SetPauseDisplay(bool isOn) {
@@ -169,7 +183,7 @@ void HUD::UpdateScore(Course* course) {
 
 	// 割合を求める
 	rate = 0;
-	if(currentSection->IsCleared()) {
+	if (currentSection->IsCleared()) {
 		rate = float(current - clear) / float(max);
 		rate = clamp(rate, 0.0f, 1.0f);
 	}
@@ -225,21 +239,7 @@ void HUD::UpdateStartNum(int num) {
 void HUD::UpdateReload(Player* player, std::shared_ptr<Camera> camera) {
 	Matrix4x4 viewProjection = camera->GetViewMatrix() * camera->GetProjectionMatrix();
 
-	// 修正後
-	Vector3 pos = player->GetTransform().translate;
-	Vector4 worldPos = { pos.x, pos.y, pos.z, 1.0f };
-	Vector4 clipPos = Transform(worldPos, viewProjection);
-
-	// w除算
-	Vector3 ndc;
-	ndc.x = clipPos.x / clipPos.w;
-	ndc.y = clipPos.y / clipPos.w;
-	ndc.z = clipPos.z / clipPos.w;
-
-	// スクリーン変換
-	Vector2 screen;
-	screen.x = (ndc.x + 1.0f) * 0.5f * 1280;
-	screen.y = (1.0f - ndc.y) * 0.5f * 720;
+	Vector2 screen = ToScreen(camera, player->GetTransform().translate);
 
 	drawCanShoot_ = player->CanShoot();
 	if (drawCanShoot_) {
@@ -247,11 +247,11 @@ void HUD::UpdateReload(Player* player, std::shared_ptr<Camera> camera) {
 	} else {
 		canShoot_->SetTextureLeftTop({ 0,40 });
 	}
-	canShoot_->SetPosition(screen + Vector2{0,-50});
+	canShoot_->SetPosition(screen + Vector2{ 0,-50 });
 	canShoot_->Update();
 }
 
-Vector4 HUD::Transform(const Vector4& vector, const Matrix4x4& matrix) {
+inline Vector4 Transform(const Vector4& vector, const Matrix4x4& matrix) {
 	// 座標変換した結果
 	Vector4 transform;
 
@@ -267,4 +267,24 @@ Vector4 HUD::Transform(const Vector4& vector, const Matrix4x4& matrix) {
 	transform.w /= transform.w;
 
 	return transform;
+}
+
+inline Vector2 ToScreen(std::shared_ptr<Camera> camera, Vector3 worldPos) {
+	Matrix4x4 viewProjection = camera->GetViewMatrix() * camera->GetProjectionMatrix();
+	Vector3 pos = worldPos;
+	Vector4 world = { pos.x, pos.y, pos.z, 1.0f };
+	Vector4 clipPos = Transform(world, viewProjection);
+
+	// w除算
+	Vector3 ndc;
+	ndc.x = clipPos.x / clipPos.w;
+	ndc.y = clipPos.y / clipPos.w;
+	ndc.z = clipPos.z / clipPos.w;
+
+	// スクリーン変換
+	Vector2 screen;
+	screen.x = (ndc.x + 1.0f) * 0.5f * 1280;
+	screen.y = (1.0f - ndc.y) * 0.5f * 720;
+
+	return screen;
 }

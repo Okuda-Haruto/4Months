@@ -51,6 +51,12 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> SpritePipelineStateInitialvalue(ID3
 	IDxcBlob* pixelShaderBlob);
 
 //PSOを生成する
+Microsoft::WRL::ComPtr <ID3D12PipelineState> SpriteAdditivePipelineStateInitialvalue(ID3D12Device* device,
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
+	IDxcBlob* vertexShaderBlob,
+	IDxcBlob* pixelShaderBlob);
+
+//PSOを生成する
 Microsoft::WRL::ComPtr <ID3D12PipelineState> LinePipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
