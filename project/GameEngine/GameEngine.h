@@ -78,9 +78,11 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3DPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2DPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthObjectPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> noFogObject3DPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> addBlendNoFogObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddBrendPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddBlendPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
@@ -89,9 +91,9 @@ public:
 	//描画可能なモデルの数(通常)
 	static const int16_t kMaxIndex = 1024;
 	//描画可能なモデルの数(インスタシング)
-	static const int16_t kMaxInstanceIndex = 8;
+	static const int16_t kMaxInstanceIndex = 4;
 	//インスタンス数
-	static const uint32_t kMaxNumInstance = 16384;
+	static const uint32_t kMaxNumInstance = 32768;
 private:
 #pragma region object
 	int16_t objectIndex_;
@@ -200,6 +202,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
 
 	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
+	void DrawNoFogObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
+	void DrawAddBlendObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
 	void DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
@@ -283,6 +287,8 @@ public:
 
 
 	static void DrawObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
+	static void DrawNoFogObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawNoFogObject_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
+	static void DrawAddBlendObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawAddBlendObject_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
 	static void DrawParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
 	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }

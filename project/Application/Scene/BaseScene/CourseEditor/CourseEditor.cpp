@@ -48,6 +48,9 @@ void CourseEditor::Initialize(std::shared_ptr<Input> input) {
 	cursorVoxelTransform_.scale = Vector3{ 3.01f,3.01f,3.01f };
 	isCursorVoxel_ = false;
 
+	barrier_ = std::make_unique<GoalBarrier>();
+	barrier_->Initialize(-60, defaultCamera_);
+
 	selectChunk_ = {};
 	selectedTile_ = TILE_None;
 
@@ -62,6 +65,10 @@ void CourseEditor::Finalize() {
 void CourseEditor::Update() {
 	Keyboard key = input_->GetKeyBoard();
 	Mouse mouse = input_->GetMouse();
+
+	time_ += 1.0f / 60.0f;
+
+	barrier_->Update(gameCamera_.get());
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImVec2(340, 720));
@@ -690,6 +697,9 @@ void CourseEditor::Draw() {
 		if (isDrawMapchipArea_) {
 			mapchipAreaObject_->Draw3D();
 		}
+
+
+		barrier_->Draw();
 	}
 }
 

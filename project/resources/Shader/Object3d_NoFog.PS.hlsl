@@ -1,4 +1,4 @@
-#include "InstanceObject3d.hlsli"
+#include "Object3d.hlsli"
 #include "Material.hlsli"
 
 struct DirectionalLight
@@ -53,11 +53,9 @@ struct PixelShaderOutput
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
 
-PixelShaderOutput PhangReflectionModel(VertexShaderOutput input)
+PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureColor)
 {
     PixelShaderOutput output;
-    
-    float4 textureColor = gTexture.Sample(gSampler, input.UV);
     
     float3 diffuseDirectionalLighting = { 0.0f, 0.0f, 0.0f };
     if (gMaterial.enableDirectionalLighting)
@@ -73,7 +71,7 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input)
             cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
         }
         
-        diffuseDirectionalLighting = input.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        diffuseDirectionalLighting = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
     }
     
     float3 diffusePointLighting = { 0.0f, 0.0f, 0.0f };
@@ -96,7 +94,7 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input)
             cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
         }
         
-        diffusePointLighting = input.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
+        diffusePointLighting = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
     }
     
     float3 diffuseSpotLighting = { 0.0f, 0.0f, 0.0f };
@@ -124,7 +122,7 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input)
             cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
         }
         
-        diffuseSpotLighting = input.color.rgb * textureColor.rgb * gSpotLight.color.rgb * gSpotLight.intensity * falloutFactor;
+        diffuseSpotLighting = gMaterial.color.rgb * textureColor.rgb * gSpotLight.color.rgb * gSpotLight.intensity * falloutFactor;
     }
     
     if (gMaterial.shininess > 0)
@@ -138,7 +136,7 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input)
             float RdotE = dot(reflectLight, toEye);
             
             float specularPow = pow(saturate(RdotE), gMaterial.shininess);
-            specularDirectionalLighting = input.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
+            specularDirectionalLighting = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
         }
         
         float3 specularPointLighting = { 0.0f, 0.0f, 0.0f };
@@ -172,13 +170,10 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input)
 
 
 
-PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input)
+PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 textureColor)
 {
     PixelShaderOutput output;
     float3 diffuseDirectionalLighting = { 0.0f, 0.0f, 0.0f };
-
-    float4 textureColor = gTexture.Sample(gSampler, input.UV);
-    
     if (gMaterial.enableDirectionalLighting)
     {
         float cos = 1.0f;
@@ -192,7 +187,7 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input)
             cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
         }
         
-        diffuseDirectionalLighting = input.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        diffuseDirectionalLighting = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
     }
     
     float3 diffusePointLighting = { 0.0f, 0.0f, 0.0f };
@@ -215,7 +210,7 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input)
             cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
         }
         
-        diffusePointLighting = input.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
+        diffusePointLighting = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
     }
     
     float3 diffuseSpotLighting = { 0.0f, 0.0f, 0.0f };
@@ -243,7 +238,7 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input)
             cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
         }
         
-        diffuseSpotLighting = input.color.rgb * textureColor.rgb * gSpotLight.color.rgb * cos * gSpotLight.intensity * attenuationFactor * falloutFactor;
+        diffuseSpotLighting = gMaterial.color.rgb * textureColor.rgb * gSpotLight.color.rgb * cos * gSpotLight.intensity * attenuationFactor * falloutFactor;
     }
     
     if (gMaterial.shininess > 0)
@@ -296,52 +291,42 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input)
 PixelShaderOutput main(VertexShaderOutput input)
 {
     float4 transformedUV = mul(float4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
-    float4 textureColor = gTexture.Sample(gSampler, input.UV);
+    float4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
     PixelShaderOutput output;
-    output.color = input.color * textureColor;
+    output.color = gMaterial.color * textureColor;
     
+    if (output.color.a == 0.0)
+    {
+        discard;
+    }
     
-    if (gMaterial.reflection <= 0 || gMaterial.reflection > 2)
-        return output;
-        
-    if (gMaterial.shading == 0)
+    if (gMaterial.reflection >= 1 && gMaterial.reflection <= 2)
     {
-        output = PhangReflectionModel(input);
+        if (gMaterial.shading == 0)
+        {
+            output = PhangReflectionModel(input, textureColor);
+        }
+        else
+        {
+            output = BlinnPhangReflectionModel(input, textureColor);
+        }
     }
-    else
-    {
-        output = BlinnPhangReflectionModel(input);
-    }
-        
+    
     float3 diff = input.worldPosition - gCamera.WorldPosition;
 
     float dist = length(diff);
     
     float near = saturate((gCamera.nearDist - dist) / gCamera.nearTransparentDist);
     float far = saturate((dist - gCamera.farDist) / gCamera.farTransparentDist);
-
+    
     float fog = 1.0f - max(near, far);
     
-    if (fog >= 0.75f)
-    {
-        // 0.75〜1 → 0〜1
-        float t = (fog - 0.75f) * 4.0f;
-
-        output.color.r = output.color.r * t + 0.2f * (1.0f - t);
-        output.color.g = output.color.g * t + 0.35f * (1.0f - t);
-        output.color.b = output.color.b * t + 0.6f * (1.0f - t);
-    }
-    else
-    {
-        // 0〜0.75 → 0〜1
-        float t = fog / 0.75f;
-
-        output.color.r = 0.2f * t + 0.1f * (1.0f - t);
-        output.color.g = 0.35f * t + 0.25f * (1.0f - t);
-        output.color.b = 0.6f * t + 0.5f * (1.0f - t);
-    }
+    output.color.a *= 1.0f - saturate(fog);
     
-    
-    return
-output;
+    if (output.color.a == 0.0)
+    {
+        discard;
+    }
+
+    return output;
 }
