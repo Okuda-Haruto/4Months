@@ -10,7 +10,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
 	model_->SetShininess(30.0f);
 	bulletModel_ = make_unique<Object>();
-	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
+	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
 	bulletModel_->SetShininess(30.0f);
 	//カメラで使う
 	transform_ = {};
@@ -19,12 +19,16 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	transform_.translate = position;
 	model_->SetTransform(transform_);
 	model_->SetDirectionalLight(directionalLight);
-	bulletModel_->SetTransform(transform_);
+	headTransform_.scale = { 2.5f,2.5f,2.5f };
+	headTransform_.translate = position;
+	bulletModel_->SetTransform(headTransform_);
 	bulletModel_->SetDirectionalLight(directionalLight);
 
 	// エフェクト
 	wind_ = make_unique<Wind>();
 	wind_->Initialize(directionalLight);
+	headRotateEffect_ = make_unique<PlayerRotation>();
+	headRotateEffect_->Initialize(directionalLight);
 
 	fallingSpeed_ = -kMinSpeed_;
 	speed_ = 0.3f;
@@ -61,10 +65,11 @@ void Human::Update() {
 	if (!stop) {
 		transform_.translate += velocity_.translate + knockBackVelocity_;
 	}
+
 	// 分離しているときの先頭
 	switch (vacuumState_) {
 	case None:
-		headTransform_ = transform_;
+		headTransform_ = { headTransform_.scale,transform_.rotate, transform_.translate };
 		break;
 
 	case Going:
@@ -74,7 +79,7 @@ void Human::Update() {
 		if (headSpeed_ <= 0) {
 			headSpeed_ = 0;
 			vacuumTimer_ = vacuumTime_;
-			wind_->Set(headTransform_.translate, vacuumRadius_,float(vacuumTime_));
+			wind_->Set(headTransform_.translate, vacuumRadius_, float(vacuumTime_));
 			vacuumState_ = Vacuum;
 		}
 		break;
@@ -101,12 +106,23 @@ void Human::Update() {
 		}
 	}
 
+	// 回転
+	if (charge_ == kMaxCharge_) {
+		headRotate_ += 0.2f;
+	} else if(isCharging_ || vacuumState_ != None) {
+		headRotate_ += 0.1f;
+	} else {
+		headRotate_ += 0.05f;
+	}
+	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
+	headRotateEffect_->Update(headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
+
 	speed_ = Lerp(speed_, kDefaultSpeed_, 0.05f);
 
 	knockBackVelocity_.x = Lerp(knockBackVelocity_.x, 0.0f, 0.1f);
 	knockBackVelocity_.y = Lerp(knockBackVelocity_.y, 0.0f, 0.1f);
 	knockBackVelocity_.z = Lerp(knockBackVelocity_.z, 0.0f, 0.1f);
-	
+
 	velocity_ = {};
 
 #ifdef USE_IMGUI
@@ -121,9 +137,9 @@ void Human::Update() {
 
 void Human::Draw() {
 	model_->Draw3D();
-	if (vacuumState_ != None) {
-		bulletModel_->Draw3D();
-	}
+	bulletModel_->Draw3D();
+	headRotateEffect_->Draw();
+
 	if (vacuumState_ == Vacuum) {
 		wind_->Draw();
 	}
@@ -151,7 +167,7 @@ void Human::OnHitVoxel(AABB aabb) {
 }
 
 void Human::Throw() {
-	headTransform_ = transform_;
+	headTransform_ = { headTransform_.scale,transform_.rotate, transform_.translate };
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;

@@ -105,6 +105,7 @@
     <ClCompile Include="Application\Course\Section\Section.cpp" />
     <ClCompile Include="Application\StartCountdown\StartCountdown.cpp" />
     <ClCompile Include="Application\Effect\Stars\Stars.cpp" />
+    <ClCompile Include="Application\Effect\PlayerRotation\PlayerRotation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Box\Box.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="Application\Course\Section\Section.h" />
     <ClInclude Include="Application\StartCountdown\StartCountdown.h" />
     <ClInclude Include="Application\Effect\Stars\Stars.h" />
+    <ClInclude Include="Application\Effect\PlayerRotation\PlayerRotation.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

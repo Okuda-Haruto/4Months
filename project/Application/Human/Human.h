@@ -3,6 +3,7 @@
 #include "OBB.h"
 #include "Sphere.h"
 #include "Effect/Wind/Wind.h"
+#include "Effect/PlayerRotation/PlayerRotation.h"
 #include <deque>
 
 static int id_ = 0;
@@ -70,9 +71,6 @@ protected:
 	//落下速度
 	float fallingSpeed_;
 
-	//頭の進行角度
-	Vector3 headRotate_;
-
 	// 無敵時間
 	int invincibleTimer_;
 	const int invincibleTimeOnHit_ = 45;
@@ -111,6 +109,10 @@ protected:
 	int returnTimer_ = 0;
 	float bounceBackSpeed_ = 11.0f;
 
+	// 飛ばすコマの回転
+	std::unique_ptr<PlayerRotation> headRotateEffect_ = nullptr;
+	float headRotate_ = 0;
+
 	// 吸引
 	int vacuumTime_ = 30;
 	int vacuumTimer_ = 30;
@@ -133,4 +135,6 @@ protected:
 	Vector3 CalcVacuumPosition();
 
 	bool stop;
+
+
 };
