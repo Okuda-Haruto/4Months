@@ -192,15 +192,14 @@ void GameScene::Draw() {
 	} else if (startCountdown_->IsPreStart()) {
 		course_->DrawUp(directionalLight_);
 	} else {
-		//描画処理
-		player_->Draw();
-
 		//ゴール描画処理
 		//goal_->Draw();
 
 		course_->Draw(directionalLight_);
 
 		hitPreview_->Draw();
+
+		player_->Draw();
 
 		// HUD
 		hud_->Draw();
