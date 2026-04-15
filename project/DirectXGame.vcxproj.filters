@@ -37,6 +37,7 @@
     <FxCompile Include="resources\Shader\InstanceLine.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\Object3d_NoFog.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -181,9 +182,6 @@
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Voxel\Voxel.cpp" />
-    <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
-    <ClCompile Include="Application\Box\Box.cpp" />
     <ClCompile Include="Application\Effect\Wind\Wind.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClCompile>
@@ -203,8 +201,20 @@
       <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
     </ClCompile>
     <ClCompile Include="Application\Effect\Stars\Stars.cpp" />
-    <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp" />
     <ClCompile Include="Application\Effect\PlayerRotation\PlayerRotation.cpp" />
+    <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp">
+      <Filter>Application\Scene\BaseScene\CourseEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Box\Box.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Voxel\Voxel.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp">
+      <Filter>Application\Scene\BaseScene\GameScene\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Course\GoalBarrier\GoalBarrier.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -489,10 +499,6 @@
     <ClInclude Include="Application\Scene\SceneFactory\SceneFactory.h">
       <Filter>Application\Scene\SceneFactory</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Voxel\Voxel.h" />
-    <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
-    <ClInclude Include="Application\Mix.h" />
-    <ClInclude Include="Application\Box\Box.h" />
     <ClInclude Include="Application\Effect\Wind\Wind.h">
       <Filter>Application\Scene\BaseScene\GameScene\Effect\Wind</Filter>
     </ClInclude>
@@ -512,8 +518,23 @@
       <Filter>Application\Scene\BaseScene\GameScene\Course\Section\GameTimer</Filter>
     </ClInclude>
     <ClInclude Include="Application\Effect\Stars\Stars.h" />
-    <ClInclude Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.h" />
     <ClInclude Include="Application\Effect\PlayerRotation\PlayerRotation.h" />
+    <ClInclude Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.h">
+      <Filter>Application\Scene\BaseScene\CourseEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Box\Box.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Voxel\Voxel.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Mix.h">
+      <Filter>Application\Scene\BaseScene\GameScene\Mix</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Course\GoalBarrier\GoalBarrier.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -720,9 +741,6 @@
     <Filter Include="Application\Scene\BaseScene\GameScene\Human\Enemy">
       <UniqueIdentifier>{5c3f6781-4635-4024-bf6a-996598b2e699}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Scene\BaseScene\GameScene\Neck">
-      <UniqueIdentifier>{827acd4c-b6b6-4024-b08e-1aa6b2712401}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Scene\BaseScene\GameScene\Ring">
       <UniqueIdentifier>{ff0cf0ae-ff34-46d5-8aa3-b56708fbed16}</UniqueIdentifier>
     </Filter>
@@ -755,6 +773,15 @@
     </Filter>
     <Filter Include="Application\Scene\BaseScene\GameScene\Course\Section\GameTimer">
       <UniqueIdentifier>{4ad0d169-c6ff-431c-9654-0cd394e38bad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\CourseEditor">
+      <UniqueIdentifier>{d3f6efa9-6b0b-4603-ac47-5e570f41f2f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Voxel">
+      <UniqueIdentifier>{22323933-4364-4c72-ac76-9f04d3a3dcea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\BaseScene\GameScene\Mix">
+      <UniqueIdentifier>{91e4d907-1f5d-4cd5-a877-168e89c5be45}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

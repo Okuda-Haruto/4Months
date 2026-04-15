@@ -60,6 +60,8 @@ public:
 	//描画
 	void Draw3D();
 	void Draw3D(uint32_t index);
+	void Draw3DNoFog();
+	void DrawAdd3D();
 	void Draw2D();
 	void Draw2D(uint32_t index);
 

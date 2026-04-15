@@ -69,6 +69,14 @@ void Object::Draw3D(uint32_t index) {
 	GameEngine::DrawParts_3D(this, index, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock());
 }
 
+void Object::Draw3DNoFog() {
+	GameEngine::DrawNoFogObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(), 0, animationTime_);
+}
+
+void Object::DrawAdd3D() {
+	GameEngine::DrawAddBlendObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(), 0, animationTime_);
+}
+
 void Object::Draw2D() {
 	GameEngine::DrawObject_2D(this, directionalLight_.lock());
 }
