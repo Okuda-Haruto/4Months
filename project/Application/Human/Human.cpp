@@ -107,9 +107,9 @@ void Human::Update() {
 
 	// 回転
 	if (charge_ == kMaxCharge_) {
-		headRotate_ -= 0.15f;
+		headRotate_ += 0.15f;
 	} else {
-		headRotate_ -= 0.075f;
+		headRotate_ += 0.075f;
 	}
 	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
 	headRotateEffect_->Update(headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);

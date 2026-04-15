@@ -166,7 +166,7 @@ void PlayerRotation::UpdateRotationEffect(const Vector3& position) {
 				// 移動
 				rotEffect_[i].transform[j].translate.y = position.y + (1.0f - rotEffect_[i].lifetime[j] / kRotationLifetime) * 0.05f; // プレイヤーに近い高さにする
 				rotEffect_[i].object[j]->SetTransform(rotEffect_[i].transform[j]);
-				rotEffect_[i].object[j]->SetColor({ 0.75f,0.75f,0,rotEffect_[i].lifetime[j] / kRotationLifetime });
+				rotEffect_[i].object[j]->SetColor({ 1,1,0,rotEffect_[i].lifetime[j] / kRotationLifetime });
 				rotEffect_[i].lifetime[j] -= 1.0f / 60.0f;
 				if (rotEffect_[i].lifetime[j] <= 0) {
 					rotEffect_[i].isActivated[j] = false;
