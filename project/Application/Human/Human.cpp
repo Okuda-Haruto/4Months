@@ -20,6 +20,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	model_->SetTransform(transform_);
 	model_->SetDirectionalLight(directionalLight);
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
+	headTransform_.translate = position;
 	bulletModel_->SetTransform(headTransform_);
 	bulletModel_->SetDirectionalLight(directionalLight);
 
@@ -107,9 +108,11 @@ void Human::Update() {
 
 	// 回転
 	if (charge_ == kMaxCharge_) {
-		headRotate_ += 0.15f;
+		headRotate_ += 0.2f;
+	} else if(isCharging_ || vacuumState_ != None) {
+		headRotate_ += 0.1f;
 	} else {
-		headRotate_ += 0.075f;
+		headRotate_ += 0.05f;
 	}
 	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
 	headRotateEffect_->Update(headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
