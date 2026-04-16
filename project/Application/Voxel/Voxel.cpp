@@ -314,11 +314,11 @@ void Voxel::Collision(Sphere sphere) {
 											switch (chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]) {
 											case 1:
 												//Boxにする
-												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.5f, GameEngine::randomInt(6, 8));
+												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.5f, GameEngine::randomInt(4, 7));
 												break;
 											case 2:
 												//Boxにする
-												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.05f, 13);
+												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.05f, 14);
 												break;
 											default:
 												break;
