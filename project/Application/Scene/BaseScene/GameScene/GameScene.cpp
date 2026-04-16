@@ -39,7 +39,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_);
+	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_,defaultCamera_);
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
@@ -99,6 +99,11 @@ void GameScene::Update() {
 				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
 				startCountdown_->SkipPreStart();
 			}
+
+#ifdef USE_IMGUI
+				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+				startCountdown_->SkipAll();
+#endif
 		} else {
 			skipHold_ = 0;
 		}

@@ -1,8 +1,10 @@
 #include "PlayerRotation.h"
+#include "HUD/HUD.h"
 #include <numbers>
 
-void PlayerRotation::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
+void PlayerRotation::Initialize(std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<Camera> camera) {
 	directionalLight_ = directionalLight_;
+	camera_ = camera;
 
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < kRotationEffectCount; ++j) {
@@ -26,13 +28,108 @@ void PlayerRotation::Initialize(std::shared_ptr<DirectionalLight> directionalLig
 		model->SetDirectionalLight(directionalLight);
 		model->SetShininess(0);
 		model->SetTransform(chargingEffect_.transform[i]);
-		model->SetColor({ 1.0f,0.5f,0,1 });
+		model->SetColor({ 1.0f,0.5f,0,0.8f });
 		chargingEffect_.object.push_back(std::move(model));
 	}
+
+	ring_ = std::make_unique<Sprite>();
+	ring_->Initialize("resources/Effect/Rotate/ring.png");
+	ring_->SetAnchorPoint({ 0.5f,0.5f });
+	ring_->SetColor({ 1,1,1,0.7f });
+	ring_->Update();
 }
 
 void PlayerRotation::Update(const Vector3& position, const float radius, const float rotateY, const bool isCharging, const bool isChargeMax) {
 	// 回転エフェクト
+	EmitRotationEffect(position, rotateY, radius);
+	UpdateRotationEffect(position);
+	prevRotateY_ = rotateY;
+	prevPosition_ = position;
+
+	// 溜めエフェクト
+	if (isCharging) {
+		if (isChargeMax) {
+			if (chargingEmitTimer_ >= kMaxChargingEmitTime) {
+				chargingEmitTimer_ = 0;
+				EmitChargingEffect(isChargeMax);
+			}
+		} else {
+			if (chargingEmitTimer_ >= kChargingEmitTime) {
+				chargingEmitTimer_ = 0;
+				EmitChargingEffect(isChargeMax);
+			}
+		}
+		chargingEmitTimer_++;
+	}
+
+	if (isShooting_) {
+		afterShootTimer_ -= 1.0f / 60.0f;
+		if (afterShootTimer_ <= 0) {
+			isShooting_ = false;
+
+			for (int i = 0; i < kChargingEffectCount; ++i) {
+				chargingEffect_.isActivated[i] = false;
+			}
+		}
+	}
+
+	// 発生しているエフェクトの処理
+	UpdateChargingEffect(position, isChargeMax);
+
+
+	if (isCatching_) {
+		Vector2 size = ring_->GetSize();
+		size = size - Vector2{ringShrinkSpeed_, ringShrinkSpeed_};
+		ring_->SetPosition(ToScreen(camera_,position));
+		ring_->SetSize(size);
+		ring_->Update();
+
+		if (size.x <= 0) {
+			isCatching_ = false;
+		}
+	}
+}
+
+void PlayerRotation::Draw() {
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < kRotationEffectCount; ++j) {
+			if (rotEffect_[i].isActivated[j]) {
+				rotEffect_[i].object[j]->Draw3D();
+			}
+		}
+	}
+
+	for (int i = 0; i < kChargingEffectCount; ++i) {
+		if (chargingEffect_.isActivated[i]) {
+			chargingEffect_.object[i]->Draw3D();
+		}
+	}
+
+	if (isCatching_) {
+		ring_->Draw2D();
+	}
+}
+
+void PlayerRotation::Shoot() {
+	isShooting_ = true;
+	afterShootTimer_ = kPulseTime;
+
+	// 一斉にエフェクト
+	for (int i = 0; i < kChargingEffectCount; ++i) {
+		chargingEffect_.isActivated[i] = false;
+	}
+
+	for (int i = 0; i < kPulseEmitCount; ++i) {
+		EmitChargingEffect(true);
+	}
+}
+
+void PlayerRotation::Catch() {
+	isCatching_ = true;
+	ring_->SetSize(ringStartScale_);
+}
+
+void PlayerRotation::EmitRotationEffect(const Vector3& position, const float rotateY, const float radius) {
 	Vector3 diff = position - prevPosition_;
 	float dist = Length(diff);
 
@@ -72,85 +169,27 @@ void PlayerRotation::Update(const Vector3& position, const float radius, const f
 			}
 		}
 	}
-
-	UpdateRotationEffect(position);
-	prevRotateY_ = rotateY;
-	prevPosition_ = position;
-
-	// 溜めエフェクト
-	if (isCharging) {
-		if (isChargeMax) {
-			if (chargingEmitTimer_ >= kMaxChargingEmitTime) {
-				chargingEmitTimer_ = 0;
-				for (int i = 0; i < 2; ++i) {
-					EmitChargingEffectCharged();
-				}
-			}
-		} else {
-			if (chargingEmitTimer_ >= kChargingEmitTime) {
-				chargingEmitTimer_ = 0;
-				for (int i = 0; i < 2; ++i) {
-					EmitChargingEffect();
-				}
-			}
-		}
-		chargingEmitTimer_++;
-	}
-
-	// 発生しているエフェクトの処理
-	UpdateChargingEffect(position, isChargeMax);
-
 }
 
-void PlayerRotation::Draw() {
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < kRotationEffectCount; ++j) {
-			if (rotEffect_[i].isActivated[j]) {
-				rotEffect_[i].object[j]->Draw3D();
-			}
-		}
-	}
-
-	for (int i = 0; i < kChargingEffectCount; ++i) {
-		if (chargingEffect_.isActivated[i]) {
-			chargingEffect_.object[i]->Draw3D();
-		}
-	}
-}
-
-void PlayerRotation::EmitChargingEffect() {
+void PlayerRotation::EmitChargingEffect(bool isChargeMax) {
 	for (int i = 0; i < kChargingEffectCount; ++i) {
 		// エフェクト発生
 		if (!chargingEffect_.isActivated[i]) {
 			// 初期回転位置
-			chargingEffect_.radius[i] = kChargingStartRadius;
+			if (isShooting_) {
+				chargingEffect_.radius[i] = 0;
+			}else if (isChargeMax) {
+				chargingEffect_.radius[i] = kMaxChargingStartRadius;
+			} else {
+				chargingEffect_.radius[i] = kChargingStartRadius;
+			}
 			chargingEffect_.rotate[i] = GameEngine::randomFloat(0.0f, 2.0f * float(std::numbers::pi));
 			float rotate = chargingEffect_.rotate[i];
 			Vector3 dir = { sin(rotate),0,cos(rotate) };
 
 			chargingEffect_.isActivated[i] = true;
-			chargingEffect_.lifetime[i] = kChargingLifetime;
-			chargingEffect_.transform[i].scale = { 1,1,1 };
-			chargingEffect_.transform[i].translate = chargingEffect_.spawnPoint + dir * chargingEffect_.radius[i];
-			chargingEffect_.object[i]->SetTransform(chargingEffect_.transform[i]);
-			break;
-		}
-	}
-}
-
-void PlayerRotation::EmitChargingEffectCharged() {
-	for (int i = 0; i < kChargingEffectCount; ++i) {
-		// エフェクト発生
-		if (!chargingEffect_.isActivated[i]) {
-			// 初期回転位置
-			chargingEffect_.radius[i] = kMaxChargingStartRadius;
-			chargingEffect_.rotate[i] = GameEngine::randomFloat(0.0f, 2.0f * float(std::numbers::pi));
-			float rotate = chargingEffect_.rotate[i];
-			Vector3 dir = { sin(rotate),0,cos(rotate) };
-
-			chargingEffect_.isActivated[i] = true;
-			chargingEffect_.lifetime[i] = kChargingLifetime;
-			chargingEffect_.transform[i].scale = { 1.5f,1.5f,1.5f };
+			float size = 0.65f;
+			chargingEffect_.transform[i].scale = { size,size,size * 4 };
 			chargingEffect_.transform[i].translate = chargingEffect_.spawnPoint + dir * chargingEffect_.radius[i];
 			chargingEffect_.object[i]->SetTransform(chargingEffect_.transform[i]);
 			break;
@@ -179,34 +218,55 @@ void PlayerRotation::UpdateRotationEffect(const Vector3& position) {
 void PlayerRotation::UpdateChargingEffect(const Vector3& position, const bool isChargeMax) {
 	for (int i = 0; i < kChargingEffectCount; ++i) {
 		if (chargingEffect_.isActivated[i]) {
-			// 半径を縮める
-			if (isChargeMax) {
-				chargingEffect_.radius[i] -= kMaxChargingRadiusShrinkSpeed;
+			float r = chargingEffect_.rotate[i];
+
+			// 円の基準ベクトル
+			Vector3 radial = { sin(r), 0, cos(r) };        // 外向き
+			Vector3 tangent = { cos(r), 0, -sin(r) };      // 回転方向（90度ずらし）
+
+			// 半径変化量（内向き）
+			float shrink = 0;
+			if (isShooting_) {
+				shrink = kPulseSpeed;
+			} else if (isChargeMax) {
+				shrink = kMaxChargingRadiusShrinkSpeed;
 			} else {
-				chargingEffect_.radius[i] -= kChargingRadiusShrinkSpeed;
+				shrink = kChargingRadiusShrinkSpeed;
 			}
 
-			// 移動
-			chargingEffect_.rotate[i] += kChargingRotateSpeed;
-			float rotate = chargingEffect_.rotate[i];
-			Vector3 dir = { sin(rotate),0,cos(rotate) };
+			// 回転速度
+			float rotSpeed = 0;
+			if (isShooting_) {
+				rotSpeed = kPulseRotateSpeed;
+			} else if(isChargeMax){
+				rotSpeed = -kChargingRotateSpeed * 1.5f;
+			} else {
+				rotSpeed = -kChargingRotateSpeed;
+			}
+
+			// 進行方向
+			Vector3 velocity = Normalize(tangent * rotSpeed * chargingEffect_.radius[i] - radial * shrink);
+
+			// 正規化
+			velocity = Normalize(velocity);
+
+			// 位置更新（今まで通り）
+			chargingEffect_.radius[i] -= shrink;
+			chargingEffect_.rotate[i] += rotSpeed;
+
+			Vector3 dir = { sin(chargingEffect_.rotate[i]), 0, cos(chargingEffect_.rotate[i]) };
 			chargingEffect_.transform[i].translate = position + dir * chargingEffect_.radius[i];
 
+			// 進行方向を向かせる
+			float angle = atan2(velocity.x, -velocity.z);
+			chargingEffect_.transform[i].rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, angle);
+
 			// サイズ
-			float size = 1;
-			if (chargingEffect_.lifetime[i] < 0.2f) {
-				size = 1.0f * (chargingEffect_.lifetime[i] / 0.2f);
-				chargingEffect_.transform[i].scale = { size,size,size };
-			} else if (chargingEffect_.lifetime[i] > 0.8f) {
-				float t = (chargingEffect_.lifetime[i] - 0.8f) / 0.2f;
-				size = 1.0f - t;
-			}
-			chargingEffect_.transform[i].scale = { size,size,size };
 			chargingEffect_.object[i]->SetTransform(chargingEffect_.transform[i]);
 
-			chargingEffect_.lifetime[i] -= 1.0f / 60.0f;
-			if (chargingEffect_.lifetime[i] <= 0) {
+			if (chargingEffect_.radius[i] <= 0.05f) {
 				chargingEffect_.isActivated[i] = false;
+				continue;
 			}
 		}
 	}
