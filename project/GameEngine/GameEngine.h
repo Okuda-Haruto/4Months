@@ -70,6 +70,8 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingObjectRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> spriteRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> particleRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingVoxleRootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
@@ -81,16 +83,18 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noFogObject3DPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> addBlendNoFogObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingObjectPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingVoxelPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddBlendPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spriteAdditivePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenPipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
-	static const int16_t kMaxIndex = 1024;
+	static const int16_t kMaxIndex = 2048;
 	//描画可能なモデルの数(インスタシング)
 	static const int16_t kMaxInstanceIndex = 4;
 	//インスタンス数
@@ -197,8 +201,12 @@ private:
 
 	bool StartFlame_();
 	bool WindowState_();
+
 	void PreDraw_();
 	void PostDraw_();
+
+	void RenderPreDraw_(std::string textureName, UINT rtvIndex);
+	void RenderPostDraw_(std::string textureName);
 
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
 
@@ -209,11 +217,14 @@ private:
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
+	void DrawInstancingVoxel_3D_(std::list<Object*> objects, UINT backGroundTextureIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
 
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawSpriteAdditive_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
+
+	void DrawScreen_(uint32_t textureIndex);
 
 	void DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource);
 	void DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource);
@@ -275,6 +286,12 @@ public:
 	//描画後処理
 	static void PostDraw() { GetInstance()->PostDraw_(); }
 
+	//描画前処理
+	static void RenderPreDraw(std::string textureName, UINT rtvIndex) { GetInstance()->RenderPreDraw_(textureName, rtvIndex); }
+
+	//描画後処理
+	static void RenderPostDraw(std::string textureName) { GetInstance()->RenderPostDraw_(textureName); }
+
 	//ウィンドウ幅
 	[[nodiscard]]
 	static int32_t GetWindowWidth() { return kWindowWidth_; }
@@ -295,11 +312,14 @@ public:
 	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
+	static void DrawInstancingVoxel_3D(std::list<Object*> objects, UINT backGroundTextureIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingVoxel_3D_(objects, backGroundTextureIndex, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
 
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
 	static void DrawSpriteAdditive(Sprite* sprite) { return GetInstance()->DrawSpriteAdditive_(sprite); }
 	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
+
+	static void DrawScreen(uint32_t textureIndex) { return GetInstance()->DrawScreen_(textureIndex); }
 
 	static void DrawLine(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }

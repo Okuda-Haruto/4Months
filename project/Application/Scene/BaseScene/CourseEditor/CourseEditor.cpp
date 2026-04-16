@@ -680,9 +680,22 @@ void CourseEditor::Update() {
 
 #pragma endregion
 
+	GameEngine::RenderPreDraw("BackGround", 0);
+
+	if (course_) {
+		course_->DrawGoalBarrier();
+
+		barrier_->Draw();
+	}
+
+	GameEngine::RenderPostDraw("BackGround");
+
 }
 
 void CourseEditor::Draw() {
+	//背景描画
+	GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
+
 	if (course_) {
 		course_->Draw(drawAABB_,directionalLight_);
 
@@ -697,9 +710,6 @@ void CourseEditor::Draw() {
 		if (isDrawMapchipArea_) {
 			mapchipAreaObject_->Draw3D();
 		}
-
-
-		barrier_->Draw();
 	}
 }
 

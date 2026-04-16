@@ -7,6 +7,11 @@
 void GoalBarrier::Initialize(float position, std::shared_ptr<Camera> camera) {
 	camera_ = camera;
 
+	skydome_ = std::make_unique<Object>();
+	skydome_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/GoalBarrier", "Skydome.obj"));
+	skydome_->SetReflection(REFLECTION_None);
+	skydome_->SetCamera(camera_);
+
 	transform_.translate.y = position;
 	transform_.scale = { 1.0f,1.0f,1.0f };
 
@@ -96,6 +101,7 @@ void GoalBarrier::Update(GameCamera* gameCamera) {
 }
 
 void GoalBarrier::Draw() {
+	skydome_->Draw3DNoFog();
 	if (clearTimer_ > 0.0f) {
 		baseObject_->Draw3D();
 		smokeObjectRotate_->Draw3D();

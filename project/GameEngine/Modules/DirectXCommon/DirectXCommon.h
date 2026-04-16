@@ -5,17 +5,26 @@
 #include <wrl.h>
 #include <array>
 #include <chrono>
+#include <vector>
 
 #include "DirectXTex/DirectXTex.h"
 
 #include <Log.h>
 
 #include <WindowsAPI/WindowsAPI.h>
+#include <Vector4.h>
 
 class SRVManager;
 
 //DirectX基盤
 class DirectXCommon {
+public:
+	//スワップチェーンで使うRTVデスクリプタサイズ
+	static const uint32_t kSwapChainDescriptorSize_ = 2;
+	//オフスクリーンレンダリングで使うRTVデスクリプタサイズ
+	static const uint32_t kOffscreenDescriptorSize_ = 8;
+	//全体RTVデスクリプタサイズ
+	static const uint32_t kRTVHandleSize_ = 10;
 private:
 	//WindowsAPI
 	WindowsAPI* winApp_ = nullptr;
@@ -47,6 +56,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
 	//深度描画用リソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthWriteTextureResource_;
+	//深度バッファ位置
 	uint32_t depthBufferIndex_;
 
 	//デスクリプタサイズ
@@ -58,7 +68,7 @@ private:
 	//RTVのバッファ
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc_{};
 	//RTVディスクリプタ
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2];
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[kRTVHandleSize_];
 
 	//DSV用のヒープディスクリプタ
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorheap_;
@@ -101,19 +111,28 @@ public:
 	//描画後処理
 	void PostDraw();
 
+	//描画前処理
+	void RenderPreDraw(std::string textureName, UINT rtvIndex);
+	//描画後処理
+	void RenderPostDraw(std::string textureName);
+
 	//RootSignature作成
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ObjectRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> SpriteRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingObjectRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingVoxelRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ParticleRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> FogRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> ScreenRootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
-	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);
+	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath, const wchar_t* profile);
 	//バッファリソースの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResources(size_t sizeInBytes);
 	//テクスチャリソースの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
+	//レンダーテクスチャリソースの生成
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4 clearColor);
 	//テクスチャデータの転送
 	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
 

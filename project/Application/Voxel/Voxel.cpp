@@ -145,7 +145,7 @@ void Voxel::Draw() {
 	}
 
 	if (!drawOdjects_.empty()) {
-		GameEngine::DrawInstancingObject_3D(drawOdjects_, directionalLight_, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(drawOdjects_, TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight_, nullptr, nullptr);
 		drawOdjects_.clear();
 	}
 }
@@ -169,7 +169,7 @@ void Voxel::Draw(AABB drawRange) {
 
 
 	if (!drawOdjects_.empty()) {
-		GameEngine::DrawInstancingObject_3D(drawOdjects_, directionalLight_, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(drawOdjects_, TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight_, nullptr, nullptr);
 		drawOdjects_.clear();
 	}
 }
@@ -197,7 +197,7 @@ void Voxel::DrawAll() {
 
 
 	if (!drawOdjects_.empty()) {
-		GameEngine::DrawInstancingObject_3D(drawOdjects_, directionalLight_, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(drawOdjects_, TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight_, nullptr, nullptr);
 		drawOdjects_.clear();
 	}
 }
@@ -228,7 +228,7 @@ void Voxel::DrawUp() {
 	}
 
 	if (!drawOdjects_.empty()) {
-		GameEngine::DrawInstancingObject_3D(drawOdjects_, directionalLight_, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(drawOdjects_, TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight_, nullptr, nullptr);
 		drawOdjects_.clear();
 	}
 }

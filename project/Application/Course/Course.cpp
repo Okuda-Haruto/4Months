@@ -78,9 +78,9 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	voxel_->Draw();
-
 	goalBarrier_->Draw();
+
+	voxel_->Draw();
 }
 
 // 描画
@@ -92,6 +92,8 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 	if (!boxObjects.empty()) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
+
+	goalBarrier_->Draw();
 
 	voxel_->Draw(drawRange);
 }
@@ -105,6 +107,8 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
+	goalBarrier_->Draw();
+
 	voxel_->DrawAll();
 }
 
@@ -117,7 +121,13 @@ void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
+	goalBarrier_->Draw();
+
 	voxel_->DrawUp();
+}
+
+void Course::DrawGoalBarrier() {
+	goalBarrier_->Draw();
 }
 
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP) {
