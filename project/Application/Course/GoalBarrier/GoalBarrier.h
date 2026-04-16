@@ -5,6 +5,7 @@
 class GoalBarrier {
 private:
 	//基礎
+	std::unique_ptr<Object> skydome_;
 	std::unique_ptr<Object> baseObject_;
 	std::unique_ptr<Object> smokeObject_;
 	std::unique_ptr<Object> smokeObjectRotate_;

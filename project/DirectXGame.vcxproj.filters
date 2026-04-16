@@ -38,6 +38,7 @@
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\Object3d_NoFog.PS.hlsl" />
+    <FxCompile Include="resources\Shader\InstanceVoxel3d.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

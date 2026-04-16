@@ -103,6 +103,7 @@ void GameScene::Update() {
 			skipHold_ = 0;
 		}
 	} else {
+
 		// プレイヤーの更新
 		player_->Update(input_);
 
@@ -183,17 +184,25 @@ void GameScene::Update() {
 		// 失敗
 		SceneManager::GetInstance()->ChangeScene("Title");
 	}
+
+	GameEngine::RenderPreDraw("BackGround", 0);
+
+	course_->DrawGoalBarrier();
+
+	GameEngine::RenderPostDraw("BackGround");
 }
 
 void GameScene::Draw() {
+
+	//背景描画
+	//GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
+
 	// コース
 	if (isClear_) {
 		course_->DrawAll(directionalLight_);
 	} else if (startCountdown_->IsPreStart()) {
 		course_->DrawUp(directionalLight_);
 	} else {
-		//ゴール描画処理
-		//goal_->Draw();
 
 		course_->Draw(directionalLight_);
 
@@ -207,5 +216,4 @@ void GameScene::Draw() {
 		// 開始カウントダウン
 		startCountdown_->Draw();
 	}
-
 }

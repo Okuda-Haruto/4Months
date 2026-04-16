@@ -30,6 +30,8 @@ public:
 	void DrawAll(const std::shared_ptr<DirectionalLight> directionalLight);
 	void DrawUp(const std::shared_ptr<DirectionalLight> directionalLight);
 
+	void DrawGoalBarrier();
+
 	// Getter
 	Vector2 GetColliderCenter() { return colliderCenter_; }
 	float GetColliderRadius() { return radius_; }
