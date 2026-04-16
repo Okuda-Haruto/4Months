@@ -1,9 +1,9 @@
 #include "Player.h"
 #include <numbers>
 
-void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
+void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	//初期化
-	Human::Initialize(position, directionalLight);
+	Human::Initialize(position, directionalLight,camera);
 
 	startTime_ = 0.1f;
 }

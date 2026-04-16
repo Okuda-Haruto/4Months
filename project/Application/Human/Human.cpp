@@ -5,7 +5,7 @@
 
 #include <numbers>
 
-void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight) {
+void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	model_ = make_unique<Object>();
 	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
 	model_->SetShininess(30.0f);
@@ -28,7 +28,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	wind_ = make_unique<Wind>();
 	wind_->Initialize(directionalLight);
 	headRotateEffect_ = make_unique<PlayerRotation>();
-	headRotateEffect_->Initialize(directionalLight);
+	headRotateEffect_->Initialize(directionalLight,camera);
 
 	fallingSpeed_ = -kMinSpeed_ * 0.3f;
 	speed_ = 0.3f;
@@ -106,6 +106,7 @@ void Human::Update() {
 		if (returnTimer_ <= 0) {
 			headSpeed_ = 0;
 			vacuumState_ = None;
+			headRotateEffect_->Catch();
 		}
 	}
 
@@ -188,6 +189,7 @@ void Human::Throw() {
 	vacuumTime_ = int((charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime);
 	returnTime_ = int((charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime);
 	charge_ = 0;
+	headRotateEffect_->Shoot();
 }
 
 void Human::Charge() {
