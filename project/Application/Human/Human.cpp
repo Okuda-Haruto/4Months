@@ -121,7 +121,7 @@ void Human::Update() {
 		headRotate_ += 0.05f;
 	}
 	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
-	headRotateEffect_->Update(headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
+	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
 	speed_ = Lerp(speed_, kDefaultSpeed_, 0.05f);
 

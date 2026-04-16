@@ -39,7 +39,7 @@ void PlayerRotation::Initialize(std::shared_ptr<DirectionalLight> directionalLig
 	ring_->Update();
 }
 
-void PlayerRotation::Update(const Vector3& position, const float radius, const float rotateY, const bool isCharging, const bool isChargeMax) {
+void PlayerRotation::Update(const Vector3& playerPos, const Vector3& position, const float radius, const float rotateY, const bool isCharging, const bool isChargeMax) {
 	// 回転エフェクト
 	EmitRotationEffect(position, rotateY, radius);
 	UpdateRotationEffect(position);
@@ -51,6 +51,7 @@ void PlayerRotation::Update(const Vector3& position, const float radius, const f
 		if (isChargeMax) {
 			if (chargingEmitTimer_ >= kMaxChargingEmitTime) {
 				chargingEmitTimer_ = 0;
+				EmitChargingEffect(isChargeMax);
 				EmitChargingEffect(isChargeMax);
 			}
 		} else {
@@ -69,12 +70,13 @@ void PlayerRotation::Update(const Vector3& position, const float radius, const f
 
 			for (int i = 0; i < kChargingEffectCount; ++i) {
 				chargingEffect_.isActivated[i] = false;
+				chargingEffect_.object[i]->SetColor({ 1.0f,0.5f,0,0.8f });
 			}
 		}
 	}
 
 	// 発生しているエフェクトの処理
-	UpdateChargingEffect(position, isChargeMax);
+	UpdateChargingEffect(playerPos, isChargeMax);
 
 
 	if (isCatching_) {
@@ -117,6 +119,7 @@ void PlayerRotation::Shoot() {
 	// 一斉にエフェクト
 	for (int i = 0; i < kChargingEffectCount; ++i) {
 		chargingEffect_.isActivated[i] = false;
+		chargingEffect_.object[i]->SetColor({ 1.0f,0,0,0.8f });
 	}
 
 	for (int i = 0; i < kPulseEmitCount; ++i) {
@@ -174,21 +177,24 @@ void PlayerRotation::EmitRotationEffect(const Vector3& position, const float rot
 void PlayerRotation::EmitChargingEffect(bool isChargeMax) {
 	for (int i = 0; i < kChargingEffectCount; ++i) {
 		// エフェクト発生
+		float size = 0;
 		if (!chargingEffect_.isActivated[i]) {
-			// 初期回転位置
 			if (isShooting_) {
 				chargingEffect_.radius[i] = 0;
+				size = 1.0f;
 			}else if (isChargeMax) {
 				chargingEffect_.radius[i] = kMaxChargingStartRadius;
+				size = 0.8f;
 			} else {
 				chargingEffect_.radius[i] = kChargingStartRadius;
+				size = 0.65f;
 			}
+			// 初期回転位置
 			chargingEffect_.rotate[i] = GameEngine::randomFloat(0.0f, 2.0f * float(std::numbers::pi));
 			float rotate = chargingEffect_.rotate[i];
 			Vector3 dir = { sin(rotate),0,cos(rotate) };
 
 			chargingEffect_.isActivated[i] = true;
-			float size = 0.65f;
 			chargingEffect_.transform[i].scale = { size,size,size * 4 };
 			chargingEffect_.transform[i].translate = chargingEffect_.spawnPoint + dir * chargingEffect_.radius[i];
 			chargingEffect_.object[i]->SetTransform(chargingEffect_.transform[i]);
@@ -239,7 +245,7 @@ void PlayerRotation::UpdateChargingEffect(const Vector3& position, const bool is
 			if (isShooting_) {
 				rotSpeed = kPulseRotateSpeed;
 			} else if(isChargeMax){
-				rotSpeed = -kChargingRotateSpeed * 1.5f;
+				rotSpeed = -kChargingRotateSpeed * 2.0f;
 			} else {
 				rotSpeed = -kChargingRotateSpeed;
 			}

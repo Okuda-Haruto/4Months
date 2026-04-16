@@ -66,7 +66,7 @@ void Stars::Update(Vector2 endPos) {
 			AddFlash(stars_[i].pos);
 		}
 
-		stars_[i].t += 1.0f / 60.0f;
+		stars_[i].t += 1.5f / 60.0f;
 
 		stars_[i].sprite->SetPosition(stars_[i].pos);
 		stars_[i].sprite->SetRotation(stars_[i].sprite->GetRotation() - stars_[i].rotateSpeed);

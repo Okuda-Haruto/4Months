@@ -4,7 +4,7 @@
 class PlayerRotation {
 public:
 	void Initialize(std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<Camera> camera);
-	void Update(const Vector3& position, const float radius, const float rotateY, const bool isCharging, const bool isChargeMax);
+	void Update(const Vector3& playerPos,const Vector3& position, const float radius, const float rotateY, const bool isCharging, const bool isChargeMax);
 	void Draw();
 
 	// 撃ったとき
@@ -39,17 +39,17 @@ private:
 	const int kChargingEmitTime = 1; // 間隔
 	int chargingEmitTimer_ = 0; // 出現タイマー
 	static constexpr float kChargingStartRadius = 8.0f; // 出現半径
-	const float kChargingRadiusShrinkSpeed = 0.3f; // 半径が縮まる速度
+	const float kChargingRadiusShrinkSpeed = 0.45f; // 半径が縮まる速度
 	const float kChargingRotateSpeed = 0.15f; // 回転速度
 
 	const int kMaxChargingEmitTime = 2; // 間隔
-	const float kMaxChargingStartRadius = 16.0f;
+	const float kMaxChargingStartRadius = 12.0f;
 	const float kMaxChargingRadiusShrinkSpeed = 0.6f; // 半径が縮まる速度
 
 	// 撃った直後
 	bool isShooting_ = false;
 	float afterShootTimer_ = 0;
-	const int kPulseEmitCount = 50;
+	const int kPulseEmitCount = 30;
 	const float kPulseTime = 0.3f;
 	const float kPulseSpeed = -1.5f;
 	const float kPulseRotateSpeed = 0.4f;
