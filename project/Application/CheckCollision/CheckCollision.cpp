@@ -12,10 +12,10 @@ void CheckCollision::Initialize(Course* course, Goal* goal, GameCamera* gameCame
 }
 
 void CheckCollision::Update(Human* human) {
-	CheckVoxel(human);
-	CheckGoal(human);
 	CheckBullet(human);
 	CheckVacuum(human);
+	CheckVoxel(human);
+	CheckGoal(human);
 }
 
 void CheckCollision::UpdateImGui() {
@@ -68,8 +68,16 @@ void CheckCollision::CheckVoxel(Human* human) {
 		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
 			// 衝突
 			if (box->GetTransform().scale.x > 1.0f) {
+				if (human->CanShoot()) {
+					// 跳ね上がるため再ヒット防止
+					human->OnHitVoxel(boxAABB);
+					box->Damage(4);
+					break;
+				}
+
 				human->OnHitVoxel(boxAABB);
 				box->Damage(4);
+
 			} else {
 				box->Break();
 			}

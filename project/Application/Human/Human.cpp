@@ -165,6 +165,12 @@ void Human::OnHitVoxel(AABB aabb) {
 
 	fallingSpeed_ = 0.0f;
 	speed_ = 1.0f;
+
+	if (vacuumState_ == None) {
+		charge_ = max(kMaxCharge_ * 0.5f, charge_);
+		Throw();
+		headRotateEffect_->Shoot();
+	}
 }
 
 void Human::Throw() {
