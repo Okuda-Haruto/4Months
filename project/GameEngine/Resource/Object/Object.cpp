@@ -52,7 +52,7 @@ void Object::Initialize(shared_ptr<Model> model) {
 void Object::Update() {
 	//アニメーションするなら
 	if (isUseAnimation_) {
-		animationTime_ += 1.0f / 60.0f;
+		animationTime_ += GameEngine::GetDeltaTime();
 		if (isLoopAnimation_ && IsEndAnimation()) {
 			AnimationData animationData = model_->GetAnimationData(animationIndex_);
 			animationTime_ -= float(animationData.duration / animationData.FPS);

@@ -1230,6 +1230,13 @@ void DirectXCommon::UpdateFixFPS() {
 			std::this_thread::sleep_for(std::chrono::microseconds(1));
 		}
 	}
+
+	// 最終的な現在時間
+	now = std::chrono::steady_clock::now();
+
+	// 経過時間
+	deltaTime_ = std::chrono::duration<float>(now - reference_).count();
+
 	//現在の時間を記録する
 	reference_ = std::chrono::steady_clock::now();
 }

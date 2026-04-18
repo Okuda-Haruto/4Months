@@ -331,4 +331,6 @@ public:
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
 
 	static DirectXCommon* GetDirectXCommon() { return GetInstance()->dxCommon_.get(); }
+
+	static float GetDeltaTime() { return GetInstance()->dxCommon_->GetDeltaTime(); }
 };
