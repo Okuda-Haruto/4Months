@@ -25,7 +25,7 @@ private:
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentChargeSprite_ = nullptr;
 	float kEnergyBarWidth = 256.0f;
-	Vector2 chargeLTPos_ = { 640-128,720 - 64 };
+	Vector2 chargeLTPos_ = { 640 - 128,720 - 64 };
 
 	// 壊した量
 	std::unique_ptr<Sprite> breakBGSprite_ = nullptr;
@@ -33,13 +33,13 @@ private:
 	std::unique_ptr<Sprite> bonusBreakSprite_ = nullptr;
 	float kBreakBarWidth = 1280 - 64;
 	float bonusRate_ = 0.6f; // ボーナス部分の見た目の長さ
-	Vector2 breakLTPos_ = {32, 48 };
+	Vector2 breakLTPos_ = { 32, 48 };
 
 	// タイマー
-	std::unique_ptr<Sprite> timeBGSprite_ = nullptr;
-	std::unique_ptr<Sprite> currentTimeSprite_ = nullptr;
-	float kTimeBarWidth = 1280 - 64;
-	Vector2 timeLTPos_ = { 32, 16 };
+	std::unique_ptr<Sprite> currentTimeSprite_[4]{};
+	Vector2 currentTimeSpriteSize_ = { 64,64 };
+	Vector2 kTimeNumSize = { 256,256 };
+	Vector2 timePos_[4] = { {60,60},{60 + 35,60},{60 + 70,60},{60 + 105,60}};
 
 	// 区間の進度
 	std::unique_ptr<Sprite> sectionSprite_ = nullptr;

@@ -7,7 +7,7 @@ public:
 	void Initialize(float maxTimer);
 	void Update();
 
-	float GetTimeRate() { return std::clamp(currentTime_ / maxTime_,0.0f,1.0f); }
+	float GetCurrent() { return currentTime_; }
 
 private:
 	float currentTime_ = 30;

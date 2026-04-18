@@ -19,7 +19,7 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	goalBarrier_->Initialize(-3.0f * 2.0f * 16 * 19, camera_->GetCamera());
 
 	// 区間の設定(上~下)
-	AddSection(0, 18, 3000, 50000, 75000);
+	AddSection(0, 18, 54, 50000, 75000);
 	currentSection_ = sections_[0].get();
 }
 
@@ -35,7 +35,7 @@ void Course::Update(float playerY) {
 
 		if ((!sections_[i]->IsCleared() &&
 			sections_[i]->IsOver(playerY)) ||
-			sections_[i]->GetTimer()->GetTimeRate() == 0) {
+			sections_[i]->GetTimer()->GetCurrent() == 0) {
 			isFailed_ = true;
 		}
 	}

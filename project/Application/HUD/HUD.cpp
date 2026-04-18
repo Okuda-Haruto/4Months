@@ -40,18 +40,17 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	bonusBreakSprite_->SetColor({ 1.0f, 0.6f, 0.6f, 1.0f });
 	bonusBreakSprite_->SetSize({ kBreakBarWidth, 32.0f });
 	bonusBreakSprite_->SetPosition(breakLTPos_);
+	
 	// 時間
-	timeBGSprite_ = std::make_unique<Sprite>();
-	timeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	timeBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	timeBGSprite_->SetSize({ kTimeBarWidth, 32.0f });
-	timeBGSprite_->SetPosition(timeLTPos_);
-
-	currentTimeSprite_ = std::make_unique<Sprite>();
-	currentTimeSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	currentTimeSprite_->SetColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	currentTimeSprite_->SetSize({ kTimeBarWidth, 32.0f });
-	currentTimeSprite_->SetPosition(timeLTPos_);
+	for (int i = 0; i < 4; ++i) {
+		currentTimeSprite_[i] = std::make_unique<Sprite>();
+		currentTimeSprite_[i]->Initialize("./resources/HUD/Numbers/Number.png");
+		currentTimeSprite_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		currentTimeSprite_[i]->SetSize(currentTimeSpriteSize_);
+		currentTimeSprite_[i]->SetAnchorPoint({ 0.5f,0.5f });
+		currentTimeSprite_[i]->SetPosition(timePos_[i]);
+		currentTimeSprite_[i]->SetTextureSize(kTimeNumSize);
+	}
 
 	// 区間
 	sectionSprite_ = std::make_unique<Sprite>();
@@ -118,8 +117,9 @@ void HUD::Draw() {
 	currentBreakSprite_->Draw2D();
 
 	// 時間
-	timeBGSprite_->Draw2D();
-	currentTimeSprite_->Draw2D();
+	for (int i = 0; i < 4; ++i) {
+		currentTimeSprite_[i]->Draw2D();
+	}
 
 	// 区間
 	sectionSprite_->Draw2D();
@@ -196,13 +196,27 @@ void HUD::UpdateScore(Course* course) {
 
 void HUD::UpdateTimer(Course* course) {
 	Section* currentSection = course->GetCurrentSection();
-	float rate = currentSection->GetTimer()->GetTimeRate();
+	int time = int(currentSection->GetTimer()->GetCurrent());
+	int min = time / 60;
+	int sec = time % 60;
 
-	// 残り時間に応じてスプライトのサイズ変更
-	float length = kTimeBarWidth * rate;
-	currentTimeSprite_->SetSize({ length, currentTimeSprite_->GetSize().y });
-	timeBGSprite_->Update();
-	currentTimeSprite_->Update();
+	int num[3] = { min, sec / 10, sec % 10 };
+	for (int i = 0; i < 3; ++i) {
+		if (num[i] == 0) {
+			num[i] = 9;
+		} else {
+			num[i]--;
+		}
+	}
+
+   	currentTimeSprite_[0]->SetTextureLeftTop({num[0] * kTimeNumSize.x, 0});
+	currentTimeSprite_[1]->SetTextureLeftTop({10.0f * kTimeNumSize.x, 0});
+	currentTimeSprite_[2]->SetTextureLeftTop({num[1] * kTimeNumSize.x, 0});
+	currentTimeSprite_[3]->SetTextureLeftTop({num[2] * kTimeNumSize.x, 0});
+	for (int i = 0; i < 4; ++i) {
+		currentTimeSprite_[i]->Update();
+	}
+
 }
 
 void HUD::UpdateSection(Player* player, Course* course) {
