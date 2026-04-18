@@ -1,4 +1,5 @@
 #include "ParticleEmitter.h"
+#include "GameEngine.h"
 
 ParticleEmitter::ParticleEmitter(std::string name) {
 	name_ = name;
@@ -18,7 +19,7 @@ void ParticleEmitter::Update() {
 			particleGroups[name_].emitter.frequencyTime -= particleGroups[name_].emitter.frequency;
 		}
 
-		particleGroups[name_].emitter.frequencyTime += 1.0f / 60.0f;
+		particleGroups[name_].emitter.frequencyTime += GameEngine::GetDeltaTime();
 	}
 
 	ParticleManager::GetInstance()->SetEmitter(name_, particleGroups[name_].emitter);

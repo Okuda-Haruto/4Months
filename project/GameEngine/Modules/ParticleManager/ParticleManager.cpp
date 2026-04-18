@@ -107,7 +107,7 @@ void ParticleManager::Update(std::string name) {
 			(*particleIterator).color.z = (*particleIterator).beforeColor.z * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.z * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
 			(*particleIterator).color.w = (*particleIterator).beforeColor.w * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.w * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
 			
-			(*particleIterator).lifeTime += 1.0f / 60.0f;
+			(*particleIterator).lifeTime += GameEngine::GetDeltaTime();
 
 			++particleIterator;
 		}
