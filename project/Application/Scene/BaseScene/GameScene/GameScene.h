@@ -73,4 +73,11 @@ public:
 	void Update() override;
 	//描画
 	void Draw() override;
+
+
+	bool isClearSequence_ = false;
+	float clearSequenceTimer_ = 0.0f;
+
+	Vector3 targetCameraPos_;
+	Quaternion targetCameraRot_;
 };

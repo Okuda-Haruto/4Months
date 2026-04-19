@@ -99,6 +99,10 @@ public:
 	static const int16_t kMaxInstanceIndex = 4;
 	//インスタンス数
 	static const uint32_t kMaxNumInstance = 32768;
+
+	// GameEngine.h
+	static float timeScale_;
+	static void SetTimeScale(float scale);
 private:
 #pragma region object
 	int16_t objectIndex_;

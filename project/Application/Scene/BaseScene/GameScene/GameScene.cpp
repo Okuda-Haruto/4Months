@@ -81,6 +81,7 @@ void GameScene::Finalize() {
 }
 
 void GameScene::Update() {
+
 	Keyboard keyboard = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
 

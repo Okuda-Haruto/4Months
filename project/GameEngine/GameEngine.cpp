@@ -246,12 +246,23 @@ int32_t GameEngine::randomInt_(int32_t minInt, int32_t maxInt) {
 
 [[nodiscard]]
 bool GameEngine::StartFlame_() {
-	//Windowのメッセージが来てたら最優先で処理させる
-	if (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
-		TranslateMessage(&msg_);
-		DispatchMessage(&msg_);
+	
+		static auto reference = std::chrono::steady_clock::now();
+
+		auto now = std::chrono::steady_clock::now();
+		float elapsed =
+			std::chrono::duration<float>(now - reference).count();
+
+		// ★ここが重要（時間スケール適用）
+		float frameTime = (1.0f / 60.0f) / timeScale_;
+
+		if (elapsed >= frameTime) {
+			reference = now;
+			return true;
+		}
+
 		return false;
-	}
+	
 #ifdef _DEBUG
 	ID3D12InfoQueue* infoQueue = nullptr;
 	if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
@@ -1739,4 +1750,11 @@ void GameEngine::DrawAABB_(std::list<PrimitiveManager::PrimitiveAABB> aabbs, Pri
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_AABB].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
+}
+// GameEngine.cpp
+float GameEngine::timeScale_ = 1.0f;
+
+void GameEngine::SetTimeScale(float scale)
+{
+	timeScale_ = scale;
 }
