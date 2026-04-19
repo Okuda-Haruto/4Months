@@ -20,7 +20,7 @@ public:
 	void Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight);
 
 	// 更新
-	void Update(float playerY);
+	void Update(Human* player);
 
 	// 描画
 	void Draw(const std::shared_ptr<DirectionalLight> directionalLight);
@@ -64,7 +64,7 @@ public:
 
 	Section* GetCurrentSection() { return currentSection_; }
 	int GetCurrentSectionNumber() { return currentSectionNum_; }
-	bool isFailed() { return isFailed_; }
+	bool isEnd() { return isEnd_; }
 	bool isAllCleared() { return isAllCleared_; }
 
 	std::vector<Vector3> GetBreakPos() { return breakPos_; }
@@ -93,8 +93,10 @@ private:
 	Section* currentSection_ = nullptr;
 	int currentSectionNum_ = 0;
 
-	bool isFailed_ = false;
+	bool isEnd_ = false;
 	bool isAllCleared_ = false;
+
+
 
 	// 破壊された場所
 	std::vector<Vector3> breakPos_;

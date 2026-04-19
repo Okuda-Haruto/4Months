@@ -39,6 +39,9 @@ public:
 	// 区間終わりまでの進み具合
 	float GetPositionRate() { return clamp((currentY_ - startY_) / (endY_ - startY_), 0.0f, 1.0f); }
 
+	// スタート地点
+	Vector3 GetStartPos() { return Vector3{ 0,startY_,0 }; }
+
 private:
 	// 区間タイム
 	std::unique_ptr<GameTimer> timer_;

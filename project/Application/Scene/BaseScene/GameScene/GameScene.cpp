@@ -136,7 +136,7 @@ void GameScene::Update() {
 		goal_->Update();
 
 		// コース
-		course_->Update(player_->GetTransform().translate.y);
+		course_->Update(player_.get());
 
 		// 当たり判定
 		checkCollision_->Update(player_.get());
@@ -185,7 +185,7 @@ void GameScene::Update() {
 			gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
 		}
 		isClear_ = true;
-	} else if (course_->isFailed()) {
+	} else if (course_->isEnd()) {
 		// 失敗
 		SceneManager::GetInstance()->ChangeScene("Title");
 	}

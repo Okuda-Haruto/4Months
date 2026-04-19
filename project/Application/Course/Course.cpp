@@ -23,29 +23,37 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	currentSection_ = sections_[0].get();
 }
 
-void Course::Update(float playerY) {
+void Course::Update(Human* player) {
 	breakPos_.clear();
 
 	// 今いる区間
 	for (int i = currentSectionNum_; i < sections_.size(); ++i) { // 今より上に行っても区間は戻らない
-		if (sections_[i]->IsEnter(playerY)) {
+		if (sections_[i]->IsEnter(player->GetTransform().translate.y)) {
 			currentSectionNum_ = i;
 			currentSection_ = sections_[i].get();
 		}
 
+		// 失敗時
 		if ((!sections_[i]->IsCleared() &&
-			sections_[i]->IsOver(playerY)) ||
-			sections_[i]->GetTimer()->GetCurrent() == 0) {
-			isFailed_ = true;
+			sections_[i]->IsOver(player->GetTransform().translate.y)) ||
+			sections_[i]->GetTimer()->GetCurrent() <= 0) {
+
+			if (sections_[i + 1]) {
+				// 次の地点に移動
+				player->ResetPos(sections_[i+1]->GetStartPos());
+			}
 		}
 	}
-	currentSection_->Update(playerY);
+
+	currentSection_->Update(player->GetTransform().translate.y);
 	// クリア条件
 	if (sections_.back()->IsCleared()){
 		goalBarrier_->Clear();
 	}
-	if (sections_.back()->IsCleared() && sections_.back()->IsOver(playerY)) {
-		isAllCleared_ = true;
+
+	// コース終了
+	if (sections_.back()->IsOver(player->GetTransform().translate.y)) {
+		isEnd_ = true;
 	}
 
 	for (auto& box : boxes_) {
