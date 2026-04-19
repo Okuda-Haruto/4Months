@@ -65,7 +65,7 @@ void GoalBarrier::Update(GameCamera* gameCamera) {
 	time_ += 1.0f / 60.0f;
 
 	if (isClear_ && clearTimer_ > 0.0f) {
-		clearTimer_ -= 1.0f / 60.0f;
+		clearTimer_ -= 1.0f / 240.0f;
 		if (clearTimer_ < 0.0f)clearTimer_ = 0.0f;
 		float a = Lerp(0.0f, 0.5f, powf(clearTimer_,2) / kMaxClearTimer_);
 		float scale = Lerp(2.5f, 1.0f, powf(clearTimer_,2) / kMaxClearTimer_);

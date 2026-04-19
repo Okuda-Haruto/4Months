@@ -19,9 +19,23 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	goalBarrier_->Initialize(-3.0f * 2.0f * 16 * 19, camera_->GetCamera());
 
 	// 区間の設定(上~下)
-	AddSection(0, 18, 54, 50000, 75000);
+	AddSection(0, 2, 54, 1000, 75000);
+
+	// ★追加：区間ごとにゴールバリア生成
+	goalBarriers_.clear();
+	for (int i = 0; i < sections_.size(); ++i) {
+
+		float y = sections_[i]->GetEndY();
+
+		std::unique_ptr<GoalBarrier> barrier = std::make_unique<GoalBarrier>();
+		barrier->Initialize(y, camera_->GetCamera());
+
+		goalBarriers_.push_back(std::move(barrier));
+	}
+
 	currentSection_ = sections_[0].get();
 }
+
 void Course::Update(Human* player) {
 	breakPos_.clear();
 
@@ -33,7 +47,11 @@ void Course::Update(Human* player) {
 		SpawnBox();
 
 		voxel_->Update();
-		goalBarrier_->Update(camera_);
+
+		for (auto& barrier : goalBarriers_) {
+			barrier->Update(camera_);
+		}
+
 		return;
 	}
 
@@ -59,8 +77,12 @@ void Course::Update(Human* player) {
 	currentSection_->Update(player->GetTransform().translate.y);
 
 	// クリア条件
-	if (sections_.back()->IsCleared()) {
-		goalBarrier_->Clear();
+	for (int i = 0; i < sections_.size(); ++i) {
+		if (sections_[i]->IsCleared()) {
+			if (i < goalBarriers_.size()) {
+				goalBarriers_[i]->Clear();
+			}
+		}
 	}
 
 	// コース終了
@@ -86,8 +108,11 @@ void Course::Update(Human* player) {
 
 	voxel_->Update();
 
-	goalBarrier_->Update(camera_);
+	for (auto& barrier : goalBarriers_) {
+		barrier->Update(camera_);
+	}
 }
+
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
@@ -97,7 +122,9 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->Draw();
 }
@@ -112,7 +139,9 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->Draw(drawRange);
 }
@@ -126,7 +155,9 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->DrawAll();
 }
@@ -140,13 +171,17 @@ void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->DrawUp();
 }
 
 void Course::DrawGoalBarrier() {
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 }
 
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP) {

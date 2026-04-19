@@ -42,6 +42,10 @@ public:
 	// スタート地点
 	Vector3 GetStartPos() { return Vector3{ 0,startY_,0 }; }
 
+
+
+	float GetEndY() const { return endY_; }
+	float GetStartY() const { return startY_; }
 private:
 	// 区間タイム
 	std::unique_ptr<GameTimer> timer_;
@@ -63,5 +67,7 @@ private:
 	float startY_ = 0;
 	float endY_ = 0;
 	float currentY_ = 0;
+
+
 };
 

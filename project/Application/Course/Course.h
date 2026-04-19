@@ -68,6 +68,7 @@ public:
 	bool isAllCleared() { return isAllCleared_; }
 
 	std::vector<Vector3> GetBreakPos() { return breakPos_; }
+	std::vector<std::unique_ptr<GoalBarrier>> goalBarriers_;
 private:
 	
 	std::shared_ptr<DirectionalLight> directionalLight_;
