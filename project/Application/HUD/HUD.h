@@ -51,6 +51,12 @@ private:
 	std::unique_ptr<Sprite> infoSprite_ = nullptr;
 	Vector2 infoLTPos_ = { 12,720 - (62 + 12) };
 
+	// 目的
+	std::unique_ptr<Sprite> objective_[2]{};
+	Sprite* currentObjective_ = nullptr;
+	Vector2 objectivePos_ = { 640, 110 };
+	Vector2 objectiveSize_ = { 480,120 };
+
 	std::unique_ptr<Sprite> startNumSprite_ = nullptr;
 	Vector2 startNumPos_ = { 640,360 };
 	bool startNumIsDraw_;

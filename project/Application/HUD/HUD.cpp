@@ -66,6 +66,19 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	progressSprite_->SetPosition(sectionLTPos_);
 	progressSprite_->Update();
 
+	// 現時点の目的
+	objective_[0] = std::make_unique<Sprite>();
+	objective_[0]->Initialize("./resources/HUD/norma_Dontclear.png");
+	objective_[1] = std::make_unique<Sprite>();
+	objective_[1]->Initialize("./resources/HUD/norma_clear.png");
+	for (int i = 0; i < 2; ++i) {
+		objective_[i]->SetAnchorPoint({ 0.5f,0.5f });
+		objective_[i]->SetPosition(objectivePos_);
+		objective_[i]->SetSize(objectiveSize_);
+		objective_[i]->Update();
+	}
+
+
 	//情報
 	infoSprite_ = std::make_unique<Sprite>();
 	infoSprite_->Initialize("./resources/HUD/Info.png");
@@ -132,6 +145,8 @@ void HUD::Draw() {
 		startNumSprite_->Draw2D();
 	}
 
+	currentObjective_->Draw2D();
+
 	// エフェクト
 	stars_->Draw();
 }
@@ -192,6 +207,13 @@ void HUD::UpdateScore(Course* course) {
 	bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
 	bonusBreakSprite_->SetPosition({ breakLTPos_.x + kBreakBarWidth * (1 - bonusRate_), breakLTPos_.y });
 	bonusBreakSprite_->Update();
+
+	// ノルマ達成/未達成
+	if (currentSection->IsCleared()) {
+		currentObjective_ = objective_[1].get();
+	} else {
+		currentObjective_ = objective_[0].get();
+	}
 }
 
 void HUD::UpdateTimer(Course* course) {
