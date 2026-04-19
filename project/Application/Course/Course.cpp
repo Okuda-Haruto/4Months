@@ -22,12 +22,23 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	AddSection(0, 18, 54, 50000, 75000);
 	currentSection_ = sections_[0].get();
 }
-
 void Course::Update(Human* player) {
 	breakPos_.clear();
 
+	// ★追加：playerが無い場合はエディター用の最低限処理だけ
+	if (!player) {
+		for (auto& box : boxes_) {
+			box->Update();
+		}
+		SpawnBox();
+
+		voxel_->Update();
+		goalBarrier_->Update(camera_);
+		return;
+	}
+
 	// 今いる区間
-	for (int i = currentSectionNum_; i < sections_.size(); ++i) { // 今より上に行っても区間は戻らない
+	for (int i = currentSectionNum_; i < sections_.size(); ++i) {
 		if (sections_[i]->IsEnter(player->GetTransform().translate.y)) {
 			currentSectionNum_ = i;
 			currentSection_ = sections_[i].get();
@@ -38,16 +49,17 @@ void Course::Update(Human* player) {
 			sections_[i]->IsOver(player->GetTransform().translate.y)) ||
 			sections_[i]->GetTimer()->GetCurrent() <= 0) {
 
-			if (sections_[i + 1]) {
-				// 次の地点に移動
-				player->ResetPos(sections_[i+1]->GetStartPos());
+			// ★修正：範囲外アクセス防止
+			if (i + 1 < sections_.size() && sections_[i + 1]) {
+				player->ResetPos(sections_[i + 1]->GetStartPos());
 			}
 		}
 	}
 
 	currentSection_->Update(player->GetTransform().translate.y);
+
 	// クリア条件
-	if (sections_.back()->IsCleared()){
+	if (sections_.back()->IsCleared()) {
 		goalBarrier_->Clear();
 	}
 
@@ -76,7 +88,6 @@ void Course::Update(Human* player) {
 
 	goalBarrier_->Update(camera_);
 }
-
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
