@@ -75,7 +75,9 @@ void HitPreview::Update(Player* player, CheckCollision* checkCollision) {
 
 void HitPreview::Draw() {
 	if (canDraw_) {
-		radModel_->Draw3D();
+		if (isHit_) {
+			radModel_->Draw3D();
+		}
 
 		for (auto& model : rotateModel_) {
 			model->Draw3D();
@@ -92,9 +94,7 @@ void HitPreview::Simulate(Player* player, CheckCollision* checkCollision) {
 	// 表示設定(ヒット予測時)
 	isHit_ = checkCollision->IsPreviewHit();
 	if (isHit_) {
-		radModel_->SetColor({ 1,0,0,0.3f });
-	} else {
-		radModel_->SetColor({ 1,1,1,0.1f });
+		radModel_->SetColor({ 1,1,1,0.2f });
 	}
 
 	float rot = rotate_[0];
