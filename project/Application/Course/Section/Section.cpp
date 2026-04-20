@@ -7,13 +7,25 @@ void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int c
 	endY_ = -(endChunkY + 1) * chunkSize;
 	clearBreakScore_ = clearScore;
 	maxBreakScore_ = maxScore;
+	isSubSection_ = false;
 
 	timer_ = std::make_unique<GameTimer>();
 	timer_->Initialize(maxSeconds);
 }
 
+void Section::Initialize(int startChunkY, int endChunkY) {
+	float blockScale = 3.0f;
+	float chunkSize = blockScale * 2 * 16;
+	startY_ = -startChunkY * chunkSize;
+	endY_ = -(endChunkY + 1) * chunkSize;
+
+	isSubSection_ = true;
+}
+
 void Section::Update(float playerY) {
-	timer_->Update();
+	if (timer_) {
+		timer_->Update();
+	}
 
 	currentY_ = playerY;
 

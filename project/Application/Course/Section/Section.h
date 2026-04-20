@@ -4,7 +4,12 @@
 
 class Section {
 public:
+	// メインの区間
 	void Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore);
+
+	// ノルマなし区間
+	void Initialize(int startChunkY, int endChunkY);
+
 	void Update(float playerY);
 
 	// スコア追加
@@ -20,6 +25,8 @@ public:
 		delay_.push_back(Delay{ scoreDelay_, breakCount });
 	}
 
+	// ノルマなし区間か
+	bool IsSubSection() { return isSubSection_; }
 	// この区間に入っているか
 	bool IsEnter(float y) { return startY_ >= y && y > endY_; }
 	// この区間を通りすぎたか
@@ -41,6 +48,8 @@ public:
 
 	// スタート地点
 	Vector3 GetStartPos() { return Vector3{ 0,startY_,0 }; }
+	// ゴール地点
+	Vector3 GetEndPos() { return Vector3{ 0,endY_,0 }; }
 
 private:
 	// 区間タイム
@@ -56,12 +65,15 @@ private:
 		int score;
 	};
 	// スコアに反映までの時間
-	float scoreDelay_ = 1.0f + (2.0f / 3.0f);
+	float scoreDelay_ = 0.8f;
 	std::vector<Delay> delay_;
 
 	// 区間
 	float startY_ = 0;
 	float endY_ = 0;
 	float currentY_ = 0;
+
+	// ノルマなしの区間
+	bool isSubSection_ = false;
 };
 
