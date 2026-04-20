@@ -66,7 +66,7 @@ void CourseEditor::Update() {
 	Keyboard key = input_->GetKeyBoard();
 	Mouse mouse = input_->GetMouse();
 
-	time_ += 1.0f / 60.0f;
+	time_ += GameEngine::GetDeltaTime();
 
 	barrier_->Update(gameCamera_.get());
 
@@ -716,6 +716,8 @@ void CourseEditor::MakeNewCourse() {
 
 	course_ = std::make_unique<Course>();
 	course_->Initialize(courseData_.data, gameCamera_.get(), directionalLight_);
+	float courseBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
+	gameCamera_->SetCameraPosBottom(courseBottom);
 
 	drawAABB_.min = { 0,0,0 };
 	drawAABB_.max = { courseData_.data.size.x,min(courseData_.data.size.y,3.0f),courseData_.data.size.x };
@@ -728,6 +730,8 @@ void CourseEditor::OpenCourse() {
 
 	course_ = std::make_unique<Course>();
 	course_->Initialize(courseData_.data, gameCamera_.get(), directionalLight_);
+	float courseBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
+	gameCamera_->SetCameraPosBottom(courseBottom);
 
 	drawAABB_.min = { 0,0,0 };
 	drawAABB_.max = { courseData_.data.size.x,min(courseData_.data.size.y,3.0f),courseData_.data.size.x };

@@ -18,7 +18,7 @@ void Section::Update(float playerY) {
 	currentY_ = playerY;
 
 	for (auto it = delay_.begin(); it != delay_.end(); ) {
-		it->time -= 1.0f / 60.0f;
+		it->time -= GameEngine::GetDeltaTime();
 
 		if (it->time <= 0) {
 			breakScore_ += it->score;

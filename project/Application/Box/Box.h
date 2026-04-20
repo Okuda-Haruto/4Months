@@ -20,8 +20,8 @@ private:
 	//衝突判定
 	AABB collider_;
 
-	int32_t MaxHP_;
-	int32_t HP_;
+	float MaxHP_;
+	float HP_;
 
 	bool isDead_;
 
@@ -29,7 +29,7 @@ private:
 
 public:
 
-	void Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP, std::shared_ptr<DirectionalLight> directionalLight);
 
 	void Update();
 
@@ -38,7 +38,7 @@ public:
 	// 移動
 	void Move(const Vector3& velocity);
 
-	void Damage(int damage = 1){ HP_ -= damage;}
+	void Damage(float damage = 1){ HP_ -= damage;}
 	void Break();
 
 	Object* GetObjectData() { return object_.get(); }

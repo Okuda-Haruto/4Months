@@ -5,7 +5,8 @@
 
 #pragma region 落下カメラ
 
-void DownCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
+void DownCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
 
@@ -25,10 +26,14 @@ void DownCamera::Update() {
 		-std::numbers::pi_v<float> / 2
 	);
 
+	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
+
+	float rate = 1.0f - powf(0.5f, dt * 16.0f); // ← 減衰速度
+
 	transform_.rotate = Slerp(
 		transform_.rotate,
 		nextRotate,
-		0.1f
+		rate
 	);
 
 	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
@@ -37,7 +42,7 @@ void DownCamera::Update() {
 	transform_.translate = Lerp(
 		transform_.translate,
 		nextTranslate,
-		0.1f
+		rate
 	);
 
 }
@@ -46,7 +51,8 @@ void DownCamera::Update() {
 
 #pragma region リザルトカメラ
 
-void ResultCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
+void ResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
 
@@ -92,7 +98,7 @@ void ResultCamera::Update() {
 		releaseKeyTime_ = 0.0f;
 	} else {
 		//動かしていない場合勝手にオートマに
-		releaseKeyTime_ += 1.0f / 60.0f;
+		releaseKeyTime_ += GameEngine::GetDeltaTime();
 		if (releaseKeyTime_ > kMaxReleaseKeyTime && mode_ == CameraMode::Manual) {
 			mode_ = CameraMode::Automatic_Down;
 		}
@@ -109,8 +115,8 @@ void ResultCamera::Update() {
 		break;
 	}
 
-	velocity_ = Lerp(velocity_, nextVelocity, 0.1f);
-	posY_ += velocity_.y;
+	velocity_ = Lerp(velocity_, nextVelocity, 0.1f * GameEngine::GetDeltaTimeRate());
+	posY_ += velocity_.y * GameEngine::GetDeltaTimeRate();
 
 	//位置を戻す
 	if (posY_ > 0.0f) {
@@ -119,7 +125,7 @@ void ResultCamera::Update() {
 			mode_ = CameraMode::Automatic_Down;
 		}
 	}
-	if (posY_ < -32 * 18 * 3.0f + 16.0f * 3.0f) {
+	if (posY_ < gameCamera_->GetCameraPosBottom()) {
 		posY_ = -32 * 18 * 3.0f + 16.0f * 3.0f;
 		if (mode_ == CameraMode::Automatic_Down) {
 			mode_ = CameraMode::Automatic_Up;
@@ -132,7 +138,7 @@ void ResultCamera::Update() {
 	//回転したxz平面のカメラ座標にYを加える
 	transform_.translate.y = posY_;
 	//ずらして見せる
-	transform_.translate += velocity_ * MakeRotateMatrix(transform_.rotate) * 10;
+	transform_.translate += velocity_ * MakeRotateMatrix(transform_.rotate) * 10 * GameEngine::GetDeltaTimeRate();
 }
 #pragma endregion
 
@@ -140,7 +146,8 @@ void ResultCamera::Update() {
 
 #ifdef USE_IMGUI
 
-void EditorCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
+void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
 
@@ -162,8 +169,8 @@ void EditorCamera::Update() {
 	if (mouse.click[MOUSE_BOTTON_WHEEL].hold) {
 		Vector3 XZMovement = { mouse.Movement.x,0.0f,mouse.Movement.y };
 
-		centerPoint_.x += RotateVector(XZMovement / 30, transform_.rotate).x;
-		centerPoint_.z += -RotateVector(XZMovement / 30, transform_.rotate).z;
+		centerPoint_.x += RotateVector(XZMovement / 30, transform_.rotate).x * GameEngine::GetDeltaTimeRate();;
+		centerPoint_.z += -RotateVector(XZMovement / 30, transform_.rotate).z * GameEngine::GetDeltaTimeRate();;
 	}
 
 	//右クリック中は回転と拡縮
@@ -172,10 +179,10 @@ void EditorCamera::Update() {
 		pitch_ = pitch_ * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 360 * mouse.Movement.y);
 
 		//ホイール拡縮
-		cameraPos_.z += mouse.Movement.z / 120;
+		cameraPos_.z += mouse.Movement.z / 120 * GameEngine::GetDeltaTimeRate();
 	} else {
 		//ホイールy軸移動
-		centerPoint_.y += mouse.Movement.z / 120;
+		centerPoint_.y += mouse.Movement.z / 120 * GameEngine::GetDeltaTimeRate();
 	}
 	transform_.rotate = pitch_ * yaw_;
 	transform_.translate = cameraPos_ * MakeRotateMatrix(transform_.rotate) + centerPoint_;
@@ -192,7 +199,7 @@ void GameCamera::Initialize(std::shared_ptr<Camera> camera, const std::unique_pt
 
 	// 初期値
 	nowCamera_ = std::make_unique<StartCamera>();
-	nowCamera_->Initialize(input_, player);
+	nowCamera_->Initialize(this, input_, player);
 }
 
 void GameCamera::Update() {
@@ -202,10 +209,13 @@ void GameCamera::Update() {
 		camera_->Update(nowCamera_->GetTransform());
 
 		// カメラシェイク
-		if (shakeFrame_ > 0) {
-			shakeFrame_--;
+		if (shakeTime_ > 0.0f) {
+			shakeTime_ -= GameEngine::GetDeltaTime();
+			if (shakeTime_ < 0.0f) {
+				shakeTime_ = 0.0f;
+			}
 
-			float amp = amplitude_ * (float(shakeFrame_) / float(shakeEndFrame_));
+			float amp = amplitude_ * shakeTime_ / shakeEndTime_;
 
 			shake_ = {
 				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
@@ -226,7 +236,7 @@ void GameCamera::Update() {
 	} else {
 		//遷移タイマー
 		if (changeCameraTime_ < maxChangeCameraTime_) {
-			changeCameraTime_ += 1.0f / 60.0f;
+			changeCameraTime_ += GameEngine::GetDeltaTime();
 		} else {
 			//遷移
 			if (nowCamera_) {
@@ -239,10 +249,13 @@ void GameCamera::Update() {
 			camera_->Update(nowCamera_->GetTransform());
 
 			// カメラシェイク
-			if (shakeFrame_ > 0) {
-				shakeFrame_--;
+			if (shakeTime_ > 0.0f) {
+				shakeTime_ -= GameEngine::GetDeltaTime();
+				if (shakeTime_ < 0.0f) {
+					shakeTime_ = 0.0f;
+				}
 
-				float amp = amplitude_ * (float(shakeFrame_) / float(shakeEndFrame_));
+				float amp = amplitude_ * shakeTime_ / shakeEndTime_;
 
 				shake_ = {
 					GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
@@ -275,10 +288,13 @@ void GameCamera::Update() {
 
 		camera_->Update(lerpTransform);
 		// カメラシェイク
-		if (shakeFrame_ > 0) {
-			shakeFrame_--;
+		if (shakeTime_ > 0.0f) {
+			shakeTime_ -= GameEngine::GetDeltaTime();
+			if (shakeTime_ < 0.0f) {
+				shakeTime_ = 0.0f;
+			}
 
-			float amp = amplitude_ * (float(shakeFrame_) / float(shakeEndFrame_));
+			float amp = amplitude_ * shakeTime_ / shakeEndTime_;
 
 			shake_ = {
 				GameEngine::randomFloat(-amp / 2.0f, amp / 2.0f),
@@ -299,22 +315,23 @@ void GameCamera::Update() {
 
 void GameCamera::ChangeCamera(const std::unique_ptr<BaseCamera>& nextCamera, float changeCameraTime) {
 	nextCamera_ = std::move(const_cast<std::unique_ptr<BaseCamera>&>(nextCamera));
-	nextCamera_->Initialize(input_, player_);
+	nextCamera_->Initialize(this, input_, player_);
 
 	//カメラ遷移時間
 	maxChangeCameraTime_ = changeCameraTime;
 	changeCameraTime_ = 0.0f;
 }
 
-void GameCamera::StartShake(float amplitude, int frame) {
+void GameCamera::StartShake(float amplitude, float time) {
 	amplitude_ = amplitude;
-	shakeFrame_ = frame;
-	shakeEndFrame_ = frame;
+	shakeTime_ = time;
+	shakeEndTime_ = time;
 }
 
 #pragma region ゲーム開始前カメラ
 
-void StartCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
+void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
 
@@ -322,7 +339,7 @@ void StartCamera::Initialize(std::shared_ptr<Input> input, Player* player) {
 }
 
 void StartCamera::Update() {
-	timer_ += 1.0f / 60.0f;
+	timer_ += GameEngine::GetDeltaTime();
 	float t = 0;
 	Vector3 target{0,0,0};
 	float radius = 0;

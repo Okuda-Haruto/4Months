@@ -3,7 +3,6 @@
 #include "../BaseScene.h"
 #include <WindowsAPI/WindowsAPI.h>
 #include "Human/Player/Player.h"
-#include "Goal/Goal.h"
 #include "Course/Course.h"
 #include "HUD/HUD.h"
 #include "HitPreview/HitPreview.h"
@@ -33,8 +32,6 @@ private:
 
 	// プレイヤー
 	std::unique_ptr<Player> player_ = nullptr;
-
-	std::unique_ptr<Goal> goal_;
 
 	// コース
 	std::unique_ptr<Course> course_ = nullptr;

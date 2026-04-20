@@ -63,7 +63,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 		
 
 	//現在の向きと次の向きの補完
-	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f);
+	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f * GameEngine::GetDeltaTimeRate());
 
 	//速度などを加算する
 	Human::Update();
@@ -71,8 +71,8 @@ void Player::Update(const std::shared_ptr<Input> input) {
 #ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
 	ImGui::DragFloat3("速度", &velocity_.translate.x);
-	ImGui::DragInt("まぜる時間", &vacuumTime_);
-	ImGui::DragInt("戻る時間", &returnTime_);
+	ImGui::DragFloat("まぜる時間", &vacuumTime_);
+	ImGui::DragFloat("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);
 
 	if ((keyboard.release[DIK_G] || pad.Button[PAD_BUTTON_LSTICK].release)) {
@@ -83,7 +83,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 #endif
 
 	if (startTime_ > 0.0f) {
-		startTime_ -= 1.0f / 60.0f;
+		startTime_ -= GameEngine::GetDeltaTime();
 	}
 
 }

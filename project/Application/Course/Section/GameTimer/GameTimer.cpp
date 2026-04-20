@@ -1,4 +1,5 @@
 #include "GameTimer.h"
+#include "GameEngine.h"
 
 void GameTimer::Initialize(float maxTime) {
 	maxTime_ = maxTime;
@@ -6,5 +7,5 @@ void GameTimer::Initialize(float maxTime) {
 }
 
 void GameTimer::Update() {
-	currentTime_ -= 1.0f / 60.0f;
+	currentTime_ -= GameEngine::GetDeltaTime();
 }

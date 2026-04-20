@@ -16,7 +16,8 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
 
 	goalBarrier_ = std::make_unique<GoalBarrier>();
-	goalBarrier_->Initialize(-3.0f * 2.0f * 16 * 19, camera_->GetCamera());
+	float courseBottom = -32 * float(voxel_->GetChunks().size()) * 3.0f + 16.0f * 3.0f;
+	goalBarrier_->Initialize(courseBottom, camera_->GetCamera());
 
 	// 区間の設定(上~下)
 	AddSection(0, 18, 54, 50000, 75000);
@@ -130,13 +131,13 @@ void Course::DrawGoalBarrier() {
 	goalBarrier_->Draw();
 }
 
-void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP) {
+void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
 	box->Initialize(this, transform, velocity, number, vacuumSensitivity, maxHP, directionalLight_);
 	boxes_.push_back(std::move(box));
 }
 
-void Course::AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP) {
+void Course::AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP) {
 	std::unique_ptr box = std::make_unique<Box>();
 	box->Initialize(this, transform, velocity, number, vacuumSensitivity, maxHP, directionalLight_);
 	spawnBoxes_.push_back(std::move(box));

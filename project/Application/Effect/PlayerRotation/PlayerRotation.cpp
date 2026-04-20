@@ -64,7 +64,7 @@ void PlayerRotation::Update(const Vector3& playerPos, const Vector3& position, c
 	}
 
 	if (isShooting_) {
-		afterShootTimer_ -= 1.0f / 60.0f;
+		afterShootTimer_ -= GameEngine::GetDeltaTime();
 		if (afterShootTimer_ <= 0) {
 			isShooting_ = false;
 
@@ -212,7 +212,7 @@ void PlayerRotation::UpdateRotationEffect(const Vector3& position) {
 				rotEffect_[i].transform[j].translate.y = position.y + (1.0f - rotEffect_[i].lifetime[j] / kRotationLifetime) * 0.05f; // プレイヤーに近い高さにする
 				rotEffect_[i].object[j]->SetTransform(rotEffect_[i].transform[j]);
 				rotEffect_[i].object[j]->SetColor({ 1,1,0,rotEffect_[i].lifetime[j] / kRotationLifetime });
-				rotEffect_[i].lifetime[j] -= 1.0f / 60.0f;
+				rotEffect_[i].lifetime[j] -= GameEngine::GetDeltaTime();
 				if (rotEffect_[i].lifetime[j] <= 0) {
 					rotEffect_[i].isActivated[j] = false;
 				}
@@ -258,7 +258,7 @@ void PlayerRotation::UpdateChargingEffect(const Vector3& position, const bool is
 
 			// 位置更新（今まで通り）
 			chargingEffect_.radius[i] -= shrink;
-			chargingEffect_.rotate[i] += rotSpeed;
+			chargingEffect_.rotate[i] += rotSpeed * GameEngine::GetDeltaTimeRate();;
 
 			Vector3 dir = { sin(chargingEffect_.rotate[i]), 0, cos(chargingEffect_.rotate[i]) };
 			chargingEffect_.transform[i].translate = position + dir * chargingEffect_.radius[i];

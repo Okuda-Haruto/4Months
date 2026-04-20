@@ -55,8 +55,8 @@ public:
 	Voxel* GetVoxel() { return voxel_.get(); }
 	CSVData GetChunkData() { return chunkData_; }
 
-	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP);
-	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP);
+	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP);
+	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP);
 	void SpawnBox();
 
 	// 区間追加
