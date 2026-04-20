@@ -318,7 +318,7 @@ void Voxel::Collision(Sphere sphere) {
 												break;
 											case 2:
 												//Boxにする
-												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.05f, 14);
+												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.05f, GameEngine::randomFloat(12, 15));
 												break;
 											default:
 												break;

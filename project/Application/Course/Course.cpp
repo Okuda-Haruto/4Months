@@ -39,9 +39,12 @@ void Course::Update(Human* player) {
 			sections_[i]->IsOver(player->GetTransform().translate.y)) ||
 			sections_[i]->GetTimer()->GetCurrent() <= 0) {
 
-			if (sections_[i + 1]) {
-				// 次の地点に移動
-				player->ResetPos(sections_[i+1]->GetStartPos());
+			//これ以上セクション移動がない場合エラーが出る
+			if (sections_.size() < i) {
+				if (sections_[i + 1]) {
+					// 次の地点に移動
+					player->ResetPos(sections_[i + 1]->GetStartPos());
+				}
 			}
 		}
 	}
@@ -140,6 +143,7 @@ void Course::DrawGoalBarrier() {
 }
 
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP) {
+	if (boxes_.size() >= 65536)return;
 	std::unique_ptr box = std::make_unique<Box>();
 	box->Initialize(this, transform, velocity, number, vacuumSensitivity, maxHP, directionalLight_);
 	boxes_.push_back(std::move(box));

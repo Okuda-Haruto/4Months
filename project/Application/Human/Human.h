@@ -65,7 +65,7 @@ protected:
 	const float kGravity_ = 0.25f;
 	//落下最高速度
 	const float kMinSpeed_ = 0.05f;
-	float maxFallingSpeed_ = 1.5f;
+	float maxFallingSpeed_ = 1.35f;
 	//落下速度
 	float fallingSpeed_;
 
@@ -77,7 +77,7 @@ protected:
 	const float kMaxCameraEffectTime_ = 1.0f;
 	float cameraEffectTime_ = 0.0f;
 	// 最低移動速度
-	const float kDefaultSpeed_ = 0.6f;
+	const float kDefaultSpeed_ = 0.4f;
 
 	// ノックバック中
 	Vector3 knockBackAcceleration_;
@@ -121,7 +121,7 @@ protected:
 	const float kMaxVacuumTime = 40 / 60.0f;
 
 	float charge_ = 0;
-	const float kChargeSpeed_ = 1.5f;
+	const float kChargeSpeed_ = 1.0f;
 	const float kMaxCharge_ = 100;
 	bool isCharging_ = false;
 
