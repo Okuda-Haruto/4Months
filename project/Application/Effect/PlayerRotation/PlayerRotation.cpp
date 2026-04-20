@@ -52,7 +52,6 @@ void PlayerRotation::Update(const Vector3& playerPos, const Vector3& position, c
 			if (chargingEmitTimer_ >= kMaxChargingEmitTime) {
 				chargingEmitTimer_ = 0;
 				EmitChargingEffect(isChargeMax);
-				EmitChargingEffect(isChargeMax);
 			}
 		} else {
 			if (chargingEmitTimer_ >= kChargingEmitTime) {
@@ -60,7 +59,7 @@ void PlayerRotation::Update(const Vector3& playerPos, const Vector3& position, c
 				EmitChargingEffect(isChargeMax);
 			}
 		}
-		chargingEmitTimer_++;
+		chargingEmitTimer_ += GameEngine::GetDeltaTime();
 	}
 
 	if (isShooting_) {
@@ -81,7 +80,7 @@ void PlayerRotation::Update(const Vector3& playerPos, const Vector3& position, c
 
 	if (isCatching_) {
 		Vector2 size = ring_->GetSize();
-		size = size - Vector2{ringShrinkSpeed_, ringShrinkSpeed_};
+		size = size - Vector2{ringShrinkSpeed_, ringShrinkSpeed_} * GameEngine::GetDeltaTime();
 		ring_->SetPosition(ToScreen(camera_,position));
 		ring_->SetSize(size);
 		ring_->Update();
@@ -233,21 +232,21 @@ void PlayerRotation::UpdateChargingEffect(const Vector3& position, const bool is
 			// 半径変化量（内向き）
 			float shrink = 0;
 			if (isShooting_) {
-				shrink = kPulseSpeed;
+				shrink = kPulseSpeed * GameEngine::GetDeltaTime();
 			} else if (isChargeMax) {
-				shrink = kMaxChargingRadiusShrinkSpeed;
+				shrink = kMaxChargingRadiusShrinkSpeed * GameEngine::GetDeltaTime();
 			} else {
-				shrink = kChargingRadiusShrinkSpeed;
+				shrink = kChargingRadiusShrinkSpeed * GameEngine::GetDeltaTime();
 			}
 
 			// 回転速度
 			float rotSpeed = 0;
 			if (isShooting_) {
-				rotSpeed = kPulseRotateSpeed;
+				rotSpeed = kPulseRotateSpeed * GameEngine::GetDeltaTime();
 			} else if(isChargeMax){
-				rotSpeed = -kChargingRotateSpeed * 2.0f;
+				rotSpeed = -(kChargingRotateSpeed * GameEngine::GetDeltaTime()) * 1.35f;
 			} else {
-				rotSpeed = -kChargingRotateSpeed;
+				rotSpeed = -kChargingRotateSpeed * GameEngine::GetDeltaTime();
 			}
 
 			// 進行方向
@@ -258,7 +257,7 @@ void PlayerRotation::UpdateChargingEffect(const Vector3& position, const bool is
 
 			// 位置更新（今まで通り）
 			chargingEffect_.radius[i] -= shrink;
-			chargingEffect_.rotate[i] += rotSpeed * GameEngine::GetDeltaTimeRate();;
+			chargingEffect_.rotate[i] += rotSpeed;
 
 			Vector3 dir = { sin(chargingEffect_.rotate[i]), 0, cos(chargingEffect_.rotate[i]) };
 			chargingEffect_.transform[i].translate = position + dir * chargingEffect_.radius[i];
