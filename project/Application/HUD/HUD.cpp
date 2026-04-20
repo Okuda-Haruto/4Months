@@ -142,6 +142,9 @@ void HUD::Draw() {
 
 		// 目的
 		currentObjective_->Draw2D();
+
+		// エフェクト
+		stars_->Draw();
 	}
 
 	infoSprite_->Draw2D();
@@ -150,9 +153,6 @@ void HUD::Draw() {
 	if (startNumIsDraw_) {
 		startNumSprite_->Draw2D();
 	}
-
-	// エフェクト
-	stars_->Draw();
 }
 
 void HUD::SetPauseDisplay(bool isOn) {
