@@ -47,10 +47,10 @@ void Human::Update() {
 	float time = GameEngine::GetDeltaTimeRate();
 
 	//向いている向きに速度を向ける
-	velocity_.translate += Vector3{ 0,0,1 } * rotateMatrix * speed_ * GameEngine::GetDeltaTimeRate();
+	velocity_.translate += Vector3{ 0,0,1 } * rotateMatrix * speed_;
 
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_ * GameEngine::GetDeltaTimeRate(), -maxFallingSpeed_);
-	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } * GameEngine::GetDeltaTimeRate();
+	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 
 	//NANチェック
 	float len = Length(knockBackAcceleration_);
@@ -170,7 +170,7 @@ void Human::OnHitVoxel(AABB aabb) {
 	speed_ = 1.0f;
 
 	if (vacuumState_ == None) {
-		charge_ = max(kMaxCharge_ * 0.5f, charge_);
+		charge_ = max(kMaxCharge_ * 0.1f, charge_ * 0.5f);
 		Throw();
 		headRotateEffect_->Shoot();
 	}

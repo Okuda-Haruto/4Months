@@ -57,7 +57,7 @@ void Box::Move(const Vector3& velocity) {
 
 void Box::Break() {
 	if (!isDead_) {
-		if (transform_.scale.x >= 0.25f) {
+		if (transform_.scale.x >= 0.5f) {
 			for (int i = 0; i < 2; i++) {
 				SRT newTransform = transform_;
 				newTransform.scale /= 2;
