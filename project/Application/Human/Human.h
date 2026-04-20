@@ -46,8 +46,8 @@ public:
 
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
-	Sphere GetVacuumSphere() { return Sphere(headTransform_.translate,vacuumRadius_); }
-	Sphere GetPrevVacuumSphere() { return Sphere(headPrevTransform_.translate,vacuumRadius_); }
+	Sphere GetVacuumSphere() { return Sphere(headTransform_.translate, vacuumRadius_); }
+	Sphere GetPrevVacuumSphere() { return Sphere(headPrevTransform_.translate, vacuumRadius_); }
 	float GetCharge() { return charge_; }
 	float GetMaxCharge() { return kMaxCharge_; }
 	Vector3 GetVacuumStartPos() { return vacuumStartPos_; }
@@ -64,13 +64,21 @@ protected:
 	//速度
 	float speed_;
 
-	//重力加速度
-	const float kGravity_ = 0.25f;
-	//落下最高速度
-	const float kMinSpeed_ = 0.05f;
-	float maxFallingSpeed_ = 1.5f;
+	// ★★★ここから調整★★★
+
+	//重力加速度（軽くする）
+	const float kGravity_ = 0.12f;
+
+	//最低落下速度（あまり影響しないけど軽く）
+	const float kMinSpeed_ = 0.03f;
+
+	//最大落下速度（重要：落下の重さ）
+	float maxFallingSpeed_ = 1.9f;
+
 	//落下速度
 	float fallingSpeed_;
+
+	// ★★★ここまで★★★
 
 	// 無敵時間
 	int invincibleTimer_;
@@ -85,8 +93,10 @@ protected:
 	// ノックバック中
 	Vector3 knockBackAcceleration_;
 	Vector3 knockBackVelocity_;
-	const float kNockBackSpeed_ = 1.5f;
-	const float kNockBackFallingSpeed_ = 4.0f;
+
+	// ★★★ここ調整★★★
+	const float kNockBackSpeed_ = 1.2f;
+	const float kNockBackFallingSpeed_ = 2.5f;
 
 	// 吸引
 	enum VacuumState {
@@ -102,13 +112,18 @@ protected:
 	SRT headPrevTransform_;
 	Vector3 headDir_;
 	float headSpeed_;
-	float headStartSpeed_ = 3.0f;
-	float headDeceleration_ = 0.08f;
+
+	// ★★★ここ調整★★★
+	float headStartSpeed_ = 2.0f;
+	float headDeceleration_ = 0.06f;
+
 	int returnTime_ = 30;
 	const float kMinReturnTime = 15;
 	const float kMaxReturnTime = 70;
 	int returnTimer_ = 0;
-	float bounceBackSpeed_ = 11.0f;
+
+	// ★★★ここ調整★★★
+	float bounceBackSpeed_ = 6.0f;
 
 	// 飛ばすコマの回転
 	std::unique_ptr<PlayerRotation> headRotateEffect_ = nullptr;
@@ -117,8 +132,8 @@ protected:
 	// 吸引
 	int vacuumTime_ = 30;
 	int vacuumTimer_ = 30;
-	float vacuumRadius_ = 0.0f; 
-	const float baseVacuumRadius_ = 7.0f; 
+	float vacuumRadius_ = 0.0f;
+	const float baseVacuumRadius_ = 7.0f;
 	Vector3 vacuumStartPos_;
 	const int kMinVacuumTime = 20;
 	const int kMaxVacuumTime = 40;
@@ -136,6 +151,4 @@ protected:
 	Vector3 CalcVacuumPosition();
 
 	bool stop;
-
-
 };

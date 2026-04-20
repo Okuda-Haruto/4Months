@@ -19,8 +19,9 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	goalBarrier_->Initialize(-3.0f * 2.0f * 16 * 19, camera_->GetCamera());
 
 	// 区間の設定(上~下)
-	AddSection(0, 2, 54, 1000, 75000);
-
+	AddSection(0, 2, 54, 2000, 75000);
+	AddSection(4, 8, 54, 3000, 75000);
+	AddSection(10, 16, 54, 4000, 75000);
 	// ★追加：区間ごとにゴールバリア生成
 	goalBarriers_.clear();
 	for (int i = 0; i < sections_.size(); ++i) {

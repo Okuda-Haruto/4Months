@@ -28,7 +28,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	wind_ = make_unique<Wind>();
 	wind_->Initialize(directionalLight);
 	headRotateEffect_ = make_unique<PlayerRotation>();
-	headRotateEffect_->Initialize(directionalLight,camera);
+	headRotateEffect_->Initialize(directionalLight, camera);
 
 	fallingSpeed_ = -kMinSpeed_;
 	speed_ = 0.3f;
@@ -49,7 +49,24 @@ void Human::Update() {
 	//向いている向きに速度を向ける
 	velocity_.translate += Vector3{ 0,0,1 } *rotateMatrix * speed_;
 
-	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
+	// ★ジャンピングフラッシュ風重力
+	float gravity = kGravity_;
+
+	if (fallingSpeed_ > 0.0f) {
+		// 上昇中：ふわっと
+		gravity *= 1.5f;
+	}
+	else {
+		// 落下中：徐々に加速
+		float fallRatio = fabsf(fallingSpeed_) / maxFallingSpeed_;
+		if (fallRatio > 1.0f) {
+			fallRatio = 1.0f;
+		}
+
+		gravity *= (0.3f + fallRatio * 1.2f);
+	}
+
+	fallingSpeed_ = max(fallingSpeed_ - gravity, -maxFallingSpeed_);
 	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
 
 	//NANチェック
@@ -110,11 +127,14 @@ void Human::Update() {
 	// 回転
 	if (charge_ == kMaxCharge_) {
 		headRotate_ += 0.2f;
-	} else if(isCharging_ || vacuumState_ != None) {
+	}
+	else if (isCharging_ || vacuumState_ != None) {
 		headRotate_ += 0.1f;
-	} else {
+	}
+	else {
 		headRotate_ += 0.05f;
 	}
+
 	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
 	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
@@ -157,9 +177,11 @@ void Human::OnHitVoxel(AABB aabb) {
 
 	if (fabsf(closest.x) >= fabsf(closest.y) && fabsf(closest.x) >= fabsf(closest.z)) {
 		knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
-	} else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
+	}
+	else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
 		knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
-	} else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
+	}
+	else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
 		knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
 	}
 
@@ -172,18 +194,32 @@ void Human::OnHitVoxel(AABB aabb) {
 		headRotateEffect_->Shoot();
 	}
 }
-
 void Human::Throw() {
 	headTransform_ = { headTransform_.scale,transform_.rotate, transform_.translate };
+
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
-	headSpeed_ = headStartSpeed_;
+
+	// ★前方向強化（ここ重要）
+	headSpeed_ = headStartSpeed_ * (1.25f + 1.0f * (charge_ / kMaxCharge_));
+
 	vacuumState_ = Going;
-	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
+
+	// ★上方向も少し強化
+	float chargeRatio = charge_ / kMaxCharge_;
+	if (chargeRatio > 1.0f) {
+		chargeRatio = 1.0f;
+	}
+
+	fallingSpeed_ += bounceBackSpeed_ * (0.5f + chargeRatio * 1.5f);
+
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
+
 	vacuumTime_ = int((charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime);
 	returnTime_ = int((charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime);
+
 	charge_ = 0;
+
 	headRotateEffect_->Shoot();
 }
 
@@ -203,19 +239,12 @@ void Human::Slowdown() {
 }
 
 Vector3 Human::CalcVacuumPosition() {
-	// 初速
 	float v0 = headStartSpeed_;
-
-	// 減速
 	float a = headDeceleration_;
-
-	// 移動距離
 	float distance = (v0 * v0) / (2.0f * a);
 
-	// 向き（Throwと同じ）
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 	Vector3 dir = Vector3{ 0,0,1 } *rotateMatrix;
 
-	// 最終位置
 	return transform_.translate + dir * distance;
 }
