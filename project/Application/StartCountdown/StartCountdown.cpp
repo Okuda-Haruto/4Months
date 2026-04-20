@@ -21,12 +21,12 @@ void StartCountdown::Update() {
 	switch (state_) {
 	case State::PreStart:
 		// 待機(スタート前カメラ)
-		timer_ += 1.0f / 60.0f;
+		timer_ += GameEngine::GetDeltaTime();
 		timer_ = min(timer_, preStartTime_);
 		break;
 	case State::Start:
 		// 初期配置につく
-		timer_ += 1.0f / 60.0f;
+		timer_ += GameEngine::GetDeltaTime();
 		timer_ = min(timer_, startTime_);
 
 		rate = timer_ / startTime_;
@@ -48,7 +48,7 @@ void StartCountdown::Update() {
 		}
 		break;
 	case State::Wait:
-		timer_ += 1.0f / 60.0f;
+		timer_ += GameEngine::GetDeltaTime();
 
 		timer_ = min(timer_, waitTime_);
 
@@ -64,11 +64,11 @@ void StartCountdown::Update() {
 		}
 		break;
 	case State::Vacuum:
-		timer_ += 1.0f / 60.0f;
+		timer_ += GameEngine::GetDeltaTime();
 		timer_ = min(timer_, vacuumEndTime_);
 
 		for (int i = 0; i < blocks_.size(); ++i) {
-			timers_[i] += 1.0f / 60.0f;
+			timers_[i] += GameEngine::GetDeltaTime();
 			timers_[i] = min(timers_[i], vacuumTime_);
 
 			transform = blocks_[i]->GetTransform();
@@ -101,7 +101,7 @@ void StartCountdown::Update() {
 		break;
 
 	case State::Spread:
-		timer_ += 1.0f / 60.0f;
+		timer_ += GameEngine::GetDeltaTime();
 		timer_ = min(timer_, spreadTime_);
 
 		rate = timer_ / spreadTime_;

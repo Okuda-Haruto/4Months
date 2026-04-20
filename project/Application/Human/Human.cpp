@@ -1,5 +1,4 @@
 #include "Human.h"
-#include "Goal/Goal.h"
 #include <Lerp.h>
 #include <Collision.h>
 
@@ -40,23 +39,24 @@ void Human::Update() {
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
 
 	if (cameraEffectTime_ > 0.0f) {
-		cameraEffectTime_ -= 1.0f / 60.0f;
+		cameraEffectTime_ -= GameEngine::GetDeltaTime();
 		if (cameraEffectTime_ < 0.0f) {
 			cameraEffectTime_ = 0.0f;
 		}
 	}
+	float time = GameEngine::GetDeltaTimeRate();
 
 	//向いている向きに速度を向ける
-	velocity_.translate += Vector3{ 0,0,1 } *rotateMatrix * speed_;
+	velocity_.translate += Vector3{ 0,0,1 } * rotateMatrix * speed_ * GameEngine::GetDeltaTimeRate();
 
-	fallingSpeed_ = max(fallingSpeed_ - kGravity_, -maxFallingSpeed_);
-	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+	fallingSpeed_ = max(fallingSpeed_ - kGravity_ * GameEngine::GetDeltaTimeRate(), -maxFallingSpeed_);
+	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } * GameEngine::GetDeltaTimeRate();
 
 	//NANチェック
 	float len = Length(knockBackAcceleration_);
 
 	if (len > 1e-6f && std::isfinite(len)) {
-		knockBackVelocity_ = Normalize(knockBackAcceleration_) * kNockBackSpeed_;
+		knockBackVelocity_ = Normalize(knockBackAcceleration_) * kNockBackSpeed_ * GameEngine::GetDeltaTimeRate();
 		knockBackVelocity_.y *= kNockBackFallingSpeed_ / kNockBackSpeed_;
 	}
 
@@ -74,18 +74,18 @@ void Human::Update() {
 
 	case Going:
 		headPrevTransform_ = headTransform_;
-		headTransform_.translate += headDir_ * headSpeed_;
-		headSpeed_ -= headDeceleration_;
+		headTransform_.translate += headDir_ * headSpeed_ * GameEngine::GetDeltaTimeRate();
+		headSpeed_ -= headDeceleration_ * GameEngine::GetDeltaTimeRate();
 		if (headSpeed_ <= 0) {
 			headSpeed_ = 0;
 			vacuumTimer_ = vacuumTime_;
-			wind_->Set(headTransform_.translate, vacuumRadius_, float(vacuumTime_));
+			wind_->Set(headTransform_.translate, vacuumRadius_, vacuumTime_);
 			vacuumState_ = Vacuum;
 		}
 		break;
 
 	case Vacuum:
-		vacuumTimer_--;
+		vacuumTimer_ -= GameEngine::GetDeltaTime();
 
 		if (vacuumTimer_ <= 0) {
 			vacuumState_ = Return;
@@ -97,9 +97,9 @@ void Human::Update() {
 	case Return:
 		headPrevTransform_ = headTransform_;
 		headTransform_.translate = Lerp(vacuumStartPos_, transform_.translate, (1.0f - float(returnTimer_) / float(returnTime_)));
-		headSpeed_ += headDeceleration_;
+		headSpeed_ += headDeceleration_ * GameEngine::GetDeltaTimeRate();
 
-		returnTimer_--;
+		returnTimer_ -= GameEngine::GetDeltaTime();
 		if (returnTimer_ <= 0) {
 			headSpeed_ = 0;
 			vacuumState_ = None;
@@ -109,20 +109,23 @@ void Human::Update() {
 
 	// 回転
 	if (charge_ == kMaxCharge_) {
-		headRotate_ += 0.2f;
+		headRotate_ += 0.2f * GameEngine::GetDeltaTimeRate();
 	} else if(isCharging_ || vacuumState_ != None) {
-		headRotate_ += 0.1f;
+		headRotate_ += 0.1f * GameEngine::GetDeltaTimeRate();
 	} else {
-		headRotate_ += 0.05f;
+		headRotate_ += 0.05f * GameEngine::GetDeltaTimeRate();
 	}
 	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
 	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
-	speed_ = Lerp(speed_, kDefaultSpeed_, 0.05f);
+	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
 
-	knockBackVelocity_.x = Lerp(knockBackVelocity_.x, 0.0f, 0.1f);
-	knockBackVelocity_.y = Lerp(knockBackVelocity_.y, 0.0f, 0.1f);
-	knockBackVelocity_.z = Lerp(knockBackVelocity_.z, 0.0f, 0.1f);
+	float rate = 1.0f - powf(0.5f, dt * 10.0f); // ← 減衰速度
+	speed_ = Lerp(speed_, kDefaultSpeed_, rate);
+
+	knockBackVelocity_.x = Lerp(knockBackVelocity_.x, 0.0f, rate);
+	knockBackVelocity_.y = Lerp(knockBackVelocity_.y, 0.0f, rate);
+	knockBackVelocity_.z = Lerp(knockBackVelocity_.z, 0.0f, rate);
 
 	velocity_ = {};
 
@@ -181,14 +184,14 @@ void Human::Throw() {
 	vacuumState_ = Going;
 	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
-	vacuumTime_ = int((charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime);
-	returnTime_ = int((charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime);
+	vacuumTime_ = (charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime;
+	returnTime_ = (charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime;
 	charge_ = 0;
 	headRotateEffect_->Shoot();
 }
 
 void Human::Charge() {
-	charge_ += kChargeSpeed_;
+	charge_ += kChargeSpeed_ * GameEngine::GetDeltaTimeRate();
 	charge_ = min(charge_, kMaxCharge_);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
 	headStartSpeed_ = 2.5f + 1.5f * (charge_ / kMaxCharge_);

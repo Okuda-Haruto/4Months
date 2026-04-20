@@ -33,6 +33,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			SceneManager::GetInstance()->Update();
 
+#ifdef USE_IMGUI
+			ImGui::Begin("Performance");
+
+			ImGuiIO& io = ImGui::GetIO();
+			ImGui::Text("FPS: %.1f", io.Framerate);
+			ImGui::Text("Frame Time: %.3f ms", 1000.0f / io.Framerate);
+
+			ImGui::End();
+#endif // DEBUG
+
+
 			//
 			//	描画処理
 			//

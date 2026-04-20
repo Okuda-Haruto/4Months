@@ -1,7 +1,7 @@
 #include "Box.h"
 #include "Course/Course.h"
 
-void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const int32_t maxHP, std::shared_ptr<DirectionalLight> directionalLight) {
+void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP, std::shared_ptr<DirectionalLight> directionalLight) {
 
 	course_ = course;
 	MaxHP_ = maxHP;
@@ -35,7 +35,7 @@ void Box::Update() {
 		Break();
 	}
 
-	velocity_ = Lerp(velocity_, Vector3{0,0,0}, 0.1f);
+	velocity_ = Lerp(velocity_, Vector3{0,0,0}, 0.1f * GameEngine::GetDeltaTimeRate());
 
 	transform_.translate += velocity_;
 

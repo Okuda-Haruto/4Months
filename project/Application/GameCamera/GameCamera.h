@@ -4,14 +4,17 @@
 
 #include <numbers>
 
+class GameCamera;
+
 class BaseCamera {
 protected:
 	SRT transform_;
 	Player* player_;
 	std::shared_ptr<Input> input_;
+	GameCamera* gameCamera_;
 public:
 	//初期化
-	virtual void Initialize(std::shared_ptr<Input> input, Player* player) = 0;
+	virtual void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) = 0;
 	//更新処理
 	virtual void Update() = 0;
 	//Transform
@@ -26,7 +29,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Input> input, Player* player) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) override;
 	//更新処理
 	void Update() override;
 };
@@ -62,7 +65,7 @@ private:
 	
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Input> input, Player* player) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) override;
 	//更新処理
 	void Update() override;
 };
@@ -82,7 +85,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Input> input, Player* player) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) override;
 	//更新処理
 	void Update() override;
 };
@@ -109,8 +112,8 @@ private:
 
 	// シェイク
 	Vector3 shake_{};
-	int shakeFrame_ = 0;
-	int shakeEndFrame_;
+	float shakeTime_ = 0;
+	float shakeEndTime_;
 	float amplitude_ = 0;
 
 	//チャンクのサイズ
@@ -118,6 +121,10 @@ private:
 
 	//getter用
 	SRT transform_;
+
+	//リザルトカメラで行けるY座標の最低値
+	float cameraPosBottom_ = 0;
+
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Camera> camera, const std::unique_ptr<BaseCamera>& nowCameraMode, std::shared_ptr<Input> input, Player* player);
@@ -128,13 +135,17 @@ public:
 	void ChangeCamera(const std::unique_ptr<BaseCamera>& nextCamera, float changeCameraTime);
 
 	// シェイク
-	void StartShake(float amplitude, int frame);
+	void StartShake(float amplitude, float time);
 
 	SRT GetTransform() { return transform_; }
 
 	void SetChunkHeight(int32_t chunkHeight) { chunkHeight_ = chunkHeight; }
 
+	void SetCameraPosBottom(float cameraPosBottom) { cameraPosBottom_ = cameraPosBottom; }
+
 	std::shared_ptr<Camera> GetCamera() { return camera_; }
+	
+	float GetCameraPosBottom() { return cameraPosBottom_; }
 };
 
 class StartCamera : public BaseCamera{
@@ -150,7 +161,7 @@ private:
 	
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Input> input, Player* player) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) override;
 	//更新処理
 	void Update() override;
 	Quaternion LookAt(const Vector3& eye, const Vector3& target);

@@ -18,7 +18,7 @@ void Voxel_Vacuum::Initialize(SRT transform, Player* player, std::shared_ptr<Dir
 
 void Voxel_Vacuum::Update() {
 	if (animationTime_ < maxAnimationTime_) {
-		animationTime_ += 1.0f / 60.0f;
+		animationTime_ += GameEngine::GetDeltaTime();
 	}
 
 

@@ -332,5 +332,8 @@ public:
 
 	static DirectXCommon* GetDirectXCommon() { return GetInstance()->dxCommon_.get(); }
 
+	//経過時間
 	static float GetDeltaTime() { return GetInstance()->dxCommon_->GetDeltaTime(); }
+	//60fopを基準とした場合の経過時間割合
+	static float GetDeltaTimeRate() { return GetInstance()->dxCommon_->GetDeltaTime() / (1.0f / 60.0f); }
 };

@@ -31,7 +31,7 @@ void Wind::Set(const Vector3& center, const float radius, const float animationT
 	// 吸い込み開始時
 	center_ = center;
 	radius_ = radius;
-	maxAnimationTime_ = animationTime / 60.0f;
+	maxAnimationTime_ = animationTime;
 	animationTime_ = 0;
 
 	activeDustCount_ = int(radius) - 7;
@@ -59,7 +59,7 @@ void Wind::SetTitle(const Vector3& center, const float radius, const float anima
 	// 吸い込み開始時
 	center_ = center;
 	radius_ = radius;
-	maxAnimationTime_ = animationTime / 60.0f;
+	maxAnimationTime_ = animationTime;
 	animationTime_ = 0;
 
 	activeDustCount_ = 0;
@@ -79,7 +79,7 @@ void Wind::SetTitle(const Vector3& center, const float radius, const float anima
 
 void Wind::Update() {
 	if (animationTime_ < maxAnimationTime_) {
-		animationTime_ += 1.0f / 60.0f;
+		animationTime_ += GameEngine::GetDeltaTime();
 	}
 
 	if (animationTime_ >= maxAnimationTime_) {
@@ -97,14 +97,14 @@ void Wind::Update() {
 
 			float vacuumLate = length / radius_;
 			float speed = (1.0f - vacuumLate) * baseVacuumSpeed;
-			speed += 0.25f;
+			speed += 0.25f * GameEngine::GetDeltaTimeRate();
 
 			Vector3 velTarget = Mix(transform.translate, center_, axis, 1.5f, radius_, false) * speed;
 
 			velocity_[i] = Lerp(velocity_[i], velTarget, vacuumSensitivity);
 			velocity_[i] = Lerp(velocity_[i], Vector3{ 0,0,0 }, 0.1f);
 
-			transform.translate += velocity_[i];
+			transform.translate += velocity_[i] * GameEngine::GetDeltaTimeRate();
 			dust_[i]->SetTransform(transform);
 		}
 
@@ -117,7 +117,7 @@ void Wind::Update() {
 			spiral_[i]->SetTransform(transform);
 		}
 
-		float time = 0.1f;
+		float time = 0.1f * GameEngine::GetDeltaTimeRate();
 		float perFrame = 60.0f * time;
 		if (animationTime_ < time) {
 			// 開始時

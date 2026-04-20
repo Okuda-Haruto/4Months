@@ -153,7 +153,9 @@ public:
 	void SetDepthTexture(UINT RootParameterIndex);
 
 	//経過時間
-	float GetDeltaTime() { return deltaTime_; }
+	float GetDeltaTime() {
+		return deltaTime_; 
+	}
 
 private:
 	//ログファイルの生成

@@ -66,7 +66,7 @@ void Stars::Update(Vector2 endPos) {
 			AddFlash(stars_[i].pos);
 		}
 
-		stars_[i].t += 1.5f / 60.0f;
+		stars_[i].t += 1.5f / 60.0f * GameEngine::GetDeltaTimeRate();;
 
 		stars_[i].sprite->SetPosition(stars_[i].pos);
 		stars_[i].sprite->SetRotation(stars_[i].sprite->GetRotation() - stars_[i].rotateSpeed);
@@ -76,7 +76,7 @@ void Stars::Update(Vector2 endPos) {
 	// フラッシュ
 	for (int i = 0; i < kMaxFlashCount; ++i) {
 		if (!isFlashActive[i]) continue;
-		flashes_[i].t += kFlashLifetime * (1.0f / 60.0f);
+		flashes_[i].t += kFlashLifetime * GameEngine::GetDeltaTime();
 
 		flashes_[i].pos = flashes_[i].pos + flashes_[i].velocity;
 

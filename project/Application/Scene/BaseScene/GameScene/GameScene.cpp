@@ -33,30 +33,28 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
-	//ゴール
-	goal_ = std::make_unique<Goal>();
-	goal_->Initialize(Vector3{ 0,-500,0 }, directionalLight_);
-
 	//プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_,defaultCamera_);
-
-	//カメラ
-	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_, std::make_unique<DownCamera>(), input_, player_.get());
 
 	CSVData courseData;
 	courseData.size = { 2,18,2 };
 	courseData.directoryPath = "resources/CSV";
 
+	//カメラ
+	gameCamera_ = make_unique<GameCamera>();
+	gameCamera_->Initialize(defaultCamera_, std::make_unique<DownCamera>(), input_, player_.get());
+
 	// コース
 	course_ = std::make_unique<Course>();
 	course_->Initialize(courseData, gameCamera_.get(), directionalLight_);
 	chunkHeight_ = int(course_->GetChunkData().size.y);
+	float cameraPosBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
+	gameCamera_->SetCameraPosBottom(cameraPosBottom);
 
 	// 当たり判定
 	checkCollision_ = std::make_unique<CheckCollision>();
-	checkCollision_->Initialize(course_.get(), goal_.get(), gameCamera_.get());
+	checkCollision_->Initialize(course_.get(), gameCamera_.get());
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
@@ -94,7 +92,7 @@ void GameScene::Update() {
 		}
 
 		if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
-			skipHold_ += 1.0f / 60.0f;
+			skipHold_ += GameEngine::GetDeltaTime();
 			if (skipHold_ > 0.5f) {
 				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
 				startCountdown_->SkipPreStart();
@@ -114,12 +112,12 @@ void GameScene::Update() {
 
 		if (isClear_) {
 			if (isUp_) {
-				clearY_ += 1.0f;
+				clearY_ += GameEngine::GetDeltaTimeRate();
 				if (clearY_ > 0) {
 					isUp_ = false;
 				}
 			} else {
-				clearY_ -= 1.0f;
+				clearY_ -= GameEngine::GetDeltaTimeRate();;
 				if (clearY_ < -32 * 3.0f * 4) {
 					isUp_ = true;
 				}
@@ -131,9 +129,6 @@ void GameScene::Update() {
 			}
 
 		}
-
-		//ゴール更新処理
-		goal_->Update();
 
 		// コース
 		course_->Update(player_.get());

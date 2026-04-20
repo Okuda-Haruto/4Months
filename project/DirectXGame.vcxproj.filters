@@ -171,9 +171,6 @@
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp">
       <Filter>Application\Scene\BaseScene\GameScene\CheckCollision</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Goal\Goal.cpp">
-      <Filter>Application\Scene\BaseScene\GameScene\Goal</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Scene\BaseScene\TitleScene\TitleScene.cpp">
       <Filter>Application\Scene\BaseScene\TitleScene</Filter>
     </ClCompile>
@@ -484,9 +481,6 @@
     </ClInclude>
     <ClInclude Include="Application\CheckCollision\CheckCollision.h">
       <Filter>Application\Scene\BaseScene\GameScene\CheckCollision</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Goal\Goal.h">
-      <Filter>Application\Scene\BaseScene\GameScene\Goal</Filter>
     </ClInclude>
     <ClInclude Include="Application\Scene\BaseScene\BaseScene.h">
       <Filter>Application\Scene\BaseScene</Filter>

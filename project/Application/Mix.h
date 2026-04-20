@@ -54,7 +54,7 @@ inline Vector3 Mix(
 
 	float radiusError = targetRadius - dist;
 
-	vel += dir * radiusError * baseRadiusStrength * strength * (1.0f / 60.0f);
+	vel += dir * radiusError * baseRadiusStrength * strength * GameEngine::GetDeltaTime();
 
 	// 減衰
 	vel *= damping;
@@ -104,7 +104,7 @@ inline Vector3 Mix2(
 
 	float radiusError = targetRadius - dist;
 
-	vel += dir * radiusError * baseRadiusStrength * strength * (1.0f / 60.0f);
+	vel += dir * radiusError * baseRadiusStrength * strength * GameEngine::GetDeltaTime();
 
 	// 減衰
 	vel *= damping;

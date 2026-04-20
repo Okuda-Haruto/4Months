@@ -12,22 +12,22 @@ void TitleMoji::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 void TitleMoji::Update() {
 	switch (state_) {
 	case State::Wait:
-		timer_ += 1.0f / 60.0f;
+		timer_ += GameEngine::GetDeltaTime();
 
 		timer_ = min(timer_, waitTime_);
 
 		if (timer_ == waitTime_) {
 			timer_ = 0;
-			wind_->SetTitle({}, radius_ / 2.0f, vacuumTime_ * 60);
+			wind_->SetTitle({}, radius_ / 2.0f, vacuumTime_);
 			state_ = State::Vacuum;
 		}
 		break;
 	case State::Vacuum:
-		timer_ += 1.0f / 60.0f;
+		timer_ += GameEngine::GetDeltaTime();
 		timer_ = min(timer_, vacuumEndTime_);
 
 		for (int i = 0; i < blocks_.size(); ++i) {
-			timers_[i] += 1.0f / 60.0f;
+			timers_[i] += GameEngine::GetDeltaTime();
 			timers_[i] = min(timers_[i], vacuumTime_);
 
 			SRT transform = blocks_[i]->GetTransform();

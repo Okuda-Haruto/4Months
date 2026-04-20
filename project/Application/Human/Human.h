@@ -9,9 +9,6 @@
 static int id_ = 0;
 const int kMaxCharacters = 4;
 
-class Neck;
-class Goal;
-
 class Human {
 public:
 	// 初期化
@@ -104,10 +101,10 @@ protected:
 	float headSpeed_;
 	float headStartSpeed_ = 3.0f;
 	float headDeceleration_ = 0.08f;
-	int returnTime_ = 30;
-	const float kMinReturnTime = 15;
-	const float kMaxReturnTime = 70;
-	int returnTimer_ = 0;
+	float returnTime_ = 30 / 60.0f;
+	const float kMinReturnTime = 15 / 60.0f;
+	const float kMaxReturnTime = 70 / 60.0f;
+	float returnTimer_ = 0;
 	float bounceBackSpeed_ = 11.0f;
 
 	// 飛ばすコマの回転
@@ -115,13 +112,13 @@ protected:
 	float headRotate_ = 0;
 
 	// 吸引
-	int vacuumTime_ = 30;
-	int vacuumTimer_ = 30;
+	float vacuumTime_ = 30 / 60.0f;
+	float vacuumTimer_ = 30 / 60.0f;
 	float vacuumRadius_ = 0.0f; 
 	const float baseVacuumRadius_ = 7.0f; 
 	Vector3 vacuumStartPos_;
-	const int kMinVacuumTime = 20;
-	const int kMaxVacuumTime = 40;
+	const float kMinVacuumTime = 20 / 60.0f;
+	const float kMaxVacuumTime = 40 / 60.0f;
 
 	float charge_ = 0;
 	const float kChargeSpeed_ = 1.5f;
