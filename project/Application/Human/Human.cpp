@@ -47,10 +47,10 @@ void Human::Update() {
 	float time = GameEngine::GetDeltaTimeRate();
 
 	//向いている向きに速度を向ける
-	velocity_.translate += Vector3{ 0,0,1 } * rotateMatrix * speed_;
+	velocity_.translate += Vector3{ 0,0,1 } * rotateMatrix * speed_ * GameEngine::GetDeltaTimeRate();
 
 	fallingSpeed_ = max(fallingSpeed_ - kGravity_ * GameEngine::GetDeltaTimeRate(), -maxFallingSpeed_);
-	velocity_.translate += Vector3{ 0,fallingSpeed_,0 };
+	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } * GameEngine::GetDeltaTimeRate();
 
 	//NANチェック
 	float len = Length(knockBackAcceleration_);
