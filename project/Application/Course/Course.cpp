@@ -31,6 +31,9 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	}
 
 	currentSection_ = sections_[0].get();
+
+	failSE_ = std::make_unique<Audio>();
+	failSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
 }
 
 void Course::Update(Human* player) {
@@ -48,6 +51,11 @@ void Course::Update(Human* player) {
 			if ((!sections_[i]->IsCleared() &&
 				sections_[i]->IsOver(player->GetTransform().translate.y)) ||
 				sections_[i]->GetTimer()->GetCurrent() <= 0) {
+
+				if (!sectionsData_[i].isFailed) {
+					sectionsData_[i].isFailed = true;
+					failSE_->SoundPlayWave();
+				}
 
 				//これ以上セクション移動がない場合エラーが出る
 				if (sections_.size() < i) {
@@ -210,10 +218,12 @@ void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int cl
 	}
 
 	sections_.push_back(std::move(newSection));
+	sectionsData_.push_back(SectionData());
 }
 
 void Course::AddSubSection(int startChunkY, int endChunkY) {
 	std::unique_ptr<Section> newSection = std::make_unique<Section>();
 	newSection->Initialize(startChunkY, endChunkY);
 	sections_.push_back(std::move(newSection));
+	sectionsData_.push_back(SectionData());
 }

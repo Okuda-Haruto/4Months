@@ -59,6 +59,9 @@ void GoalBarrier::Initialize(float position, std::shared_ptr<Camera> camera) {
 	time_ = 0.0f;
 	clearTimer_ = kMaxClearTimer_;
 	isClear_ = false;
+
+	clearSE_ = std::make_unique<Audio>();
+	clearSE_->Initialize("resources/DebugResources/fanfare.wav", 0.5f);
 }
 
 void GoalBarrier::Update(GameCamera* gameCamera) {
@@ -107,5 +110,12 @@ void GoalBarrier::Draw() {
 		smokeObjectRotate_->Draw3D();
 		smokeObjectScale_->Draw3D();
 		smokeObject_->Draw3D();
+	}
+}
+
+void GoalBarrier::Clear() {
+	if (isClear_) {
+		clearSE_->SoundPlayWave();
+		isClear_ = true;
 	}
 }

@@ -97,10 +97,16 @@ private:
 	bool isEnd_ = false;
 	bool isAllCleared_ = false;
 
-
-
 	// 破壊された場所
 	std::vector<Vector3> breakPos_;
+
+	// 区間データ
+	struct SectionData {
+		bool isFailed = false;
+	};
+	std::vector<SectionData> sectionsData_;
+
+	std::unique_ptr<Audio> failSE_;
 };
 
 

@@ -134,5 +134,8 @@ protected:
 
 	bool stop;
 
-
+	// SE
+	std::unique_ptr<Audio> shootSE_ = nullptr;
+	std::unique_ptr<Audio> chargeSE_ = nullptr;
+	std::unique_ptr<Audio> catchSE_ = nullptr;
 };

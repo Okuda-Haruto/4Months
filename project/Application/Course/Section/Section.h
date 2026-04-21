@@ -13,17 +13,7 @@ public:
 	void Update(float playerY);
 
 	// スコア追加
-	void AddBreak(int breakCount) {
-		// 同じ秒数があれば一つにまとめる
-		for (auto& d : delay_) {
-			if (fabs(d.time - scoreDelay_) < 0.0001f) {
-				d.score += breakCount;
-				return;
-			}
-		}
-		// なければ新規追加
-		delay_.push_back(Delay{ scoreDelay_, breakCount });
-	}
+	void AddBreak(int breakCount);
 
 	// ノルマなし区間か
 	bool IsSubSection() { return isSubSection_; }
@@ -75,5 +65,7 @@ private:
 
 	// ノルマなしの区間
 	bool isSubSection_ = false;
-};
 
+	std::unique_ptr<Audio> addScoreSE_ = nullptr;
+	std::unique_ptr<Audio> breakSE_ = nullptr;
+};

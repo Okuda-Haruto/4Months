@@ -33,6 +33,14 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	speed_ = 0.3f;
 	knockBackAcceleration_ = {};
 	knockBackVelocity_ = {};
+
+	
+	shootSE_ = make_unique<Audio>();
+	shootSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	catchSE_ = make_unique<Audio>();
+	catchSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	chargeSE_ = make_unique<Audio>();
+	chargeSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
 }
 
 void Human::Update() {
@@ -104,6 +112,7 @@ void Human::Update() {
 			headSpeed_ = 0;
 			vacuumState_ = None;
 			headRotateEffect_->Catch();
+			catchSE_->SoundPlayWave();
 		}
 	}
 
@@ -188,6 +197,11 @@ void Human::Throw() {
 	returnTime_ = (charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime;
 	charge_ = 0;
 	headRotateEffect_->Shoot();
+
+	if (!shootSE_->IsSoundPlayingWave()) {
+		shootSE_->SoundPlayWave();
+	}
+
 }
 
 void Human::Charge() {
@@ -198,6 +212,10 @@ void Human::Charge() {
 
 	vacuumStartPos_ = CalcVacuumPosition();
 	isCharging_ = true;
+
+	if (!chargeSE_->IsSoundPlayingWave()) {
+		chargeSE_->SoundPlayWave();
+	}
 }
 
 void Human::Slowdown() {
