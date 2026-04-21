@@ -61,6 +61,7 @@ public:
 
 	// 区間追加
 	void AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore);
+	void AddSubSection(int startChunkY, int endChunkY);
 
 	Section* GetCurrentSection() { return currentSection_; }
 	int GetCurrentSectionNumber() { return currentSectionNum_; }
@@ -81,7 +82,7 @@ private:
 	std::vector<std::unique_ptr<Box>> boxes_;
 	std::vector<std::unique_ptr<Box>> spawnBoxes_;
 
-	std::unique_ptr<GoalBarrier> goalBarrier_;
+	std::vector<std::unique_ptr<GoalBarrier>> goalBarriers_;
 
 	//チャンクデータ
 	CSVData chunkData_;
@@ -96,10 +97,16 @@ private:
 	bool isEnd_ = false;
 	bool isAllCleared_ = false;
 
-
-
 	// 破壊された場所
 	std::vector<Vector3> breakPos_;
+
+	// 区間データ
+	struct SectionData {
+		bool isFailed = false;
+	};
+	std::vector<SectionData> sectionsData_;
+
+	std::unique_ptr<Audio> failSE_;
 };
 
 

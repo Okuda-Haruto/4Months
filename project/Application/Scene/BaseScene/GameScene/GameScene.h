@@ -61,6 +61,9 @@ private:
 
 	float skipHold_ = 0;
 
+	// BGM
+	std::unique_ptr<Audio> bgm_ = nullptr;
+
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Input> input) override;

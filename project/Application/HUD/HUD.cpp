@@ -40,7 +40,7 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	bonusBreakSprite_->SetColor({ 1.0f, 0.6f, 0.6f, 1.0f });
 	bonusBreakSprite_->SetSize({ kBreakBarWidth, 32.0f });
 	bonusBreakSprite_->SetPosition(breakLTPos_);
-	
+
 	// 時間
 	for (int i = 0; i < 4; ++i) {
 		currentTimeSprite_[i] = std::make_unique<Sprite>();
@@ -125,18 +125,27 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 void HUD::Draw() {
 	chargeBGSprite_->Draw2D();
 	currentChargeSprite_->Draw2D();
-	breakBGSprite_->Draw2D();
-	bonusBreakSprite_->Draw2D();
-	currentBreakSprite_->Draw2D();
 
-	// 時間
-	for (int i = 0; i < 4; ++i) {
-		currentTimeSprite_[i]->Draw2D();
+	if (canDrawScore_) {
+		// 区間
+		breakBGSprite_->Draw2D();
+		bonusBreakSprite_->Draw2D();
+		currentBreakSprite_->Draw2D();
+
+		sectionSprite_->Draw2D();
+		progressSprite_->Draw2D();
+
+		// 時間
+		for (int i = 0; i < 4; ++i) {
+			currentTimeSprite_[i]->Draw2D();
+		}
+
+		// 目的
+		currentObjective_->Draw2D();
+
+		// エフェクト
+		stars_->Draw();
 	}
-
-	// 区間
-	sectionSprite_->Draw2D();
-	progressSprite_->Draw2D();
 
 	infoSprite_->Draw2D();
 	canShoot_->Draw2D();
@@ -144,11 +153,6 @@ void HUD::Draw() {
 	if (startNumIsDraw_) {
 		startNumSprite_->Draw2D();
 	}
-
-	currentObjective_->Draw2D();
-
-	// エフェクト
-	stars_->Draw();
 }
 
 void HUD::SetPauseDisplay(bool isOn) {
@@ -186,59 +190,65 @@ void HUD::UpdateScore(Course* course) {
 	int max = currentSection->GetMaxScore();
 	if (current < 0) return;
 
-	// 割合を求める
-	float rate = float(current) / float(clear);
-	rate = clamp(rate, 0.0f, 1.0f);
-	// 必要スコアに応じてスプライトのサイズ変更
-	float length = kBreakBarWidth * rate * (1.0f - bonusRate_);
-	currentBreakSprite_->SetSize({ length, currentBreakSprite_->GetSize().y });
-	currentBreakSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y });
-	breakBGSprite_->Update();
-	currentBreakSprite_->Update();
+	// 区間などの情報を描画するかどうか
+	canDrawScore_ = !currentSection->IsSubSection();
 
-	// 割合を求める
-	rate = 0;
-	if (currentSection->IsCleared()) {
-		rate = float(current - clear) / float(max);
+	if (canDrawScore_) {
+		// 割合を求める
+		float rate = float(current) / float(clear);
 		rate = clamp(rate, 0.0f, 1.0f);
-	}
-	// 最大スコアに応じてスプライトのサイズ変更
-	length = kBreakBarWidth * rate * bonusRate_;
-	bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
-	bonusBreakSprite_->SetPosition({ breakLTPos_.x + kBreakBarWidth * (1 - bonusRate_), breakLTPos_.y });
-	bonusBreakSprite_->Update();
+		// 必要スコアに応じてスプライトのサイズ変更
+		float length = kBreakBarWidth * rate * (1.0f - bonusRate_);
+		currentBreakSprite_->SetSize({ length, currentBreakSprite_->GetSize().y });
+		currentBreakSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y });
+		breakBGSprite_->Update();
+		currentBreakSprite_->Update();
 
-	// ノルマ達成/未達成
-	if (currentSection->IsCleared()) {
-		currentObjective_ = objective_[1].get();
-	} else {
-		currentObjective_ = objective_[0].get();
+		// 割合を求める
+		rate = 0;
+		if (currentSection->IsCleared()) {
+			rate = float(current - clear) / float(max);
+			rate = clamp(rate, 0.0f, 1.0f);
+		}
+		// 最大スコアに応じてスプライトのサイズ変更
+		length = kBreakBarWidth * rate * bonusRate_;
+		bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
+		bonusBreakSprite_->SetPosition({ breakLTPos_.x + kBreakBarWidth * (1 - bonusRate_), breakLTPos_.y });
+		bonusBreakSprite_->Update();
+
+		// ノルマ達成/未達成
+		if (currentSection->IsCleared()) {
+			currentObjective_ = objective_[1].get();
+		} else {
+			currentObjective_ = objective_[0].get();
+		}
 	}
 }
 
 void HUD::UpdateTimer(Course* course) {
 	Section* currentSection = course->GetCurrentSection();
-	int time = int(currentSection->GetTimer()->GetCurrent());
-	int min = time / 60;
-	int sec = time % 60;
+	if (!currentSection->IsSubSection()) {
+		int time = int(currentSection->GetTimer()->GetCurrent());
+		int min = time / 60;
+		int sec = time % 60;
 
-	int num[3] = { min, sec / 10, sec % 10 };
-	for (int i = 0; i < 3; ++i) {
-		if (num[i] == 0) {
-			num[i] = 9;
-		} else {
-			num[i]--;
+		int num[3] = { min, sec / 10, sec % 10 };
+		for (int i = 0; i < 3; ++i) {
+			if (num[i] == 0) {
+				num[i] = 9;
+			} else {
+				num[i]--;
+			}
+		}
+
+		currentTimeSprite_[0]->SetTextureLeftTop({ num[0] * kTimeNumSize.x, 0 });
+		currentTimeSprite_[1]->SetTextureLeftTop({ 10.0f * kTimeNumSize.x, 0 });
+		currentTimeSprite_[2]->SetTextureLeftTop({ num[1] * kTimeNumSize.x, 0 });
+		currentTimeSprite_[3]->SetTextureLeftTop({ num[2] * kTimeNumSize.x, 0 });
+		for (int i = 0; i < 4; ++i) {
+			currentTimeSprite_[i]->Update();
 		}
 	}
-
-   	currentTimeSprite_[0]->SetTextureLeftTop({num[0] * kTimeNumSize.x, 0});
-	currentTimeSprite_[1]->SetTextureLeftTop({10.0f * kTimeNumSize.x, 0});
-	currentTimeSprite_[2]->SetTextureLeftTop({num[1] * kTimeNumSize.x, 0});
-	currentTimeSprite_[3]->SetTextureLeftTop({num[2] * kTimeNumSize.x, 0});
-	for (int i = 0; i < 4; ++i) {
-		currentTimeSprite_[i]->Update();
-	}
-
 }
 
 void HUD::UpdateSection(Player* player, Course* course) {

@@ -37,6 +37,6 @@ private:
 	std::vector<Flash> flashes_;
 	static const int kMaxFlashCount = 100;
 	bool isFlashActive[kMaxFlashCount]{};
-	float kFlashLifetime = 2.0f;
+	float kFlashLifetime = 1.2f;
 };
 

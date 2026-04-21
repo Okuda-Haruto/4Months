@@ -67,6 +67,10 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	parts[1].textureIndex = TextureManager::GetInstance()->GetSrvIndex("BackGround");
 	parts[1].material->reflection = REFLECTION_None;
 	livingRoom_->SetParts(parts[1], 1);
+	bgm_ = make_unique<Audio>();
+	bgm_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	selectSE_ = make_unique<Audio>();
+	selectSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
 }
 
 void TitleScene::Finalize() {
@@ -84,10 +88,15 @@ void TitleScene::Update() {
 	}
 
 	if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
+		selectSE_->SoundPlayWave();
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+
+	if (!bgm_->IsSoundPlayingWave()) {
+		bgm_->SoundPlayWave();
+	}
 
 #ifdef USE_IMGUI
 	// リセット

@@ -15,13 +15,25 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	voxel_ = std::make_unique<Voxel>();
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
 
-	goalBarrier_ = std::make_unique<GoalBarrier>();
-	float courseBottom = -32 * float(voxel_->GetChunks().size()) * 3.0f + 16.0f * 3.0f;
-	goalBarrier_->Initialize(courseBottom, camera_->GetCamera());
-
 	// 区間の設定(上~下)
-	AddSection(0, 18, 54, 50000, 75000);
+	AddSection(0, 2, 54, 2000, 75000);
+	AddSection(4, 8, 54, 3000, 75000);
+	AddSection(10, 16, 54, 4000, 75000);
+	goalBarriers_.clear();
+	for (int i = 0; i < sections_.size(); ++i) {
+
+		float y = sections_[i]->GetEndPos().y;
+
+		std::unique_ptr<GoalBarrier> barrier = std::make_unique<GoalBarrier>();
+		barrier->Initialize(y, camera_->GetCamera());
+
+		goalBarriers_.push_back(std::move(barrier));
+	}
+
 	currentSection_ = sections_[0].get();
+
+	failSE_ = std::make_unique<Audio>();
+	failSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
 }
 
 void Course::Update(Human* player) {
@@ -34,25 +46,37 @@ void Course::Update(Human* player) {
 			currentSection_ = sections_[i].get();
 		}
 
-		// 失敗時
-		if ((!sections_[i]->IsCleared() &&
-			sections_[i]->IsOver(player->GetTransform().translate.y)) ||
-			sections_[i]->GetTimer()->GetCurrent() <= 0) {
+		if (!sections_[i]->IsSubSection()) {
+			// 失敗時
+			if ((!sections_[i]->IsCleared() &&
+				sections_[i]->IsOver(player->GetTransform().translate.y)) ||
+				sections_[i]->GetTimer()->GetCurrent() <= 0) {
 
-			//これ以上セクション移動がない場合エラーが出る
-			if (sections_.size() < i) {
-				if (sections_[i + 1]) {
-					// 次の地点に移動
-					player->ResetPos(sections_[i + 1]->GetStartPos());
+				if (!sectionsData_[i].isFailed) {
+					sectionsData_[i].isFailed = true;
+					failSE_->SoundPlayWave();
+				}
+
+				//これ以上セクション移動がない場合エラーが出る
+				if (sections_.size() < i) {
+					if (sections_[i + 1]) {
+						// 次の地点に移動
+						player->ResetPos(sections_[i + 1]->GetStartPos());
+					}
 				}
 			}
 		}
 	}
 
 	currentSection_->Update(player->GetTransform().translate.y);
+
 	// クリア条件
-	if (sections_.back()->IsCleared()){
-		goalBarrier_->Clear();
+	for (int i = 0; i < sections_.size(); ++i) {
+		if (sections_[i]->IsCleared()) {
+			if (i < goalBarriers_.size()) {
+				goalBarriers_[i]->Clear();
+			}
+		}
 	}
 
 	// コース終了
@@ -78,7 +102,9 @@ void Course::Update(Human* player) {
 
 	voxel_->Update();
 
-	goalBarrier_->Update(camera_);
+	for (auto& barrier : goalBarriers_) {
+		barrier->Update(camera_);
+	}
 }
 
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -90,7 +116,9 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->Draw();
 }
@@ -105,7 +133,9 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->Draw(drawRange);
 }
@@ -119,7 +149,9 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->DrawAll();
 }
@@ -133,13 +165,17 @@ void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 
 	voxel_->DrawUp();
 }
 
 void Course::DrawGoalBarrier() {
-	goalBarrier_->Draw();
+	for (auto& barrier : goalBarriers_) {
+		barrier->Draw();
+	}
 }
 
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP) {
@@ -169,5 +205,25 @@ void Course::SpawnBox() {
 void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore) {
 	std::unique_ptr<Section> newSection = std::make_unique<Section>();
 	newSection->Initialize(startChunkY, endChunkY, maxSeconds, clearScore, maxScore);
+
+	// 間が空いていればノルマなし区間を挿入
+	if (!sections_.empty()) {
+		float blockScale = 3.0f;
+		float chunkSize = blockScale * 2 * 16;
+		float endPos = sections_.back()->GetEndPos().y;
+		int prevEnd = int(endPos / chunkSize);
+		if (startChunkY > -prevEnd) {
+			AddSubSection(-prevEnd, startChunkY-1);
+		}
+	}
+
 	sections_.push_back(std::move(newSection));
+	sectionsData_.push_back(SectionData());
+}
+
+void Course::AddSubSection(int startChunkY, int endChunkY) {
+	std::unique_ptr<Section> newSection = std::make_unique<Section>();
+	newSection->Initialize(startChunkY, endChunkY);
+	sections_.push_back(std::move(newSection));
+	sectionsData_.push_back(SectionData());
 }

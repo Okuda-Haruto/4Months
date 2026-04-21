@@ -53,5 +53,8 @@ private:
 	
 	Vector3 basePos_ = { 0,200.0f, 5};
 	std::vector<Vector3> startPos_;
+
+	std::unique_ptr<Audio> countSE_ = nullptr;
+	std::unique_ptr<Audio> startSE_ = nullptr;
 };
 

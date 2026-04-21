@@ -25,6 +25,9 @@ void Wind::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 		spiralRotate_.push_back({});
 		spiralRotateSpeed_.push_back({});
 	}
+
+	startSE_ = make_unique<Audio>();
+	startSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
 }
 
 void Wind::Set(const Vector3& center, const float radius, const float animationTime) {
@@ -47,11 +50,15 @@ void Wind::Set(const Vector3& center, const float radius, const float animationT
 	for (int i = 0; i < activeSpiralCount_; ++i) {
 		Vector3 translate = { center.x,center.y + GameEngine::randomFloat(-radius, radius), center.z };
 		spiralRotate_[i] = GameEngine::randomFloat(0, float(std::numbers::pi) * 2.0f);
-		spiralRotateSpeed_[i] = GameEngine::randomFloat(0.15f, 0.3f);
+		spiralRotateSpeed_[i] = GameEngine::randomFloat(0.15f, 0.3f) * 60.0f;
 		Quaternion spiralRotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, spiralRotate_[i]);
 		spiralRadius_[i] = GameEngine::randomFloat(0, radius / 2);
 		spiral_[i]->SetTransform(SRT({ 0,0,0 }, spiralRotate, translate));
 		spiral_[i]->SetColor({ 0.8f,0.8f,0.8f,0.8f });
+	}
+
+	if (!startSE_->IsSoundPlayingWave()) {
+		startSE_->SoundPlayWave();
 	}
 }
 
@@ -69,11 +76,14 @@ void Wind::SetTitle(const Vector3& center, const float radius, const float anima
 	for (int i = 0; i < activeSpiralCount_; ++i) {
 		Vector3 translate = { center.x,center.y + GameEngine::randomFloat(-radius, radius), center.z };
 		spiralRotate_[i] = GameEngine::randomFloat(0, float(std::numbers::pi) * 2.0f);
-		spiralRotateSpeed_[i] = GameEngine::randomFloat(0.15f, 0.3f);
 		Quaternion spiralRotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, spiralRotate_[i]);
 		spiralRadius_[i] = GameEngine::randomFloat(0, radius / 2);
 		spiral_[i]->SetTransform(SRT({ 0,0,0 }, spiralRotate, translate));
 		spiral_[i]->SetColor({ 0.8f,0.8f,0.8f,0.8f });
+	}
+
+	if (!startSE_->IsSoundPlayingWave()) {
+		startSE_->SoundPlayWave();
 	}
 }
 
@@ -111,14 +121,15 @@ void Wind::Update() {
 		// 旋風
 		for (int i = 0; i < activeSpiralCount_; ++i) {
 			SRT transform = spiral_[i]->GetTransform();
-			spiralRotate_[i] -= spiralRotateSpeed_[i];
+			spiralRotateSpeed_[i] = GameEngine::randomFloat(0.1f, 0.2f) * 60.0f;
+			spiralRotate_[i] -= spiralRotateSpeed_[i] * GameEngine::GetDeltaTime();
 			Quaternion rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, spiralRotate_[i]);
 			transform.rotate = rotate;
 			spiral_[i]->SetTransform(transform);
 		}
 
-		float time = 0.1f * GameEngine::GetDeltaTimeRate();
-		float perFrame = 60.0f * time;
+		float time = 0.1f;
+		float perFrame = time / GameEngine::GetDeltaTime();
 		if (animationTime_ < time) {
 			// 開始時
 			for (int i = 0; i < activeSpiralCount_; ++i) {
