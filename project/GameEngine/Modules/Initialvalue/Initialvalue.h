@@ -15,6 +15,12 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> TrianglePipelineStateInitialvalue(I
 	IDxcBlob* pixelShaderBlob);
 
 //PSOを生成する
+Microsoft::WRL::ComPtr <ID3D12PipelineState> TriangleRenderPipelineStateInitialvalue(ID3D12Device* device,
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
+	IDxcBlob* vertexShaderBlob,
+	IDxcBlob* pixelShaderBlob);
+
+//PSOを生成する
 Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthTrianglePipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,

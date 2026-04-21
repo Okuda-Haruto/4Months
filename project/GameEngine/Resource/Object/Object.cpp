@@ -73,6 +73,14 @@ void Object::Draw3DNoFog() {
 	GameEngine::DrawNoFogObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(), 0, animationTime_);
 }
 
+void Object::Draw3DNoFog(uint32_t index) {
+	GameEngine::DrawNoFogParts_3D(this, index, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock());
+}
+
+void Object::Draw3DNoFogRender(uint32_t index) {
+	GameEngine::DrawRenderNoFogParts_3D(this, index, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock());
+}
+
 void Object::DrawAdd3D() {
 	GameEngine::DrawAddBlendObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(), 0, animationTime_);
 }

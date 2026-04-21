@@ -81,6 +81,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2DPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noFogObject3DPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> noFogObject3DRenderPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> addBlendNoFogObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingVoxelPipelineState_ = nullptr;
@@ -214,6 +215,8 @@ private:
 	void DrawNoFogObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
 	void DrawAddBlendObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
 	void DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
+	void DrawNoFogParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
+	void DrawRenderNoFogParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
@@ -309,6 +312,8 @@ public:
 	static void DrawNoFogObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawNoFogObject_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
 	static void DrawAddBlendObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawAddBlendObject_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
 	static void DrawParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
+	static void DrawNoFogParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawNoFogParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
+	static void DrawRenderNoFogParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawRenderNoFogParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
 	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }

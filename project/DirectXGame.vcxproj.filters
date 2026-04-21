@@ -213,6 +213,7 @@
       <Filter>Application\Scene\BaseScene\GameScene\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="Application\Course\GoalBarrier\GoalBarrier.cpp" />
+    <ClCompile Include="Application\TitleMoji\TitleScreen\TitleScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -530,6 +531,7 @@
       <Filter>Application\Scene\BaseScene\GameScene\Mix</Filter>
     </ClInclude>
     <ClInclude Include="Application\Course\GoalBarrier\GoalBarrier.h" />
+    <ClInclude Include="Application\TitleMoji\TitleScreen\TitleScreen.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
