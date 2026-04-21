@@ -142,6 +142,34 @@ void ResultCamera::Update() {
 }
 #pragma endregion
 
+#pragma region リビング全体を移すカメラ
+
+void LivingCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+	transform_.scale = { 1,1,1 };
+	transform_.translate = kCameraPos;
+	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
+}
+
+void LivingCamera::Update() {
+
+}
+
+#pragma endregion
+
+#pragma region TVのみを写すカメラ
+
+void TVCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+	transform_.scale = { 1,1,1 };
+	transform_.translate = kCameraPos;
+	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
+}
+
+void TVCamera::Update() {
+
+}
+
+#pragma endregion
+
 #pragma region エディターカメラ
 
 #ifdef USE_IMGUI
@@ -192,13 +220,13 @@ void EditorCamera::Update() {
 
 #pragma endregion
 
-void GameCamera::Initialize(std::shared_ptr<Camera> camera, const std::unique_ptr<BaseCamera>& nowCameraMode, std::shared_ptr<Input> input, Player* player) {
+void GameCamera::Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player) {
 	camera_ = camera;
 	input_ = input;
 	player_ = player;
 
 	// 初期値
-	nowCamera_ = std::make_unique<StartCamera>();
+	nowCamera_ = move(nowCameraMode);
 	nowCamera_->Initialize(this, input_, player);
 }
 

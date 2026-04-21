@@ -37,7 +37,7 @@ private:
 public:
 	Camera();
 
-	void Initialize(DirectXCommon* dxCommon);
+	void Initialize(DirectXCommon* dxCommon, float nearDist = 10, float nearTransparentDist = 10, float farDist = 330, float farTransparentDist = 70);
 	
 	void Update(SRT transform);
 	void Update();

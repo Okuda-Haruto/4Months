@@ -43,7 +43,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//カメラ
 	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_, std::make_unique<DownCamera>(), input_, player_.get());
+	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get());
 
 	// コース
 	course_ = std::make_unique<Course>();

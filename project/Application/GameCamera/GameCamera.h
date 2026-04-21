@@ -70,6 +70,30 @@ public:
 	void Update() override;
 };
 
+//リビング全体を写すカメラ
+class LivingCamera : public BaseCamera {
+private:
+	//カメラ座標
+	const Vector3 kCameraPos = { 0, 0, 80 };
+public:
+	//初期化
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) override;
+	//更新処理
+	void Update() override;
+};
+
+//TVのみを写すカメラ
+class TVCamera : public BaseCamera {
+private:
+	//カメラ座標
+	const Vector3 kCameraPos = { 6.5f, 3.5f, 25.0f };
+public:
+	//初期化
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) override;
+	//更新処理
+	void Update() override;
+};
+
 #ifdef USE_IMGUI
 //エディターカメラ
 class EditorCamera : public BaseCamera {
@@ -127,7 +151,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Camera> camera, const std::unique_ptr<BaseCamera>& nowCameraMode, std::shared_ptr<Input> input, Player* player);
+	void Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player);
 	//更新処理
 	void Update();
 

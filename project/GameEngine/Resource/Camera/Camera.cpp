@@ -8,7 +8,7 @@ Camera::Camera() {
 	kWindowHeight_ = GameEngine::GetWindowHeight();
 }
 
-void Camera::Initialize(DirectXCommon* dxCommon) {
+void Camera::Initialize(DirectXCommon* dxCommon, float nearDist, float nearTransparentDist, float farDist, float farTransparentDist) {
 	Matrix4x4 worldMatrix = MakeQuaternionMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f });
 	viewMatrix_ = Inverse(worldMatrix);
 	projectionMatrix_ = MakePerspectiveFovMatrix(0.6f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 1000.0f);
@@ -19,10 +19,14 @@ void Camera::Initialize(DirectXCommon* dxCommon) {
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
 
 	cameraData_->worldPosition = Vector3{ 0.0f,0.0f,0.0f };
-	cameraData_->nearDist = 10.0f;
-	cameraData_->nearTransparentDist = 10.0f;
-	cameraData_->farDist = 330.0f;
-	cameraData_->farTransparentDist = 70.0f;
+	cameraData_->nearDist = nearDist;
+	cameraData_->nearTransparentDist = nearTransparentDist;
+	cameraData_->farDist = farDist;
+	cameraData_->farTransparentDist = farTransparentDist;
+	//cameraData_->nearDist = 10.0f;
+	//cameraData_->nearTransparentDist = 10.0f;
+	//cameraData_->farDist = 330.0f;
+	//cameraData_->farTransparentDist = 70.0f;
 
 	cameraResource_->Unmap(0, nullptr);
 }

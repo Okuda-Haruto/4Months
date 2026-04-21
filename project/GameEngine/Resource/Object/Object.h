@@ -61,6 +61,8 @@ public:
 	void Draw3D();
 	void Draw3D(uint32_t index);
 	void Draw3DNoFog();
+	void Draw3DNoFog(uint32_t index);
+	void Draw3DNoFogRender(uint32_t index);
 	void DrawAdd3D();
 	void Draw2D();
 	void Draw2D(uint32_t index);

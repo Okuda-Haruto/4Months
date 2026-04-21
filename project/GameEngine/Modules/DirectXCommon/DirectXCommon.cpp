@@ -161,7 +161,7 @@ void DirectXCommon::RenderPreDraw(std::string textureName, UINT rtvIndex) {
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetCPUDescriptorHandle(dsvDescriptorheap_, descriptorSizeDSV_, 0);
 	commandList_->OMSetRenderTargets(1, &rtvHandles_[rtvIndex + kSwapChainDescriptorSize_], false, &dsvHandle);
 	//指定した色で画面全体をクリアする
-	float crearColor[] = { 1.0f,0.0f,0.0f,1.0f };//青っぽい色。RGBAの順
+	float crearColor[] = { 1.0f,0.0f,0.0f,1.0f };
 	commandList_->ClearRenderTargetView(rtvHandles_[rtvIndex + kSwapChainDescriptorSize_], crearColor, 0, nullptr);
 	//指定した深度で画面全体をクリアする
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
