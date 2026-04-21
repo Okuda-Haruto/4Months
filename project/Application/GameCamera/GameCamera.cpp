@@ -192,6 +192,7 @@ void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inp
 
 void EditorCamera::Update() {
 	Mouse mouse = input_->GetMouse();
+	Keyboard key = input_->GetKeyBoard();
 
 	//ホイールクリックで移動
 	if (mouse.click[MOUSE_BOTTON_WHEEL].hold) {
@@ -210,7 +211,12 @@ void EditorCamera::Update() {
 		cameraPos_.z += mouse.Movement.z / 120 * GameEngine::GetDeltaTimeRate();
 	} else {
 		//ホイールy軸移動
-		centerPoint_.y += mouse.Movement.z / 120 * GameEngine::GetDeltaTimeRate();
+		if (key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) {
+			centerPoint_.y += mouse.Movement.z / 40 * GameEngine::GetDeltaTimeRate();
+		}
+		else {
+			centerPoint_.y += mouse.Movement.z / 120 * GameEngine::GetDeltaTimeRate();
+		}
 	}
 	transform_.rotate = pitch_ * yaw_;
 	transform_.translate = cameraPos_ * MakeRotateMatrix(transform_.rotate) + centerPoint_;

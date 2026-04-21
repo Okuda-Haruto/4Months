@@ -30,6 +30,8 @@ private:
 	UINT reflection = REFLECTION_HalfLambert;
 	float shininess_ = 40.0f;
 
+	std::unique_ptr<Object> skydome_;
+
 	// プレイヤー
 	std::unique_ptr<Player> player_ = nullptr;
 

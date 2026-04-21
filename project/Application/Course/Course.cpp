@@ -51,6 +51,7 @@ void Course::Update(Human* player) {
 			if ((!sections_[i]->IsCleared() &&
 				sections_[i]->IsOver(player->GetTransform().translate.y)) ||
 				sections_[i]->GetTimer()->GetCurrent() <= 0) {
+				isEnd_ = true;
 
 				if (!sectionsData_[i].isFailed) {
 					sectionsData_[i].isFailed = true;
@@ -116,11 +117,11 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
 	}
 
+	voxel_->Draw();
+
 	for (auto& barrier : goalBarriers_) {
 		barrier->Draw();
 	}
-
-	voxel_->Draw();
 }
 
 // 描画

@@ -51,6 +51,9 @@ void CourseEditor::Initialize(std::shared_ptr<Input> input) {
 	barrier_ = std::make_unique<GoalBarrier>();
 	barrier_->Initialize(-60, defaultCamera_);
 
+	player_ = std::make_unique<Player>();
+	player_->Initialize(Vector3{ 0,100,0 }, nullptr, nullptr);
+
 	selectChunk_ = {};
 	selectedTile_ = TILE_None;
 
@@ -153,7 +156,7 @@ void CourseEditor::Update() {
 	//コースエディター部分
 	} else {
 		
-		course_->Update(0);
+		course_->Update(player_.get());
 
 		gameCamera_->Update();
 
