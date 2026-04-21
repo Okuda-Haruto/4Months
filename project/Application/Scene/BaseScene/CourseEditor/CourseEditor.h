@@ -4,6 +4,7 @@
 #include "../BaseScene.h"
 #include "GameEngine.h"
 #include "Course/Course.h"
+#include <Human/Player/Player.h>
 
 class CourseEditor : public BaseScene {
 private:
@@ -16,6 +17,8 @@ private:
 	//光源
 	DirectionalLightElement directionalLightElement_{};
 	std::shared_ptr<DirectionalLight> directionalLight_ = nullptr;
+
+	std::unique_ptr<Player> player_;
 
 	//選択エリア
 	std::unique_ptr<Object> mapchipAreaObject_;

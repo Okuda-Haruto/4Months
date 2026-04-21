@@ -33,6 +33,11 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
+	skydome_ = std::make_unique<Object>();
+	skydome_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/GoalBarrier", "Skydome.obj"));
+	skydome_->SetReflection(REFLECTION_None);
+	skydome_->SetCamera(defaultCamera_);
+
 	//プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_,defaultCamera_);
@@ -203,6 +208,8 @@ void GameScene::Draw() {
 
 	//背景描画
 	//GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
+	
+	skydome_->Draw3DNoFog();
 
 	// コース
 	if (isClear_) {
