@@ -72,6 +72,9 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	isUseDebugCamera_ = false;
 #endif
 
+	// bgm
+	bgm_ = make_unique<Audio>();
+	bgm_->Initialize("resources/DebugResources/fanfare.wav", 0.1f);
 }
 
 void GameScene::Finalize() {
@@ -154,6 +157,10 @@ void GameScene::Update() {
 
 	// HUD
 	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
+
+	if (!bgm_->IsSoundPlayingWave()) {
+		bgm_->SoundPlayWave();
+	}
 
 #ifdef USE_IMGUI
 	int section = course_->GetCurrentSectionNumber();

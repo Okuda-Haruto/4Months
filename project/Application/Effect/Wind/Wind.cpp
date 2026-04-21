@@ -25,6 +25,9 @@ void Wind::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 		spiralRotate_.push_back({});
 		spiralRotateSpeed_.push_back({});
 	}
+
+	startSE_ = make_unique<Audio>();
+	startSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
 }
 
 void Wind::Set(const Vector3& center, const float radius, const float animationTime) {
@@ -53,6 +56,10 @@ void Wind::Set(const Vector3& center, const float radius, const float animationT
 		spiral_[i]->SetTransform(SRT({ 0,0,0 }, spiralRotate, translate));
 		spiral_[i]->SetColor({ 0.8f,0.8f,0.8f,0.8f });
 	}
+
+	if (!startSE_->IsSoundPlayingWave()) {
+		startSE_->SoundPlayWave();
+	}
 }
 
 void Wind::SetTitle(const Vector3& center, const float radius, const float animationTime) {
@@ -73,6 +80,10 @@ void Wind::SetTitle(const Vector3& center, const float radius, const float anima
 		spiralRadius_[i] = GameEngine::randomFloat(0, radius / 2);
 		spiral_[i]->SetTransform(SRT({ 0,0,0 }, spiralRotate, translate));
 		spiral_[i]->SetColor({ 0.8f,0.8f,0.8f,0.8f });
+	}
+
+	if (!startSE_->IsSoundPlayingWave()) {
+		startSE_->SoundPlayWave();
 	}
 }
 

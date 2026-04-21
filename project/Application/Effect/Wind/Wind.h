@@ -27,5 +27,7 @@ private:
 	float maxAnimationTime_ = 1.0f;
 	float animationTime_ = 1.0f;
 	bool isDead_ = false;
+
+	std::unique_ptr<Audio> startSE_ = nullptr;
 };
 

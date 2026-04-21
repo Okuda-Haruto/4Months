@@ -32,6 +32,10 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	defaultCamera_->SetDebugCamera(debugCamera_);
 	defaultCamera_->Update(SRT{ {1,1,1}, {}, {0,0, -50 } });
 
+	bgm_ = make_unique<Audio>();
+	bgm_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	selectSE_ = make_unique<Audio>();
+	selectSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
 }
 
 void TitleScene::Finalize() {
@@ -46,6 +50,7 @@ void TitleScene::Update() {
 	logo_->Update();
 
 	if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
+		selectSE_->SoundPlayWave();
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
@@ -57,6 +62,10 @@ void TitleScene::Update() {
 	}
 
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+
+	if (!bgm_->IsSoundPlayingWave()) {
+		bgm_->SoundPlayWave();
+	}
 
 #ifdef USE_IMGUI
 	if (ImGui::Button("デバッグカメラ")) {

@@ -12,6 +12,7 @@ private:
 	std::unique_ptr<Object> smokeObjectScale_;
 
 	std::shared_ptr<Camera> camera_;
+	std::unique_ptr<Audio> clearSE_;
 
 	SRT transform_;
 
@@ -29,5 +30,5 @@ public:
 
 	void Draw();
 
-	void Clear() { isClear_ = true; }
+	void Clear();
 };
