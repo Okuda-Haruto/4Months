@@ -46,7 +46,7 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	livingRoomCamera_ = std::make_shared<Camera>();
 	livingRoomCamera_->Initialize(GameEngine::GetDirectXCommon(),500,0,2000,2000);
 	gameCamera_ = std::make_shared<GameCamera>();
-	gameCamera_->Initialize(livingRoomCamera_, std::make_unique<LivingCamera>(), input, nullptr);
+	gameCamera_->Initialize(livingRoomCamera_, std::make_unique<LivingCamera>(), input, nullptr, nullptr);
 
 	studio_ = std::make_unique<Object>();
 	studio_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title", "Stadio.obj"));

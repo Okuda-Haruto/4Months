@@ -6,20 +6,22 @@
 
 void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.obj"));
 	model_->SetShininess(30.0f);
 	bulletModel_ = make_unique<Object>();
 	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
 	bulletModel_->SetShininess(30.0f);
 	//カメラで使う
 	transform_ = {};
-	transform_.scale = { 1.0f,1.0f,1.0f };
-	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	transform_.scale = { 2.5f,2.5f,2.5f };
 	transform_.translate = position;
 	model_->SetTransform(transform_);
+	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
+
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
 	headTransform_.translate = position;
+
 	bulletModel_->SetTransform(headTransform_);
 	bulletModel_->SetDirectionalLight(directionalLight);
 
@@ -124,7 +126,13 @@ void Human::Update() {
 	} else {
 		headRotate_ += 0.05f * GameEngine::GetDeltaTimeRate();
 	}
-	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
+
+	Vector3 forward = { 0,0,1 }; // or {0,0,-1}
+	forward = TransformNormal(forward, MakeRotateMatrix(transform_.rotate));
+
+	SRT modelTransform = transform_;
+	modelTransform.rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, std::numbers::pi_v<float> / 2)* transform_.rotate;
+	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_) * modelTransform.rotate;
 	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
 	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
@@ -142,7 +150,7 @@ void Human::Update() {
 
 #endif
 
-	model_->SetTransform(transform_);
+	model_->SetTransform(modelTransform);
 	bulletModel_->SetTransform(headTransform_);
 
 	wind_->Update();
@@ -182,6 +190,16 @@ void Human::OnHitVoxel(AABB aabb) {
 		charge_ = max(kMaxCharge_ * 0.1f, charge_ * 0.5f);
 		Throw();
 		headRotateEffect_->Shoot();
+	}
+}
+
+void Human::ApproachCenter(const Vector2& center) {
+	Vector3 target = { center.x,transform_.translate.y, center.y };
+	if (Length(transform_.translate - target) < 0.5f) {
+		transform_.translate = target;
+	} else {
+		Vector3 dir = Normalize(target - transform_.translate);
+		transform_.translate += (speed_ * 0.5f) * dir;
 	}
 }
 

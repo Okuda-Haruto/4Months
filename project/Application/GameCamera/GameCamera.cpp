@@ -1,14 +1,16 @@
 #include "GameCamera.h"
 #include "Operation/Operation.h"
 #include "Lerp.h"
+#include "Course/Course.h"
 #include <numbers>
 
 #pragma region 落下カメラ
 
-void DownCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+void DownCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
+	course_ = course;
 
 	//初期値として現在の向きを入れる
 	transform_.scale = { 1,1,1 };
@@ -21,40 +23,66 @@ void DownCamera::Update() {
 
 	// 折り返し基礎回転
 	Quaternion nextRotate;
-	nextRotate = MakeRotateAxisAngleQuaternion(
-		Vector3{ 1,0,0 },
-		-std::numbers::pi_v<float> / 2
-	);
+	if (course_->InSubSection()) {
+		nextRotate = MakeRotateAxisAngleQuaternion(
+			Vector3{ 0,1,0 },
+			std::numbers::pi_v<float>
+		);
 
-	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
+		float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
 
-	float rate = 1.0f - powf(0.5f, dt * 16.0f); // ← 減衰速度
+		float rate = 1.0f - powf(0.5f, dt * 16.0f); // ← 減衰速度
 
-	transform_.rotate = Slerp(
-		transform_.rotate,
-		nextRotate,
-		rate
-	);
+		transform_.rotate = Slerp(
+			transform_.rotate,
+			nextRotate,
+			rate
+		);
 
-	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
-	transform_.translate.y += player_->GetFallingSpeed() * 0.75f;
+		nextTranslate += (kCameraPos + Vector3{7.5f,0,0})* MakeRotateMatrix(transform_.rotate);
+		transform_.translate.y = player_->GetTransform().translate.y + 3.0f;
 
-	transform_.translate = Lerp(
-		transform_.translate,
-		nextTranslate,
-		rate
-	);
+		transform_.translate = Lerp(
+			transform_.translate,
+			nextTranslate,
+			rate
+		);
+	} else {
+		nextRotate = MakeRotateAxisAngleQuaternion(
+			Vector3{ 1,0,0 },
+			-std::numbers::pi_v<float> / 2
+		);
 
+		float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
+
+		float rate = 1.0f - powf(0.5f, dt * 16.0f); // ← 減衰速度
+
+		transform_.rotate = Slerp(
+			transform_.rotate,
+			nextRotate,
+			rate
+		);
+
+		nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
+		transform_.translate.y += player_->GetFallingSpeed() * 0.75f;
+
+		transform_.translate = Lerp(
+			transform_.translate,
+			nextTranslate,
+			rate
+		);
+	}
 }
 #pragma endregion
 
 
 #pragma region リザルトカメラ
 
-void ResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+void ResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
+	course_ = course;
 
 	//初期値として現在の向きを入れる
 	transform_.scale = { 1,1,1 };
@@ -144,7 +172,7 @@ void ResultCamera::Update() {
 
 #pragma region リビング全体を移すカメラ
 
-void LivingCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+void LivingCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
 	transform_.scale = { 1,1,1 };
 	transform_.translate = kCameraPos;
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
@@ -158,7 +186,7 @@ void LivingCamera::Update() {
 
 #pragma region TVのみを写すカメラ
 
-void TVCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+void TVCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
 	transform_.scale = { 1,1,1 };
 	transform_.translate = kCameraPos;
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
@@ -174,10 +202,11 @@ void TVCamera::Update() {
 
 #ifdef USE_IMGUI
 
-void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player,Course* course) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
+	course_ = course;
 
 	//初期値として現在の向きを入れる
 	transform_.scale = { 1,1,1 };
@@ -226,14 +255,15 @@ void EditorCamera::Update() {
 
 #pragma endregion
 
-void GameCamera::Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player) {
+void GameCamera::Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player, Course* course) {
 	camera_ = camera;
 	input_ = input;
 	player_ = player;
+	course_ = course;
 
 	// 初期値
 	nowCamera_ = move(nowCameraMode);
-	nowCamera_->Initialize(this, input_, player);
+	nowCamera_->Initialize(this, input_, player, course);
 }
 
 void GameCamera::Update() {
@@ -349,7 +379,7 @@ void GameCamera::Update() {
 
 void GameCamera::ChangeCamera(const std::unique_ptr<BaseCamera>& nextCamera, float changeCameraTime) {
 	nextCamera_ = std::move(const_cast<std::unique_ptr<BaseCamera>&>(nextCamera));
-	nextCamera_->Initialize(this, input_, player_);
+	nextCamera_->Initialize(this, input_, player_, course_);
 
 	//カメラ遷移時間
 	maxChangeCameraTime_ = changeCameraTime;
@@ -364,10 +394,11 @@ void GameCamera::StartShake(float amplitude, float time) {
 
 #pragma region ゲーム開始前カメラ
 
-void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player) {
+void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player,Course* course) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
+	course_ = course;
 
 	transform_.scale = { 1,1,1 };
 }

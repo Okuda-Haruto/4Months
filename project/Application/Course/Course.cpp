@@ -228,3 +228,10 @@ void Course::AddSubSection(int startChunkY, int endChunkY) {
 	sections_.push_back(std::move(newSection));
 	sectionsData_.push_back(SectionData());
 }
+
+bool Course::InSubSection() {
+	if (currentSection_) {
+		return currentSection_->IsSubSection();
+	}
+	return false;
+}

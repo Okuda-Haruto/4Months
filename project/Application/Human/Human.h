@@ -40,6 +40,7 @@ public:
 	//setter
 	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
 	void ResetPos(const Vector3& pos) { transform_.translate = pos; vacuumState_ = None; }
+	void ApproachCenter(const Vector2& center);
 
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }

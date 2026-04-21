@@ -67,6 +67,7 @@ public:
 	int GetCurrentSectionNumber() { return currentSectionNum_; }
 	bool isEnd() { return isEnd_; }
 	bool isAllCleared() { return isAllCleared_; }
+	bool InSubSection();
 
 	std::vector<Vector3> GetBreakPos() { return breakPos_; }
 private:

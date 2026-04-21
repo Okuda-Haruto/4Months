@@ -46,12 +46,13 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	courseData.size = { 2,18,2 };
 	courseData.directoryPath = "resources/CSV";
 
-	//カメラ
+	course_ = std::make_unique<Course>();
+
+	// カメラ
 	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get());
+	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get(), course_.get());
 
 	// コース
-	course_ = std::make_unique<Course>();
 	course_->Initialize(courseData, gameCamera_.get(), directionalLight_);
 	chunkHeight_ = int(course_->GetChunkData().size.y);
 	float cameraPosBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
@@ -218,14 +219,19 @@ void GameScene::Draw() {
 		course_->DrawUp(directionalLight_);
 	} else {
 
-		course_->Draw(directionalLight_);
+		if (course_->InSubSection()) {
+			// 区間記録表示中
+			course_->DrawAll(directionalLight_);
+			player_->Draw();
+		} else {
+			course_->Draw(directionalLight_);
+			player_->Draw();
+
+			// HUD
+			hud_->Draw();
+		}
 
 		hitPreview_->Draw();
-
-		player_->Draw();
-
-		// HUD
-		hud_->Draw();
 
 		// 開始カウントダウン
 		startCountdown_->Draw();
