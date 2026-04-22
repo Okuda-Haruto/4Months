@@ -170,9 +170,9 @@ void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 }
 
 void Course::DrawGoalBarrier() {
-	for (auto& barrier : goalBarriers_) {
-		barrier->Draw();
-	}
+	//for (auto& barrier : goalBarriers_) {
+	//	barrier->Draw();
+	//}
 }
 
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP) {
