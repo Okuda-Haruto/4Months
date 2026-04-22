@@ -144,7 +144,7 @@ void ResultCamera::Update() {
 	}
 
 	velocity_ = Lerp(velocity_, nextVelocity, 0.1f);
-	posY_ += velocity_.y;
+	posY_ += velocity_.y * GameEngine::GetDeltaTimeRate();
 
 	//位置を戻す
 	if (posY_ > 0.0f) {
@@ -153,8 +153,8 @@ void ResultCamera::Update() {
 			mode_ = CameraMode::Automatic_Down;
 		}
 	}
-	if (posY_ < gameCamera_->GetCameraPosBottom() - 1) {
-		posY_ = gameCamera_->GetCameraPosBottom() - 1;
+	if (posY_ < gameCamera_->GetCameraPosBottom() + 1 * 16 * 3) {
+		posY_ = gameCamera_->GetCameraPosBottom() + 1 * 16 * 3;
 		if (mode_ == CameraMode::Automatic_Down) {
 			mode_ = CameraMode::Automatic_Up;
 		}
@@ -166,7 +166,7 @@ void ResultCamera::Update() {
 	//回転したxz平面のカメラ座標にYを加える
 	transform_.translate.y = posY_;
 	//ずらして見せる
-	transform_.translate += velocity_ * MakeRotateMatrix(transform_.rotate) * 10 * GameEngine::GetDeltaTimeRate();
+	transform_.translate += velocity_ * MakeRotateMatrix(transform_.rotate) * 10;
 }
 #pragma endregion
 
