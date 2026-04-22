@@ -13,9 +13,7 @@ void StartCountdown::Initialize(std::shared_ptr<DirectionalLight> directionalLig
 	LoadCSV("resources/Countdown/3.csv", directionalLight, 3);
 
 	countSE_ = std::make_unique<Audio>();
-	countSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.8f);
-	startSE_ = std::make_unique<Audio>();
-	startSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	countSE_->Initialize("resources/SE・BGM/Game/countdown.mp3", 0.8f);
 }
 
 void StartCountdown::Update() {
@@ -99,10 +97,8 @@ void StartCountdown::Update() {
 			// 次のカウントに移動or終了
 			if (count_ > 0) {
 				count_--;
-				countSE_->SoundPlayWave();
 				state_ = State::Wait;
 			} else {
-				startSE_->SoundPlayWave();
 				state_ = State::Spread;
 			}
 		}

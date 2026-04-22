@@ -8,12 +8,15 @@ public:
 	void Initialize(std::shared_ptr<DirectionalLight> directionalLight);
 	void Update();
 	void Draw();
+
+	bool IsEnd() { return state_ == State::End; }
 private:
 	void LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> directionalLight);
 
 	std::vector<std::unique_ptr<Object>> blocks_;
 	std::vector<Vector3> positions_;
 	std::vector<float> timers_;
+	std::vector<Vector3> spreadVel_;
 	float blockSize_ = 1.0f;
 	float scale_ = 0.5f;
 
@@ -21,15 +24,21 @@ private:
 	const float waitTime_ = 0.5f;
 	const float vacuumTime_ = 2.0f;
 	const float vacuumEndTime_ = 3.0f;
+	const float stopTime_ = 0.3f;
+	const float spreadTime_ = 0.5f;
 
 	enum class State {
 		Wait,
 		Vacuum,
-		Stop
+		Stop,
+		Spread,
+		End
 	};
 	State state_ = State::Wait;
 
 	std::unique_ptr<Wind> wind_ = nullptr;
 	float radius_ = 300;
+
+	std::unique_ptr<Audio> explosionSE_ = nullptr;
 };
 

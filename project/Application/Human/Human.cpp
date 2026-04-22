@@ -6,20 +6,25 @@
 
 void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "Head.obj"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.gltf"));
 	model_->SetShininess(30.0f);
 	bulletModel_ = make_unique<Object>();
 	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
 	bulletModel_->SetShininess(30.0f);
 	//カメラで使う
 	transform_ = {};
-	transform_.scale = { 1.0f,1.0f,1.0f };
-	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	transform_.scale = { 2.5f,2.5f,2.5f };
 	transform_.translate = position;
 	model_->SetTransform(transform_);
+	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
+	model_->SetIsUseAnimation(true);
+	model_->SetAnimationIndex(9);
+	model_->Update();
+	
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
 	headTransform_.translate = position;
+
 	bulletModel_->SetTransform(headTransform_);
 	bulletModel_->SetDirectionalLight(directionalLight);
 
@@ -33,14 +38,13 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	speed_ = 0.3f;
 	knockBackAcceleration_ = {};
 	knockBackVelocity_ = {};
-
 	
 	shootSE_ = make_unique<Audio>();
-	shootSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	shootSE_->Initialize("resources/SE・BGM/Game/shot.mp3", 0.5f);
 	catchSE_ = make_unique<Audio>();
-	catchSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	catchSE_->Initialize("resources/SE・BGM/Game/reload.mp3", 0.5f);
 	chargeSE_ = make_unique<Audio>();
-	chargeSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	chargeSE_->Initialize("resources/SE・BGM/Game/charge.mp3", 0.5f);
 }
 
 void Human::Update() {
@@ -113,6 +117,8 @@ void Human::Update() {
 			vacuumState_ = None;
 			headRotateEffect_->Catch();
 			catchSE_->SoundPlayWave();
+
+			model_->SetAnimationIndex(6);
 		}
 	}
 
@@ -124,7 +130,13 @@ void Human::Update() {
 	} else {
 		headRotate_ += 0.05f * GameEngine::GetDeltaTimeRate();
 	}
-	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_);
+
+	Vector3 forward = { 0,0,1 }; // or {0,0,-1}
+	forward = TransformNormal(forward, MakeRotateMatrix(transform_.rotate));
+
+	SRT modelTransform = transform_;
+	modelTransform.rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, std::numbers::pi_v<float> / 2)* transform_.rotate;
+	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_) * modelTransform.rotate;
 	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
 	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
@@ -142,9 +154,10 @@ void Human::Update() {
 
 #endif
 
-	model_->SetTransform(transform_);
+	model_->SetTransform(modelTransform);
 	bulletModel_->SetTransform(headTransform_);
 
+	model_->Update();
 	wind_->Update();
 }
 
@@ -185,6 +198,16 @@ void Human::OnHitVoxel(AABB aabb) {
 	}
 }
 
+void Human::ApproachCenter(const Vector2& center) {
+	Vector3 target = { center.x,transform_.translate.y, center.y };
+	if (Length(transform_.translate - target) < 0.5f) {
+		transform_.translate = target;
+	} else {
+		Vector3 dir = Normalize(target - transform_.translate);
+		transform_.translate += (speed_ * 0.5f) * dir;
+	}
+}
+
 void Human::Throw() {
 	headTransform_ = { headTransform_.scale,transform_.rotate, transform_.translate };
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
@@ -201,10 +224,22 @@ void Human::Throw() {
 	if (!shootSE_->IsSoundPlayingWave()) {
 		shootSE_->SoundPlayWave();
 	}
+	if (chargeSE_->IsSoundPlayingWave()) {
+		chargeSE_->SoundEndWave();
+	}
 
+	model_->ResetAnimationTime();
+	model_->SetAnimationIndex(8);
 }
 
 void Human::Charge() {
+	if (charge_ == 0) {
+		model_->ResetAnimationTime();
+		model_->SetAnimationIndex(9);
+
+		chargeSE_->SoundPlayWave(); 
+	}
+
 	charge_ += kChargeSpeed_ * GameEngine::GetDeltaTimeRate();
 	charge_ = min(charge_, kMaxCharge_);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
@@ -212,10 +247,6 @@ void Human::Charge() {
 
 	vacuumStartPos_ = CalcVacuumPosition();
 	isCharging_ = true;
-
-	if (!chargeSE_->IsSoundPlayingWave()) {
-		chargeSE_->SoundPlayWave();
-	}
 }
 
 void Human::Slowdown() {

@@ -21,7 +21,6 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	AddSection(10, 16, 54, 4000, 75000);
 	goalBarriers_.clear();
 	for (int i = 0; i < sections_.size(); ++i) {
-
 		float y = sections_[i]->GetEndPos().y;
 
 		std::unique_ptr<GoalBarrier> barrier = std::make_unique<GoalBarrier>();
@@ -33,7 +32,7 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	currentSection_ = sections_[0].get();
 
 	failSE_ = std::make_unique<Audio>();
-	failSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	failSE_->Initialize("resources/SE・BGM/Game/failure.mp3", 0.5f);
 }
 
 void Course::Update(Human* player) {
@@ -51,7 +50,6 @@ void Course::Update(Human* player) {
 			if ((!sections_[i]->IsCleared() &&
 				sections_[i]->IsOver(player->GetTransform().translate.y)) ||
 				sections_[i]->GetTimer()->GetCurrent() <= 0) {
-				isEnd_ = true;
 
 				if (!sectionsData_[i].isFailed) {
 					sectionsData_[i].isFailed = true;
@@ -119,8 +117,10 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 	voxel_->Draw();
 
-	for (auto& barrier : goalBarriers_) {
-		barrier->Draw();
+	for (int i = 0; i < goalBarriers_.size(); ++i){
+		if (!sections_[i]->IsSubSection()) {
+			goalBarriers_[i]->Draw();
+		}
 	}
 }
 
@@ -210,7 +210,7 @@ void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int cl
 		float endPos = sections_.back()->GetEndPos().y;
 		int prevEnd = int(endPos / chunkSize);
 		if (startChunkY > -prevEnd) {
-			AddSubSection(-prevEnd, startChunkY-1);
+			AddSubSection(-prevEnd, startChunkY - 1);
 		}
 	}
 
@@ -223,4 +223,11 @@ void Course::AddSubSection(int startChunkY, int endChunkY) {
 	newSection->Initialize(startChunkY, endChunkY);
 	sections_.push_back(std::move(newSection));
 	sectionsData_.push_back(SectionData());
+}
+
+bool Course::InSubSection() {
+	if (currentSection_) {
+		return currentSection_->IsSubSection();
+	}
+	return false;
 }

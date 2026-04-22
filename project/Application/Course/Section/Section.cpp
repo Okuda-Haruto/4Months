@@ -13,9 +13,9 @@ void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int c
 	timer_->Initialize(maxSeconds);
 
 	addScoreSE_ = std::make_unique<Audio>();
-	addScoreSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	addScoreSE_->Initialize("resources/SE・BGM/Game/star.mp3", 0.7f);
 	breakSE_ = std::make_unique<Audio>();
-	breakSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	breakSE_->Initialize("resources/SE・BGM/Game/destruction.mp3", 0.7f);
 }
 
 void Section::Initialize(int startChunkY, int endChunkY) {
@@ -27,9 +27,9 @@ void Section::Initialize(int startChunkY, int endChunkY) {
 	isSubSection_ = true;
 
 	addScoreSE_ = std::make_unique<Audio>();
-	addScoreSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	addScoreSE_->Initialize("resources/SE・BGM/Game/star.mp3", 0.7f);
 	breakSE_ = std::make_unique<Audio>();
-	breakSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	breakSE_->Initialize("resources/SE・BGM/Game/destruction.mp3", 0.7f);
 }
 
 void Section::Update(float playerY) {
@@ -50,6 +50,8 @@ void Section::Update(float playerY) {
 			++it;
 		}
 	}
+
+	breakSETimer_ -= GameEngine::GetDeltaTime();
 }
 
 void Section::AddBreak(int breakCount) {
@@ -63,9 +65,9 @@ void Section::AddBreak(int breakCount) {
 	// なければ新規追加
 	delay_.push_back(Delay{ scoreDelay_, breakCount });
 
-	if (breakSE_->IsSoundPlayingWave()) {
-		breakSE_->SoundEndWave();
+	if (breakSETimer_ <= 0) {
+		breakSE_->SoundPlayWave();
+		breakSETimer_ = breakSEInterval_;
 	}
-	breakSE_->SoundPlayWave();
 
 }

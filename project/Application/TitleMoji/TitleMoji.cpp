@@ -7,6 +7,9 @@ void TitleMoji::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 
 	wind_ = std::make_unique<Wind>();
 	wind_->Initialize(directionalLight);
+
+	explosionSE_ = std::make_unique<Audio>();
+	explosionSE_->Initialize("./resources/SE・BGM/Title/explosion.mp3", 0.5f);
 }
 
 void TitleMoji::Update() {
@@ -51,6 +54,40 @@ void TitleMoji::Update() {
 		}
 		break;
 	case State::Stop:
+		timer_ += GameEngine::GetDeltaTime();
+		timer_ = min(timer_, stopTime_);
+
+		if (timer_ == stopTime_) {
+			timer_ = 0;
+			state_ = State::Spread;
+			explosionSE_->SoundPlayWave();
+
+			for (int i = 0; i < blocks_.size(); ++i) {
+				spreadVel_[i] = Normalize(positions_[i]) * GameEngine::randomFloat(3.0f, 6.0f);
+			}
+		}
+		break;
+
+	case State::Spread:
+		timer_ += GameEngine::GetDeltaTime();
+		timer_ = min(timer_, spreadTime_);
+
+		// 外側に飛ばす
+		for (int i = 0; i < blocks_.size(); ++i) {
+			SRT transform = blocks_[i]->GetTransform();
+			transform.translate += spreadVel_[i];
+			blocks_[i]->SetTransform(transform);
+			blocks_[i]->Update();
+		}
+
+		if (timer_ == spreadTime_) {
+			timer_ = 0;
+			state_ = State::End;
+		}
+
+		break;
+
+	case State::End:
 		break;
 	}
 }
@@ -110,6 +147,7 @@ void TitleMoji::LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> 
 				object->SetParts(parts[0], 0);
 				blocks_.push_back(std::move(object));
 				timers_.push_back(0 - pos.y / 40); // ここの調整で組みあがり速度
+				spreadVel_.push_back({});
 			}
 		}
 	}

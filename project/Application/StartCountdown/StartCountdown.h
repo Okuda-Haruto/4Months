@@ -31,9 +31,9 @@ private:
 	float timer_ = 0.0f;
 	const float preStartTime_ = 3.0f;
 	const float startTime_ = 0.4f;
-	const float waitTime_ = 0.15f;
-	const float vacuumTime_ = 0.4f;
-	const float vacuumEndTime_ = 0.5f;
+	const float waitTime_ = 0.3f;
+	const float vacuumTime_ = 0.6f;
+	const float vacuumEndTime_ = 0.7f;
 	const float spreadTime_ = 0.3f;
 
 	enum class State {
@@ -55,6 +55,5 @@ private:
 	std::vector<Vector3> startPos_;
 
 	std::unique_ptr<Audio> countSE_ = nullptr;
-	std::unique_ptr<Audio> startSE_ = nullptr;
 };
 
