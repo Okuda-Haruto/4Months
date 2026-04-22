@@ -21,7 +21,6 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	AddSection(10, 16, 54, 4000, 75000);
 	goalBarriers_.clear();
 	for (int i = 0; i < sections_.size(); ++i) {
-
 		float y = sections_[i]->GetEndPos().y;
 
 		std::unique_ptr<GoalBarrier> barrier = std::make_unique<GoalBarrier>();
@@ -73,7 +72,7 @@ void Course::Update(Human* player) {
 
 	// クリア条件
 	for (int i = 0; i < sections_.size(); ++i) {
-		if (sections_[i]->IsCleared()) {
+		if (sections_[i]->IsCleared() || sections_[i]->IsSubSection()) {
 			if (i < goalBarriers_.size()) {
 				goalBarriers_[i]->Clear();
 			}
@@ -214,7 +213,7 @@ void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int cl
 		float endPos = sections_.back()->GetEndPos().y;
 		int prevEnd = int(endPos / chunkSize);
 		if (startChunkY > -prevEnd) {
-			AddSubSection(-prevEnd, startChunkY-1);
+			AddSubSection(-prevEnd, startChunkY - 1);
 		}
 	}
 

@@ -222,14 +222,13 @@ void GameScene::Draw() {
 		if (course_->InSubSection()) {
 			// 区間記録表示中
 			course_->DrawAll(directionalLight_);
-			player_->Draw();
 		} else {
 			course_->Draw(directionalLight_);
+		}
 			player_->Draw();
 
 			// HUD
 			hud_->Draw();
-		}
 
 		hitPreview_->Draw();
 

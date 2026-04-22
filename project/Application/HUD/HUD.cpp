@@ -100,6 +100,15 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	canShoot_->SetTextureSize(Vector2{ 180.0f,40.0f });
 	canShoot_->SetPosition({ 640,300 });
 	canShoot_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
+
+	for (int i = 0; i < 3; ++i) {
+		sectionResult_[i] = std::make_unique<Sprite>();
+		sectionResult_[i]->Initialize("./resources/DebugResources/white2x2.png");
+		sectionResult_[i]->SetSize(resultSize_);
+		sectionResult_[i]->SetPosition(resultPos_[i]);
+		sectionResult_[i]->SetAnchorPoint(Vector2{ 0.5f,0.5f });
+		sectionResult_[i]->Update();
+	}
 }
 
 void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera) {
@@ -145,10 +154,15 @@ void HUD::Draw() {
 
 		// エフェクト
 		stars_->Draw();
+
+		canShoot_->Draw2D();
+	} else {
+		for (int i = 0; i < 3; ++i) {
+			sectionResult_[i]->Draw2D();
+		}
 	}
 
 	infoSprite_->Draw2D();
-	canShoot_->Draw2D();
 
 	if (startNumIsDraw_) {
 		startNumSprite_->Draw2D();

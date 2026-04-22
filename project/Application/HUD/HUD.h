@@ -62,8 +62,14 @@ private:
 	Vector2 startNumPos_ = { 640,360 };
 	bool startNumIsDraw_;
 
+	// 発射可能
 	std::unique_ptr<Sprite> canShoot_ = nullptr;
 	bool drawCanShoot_ = false;
+
+	// 区間の結果
+	std::unique_ptr<Sprite> sectionResult_[3]{};
+	Vector2 resultPos_[3] = { {900,200},{900, 400}, {900, 600} };
+	Vector2 resultSize_ = { 550,120 };
 
 	Input* input_;
 
