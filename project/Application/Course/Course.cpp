@@ -82,7 +82,7 @@ void Course::Update(Human* player) {
 
 	// コース終了
 	if (sections_.back()->IsOver(player->GetTransform().translate.y)) {
-		isEnd_ = true;
+		isAllCleared_ = true;
 	}
 
 	for (auto& box : boxes_) {
@@ -148,10 +148,6 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 	if (!boxObjects.empty()) {
 		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
-	}
-
-	for (auto& barrier : goalBarriers_) {
-		barrier->Draw();
 	}
 
 	voxel_->DrawAll();

@@ -199,6 +199,8 @@ void GameScene::Update() {
 
 	GameEngine::RenderPreDraw("BackGround", 0);
 
+	skydome_->Draw3DNoFog();
+
 	course_->DrawGoalBarrier();
 
 	GameEngine::RenderPostDraw("BackGround");

@@ -685,10 +685,6 @@ void CourseEditor::Update() {
 
 	GameEngine::RenderPreDraw("BackGround", 0);
 
-	if (course_) {
-		course_->DrawGoalBarrier();
-	}
-
 	GameEngine::RenderPostDraw("BackGround");
 
 }
