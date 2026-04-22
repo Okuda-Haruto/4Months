@@ -7,6 +7,9 @@ void TitleMoji::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 
 	wind_ = std::make_unique<Wind>();
 	wind_->Initialize(directionalLight);
+
+	explosionSE_ = std::make_unique<Audio>();
+	explosionSE_->Initialize("./resources/SE・BGM/Title/explosion.mp3", 0.5f);
 }
 
 void TitleMoji::Update() {
@@ -57,6 +60,7 @@ void TitleMoji::Update() {
 		if (timer_ == stopTime_) {
 			timer_ = 0;
 			state_ = State::Spread;
+			explosionSE_->SoundPlayWave();
 
 			for (int i = 0; i < blocks_.size(); ++i) {
 				spreadVel_[i] = Normalize(positions_[i]) * GameEngine::randomFloat(3.0f, 6.0f);

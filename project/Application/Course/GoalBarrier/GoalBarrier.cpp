@@ -56,7 +56,7 @@ void GoalBarrier::Initialize(float position, std::shared_ptr<Camera> camera) {
 	isClear_ = false;
 
 	clearSE_ = std::make_unique<Audio>();
-	clearSE_->Initialize("resources/DebugResources/fanfare.wav", 0.5f);
+	clearSE_->Initialize("resources/SE・BGM/Game/norma.mp3", 0.5f);
 }
 
 void GoalBarrier::Update(GameCamera* gameCamera) {

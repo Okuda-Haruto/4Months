@@ -29,5 +29,6 @@ private:
 	bool isDead_ = false;
 
 	std::unique_ptr<Audio> startSE_ = nullptr;
+	std::unique_ptr<Audio> startSETitle_ = nullptr;
 };
 

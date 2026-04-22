@@ -68,4 +68,6 @@ private:
 
 	std::unique_ptr<Audio> addScoreSE_ = nullptr;
 	std::unique_ptr<Audio> breakSE_ = nullptr;
+	float breakSETimer_ = 0;
+	const float breakSEInterval_ = 0.075f;
 };

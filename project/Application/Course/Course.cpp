@@ -32,7 +32,7 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	currentSection_ = sections_[0].get();
 
 	failSE_ = std::make_unique<Audio>();
-	failSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	failSE_->Initialize("resources/SE・BGM/Game/failure.mp3", 0.5f);
 }
 
 void Course::Update(Human* player) {

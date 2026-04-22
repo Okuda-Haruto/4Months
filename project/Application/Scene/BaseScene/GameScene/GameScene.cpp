@@ -80,7 +80,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	// bgm
 	bgm_ = make_unique<Audio>();
-	bgm_->Initialize("resources/DebugResources/fanfare.wav", 0.1f);
+	bgm_->Initialize("resources/SE・BGM/Game/bgm_game.mp3", 0.5f);
 }
 
 void GameScene::Finalize() {

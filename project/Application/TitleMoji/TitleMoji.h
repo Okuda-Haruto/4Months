@@ -38,5 +38,7 @@ private:
 
 	std::unique_ptr<Wind> wind_ = nullptr;
 	float radius_ = 300;
+
+	std::unique_ptr<Audio> explosionSE_ = nullptr;
 };
 

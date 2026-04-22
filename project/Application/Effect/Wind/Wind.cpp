@@ -27,7 +27,9 @@ void Wind::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	startSE_ = make_unique<Audio>();
-	startSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	startSE_->Initialize("resources/SE・BGM/Game/tornado_game.mp3", 0.5f);
+	startSETitle_ = make_unique<Audio>();
+	startSETitle_->Initialize("resources/SE・BGM/Title/tornado_title.mp3", 0.5f);
 }
 
 void Wind::Set(const Vector3& center, const float radius, const float animationTime) {
@@ -82,8 +84,8 @@ void Wind::SetTitle(const Vector3& center, const float radius, const float anima
 		spiral_[i]->SetColor({ 0.8f,0.8f,0.8f,0.8f });
 	}
 
-	if (!startSE_->IsSoundPlayingWave()) {
-		startSE_->SoundPlayWave();
+	if (!startSETitle_->IsSoundPlayingWave()) {
+		startSETitle_->SoundPlayWave();
 	}
 }
 

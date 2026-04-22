@@ -38,9 +38,9 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 
 	
 	shootSE_ = make_unique<Audio>();
-	shootSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	shootSE_->Initialize("resources/SE・BGM/Game/shot.mp3", 0.5f);
 	catchSE_ = make_unique<Audio>();
-	catchSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	catchSE_->Initialize("resources/SE・BGM/Game/reload.mp3", 0.5f);
 	chargeSE_ = make_unique<Audio>();
 	chargeSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
 }
@@ -232,7 +232,7 @@ void Human::Charge() {
 	isCharging_ = true;
 
 	if (!chargeSE_->IsSoundPlayingWave()) {
-		chargeSE_->SoundPlayWave();
+		//chargeSE_->SoundPlayWave();
 	}
 }
 

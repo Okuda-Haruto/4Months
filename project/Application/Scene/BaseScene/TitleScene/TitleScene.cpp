@@ -68,9 +68,9 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	parts[1].material->reflection = REFLECTION_None;
 	livingRoom_->SetParts(parts[1], 1);
 	bgm_ = make_unique<Audio>();
-	bgm_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
+	bgm_->Initialize("resources/SE・BGM/Title/bgm_title.mp3", 0.5f);
 	selectSE_ = make_unique<Audio>();
-	selectSE_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3", 0.5f);
+	selectSE_->Initialize("resources/SE・BGM/deceid.mp3", 0.5f);
 }
 
 void TitleScene::Finalize() {
