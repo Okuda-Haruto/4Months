@@ -9,6 +9,7 @@
 #include "StartCountdown/StartCountdown.h"
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
+#include "Effect/Combine/Combine.h"
 
 class GameScene : public BaseScene{
 private:
@@ -49,6 +50,9 @@ private:
 
 	// 開始カウントダウン
 	std::unique_ptr<StartCountdown> startCountdown_ = nullptr;
+
+	// タイトルからの遷移
+	std::unique_ptr<Combine> combine_ = nullptr;
 
 	//クリアしているか
 	bool isClear_ = false;

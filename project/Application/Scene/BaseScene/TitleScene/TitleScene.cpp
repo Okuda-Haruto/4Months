@@ -67,6 +67,10 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	parts[1].textureIndex = TextureManager::GetInstance()->GetSrvIndex("BackGround");
 	parts[1].material->reflection = REFLECTION_None;
 	livingRoom_->SetParts(parts[1], 1);
+
+	combine_ = std::make_unique<Combine>();
+	combine_->InitializeTitle(directionalLight_);
+
 	bgm_ = make_unique<Audio>();
 	bgm_->Initialize("resources/SE・BGM/Title/bgm_title.mp3", 0.5f);
 	selectSE_ = make_unique<Audio>();
@@ -85,6 +89,14 @@ void TitleScene::Update() {
 	titleScreen_->Update();
 	if (titleScreen_->IsEnd()) {
 		logo_->Update();
+
+		if (logo_->IsEnd()) {
+			combine_->Update();
+
+			if (combine_->IsEnd()) {
+				SceneManager::GetInstance()->ChangeScene("Game");
+			}
+		}
 	}
 
 	if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
@@ -121,6 +133,7 @@ void TitleScene::Update() {
 	title_Sprite_->Draw2D();
 
 	logo_->Draw();
+	combine_->Draw();
 
 	titleScreen_->Draw();
 
