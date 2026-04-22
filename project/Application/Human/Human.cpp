@@ -6,7 +6,7 @@
 
 void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.obj"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.gltf"));
 	model_->SetShininess(30.0f);
 	bulletModel_ = make_unique<Object>();
 	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
@@ -18,7 +18,9 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	model_->SetTransform(transform_);
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
-
+	model_->SetIsUseAnimation(true);
+	model_->SetAnimationIndex(6);
+	
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
 	headTransform_.translate = position;
 
@@ -35,7 +37,6 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	speed_ = 0.3f;
 	knockBackAcceleration_ = {};
 	knockBackVelocity_ = {};
-
 	
 	shootSE_ = make_unique<Audio>();
 	shootSE_->Initialize("resources/SE・BGM/Game/shot.mp3", 0.5f);
@@ -115,6 +116,8 @@ void Human::Update() {
 			vacuumState_ = None;
 			headRotateEffect_->Catch();
 			catchSE_->SoundPlayWave();
+
+			model_->SetAnimationIndex(6);
 		}
 	}
 
@@ -153,6 +156,7 @@ void Human::Update() {
 	model_->SetTransform(modelTransform);
 	bulletModel_->SetTransform(headTransform_);
 
+	model_->Update();
 	wind_->Update();
 }
 
@@ -222,10 +226,18 @@ void Human::Throw() {
 	if (chargeSE_->IsSoundPlayingWave()) {
 		chargeSE_->SoundEndWave();
 	}
+
+	model_->ResetAnimationTime();
+	model_->SetAnimationIndex(8);
 }
 
 void Human::Charge() {
-	if (charge_ == 0) { chargeSE_->SoundPlayWave(); }
+	if (charge_ == 0) {
+		model_->ResetAnimationTime();
+		model_->SetAnimationIndex(9);
+
+		chargeSE_->SoundPlayWave(); 
+	}
 
 	charge_ += kChargeSpeed_ * GameEngine::GetDeltaTimeRate();
 	charge_ = min(charge_, kMaxCharge_);
