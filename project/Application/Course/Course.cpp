@@ -50,7 +50,6 @@ void Course::Update(Human* player) {
 			if ((!sections_[i]->IsCleared() &&
 				sections_[i]->IsOver(player->GetTransform().translate.y)) ||
 				sections_[i]->GetTimer()->GetCurrent() <= 0) {
-				isEnd_ = true;
 
 				if (!sectionsData_[i].isFailed) {
 					sectionsData_[i].isFailed = true;
@@ -72,7 +71,7 @@ void Course::Update(Human* player) {
 
 	// クリア条件
 	for (int i = 0; i < sections_.size(); ++i) {
-		if (sections_[i]->IsCleared() || sections_[i]->IsSubSection()) {
+		if (sections_[i]->IsCleared()) {
 			if (i < goalBarriers_.size()) {
 				goalBarriers_[i]->Clear();
 			}
@@ -118,8 +117,10 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 	voxel_->Draw();
 
-	for (auto& barrier : goalBarriers_) {
-		barrier->Draw();
+	for (int i = 0; i < goalBarriers_.size(); ++i){
+		if (!sections_[i]->IsSubSection()) {
+			goalBarriers_[i]->Draw();
+		}
 	}
 }
 

@@ -41,8 +41,6 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	shootSE_->Initialize("resources/SE・BGM/Game/shot.mp3", 0.5f);
 	catchSE_ = make_unique<Audio>();
 	catchSE_->Initialize("resources/SE・BGM/Game/reload.mp3", 0.5f);
-	chargeSE_ = make_unique<Audio>();
-	chargeSE_->Initialize("resources/DebugResources/mokugyo.wav", 0.5f);
 }
 
 void Human::Update() {
@@ -230,10 +228,6 @@ void Human::Charge() {
 
 	vacuumStartPos_ = CalcVacuumPosition();
 	isCharging_ = true;
-
-	if (!chargeSE_->IsSoundPlayingWave()) {
-		//chargeSE_->SoundPlayWave();
-	}
 }
 
 void Human::Slowdown() {
