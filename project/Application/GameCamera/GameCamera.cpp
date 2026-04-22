@@ -143,8 +143,8 @@ void ResultCamera::Update() {
 		break;
 	}
 
-	velocity_ = Lerp(velocity_, nextVelocity, 0.1f * GameEngine::GetDeltaTimeRate());
-	posY_ += velocity_.y * GameEngine::GetDeltaTimeRate();
+	velocity_ = Lerp(velocity_, nextVelocity, 0.1f);
+	posY_ += velocity_.y;
 
 	//位置を戻す
 	if (posY_ > 0.0f) {
@@ -153,8 +153,8 @@ void ResultCamera::Update() {
 			mode_ = CameraMode::Automatic_Down;
 		}
 	}
-	if (posY_ < gameCamera_->GetCameraPosBottom()) {
-		posY_ = -32 * 18 * 3.0f + 16.0f * 3.0f;
+	if (posY_ < gameCamera_->GetCameraPosBottom() - 1) {
+		posY_ = gameCamera_->GetCameraPosBottom() - 1;
 		if (mode_ == CameraMode::Automatic_Down) {
 			mode_ = CameraMode::Automatic_Up;
 		}
