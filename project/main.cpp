@@ -18,7 +18,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	input->Initialize(GameEngine::GetWindowsAPI());
 	SceneManager::GetInstance()->SetInput(input);
 
-	SceneManager::GetInstance()->ChangeScene("CourseEditor");
+	SceneManager::GetInstance()->ChangeScene("Title");
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {

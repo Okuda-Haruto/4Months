@@ -54,19 +54,19 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	studio_->SetCamera(studioCamera_);
 
 	livingRoom_ = std::make_unique<Object>();
-	livingRoom_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title", "LivingRoom.obj"));
+	livingRoom_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title", "room.obj"));
 	livingRoom_->SetDirectionalLight(directionalLight_);
 	livingRoom_->SetCamera(livingRoomCamera_);
 
 	titleScreen_ = std::make_unique<TitleScreen>();
 	titleScreen_->Initialize(gameCamera_);
 
-	static int TVindex;
+	static int TVindex = 19;
 
 	std::vector<Parts> parts = livingRoom_->GetParts();
-	parts[1].textureIndex = TextureManager::GetInstance()->GetSrvIndex("BackGround");
-	parts[1].material->reflection = REFLECTION_None;
-	livingRoom_->SetParts(parts[1], 1);
+	parts[TVindex].textureIndex = TextureManager::GetInstance()->GetSrvIndex("BackGround");
+	parts[TVindex].material->reflection = REFLECTION_None;
+	livingRoom_->SetParts(parts[TVindex], TVindex);
 	bgm_ = make_unique<Audio>();
 	bgm_->Initialize("resources/SE・BGM/Title/bgm_title.mp3", 0.5f);
 	selectSE_ = make_unique<Audio>();
@@ -118,7 +118,7 @@ void TitleScene::Update() {
 
 	studio_->Draw3DNoFog();
 
-	title_Sprite_->Draw2D();
+	//title_Sprite_->Draw2D();
 
 	logo_->Draw();
 
@@ -129,8 +129,15 @@ void TitleScene::Update() {
 
 void TitleScene::Draw() {
 
-	livingRoom_->Draw3DNoFog(0);
-	livingRoom_->Draw3DNoFogRender(1);
+	static int TVindex = 19;
+
+	std::vector<Parts> parts = livingRoom_->GetParts();
+
+	for (int i = 0; i < parts.size(); i++) {
+		if (i == TVindex) continue;
+		livingRoom_->Draw3DNoFog(i);
+	}
+	livingRoom_->Draw3DNoFogRender(TVindex);
 
 	//GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
 }
