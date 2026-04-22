@@ -41,6 +41,8 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	shootSE_->Initialize("resources/SE・BGM/Game/shot.mp3", 0.5f);
 	catchSE_ = make_unique<Audio>();
 	catchSE_->Initialize("resources/SE・BGM/Game/reload.mp3", 0.5f);
+	chargeSE_ = make_unique<Audio>();
+	chargeSE_->Initialize("resources/SE・BGM/Game/charge.mp3", 0.5f);
 }
 
 void Human::Update() {
@@ -217,10 +219,14 @@ void Human::Throw() {
 	if (!shootSE_->IsSoundPlayingWave()) {
 		shootSE_->SoundPlayWave();
 	}
-
+	if (chargeSE_->IsSoundPlayingWave()) {
+		chargeSE_->SoundEndWave();
+	}
 }
 
 void Human::Charge() {
+	if (charge_ == 0) { chargeSE_->SoundPlayWave(); }
+
 	charge_ += kChargeSpeed_ * GameEngine::GetDeltaTimeRate();
 	charge_ = min(charge_, kMaxCharge_);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
