@@ -1048,7 +1048,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> ScreenPipelineStateInitialvalue(ID3
 
 	//BlendStateの設定
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].BlendEnable = false;
 	blendDesc.RenderTarget[0].LogicOpEnable = false;
 	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
