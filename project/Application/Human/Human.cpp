@@ -19,7 +19,8 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
 	model_->SetIsUseAnimation(true);
-	model_->SetAnimationIndex(6);
+	model_->SetAnimationIndex(9);
+	model_->Update();
 	
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
 	headTransform_.translate = position;
