@@ -50,7 +50,10 @@ public:
 	float GetMaxCharge() { return kMaxCharge_; }
 	Vector3 GetVacuumStartPos() { return vacuumStartPos_; }
 	float GetFallingSpeed() { return fallingSpeed_; }
-
+	// ★これ追加
+	void SetResult(bool flag);
+	bool isAutoBurst_ = true;
+	bool isJumpFlashMode_ = false;
 protected:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
@@ -134,7 +137,9 @@ protected:
 	Vector3 CalcVacuumPosition();
 
 	bool stop;
+	bool isResult_;
 
+	
 	// SE
 	std::unique_ptr<Audio> shootSE_ = nullptr;
 	std::unique_ptr<Audio> catchSE_ = nullptr;

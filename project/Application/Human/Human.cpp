@@ -21,7 +21,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	model_->SetIsUseAnimation(true);
 	model_->SetAnimationIndex(9);
 	model_->Update();
-	
+
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
 	headTransform_.translate = position;
 
@@ -32,13 +32,13 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	wind_ = make_unique<Wind>();
 	wind_->Initialize(directionalLight);
 	headRotateEffect_ = make_unique<PlayerRotation>();
-	headRotateEffect_->Initialize(directionalLight,camera);
+	headRotateEffect_->Initialize(directionalLight, camera);
 
 	fallingSpeed_ = -kMinSpeed_;
 	speed_ = 0.3f;
 	knockBackAcceleration_ = {};
 	knockBackVelocity_ = {};
-	
+
 	shootSE_ = make_unique<Audio>();
 	shootSE_->Initialize("resources/SE・BGM/Game/shot.mp3", 0.5f);
 	catchSE_ = make_unique<Audio>();
@@ -59,10 +59,26 @@ void Human::Update() {
 	float time = GameEngine::GetDeltaTimeRate();
 
 	//向いている向きに速度を向ける
-	velocity_.translate += Vector3{ 0,0,1 } * rotateMatrix * speed_ * GameEngine::GetDeltaTimeRate();
+	velocity_.translate += Vector3{ 0,0,1 } *rotateMatrix * speed_ * GameEngine::GetDeltaTimeRate();
+	float gravity = kGravity_;
+	float maxFall = maxFallingSpeed_;
 
-	fallingSpeed_ = max(fallingSpeed_ - kGravity_ * GameEngine::GetDeltaTimeRate(), -maxFallingSpeed_);
-	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } * GameEngine::GetDeltaTimeRate();
+	if (isResult_) {
+		gravity *= 0.1f;
+		maxFall *= 0.1f; // ← これが本命
+	}
+
+	// ★追加：ジャンピングフラッシュ風
+	if (isJumpFlashMode_) {
+		float jumpFlashGravity = gravity * 0.4f;
+		float jumpFlashMaxFall = maxFall * 0.8f;
+		fallingSpeed_ = max(fallingSpeed_ - jumpFlashGravity * GameEngine::GetDeltaTimeRate(), -jumpFlashMaxFall);
+	}
+	else {
+		fallingSpeed_ = max(fallingSpeed_ - gravity * GameEngine::GetDeltaTimeRate(), -maxFall);
+	}
+
+	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } *GameEngine::GetDeltaTimeRate();
 
 	//NANチェック
 	float len = Length(knockBackAcceleration_);
@@ -125,9 +141,11 @@ void Human::Update() {
 	// 回転
 	if (charge_ == kMaxCharge_) {
 		headRotate_ += 0.2f * GameEngine::GetDeltaTimeRate();
-	} else if(isCharging_ || vacuumState_ != None) {
+	}
+	else if (isCharging_ || vacuumState_ != None) {
 		headRotate_ += 0.1f * GameEngine::GetDeltaTimeRate();
-	} else {
+	}
+	else {
 		headRotate_ += 0.05f * GameEngine::GetDeltaTimeRate();
 	}
 
@@ -135,7 +153,7 @@ void Human::Update() {
 	forward = TransformNormal(forward, MakeRotateMatrix(transform_.rotate));
 
 	SRT modelTransform = transform_;
-	modelTransform.rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, std::numbers::pi_v<float> / 2)* transform_.rotate;
+	modelTransform.rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, std::numbers::pi_v<float> / 2) * transform_.rotate;
 	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_) * modelTransform.rotate;
 	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
@@ -182,19 +200,29 @@ void Human::OnHitVoxel(AABB aabb) {
 
 	if (fabsf(closest.x) >= fabsf(closest.y) && fabsf(closest.x) >= fabsf(closest.z)) {
 		knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
-	} else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
+	}
+	else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
 		knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
-	} else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
+	}
+	else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
 		knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
 	}
 
-	fallingSpeed_ = 0.0f;
-	speed_ = 1.0f;
+	// ★追加：ジャンピングフラッシュ風
+	if (isJumpFlashMode_) {
+		fallingSpeed_ = bounceBackSpeed_ * 0.33f;
+	}
+	else {
+		fallingSpeed_ = 0.0f;
+	}
 
+	speed_ = 1.0f;
 	if (vacuumState_ == None) {
-		charge_ = max(kMaxCharge_ * 0.1f, charge_ * 0.5f);
-		Throw();
-		headRotateEffect_->Shoot();
+		if (isAutoBurst_) {
+			charge_ = max(kMaxCharge_ * 0.1f, charge_ * 0.5f);
+			Throw();
+			headRotateEffect_->Shoot();
+		}
 	}
 }
 
@@ -202,7 +230,8 @@ void Human::ApproachCenter(const Vector2& center) {
 	Vector3 target = { center.x,transform_.translate.y, center.y };
 	if (Length(transform_.translate - target) < 0.5f) {
 		transform_.translate = target;
-	} else {
+	}
+	else {
 		Vector3 dir = Normalize(target - transform_.translate);
 		transform_.translate += (speed_ * 0.5f) * dir;
 	}
@@ -214,7 +243,7 @@ void Human::Throw() {
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
-	fallingSpeed_ += bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
+	fallingSpeed_ += (bounceBackSpeed_ * 0.5f) * min(0.25f + charge_ / kMaxCharge_, 1.0f);
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
 	vacuumTime_ = (charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime;
 	returnTime_ = (charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime;
@@ -237,7 +266,7 @@ void Human::Charge() {
 		model_->ResetAnimationTime();
 		model_->SetAnimationIndex(9);
 
-		chargeSE_->SoundPlayWave(); 
+		chargeSE_->SoundPlayWave();
 	}
 
 	charge_ += kChargeSpeed_ * GameEngine::GetDeltaTimeRate();
@@ -247,6 +276,7 @@ void Human::Charge() {
 
 	vacuumStartPos_ = CalcVacuumPosition();
 	isCharging_ = true;
+
 }
 
 void Human::Slowdown() {
@@ -270,4 +300,7 @@ Vector3 Human::CalcVacuumPosition() {
 
 	// 最終位置
 	return transform_.translate + dir * distance;
+}
+void Human::SetResult(bool flag) {
+	isResult_ = flag;
 }

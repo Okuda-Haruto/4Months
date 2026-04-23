@@ -103,7 +103,17 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 
 	for (int i = 0; i < 3; ++i) {
 		sectionResult_[i] = std::make_unique<Sprite>();
-		sectionResult_[i]->Initialize("./resources/DebugResources/white2x2.png");
+
+		if (i == 0) {
+			sectionResult_[i]->Initialize("./resources/HUD/result.png");
+		}
+		else if (i == 1) {
+			sectionResult_[i]->Initialize("./resources/HUD/time.png");
+		}
+		else {
+			sectionResult_[i]->Initialize("./resources/HUD/destruction.png");
+		}
+
 		sectionResult_[i]->SetSize(resultSize_);
 		sectionResult_[i]->SetPosition(resultPos_[i]);
 		sectionResult_[i]->SetAnchorPoint(Vector2{ 0.5f,0.5f });

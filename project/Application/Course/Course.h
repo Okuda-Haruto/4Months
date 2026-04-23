@@ -70,6 +70,12 @@ public:
 	bool InSubSection();
 
 	std::vector<Vector3> GetBreakPos() { return breakPos_; }
+
+	bool isNoNormaMode_ = false;
+
+public:
+	void SetNoNormaMode(bool flag) { isNoNormaMode_ = flag; }
+	bool GetNoNormaMode() const { return isNoNormaMode_; }
 private:
 	
 	std::shared_ptr<DirectionalLight> directionalLight_;
