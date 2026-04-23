@@ -96,6 +96,31 @@ public:
 	void Update() override;
 };
 
+//スタジオ全体を写すカメラ
+class StudioCamera : public BaseCamera {
+private:
+	//カメラ座標
+	const Vector3 kCameraPos = { 0,35, 120 };
+public:
+	//初期化
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	//更新処理
+	void Update() override;
+};
+
+//ステージセレクトカメラ
+class SelectCamera : public BaseCamera {
+private:
+	//カメラ座標
+	const Vector3 kCameraPos = { -35, 40, 20 };
+public:
+	//初期化
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	//更新処理
+	void Update() override;
+};
+
+
 #ifdef USE_IMGUI
 //エディターカメラ
 class EditorCamera : public BaseCamera {

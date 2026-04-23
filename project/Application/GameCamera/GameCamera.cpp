@@ -198,6 +198,34 @@ void TVCamera::Update() {
 
 #pragma endregion
 
+#pragma region スタジオ全体を移すカメラ
+
+void StudioCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+	transform_.scale = { 1,1,1 };
+	transform_.translate = kCameraPos;
+	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
+}
+
+void StudioCamera::Update() {
+
+}
+
+#pragma endregion
+
+#pragma region ステージセレクトカメラ
+
+void SelectCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+	transform_.scale = { 1,1,1 };
+	transform_.translate = kCameraPos;
+	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 180 * 225);
+}
+
+void SelectCamera::Update() {
+
+}
+
+#pragma endregion
+
 #pragma region エディターカメラ
 
 #ifdef USE_IMGUI
