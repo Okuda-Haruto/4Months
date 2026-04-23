@@ -68,6 +68,10 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	humans_[0]->SetIsUseAnimation(true);
 	humans_[0]->SetIsLoopAnimation(true);
 
+	for (int i = 0; i < humans_.size(); i++) {
+		humans_[i]->SetTransform(human_Tranaforms_[i]);
+	}
+
 	titleScreen_ = std::make_unique<TitleScreen>();
 	titleScreen_->Initialize(livingGameCamera_);
 
@@ -77,6 +81,11 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	parts[TVindex].textureIndex = TextureManager::GetInstance()->GetSrvIndex("BackGround");
 	parts[TVindex].material->reflection = REFLECTION_None;
 	livingRoom_->SetParts(parts[TVindex], TVindex);
+
+	fade_ = std::make_unique<Fade>();
+	fade_->Initialzie();
+	fade_->SetFadeMode(Fade::FADE_MODE::FADE_IN);
+
 	bgm_ = make_unique<Audio>();
 	bgm_->Initialize("resources/SE・BGM/Title/bgm_title.mp3", 0.5f);
 	selectSE_ = make_unique<Audio>();
@@ -102,8 +111,12 @@ void TitleScene::Update() {
 		isChangeStudioCamera_ = true;
 	}
 
-	if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
+	if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && (fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {
 		selectSE_->SoundPlayWave();
+		fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
+	}
+
+	if (fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_OUT) {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
@@ -139,6 +152,8 @@ void TitleScene::Update() {
 	studio_->Update();
 	livingRoom_->Update();
 
+	fade_->Update();
+
 	GameEngine::RenderPreDraw("BackGround", 0);
 
 	studio_->Draw3DNoFog();
@@ -167,6 +182,8 @@ void TitleScene::Draw() {
 		livingRoom_->Draw3DNoFog(i);
 	}
 	livingRoom_->Draw3DNoFogRender(TVindex);
+
+	fade_->Draw();
 
 	//GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
 }

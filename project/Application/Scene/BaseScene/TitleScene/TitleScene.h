@@ -5,6 +5,7 @@
 #include "GameCamera/GameCamera.h"
 #include "TitleMoji/TitleMoji.h"
 #include "TitleMoji/TitleScreen/TitleScreen.h"
+#include "Fade/Fade.h"
 
 class TitleScene : public BaseScene {
 private:
@@ -21,6 +22,8 @@ private:
 	std::unique_ptr<Object> studio_ = nullptr;
 	std::array<std::unique_ptr<Object>, 6> humans_;
 	std::array<SRT, 6> human_Tranaforms_;
+
+	std::unique_ptr<Fade> fade_;
 
 	//光源
 	DirectionalLightElement directionalLightElement_{};
