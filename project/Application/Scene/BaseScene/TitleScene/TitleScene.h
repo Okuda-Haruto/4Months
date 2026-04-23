@@ -19,6 +19,8 @@ private:
 	//オブジェクト
 	std::unique_ptr<Object> livingRoom_ = nullptr;
 	std::unique_ptr<Object> studio_ = nullptr;
+	std::array<std::unique_ptr<Object>, 6> humans_;
+	std::array<SRT, 6> human_Tranaforms_;
 
 	//光源
 	DirectionalLightElement directionalLightElement_{};
@@ -27,13 +29,16 @@ private:
 	float shininess_ = 40.0f;
 
 	// カメラ
-	SRT cameraTransform_{};
-	std::shared_ptr<Camera> studioCamera_ = nullptr;
 	std::shared_ptr<Camera> defaultCamera_ = nullptr;
+
+	//スタジオからの視点
+	std::shared_ptr<Camera> studioCamera_ = nullptr;
+	std::shared_ptr<GameCamera> studioGameCamera_ = nullptr;
+	bool isChangeStudioCamera_ = false;
 
 	// 居間からの視点
 	std::shared_ptr<Camera> livingRoomCamera_ = nullptr;
-	std::shared_ptr<GameCamera> gameCamera_ = nullptr;
+	std::shared_ptr<GameCamera> livingGameCamera_ = nullptr;
 
 	//デバッグカメラ
 	std::shared_ptr<DebugCamera> debugCamera_ = nullptr;
