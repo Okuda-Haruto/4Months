@@ -22,6 +22,7 @@ void Combine::InitializeTitle(std::shared_ptr<DirectionalLight> directionalLight
 	beyblade_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title/startAnim", "beyblade.obj"));
 	beyblade_->SetDirectionalLight(directionalLight);
 	beyblade_->SetShininess(0);
+	beyblade_->SetTransform({ {1,1,1},{},Vector3{ 0,defaultY_,0 } });
 
 	// 初期配置
 	auto parts = beyblade_->GetParts();
@@ -31,7 +32,13 @@ void Combine::InitializeTitle(std::shared_ptr<DirectionalLight> directionalLight
 	}
 
 	isTitle_ = true;
-	phase_ = Phase::Fall;
+	phase_ = Phase::Dark;
+
+	black_ = std::make_unique<Sprite>();
+	black_->Initialize("resources/Effect/Combine/hole.png");
+	black_->SetSize({ 1280,720 });
+	black_->SetAnchorPoint({ 0.5f, 0.5f });
+	black_->SetPosition({ 0,0 });
 }
 
 void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight) {
@@ -62,12 +69,43 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight)
 
 	forward_ = Normalize(TransformNormal({ 0,0,1 }, MakeRotateMatrix(LookAt(translate, { 0, 0, -250 }))));
 	phase_ = Phase::GameStart;
+
+	black_ = std::make_unique<Sprite>();
+	black_->Initialize("resources/Effect/Combine/hole.png");
+	black_->SetSize({ 1280,720 });
+	black_->SetAnchorPoint({ 0.5f, 0.5f });
+	black_->SetPosition({ 0,0 });
 }
 
 void Combine::Update() {
-	timer_ += GameEngine::GetDeltaTime();
 
 	switch (phase_) {
+	case Phase::Dark:
+	{		
+		float t = min(timer_, kDarkTime) / kDarkTime;
+		if (t <= kDarkTime) {
+			black_->SetSize(Vector2{ 1280,720 } *max((1 - t), 0.03f) * 40);
+			Vector2 screenSize = { float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()) };
+			black_->SetPosition(screenSize * 0.5f);
+
+			SRT uv = black_->GetUVTransform();
+			float uvScale = 1.0f - 0.85f * (1 - t);
+			if (1 - t <= 0) {
+				black_->SetAnchorPoint({});
+				black_->SetSize(Vector2{ 1280,720 } *4);
+				black_->SetPosition({});
+			}
+			uv.scale = { uvScale, uvScale, 1.0f };
+			uv.translate = { 0.5f - 0.5f * uvScale, 0.5f - 0.5f * uvScale, 0.0f };
+			black_->SetUVTransform(uv);
+		}
+
+		if (timer_ / (kDarkTime + kDarkWaitTime) >= 1.0f) {
+			timer_ = 0;
+			phase_ = Phase::Fall;
+		}
+		break;
+	}
 	case Phase::Fall:
 	{
 		rotate_ += 0.1f;
@@ -84,7 +122,6 @@ void Combine::Update() {
 			phase_ = Phase::Set;
 		}
 	}
-	break;
 
 	case Phase::Set:
 	{
@@ -162,8 +199,12 @@ void Combine::Update() {
 		break;
 	}
 	case Phase::GameStart:
-
+	{
 		float t = min(timer_, kStartTime) / kStartTime;
+		black_->SetSize(Vector2{ 1280,720 } *t * 30);
+		Vector2 screenSize = { float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()) };
+		black_->SetPosition(screenSize * 0.5f);
+
 		auto transformHuman = human_->GetTransform();
 		transformHuman.translate += forward_ * (-backAmount_ / 6.0f);
 		human_->SetTransform(transformHuman);
@@ -179,11 +220,15 @@ void Combine::Update() {
 		}
 		break;
 	}
+	}
+
+	timer_ += GameEngine::GetDeltaTime();
 }
 
 void Combine::Draw() {
-	//if (phase_ >= Phase::Ride) {
+	black_->Update();
+	black_->Draw2D();
+
 	human_->Draw3D();
-	//}
 	beyblade_->Draw3D();
 }

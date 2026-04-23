@@ -39,6 +39,7 @@ private:
 	};
 
 	enum class Phase {
+		Dark,
 		Fall,
 		Set,
 		Ride,
@@ -48,10 +49,14 @@ private:
 	Phase phase_ = Phase::Fall;
 
 	float timer_ = 0;
-	const float kFallTime = 0.3f;
+	const float kDarkTime = 1.0f;
+	const float kDarkWaitTime = 0.5f;
+	const float kFallTime = 0.5f;
 	const float kSetTime = 1.0f;
 	const float kRideTime = 0.8f;
 	const float kBackTime = 0.8f;
 	const float kStartTime = 1.6f;
+
+	std::unique_ptr<Sprite> black_ = nullptr;
 };
 
