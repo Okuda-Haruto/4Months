@@ -20,7 +20,6 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//カメラ
 	defaultCamera_ = Object::GetDefaultCamera();
-	//defaultCamera_ = make_shared<Camera>();
 	defaultCamera_->SetDebugCamera(debugCamera_);
 
 	//光源
@@ -40,7 +39,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_,defaultCamera_);
+	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_, defaultCamera_);
 
 	CSVData courseData;
 	courseData.size = { 2,18,2 };
@@ -87,19 +86,16 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	bgm_->Initialize("resources/SE・BGM/Game/bgm_game.mp3", 0.5f);
 }
 
-void GameScene::Finalize() {
-
-}
+void GameScene::Finalize() {}
 
 void GameScene::Update() {
 	Keyboard keyboard = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
 
 	if (!startCountdown_->IsEnd()) {
-		// 開始カウントダウン
+
 		startCountdown_->Update();
 
-		// ゲーム中のカメラに移行
 		if (startCountdown_->IsDownCameraTime()) {
 			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 		}
@@ -110,54 +106,48 @@ void GameScene::Update() {
 				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
 				startCountdown_->SkipPreStart();
 			}
-
 #ifdef USE_IMGUI
-				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-				startCountdown_->SkipAll();
+			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+			startCountdown_->SkipAll();
 #endif
-		} else {
+		}
+		else {
 			skipHold_ = 0;
 		}
-	} else {
 
-		// プレイヤーの更新
+	}
+	else {
+
+		// ★追加：簡易リザルト状態を渡す
+		player_->SetResult(course_->InSubSection());
+
 		player_->Update(input_);
 
 		if (isClear_) {
 			if (isUp_) {
 				clearY_ += GameEngine::GetDeltaTimeRate();
-				if (clearY_ > 0) {
-					isUp_ = false;
-				}
-			} else {
-				clearY_ -= GameEngine::GetDeltaTimeRate();;
-				if (clearY_ < -32 * 3.0f * 4) {
-					isUp_ = true;
-				}
+				if (clearY_ > 0) isUp_ = false;
+			}
+			else {
+				clearY_ -= GameEngine::GetDeltaTimeRate();
+				if (clearY_ < -32 * 3.0f * 4) isUp_ = true;
 			}
 
-			//クリアしてるならタイトルに戻れる
 			if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
 				fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
 			}
-
 		}
 
-		// コース
 		course_->Update(player_.get());
 
-		// 当たり判定
 		checkCollision_->Update(player_.get());
 		checkCollision_->UpdateImGui();
 
-		// 予測表示
 		hitPreview_->Update(player_.get(), checkCollision_.get());
 	}
 
-	//カメラ更新
 	gameCamera_->Update();
 
-	//カメラアップデート
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
 	}
@@ -165,7 +155,6 @@ void GameScene::Update() {
 
 	hud_->SetPauseDisplay(!startCountdown_->IsEnd());
 
-	// HUD
 	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
 
 	if (!bgm_->IsSoundPlayingWave()) {
@@ -174,7 +163,6 @@ void GameScene::Update() {
 
 #ifdef USE_IMGUI
 	int section = course_->GetCurrentSectionNumber();
-
 	ImGui::Begin("GameScene");
 	if (ImGui::Button("デバッグカメラ")) {
 		isUseDebugCamera_ = !isUseDebugCamera_;
@@ -183,22 +171,20 @@ void GameScene::Update() {
 	ImGui::End();
 #endif
 
-	//仮置き
 	if (keyboard.trigger[DIK_R]) {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
 	if (course_->isAllCleared()) {
 		if (!isClear_) {
-			// クリア
 			clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
 			clearCameraTransform_.rotate = IdentityQuaternion();
 			clearCameraTransform_.scale = { 1,1,1 };
 			gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
 		}
 		isClear_ = true;
-	} else if (course_->isEnd()) {
-		// 失敗
+	}
+	else if (course_->isEnd()) {
 		fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
 	}
 
@@ -211,7 +197,6 @@ void GameScene::Update() {
 	GameEngine::RenderPreDraw("BackGround", 0);
 
 	skydome_->Draw3DNoFog();
-
 	course_->DrawGoalBarrier();
 
 	GameEngine::RenderPostDraw("BackGround");
@@ -219,32 +204,26 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
-	//背景描画
-	//GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
-	
 	skydome_->Draw3DNoFog();
 
-	// コース
 	if (isClear_) {
 		course_->DrawAll(directionalLight_);
-	} else if (startCountdown_->IsPreStart()) {
+	}
+	else if (startCountdown_->IsPreStart()) {
 		course_->DrawUp(directionalLight_);
-	} else {
+	}
+	else {
 
 		if (course_->InSubSection()) {
-			// 区間記録表示中
 			course_->DrawAll(directionalLight_);
-		} else {
+		}
+		else {
 			course_->Draw(directionalLight_);
 		}
-			player_->Draw();
 
-			// HUD
-			hud_->Draw();
-
+		player_->Draw();
+		hud_->Draw();
 		hitPreview_->Draw();
-
-		// 開始カウントダウン
 		startCountdown_->Draw();
 	}
 
