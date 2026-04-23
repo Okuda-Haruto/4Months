@@ -48,6 +48,7 @@
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
     <ClCompile Include="Application\Course\GoalBarrier\GoalBarrier.cpp" />
     <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
+    <ClCompile Include="Application\Fade\Fade.cpp" />
     <ClCompile Include="Application\Human\Human.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
     <ClInclude Include="Application\Course\GoalBarrier\GoalBarrier.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
+    <ClInclude Include="Application\Fade\Fade.h" />
     <ClInclude Include="Application\Human\Human.h" />
     <ClInclude Include="Application\Mix.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />

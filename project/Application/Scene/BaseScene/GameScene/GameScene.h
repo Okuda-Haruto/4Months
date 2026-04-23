@@ -9,6 +9,7 @@
 #include "StartCountdown/StartCountdown.h"
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
+#include "Fade/Fade.h"
 
 class GameScene : public BaseScene{
 private:
@@ -49,6 +50,8 @@ private:
 
 	// 開始カウントダウン
 	std::unique_ptr<StartCountdown> startCountdown_ = nullptr;
+
+	std::unique_ptr<Fade> fade_;
 
 	//クリアしているか
 	bool isClear_ = false;
