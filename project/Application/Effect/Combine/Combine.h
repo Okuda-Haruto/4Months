@@ -22,7 +22,7 @@ private:
 	float defaultY_ = 40;
 	float setStart = 0.3f;
 	float setCountdown_[8] = {
-		0.7f,0.7f,0.7f,0.7f,5.0f,0.3f,0.3f,0.3f
+		0.7f,0.75f,0.8f,0.85f,5.0f,0.3f,0.3f,0.3f
 	};
 	float backAmount_ = -15.0f;
 	Vector3 forward_ = { 0, 1, 0.3f };
@@ -53,8 +53,8 @@ private:
 	const float kDarkWaitTime = 0.5f;
 	const float kFallTime = 0.5f;
 	const float kSetTime = 1.0f;
-	const float kRideTime = 0.8f;
-	const float kBackTime = 0.8f;
+	const float kRideTime = 0.3f;
+	const float kBackTime = 0.4f;
 	const float kStartTime = 1.6f;
 
 	std::unique_ptr<Sprite> black_ = nullptr;

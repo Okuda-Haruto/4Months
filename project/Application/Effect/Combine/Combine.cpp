@@ -36,7 +36,7 @@ void Combine::InitializeTitle(std::shared_ptr<DirectionalLight> directionalLight
 
 	black_ = std::make_unique<Sprite>();
 	black_->Initialize("resources/Effect/Combine/hole.png");
-	black_->SetSize({ 1280,720 });
+	black_->SetSize({});
 	black_->SetAnchorPoint({ 0.5f, 0.5f });
 	black_->SetPosition({ 0,0 });
 }
@@ -49,6 +49,7 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight)
 	SRT transform = human_->GetTransform();
 	transform.scale = { 1.0f / 0.13f,1.0f / 0.13f ,1.0f / 0.13f };
 	Quaternion rot = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, 1);
+	transform.rotate = rot;
 	transform.translate = Normalize(forward_) * backAmount_;
 	human_->SetTransform(transform);
 	human_->SetIsUseAnimation(true);
@@ -123,6 +124,7 @@ void Combine::Update() {
 		}
 	}
 
+	break;
 	case Phase::Set:
 	{
 		rotate_ += 0.15f;
@@ -155,7 +157,7 @@ void Combine::Update() {
 
 	case Phase::Ride:
 	{
-		rotate_ += 0.05f;
+		rotate_ += 0.1f;
 
 		// 人と最終パーツ落下
 		float deltaTime = GameEngine::GetDeltaTime();
@@ -166,7 +168,7 @@ void Combine::Update() {
 
 		auto transformHuman = human_->GetTransform();
 		transformHuman.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, 1);
-		transformHuman.translate = parts[5].transform->translate;
+		transformHuman.translate = parts[4].transform->translate;
 		human_->SetTransform(transformHuman);
 		human_->Update();
 
@@ -182,6 +184,8 @@ void Combine::Update() {
 	}
 	case Phase::Back:
 	{
+		rotate_ += 0.05f;
+
 		float t = min(timer_, kBackTime) / kBackTime;
 		auto transformHuman = human_->GetTransform();
 		transformHuman.translate = TransformNormal(Normalize(forward_), MakeRotateMatrix(transformHuman.rotate)) * (t * backAmount_);
@@ -200,6 +204,8 @@ void Combine::Update() {
 	}
 	case Phase::GameStart:
 	{
+		rotate_ += 0.15f;
+
 		float t = min(timer_, kStartTime) / kStartTime;
 		black_->SetSize(Vector2{ 1280,720 } *t * 30);
 		Vector2 screenSize = { float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()) };
@@ -207,6 +213,7 @@ void Combine::Update() {
 
 		auto transformHuman = human_->GetTransform();
 		transformHuman.translate += forward_ * (-backAmount_ / 6.0f);
+		transformHuman.translate.y = 0;
 		human_->SetTransform(transformHuman);
 		human_->Update();
 
