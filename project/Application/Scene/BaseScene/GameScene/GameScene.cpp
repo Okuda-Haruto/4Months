@@ -40,7 +40,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_,defaultCamera_);
+	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_, defaultCamera_);
 
 	CSVData courseData;
 	courseData.size = { 2,18,2 };
@@ -76,7 +76,11 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialzie();
-	fade_->SetFadeMode(Fade::FADE_MODE::FADE_IN);
+
+	// タイトルから遷移
+	combine_ = std::make_unique<Combine>();
+	combine_->InitializeGame(directionalLight_);
+	combine_->Update();
 
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
@@ -96,28 +100,34 @@ void GameScene::Update() {
 	Pad pad = input_->GetPad(0);
 
 	if (!startCountdown_->IsEnd()) {
-		// 開始カウントダウン
-		startCountdown_->Update();
+		if (!combine_->IsEnd()) {
+			combine_->Update();
+		} else {
 
-		// ゲーム中のカメラに移行
-		if (startCountdown_->IsDownCameraTime()) {
-			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
-		}
+			// 開始カウントダウン
+			startCountdown_->Update();
 
-		if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
-			skipHold_ += GameEngine::GetDeltaTime();
-			if (skipHold_ > 0.5f) {
-				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-				startCountdown_->SkipPreStart();
+			// ゲーム中のカメラに移行
+			if (startCountdown_->IsDownCameraTime()) {
+				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 			}
+
+			if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
+				skipHold_ += GameEngine::GetDeltaTime();
+				if (skipHold_ > 0.5f) {
+					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+					startCountdown_->SkipPreStart();
+				}
 
 #ifdef USE_IMGUI
 				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
 				startCountdown_->SkipAll();
 #endif
-		} else {
-			skipHold_ = 0;
+			} else {
+				skipHold_ = 0;
+			}
 		}
+
 	} else {
 
 		// プレイヤーの更新
@@ -155,7 +165,9 @@ void GameScene::Update() {
 	}
 
 	//カメラ更新
-	gameCamera_->Update();
+	if (combine_->IsEnd()) {
+		gameCamera_->Update();
+	}
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
@@ -221,7 +233,7 @@ void GameScene::Draw() {
 
 	//背景描画
 	//GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
-	
+
 	skydome_->Draw3DNoFog();
 
 	// コース
@@ -237,10 +249,10 @@ void GameScene::Draw() {
 		} else {
 			course_->Draw(directionalLight_);
 		}
-			player_->Draw();
+		player_->Draw();
 
-			// HUD
-			hud_->Draw();
+		// HUD
+		hud_->Draw();
 
 		hitPreview_->Draw();
 
@@ -248,5 +260,7 @@ void GameScene::Draw() {
 		startCountdown_->Draw();
 	}
 
-	fade_->Draw();
+	if (!combine_->IsEnd()) {
+		combine_->Draw();
+	}
 }
