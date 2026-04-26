@@ -6,6 +6,7 @@
 #include "TitleMoji/TitleMoji.h"
 #include "TitleMoji/TitleScreen/TitleScreen.h"
 #include "Fade/Fade.h"
+#include "Effect/Combine/Combine.h"
 
 class TitleScene : public BaseScene {
 private:
@@ -42,6 +43,10 @@ private:
 	// 居間からの視点
 	std::shared_ptr<Camera> livingRoomCamera_ = nullptr;
 	std::shared_ptr<GameCamera> livingGameCamera_ = nullptr;
+
+	// 遷移演出
+	std::unique_ptr<Combine> gameTransition = nullptr;
+	bool sceneChange_ = false;
 
 	//デバッグカメラ
 	std::shared_ptr<DebugCamera> debugCamera_ = nullptr;

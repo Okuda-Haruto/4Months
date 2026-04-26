@@ -39,7 +39,7 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	studioGameCamera_->Initialize(studioCamera_, std::make_unique<StudioCamera>(), input, nullptr, nullptr);
 
 	livingRoomCamera_ = std::make_shared<Camera>();
-	livingRoomCamera_->Initialize(GameEngine::GetDirectXCommon(),500,0,2000,2000);
+	livingRoomCamera_->Initialize(GameEngine::GetDirectXCommon(), 500, 0, 2000, 2000);
 	livingGameCamera_ = std::make_shared<GameCamera>();
 	livingGameCamera_->Initialize(livingRoomCamera_, std::make_unique<LivingCamera>(), input, nullptr, nullptr);
 
@@ -86,6 +86,9 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	fade_->Initialzie();
 	fade_->SetFadeMode(Fade::FADE_MODE::FADE_IN);
 
+	gameTransition = std::make_unique<Combine>();
+	gameTransition->InitializeTitle(directionalLight_, defaultCamera_);
+
 	bgm_ = make_unique<Audio>();
 	bgm_->Initialize("resources/SE・BGM/Title/bgm_title.mp3", 0.5f);
 	selectSE_ = make_unique<Audio>();
@@ -113,7 +116,14 @@ void TitleScene::Update() {
 
 	if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && (fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {
 		selectSE_->SoundPlayWave();
-		fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
+		sceneChange_ = true;
+	}
+
+	if (sceneChange_) {
+		gameTransition->Update();
+		if (gameTransition->IsEnd()) {
+			SceneManager::GetInstance()->ChangeScene("Game");
+		}
 	}
 
 	if (fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_OUT) {
@@ -156,15 +166,18 @@ void TitleScene::Update() {
 
 	GameEngine::RenderPreDraw("BackGround", 0);
 
-	studio_->Draw3DNoFog();
+	if (!gameTransition->IsPlaying()) {
+		studio_->Draw3DNoFog();
 
-	for (int i = 0; i < 1; i++) {
-		humans_[i]->Draw3DNoFog();
+		for (int i = 0; i < 1; i++) {
+			humans_[i]->Draw3DNoFog();
+		}
+
+		//title_Sprite_->Draw2D();
+
+		logo_->Draw();
 	}
-
-	//title_Sprite_->Draw2D();
-
-	logo_->Draw();
+	gameTransition->Draw();
 
 	titleScreen_->Draw();
 
@@ -172,7 +185,6 @@ void TitleScene::Update() {
 }
 
 void TitleScene::Draw() {
-
 	static int TVindex = 19;
 
 	std::vector<Parts> parts = livingRoom_->GetParts();
@@ -184,6 +196,7 @@ void TitleScene::Draw() {
 	livingRoom_->Draw3DNoFogRender(TVindex);
 
 	fade_->Draw();
+
 
 	//GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("BackGround"));
 }

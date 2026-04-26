@@ -50,6 +50,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	// カメラ
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get(), course_.get());
+	gameCamera_->Update();
 
 	// コース
 	course_->Initialize(courseData, gameCamera_.get(), directionalLight_);
@@ -75,7 +76,11 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialzie();
-	fade_->SetFadeMode(Fade::FADE_MODE::FADE_IN);
+
+	// タイトルから遷移
+	gameTransition = std::make_unique<Combine>();
+	gameTransition->InitializeGame(directionalLight_, gameCamera_->GetCamera());
+	gameTransition->Update();
 
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
@@ -93,18 +98,21 @@ void GameScene::Update() {
 	Pad pad = input_->GetPad(0);
 
 	if (!startCountdown_->IsEnd()) {
+		if (!gameTransition->IsEnd()) {
+			gameTransition->Update();
+		} else {
 
-		startCountdown_->Update();
+			// 開始カウントダウン
+			startCountdown_->Update();
+    }
 
 		if (startCountdown_->IsDownCameraTime()) {
 			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 		}
 
-		if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
-			skipHold_ += GameEngine::GetDeltaTime();
-			if (skipHold_ > 0.5f) {
-				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-				startCountdown_->SkipPreStart();
+			// ゲーム中のカメラに移行
+			if (startCountdown_->IsDownCameraTime()) {
+				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 			}
 #ifdef USE_IMGUI
 			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
@@ -146,7 +154,10 @@ void GameScene::Update() {
 		hitPreview_->Update(player_.get(), checkCollision_.get());
 	}
 
-	gameCamera_->Update();
+	//カメラ更新
+	if (gameTransition->IsEnd()) {
+		gameCamera_->Update();
+	}
 
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
@@ -227,5 +238,7 @@ void GameScene::Draw() {
 		startCountdown_->Draw();
 	}
 
-	fade_->Draw();
+	if (!gameTransition->IsEnd()) {
+		gameTransition->Draw();
+	}
 }

@@ -10,6 +10,7 @@
 #include "CheckCollision/CheckCollision.h"
 #include "GameCamera/GameCamera.h"
 #include "Fade/Fade.h"
+#include "Effect/Combine/Combine.h"
 
 class GameScene : public BaseScene{
 private:
@@ -52,6 +53,9 @@ private:
 	std::unique_ptr<StartCountdown> startCountdown_ = nullptr;
 
 	std::unique_ptr<Fade> fade_;
+
+	// タイトルからの遷移
+	std::unique_ptr<Combine> gameTransition = nullptr;
 
 	//クリアしているか
 	bool isClear_ = false;
