@@ -45,7 +45,7 @@ private:
 	std::shared_ptr<GameCamera> livingGameCamera_ = nullptr;
 
 	// 遷移演出
-	std::unique_ptr<Combine> combine_ = nullptr;
+	std::unique_ptr<Combine> gameTransition = nullptr;
 	bool sceneChange_ = false;
 
 	//デバッグカメラ

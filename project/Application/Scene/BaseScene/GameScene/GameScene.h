@@ -55,7 +55,7 @@ private:
 	std::unique_ptr<Fade> fade_;
 
 	// タイトルからの遷移
-	std::unique_ptr<Combine> combine_ = nullptr;
+	std::unique_ptr<Combine> gameTransition = nullptr;
 
 	//クリアしているか
 	bool isClear_ = false;
