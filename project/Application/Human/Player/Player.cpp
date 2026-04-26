@@ -3,15 +3,12 @@
 
 void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	//初期化
-	Human::Initialize(position, directionalLight,camera);
+	Human::Initialize(position, directionalLight, camera);
 
 	startTime_ = 0.1f;
 }
 
 void Player::Update(const std::shared_ptr<Input> input) {
-	Keyboard keyboard = input->GetKeyBoard();
-	Pad pad = input->GetPad(0);
-	isCharging_ = false;
 
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;
@@ -20,10 +17,21 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	//基礎クオータニオン分の回転行列
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(NextRotate);
 
-	//パッド操作
-
 	Vector2 vector{};
 
+	// ★ここから入力を止める
+	if (!isResult_) {
+
+		Keyboard keyboard = input->GetKeyBoard();
+		Pad pad = input->GetPad(0);
+
+		isCharging_ = false;
+		if (keyboard.trigger[DIK_L]) {
+			isAutoBurst_ = !isAutoBurst_;
+		}
+		if (keyboard.trigger[DIK_P]) {
+			isJumpFlashMode_ = !isJumpFlashMode_;
+		}
 		//スティック操作
 		if (pad.LeftStick.magnitude > 0.2f) {
 			vector = { pad.LeftStick.vector.x * pad.LeftStick.magnitude, pad.LeftStick.vector.y * pad.LeftStick.magnitude };
@@ -42,6 +50,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 		if (keyboard.hold[DIK_LEFT] || keyboard.hold[DIK_A] || pad.Button[PAD_BUTTON_LEFT].hold) {
 			vector.x -= 1.0f;
 		}
+
 		if (vacuumState_ == None && startTime_ <= 0.0f) {
 			if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold)) {
 				Charge();
@@ -50,17 +59,18 @@ void Player::Update(const std::shared_ptr<Input> input) {
 				Throw();
 			}
 		}
-
-		if (Length(vector) > 0.0f) {
-			if (Length(vector) > 1.0f) {
-				vector = Normalize(vector);
-			}
-			
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4 * vector.y);
-			rotateMatrix = MakeRotateMatrix(NextRotate);
-			NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4 * vector.x);
+	}
+	
+	// ★入力が無い場合でも回転処理はそのまま通る
+	if (Length(vector) > 0.0f) {
+		if (Length(vector) > 1.0f) {
+			vector = Normalize(vector);
 		}
-		
+
+		NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 } *rotateMatrix, std::numbers::pi_v<float> / 4 * vector.y);
+		rotateMatrix = MakeRotateMatrix(NextRotate);
+		NextRotate = NextRotate * MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 } *rotateMatrix, -std::numbers::pi_v<float> / 4 * vector.x);
+	}
 
 	//現在の向きと次の向きの補完
 	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f * GameEngine::GetDeltaTimeRate());
@@ -75,8 +85,13 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	ImGui::DragFloat("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);
 
-	if ((keyboard.release[DIK_G] || pad.Button[PAD_BUTTON_LSTICK].release)) {
-		stop = !stop;
+	if (!isResult_) {
+		Keyboard keyboard = input->GetKeyBoard();
+		Pad pad = input->GetPad(0);
+
+		if ((keyboard.release[DIK_G] || pad.Button[PAD_BUTTON_LSTICK].release)) {
+			stop = !stop;
+		}
 	}
 
 	ImGui::End();
