@@ -306,7 +306,7 @@ void Combine::Update() {
 			black_->SetUVTransform(uv);
 
 			float inT = min(timer_ - kStartIrisIn, kStartTime - kStartIrisIn) / (kStartTime - kStartIrisIn);
-			black_->SetSize(Vector2{ 1280,720 } *inT * 100);
+			black_->SetSize(Vector2{ 1280,720 } *inT * 50);
 			Vector2 screenSize = { float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()) };
 			black_->SetPosition(screenSize * 0.5f);
 		}
@@ -314,7 +314,7 @@ void Combine::Update() {
 		// カメラの相対位置
 		float ease = EaseOutCubic(t);
 		Vector3 startPos = cameraPos + cameraForward * backAmount_;
-		Vector3 endPos = cameraPos + cameraForward * -5.0f;
+		Vector3 endPos = cameraPos + cameraForward * -30.0f;
 		Vector3 worldPos = Lerp(startPos, endPos, ease);
 
 		// キャラをカメラ方向に向ける

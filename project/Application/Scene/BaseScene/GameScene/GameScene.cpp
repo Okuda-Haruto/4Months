@@ -50,7 +50,6 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	// カメラ
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get(), course_.get());
-	gameCamera_->Update();
 
 	// コース
 	course_->Initialize(courseData, gameCamera_.get(), directionalLight_);
@@ -82,6 +81,8 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	gameTransition->InitializeGame(directionalLight_, gameCamera_->GetCamera());
 	gameTransition->Update();
 
+	gameCamera_->Update();
+
 #ifdef USE_IMGUI
 	isUseDebugCamera_ = false;
 #endif
@@ -104,27 +105,28 @@ void GameScene::Update() {
 
 			// 開始カウントダウン
 			startCountdown_->Update();
-    }
-
-		if (startCountdown_->IsDownCameraTime()) {
-			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
-		}
 
 			// ゲーム中のカメラに移行
 			if (startCountdown_->IsDownCameraTime()) {
 				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 			}
+
+			if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
+				skipHold_ += GameEngine::GetDeltaTime();
+				if (skipHold_ > 0.5f) {
+					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+					startCountdown_->SkipPreStart();
+				}
 #ifdef USE_IMGUI
-			gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-			startCountdown_->SkipAll();
+				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+				startCountdown_->SkipAll();
 #endif
-		}
-		else {
-			skipHold_ = 0;
+			} else {
+				skipHold_ = 0;
+			}
 		}
 
-	}
-	else {
+	} else {
 
 		// ★追加：簡易リザルト状態を渡す
 		player_->SetResult(course_->InSubSection());
@@ -135,8 +137,7 @@ void GameScene::Update() {
 			if (isUp_) {
 				clearY_ += GameEngine::GetDeltaTimeRate();
 				if (clearY_ > 0) isUp_ = false;
-			}
-			else {
+			} else {
 				clearY_ -= GameEngine::GetDeltaTimeRate();
 				if (clearY_ < -32 * 3.0f * 4) isUp_ = true;
 			}
@@ -194,8 +195,7 @@ void GameScene::Update() {
 			gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
 		}
 		isClear_ = true;
-	}
-	else if (course_->isEnd()) {
+	} else if (course_->isEnd()) {
 		fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
 	}
 
@@ -219,16 +219,15 @@ void GameScene::Draw() {
 
 	if (isClear_) {
 		course_->DrawAll(directionalLight_);
-	}
-	else if (startCountdown_->IsPreStart()) {
+
+		fade_->Draw();
+	} else if (startCountdown_->IsPreStart()) {
 		course_->DrawUp(directionalLight_);
-	}
-	else {
+	} else {
 
 		if (course_->InSubSection()) {
 			course_->DrawAll(directionalLight_);
-		}
-		else {
+		} else {
 			course_->Draw(directionalLight_);
 		}
 
