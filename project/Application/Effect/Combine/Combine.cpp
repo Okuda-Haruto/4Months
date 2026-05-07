@@ -67,7 +67,7 @@ void Combine::InitializeTitle(std::shared_ptr<DirectionalLight> directionalLight
 	transform.translate = { 0,defaultY_,0 };
 	human_->SetTransform(transform);
 	human_->SetIsUseAnimation(true);
-	human_->SetAnimationIndex(6);
+	human_->SetAnimationIndex(19);
 
 	beyblade_ = std::make_unique<Object>();
 	beyblade_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title/startAnim", "beyblade.obj"));
@@ -103,13 +103,13 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 	transform.scale = { 1.0f / 0.13f,1.0f / 0.13f ,1.0f / 0.13f };
 	Quaternion rot = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
 	transform.rotate = rot;
-	transform.translate = { 0,0, backAmount_ };
+	transform.translate = { 0, endY_, backAmount_ };
 	human_->SetTransform(transform);
 	human_->SetIsUseAnimation(true);
-	human_->SetAnimationIndex(9);
+	human_->SetAnimationIndex(27);
 	human_->Update();
 
-	Vector3 translate = transform.translate;
+	Vector3 translate = { 0, 0, backAmount_ };
 	beyblade_ = std::make_unique<Object>();
 	beyblade_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title/startAnim", "beyblade.obj"));
 	beyblade_->SetDirectionalLight(directionalLight);
@@ -222,7 +222,7 @@ void Combine::Update() {
 
 		auto transformHuman = human_->GetTransform();
 		transformHuman.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		transformHuman.translate = parts[4].transform->translate;
+		transformHuman.translate = parts[4].transform->translate + Vector3{ 0, endY_,0 };
 		human_->SetTransform(transformHuman);
 		human_->Update();
 
@@ -242,13 +242,13 @@ void Combine::Update() {
 
 		float t = min(timer_, kBackTime) / kBackTime;
 		auto transformHuman = human_->GetTransform();
-		transformHuman.translate = Vector3{ 0,0,1 } *(t * backAmount_);
+		transformHuman.translate = Vector3{ 0,0,1 } *(t * backAmount_) + Vector3{ 0,endY_,0 };
 		human_->SetTransform(transformHuman);
 		human_->Update();
 
 		auto transform = beyblade_->GetTransform();
 		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		transform.translate = transformHuman.translate;
+		transform.translate = transformHuman.translate - Vector3{ 0,endY_ ,0 };
 		beyblade_->SetTransform(transform);
 
 		if (timer_ / kBackTime >= 1.0f) {
@@ -264,7 +264,7 @@ void Combine::Update() {
 		Vector3 cameraPos = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
 		Vector3 cameraForward = { cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] };
 		cameraForward = Normalize(cameraForward);
-		Vector3 startPos = cameraPos + cameraForward * backAmount_;
+		Vector3 startPos = cameraPos + cameraForward * backAmount_ + Vector3{ 0,endY_,0 };
 
 		// キャラをカメラ方向に向ける
 		Quaternion lookRot = MakeLookRotation(cameraPos - startPos, Vector3{ 0,1,0 });
@@ -277,7 +277,7 @@ void Combine::Update() {
 
 		auto transform = beyblade_->GetTransform();
 		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
-		transform.translate = startPos;
+		transform.translate = startPos - Vector3{ 0,endY_,0 };
 		beyblade_->SetTransform(transform);
 	}
 
@@ -321,7 +321,7 @@ void Combine::Update() {
 		Quaternion lookRot = MakeLookRotation(cameraPos - worldPos, Vector3{ 0,1,0 });
 
 		SRT h = human_->GetTransform();
-		h.translate = worldPos;
+		h.translate = worldPos + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
 		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
 		human_->SetTransform(h);
 		human_->Update();

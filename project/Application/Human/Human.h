@@ -139,6 +139,7 @@ protected:
 	bool stop;
 	bool isResult_;
 
+	float humanFootOffset = 2.4f;
 	
 	// SE
 	std::unique_ptr<Audio> shootSE_ = nullptr;
