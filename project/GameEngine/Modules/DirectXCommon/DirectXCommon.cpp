@@ -1234,8 +1234,8 @@ void DirectXCommon::UpdateFixFPS() {
 	// 最終的な現在時間
 	now = std::chrono::steady_clock::now();
 
-	// 経過時間(ロードで異常に時間がかかる可能性があるので1.0fpsは最悪出ている判定に)
-	deltaTime_ = min(std::chrono::duration<float>(now - reference_).count(),1.0f);
+	// 経過時間(ロードで異常に時間がかかる可能性があるので10.0fpsは最悪出ている判定に)
+	deltaTime_ = min(std::chrono::duration<float>(now - reference_).count(),0.1f);
 
 	//現在の時間を記録する
 	reference_ = std::chrono::steady_clock::now();

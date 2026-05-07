@@ -109,7 +109,7 @@ protected:
 	const float kMinReturnTime = 15 / 60.0f;
 	const float kMaxReturnTime = 70 / 60.0f;
 	float returnTimer_ = 0;
-	float bounceBackSpeed_ = 11.0f;
+	float bounceBackSpeed_ = 5.0f;
 
 	// 飛ばすコマの回転
 	std::unique_ptr<PlayerRotation> headRotateEffect_ = nullptr;
