@@ -9,6 +9,8 @@ void GoalBarrier::Initialize(float position, std::shared_ptr<Camera> camera) {
 
 	transform_.translate.y = position;
 	transform_.scale = { 1.0f,1.0f,1.0f };
+	goalLineTransform_.translate.y = position - 1.0f;
+	goalLineTransform_.scale = { 1.0f,1.0f,1.0f };
 
 	baseObject_ = std::make_unique<Object>();
 	baseObject_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/GoalBarrier", "GoalBarrier.obj"));
@@ -51,6 +53,17 @@ void GoalBarrier::Initialize(float position, std::shared_ptr<Camera> camera) {
 	parts = smokeObjectScale_->GetParts();
 	smokeObjectScale_->SetParts(parts[0], 0);
 
+	goalLineObject_ = std::make_unique<Object>();
+	goalLineObject_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/GoalBarrier", "GoalBarrier_Smoke.obj"));
+	goalLineObject_->SetReflection(REFLECTION_None);
+	goalLineObject_->SetCamera(camera_);
+	goalLineObject_->SetTransform(goalLineTransform_);
+	goalLineObject_->SetColor(Vector4{ 1.0f ,1.0f,1.0f,0.5f });
+
+	parts = goalLineObject_->GetParts();
+	parts[0].textureIndex = TextureManager::GetInstance()->GetSrvIndex("resources/Course/GoalBarrier/GoalLine.png");
+	goalLineObject_->SetParts(parts[0], 0);
+
 	time_ = 0.0f;
 	clearTimer_ = kMaxClearTimer_;
 	isClear_ = false;
@@ -61,6 +74,9 @@ void GoalBarrier::Initialize(float position, std::shared_ptr<Camera> camera) {
 
 void GoalBarrier::Update(GameCamera* gameCamera) {
 	time_ += GameEngine::GetDeltaTime();
+	if (time_ > 60.0f) {
+		time_ -= 60.0f;
+	}
 
 	if (isClear_ && clearTimer_ > 0.0f) {
 		clearTimer_ -= GameEngine::GetDeltaTime();
@@ -91,14 +107,21 @@ void GoalBarrier::Update(GameCamera* gameCamera) {
 	Vector3 cameraTranslate = gameCamera->GetTransform().translate;
 
 	transform_.translate = { cameraTranslate.x,transform_.translate.y,cameraTranslate.z };
+	goalLineTransform_.translate = { cameraTranslate.x,transform_.translate.y,cameraTranslate.z };
+
+	parts = goalLineObject_->GetParts();
+	parts[0].UVtransform.translate = { time_ / 60,time_ / 60,0 };
+	goalLineObject_->SetParts(parts[0], 0);
 
 	baseObject_->SetTransform(transform_);
 	smokeObject_->SetTransform(transform_);
 	smokeObjectRotate_->SetTransform(transform_);
 	smokeObjectScale_->SetTransform(transform_);
+	goalLineObject_->SetTransform(goalLineTransform_);
 }
 
 void GoalBarrier::Draw() {
+	goalLineObject_->Draw3D();
 	if (clearTimer_ > 0.0f) {
 		baseObject_->Draw3D();
 		smokeObjectRotate_->Draw3D();

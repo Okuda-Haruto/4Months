@@ -9,11 +9,13 @@ private:
 	std::unique_ptr<Object> smokeObject_;
 	std::unique_ptr<Object> smokeObjectRotate_;
 	std::unique_ptr<Object> smokeObjectScale_;
+	std::unique_ptr<Object> goalLineObject_;
 
 	std::shared_ptr<Camera> camera_;
 	std::unique_ptr<Audio> clearSE_;
 
 	SRT transform_;
+	SRT goalLineTransform_;
 
 	float time_;
 
