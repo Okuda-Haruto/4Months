@@ -62,9 +62,9 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 		humans_[i]->SetTransform(human_Tranaforms_[i]);
 	}
 
-	human_Tranaforms_[0].translate = { 55,0,-25 };
+	human_Tranaforms_[0].translate = { 55,30,-28 };
 	human_Tranaforms_[0].rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float> / 180 * 60);
-	humans_[0]->SetAnimationIndex(4);
+	humans_[0]->SetAnimationIndex(15);
 	humans_[0]->SetIsUseAnimation(true);
 	humans_[0]->SetIsLoopAnimation(true);
 
@@ -146,7 +146,7 @@ void TitleScene::Update() {
 
 	for (int i = 0; i < humans_.size(); i++) {
 		str = "human" + std::to_string(i) + " transate";
-		ImGui::DragFloat3(str.c_str(), &human_Tranaforms_[i].translate.x);
+		ImGui::DragFloat3(str.c_str(), &human_Tranaforms_[i].translate.x,0.01f);
 		humans_[i]->SetTransform(human_Tranaforms_[i]);
 	}
 

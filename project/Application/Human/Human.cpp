@@ -19,7 +19,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
 	model_->SetIsUseAnimation(true);
-	model_->SetAnimationIndex(9);
+	model_->SetAnimationIndex(28);
 	model_->Update();
 
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
@@ -134,7 +134,7 @@ void Human::Update() {
 			headRotateEffect_->Catch();
 			catchSE_->SoundPlayWave();
 
-			model_->SetAnimationIndex(6);
+			model_->SetAnimationIndex(28);
 		}
 	}
 
@@ -155,6 +155,11 @@ void Human::Update() {
 	SRT modelTransform = transform_;
 	modelTransform.rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, std::numbers::pi_v<float> / 2) * transform_.rotate;
 	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_) * modelTransform.rotate;
+
+	Vector3 up = RotateVector({ 0,1,0 }, modelTransform.rotate);
+	up.x *= -1; up.z *= -1;
+	modelTransform.translate = transform_.translate + up * humanFootOffset;
+	
 	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
 	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
@@ -258,13 +263,13 @@ void Human::Throw() {
 	}
 
 	model_->ResetAnimationTime();
-	model_->SetAnimationIndex(8);
+	model_->SetAnimationIndex(24);
 }
 
 void Human::Charge() {
 	if (charge_ == 0) {
 		model_->ResetAnimationTime();
-		model_->SetAnimationIndex(9);
+		model_->SetAnimationIndex(28);
 
 		chargeSE_->SoundPlayWave();
 	}

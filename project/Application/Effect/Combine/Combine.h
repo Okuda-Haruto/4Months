@@ -21,7 +21,8 @@ private:
 
 	// コマ
 	float rotate_ = 0;
-	float defaultY_ = 40;
+	float defaultY_ = 70;
+	float endY_ = 7.5f;
 	float setStart = 0.3f;
 	float setCountdown_[8] = {
 		0.6f,0.7f,0.8f,0.9f,5.0f,0.3f,0.3f,0.3f
