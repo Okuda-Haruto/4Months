@@ -1,9 +1,12 @@
 #include "TitleMoji.h"
 #include "Mix.h"
 
-void TitleMoji::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
+void TitleMoji::Initialize(std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<Input> input) {
 	LoadCSV("resources/Title/logo.csv", directionalLight);
 	timer_ = 0;
+
+	input_ = input;
+	isStop_ = true;
 
 	wind_ = std::make_unique<Wind>();
 	wind_->Initialize(directionalLight);
@@ -13,6 +16,21 @@ void TitleMoji::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 }
 
 void TitleMoji::Update() {
+	Keyboard key = input_->GetKeyBoard();
+	Pad pad = input_->GetPad(0);
+
+	if ((key.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && state_ != State::End) {
+		timer_ = 0;
+		state_ = State::Spread;
+		explosionSE_->SoundPlayWave();
+
+		for (int i = 0; i < blocks_.size(); ++i) {
+			spreadVel_[i] = Normalize(positions_[i]) * GameEngine::randomFloat(3.0f, 6.0f);
+		}
+		isStop_ = false;
+	}
+
+
 	switch (state_) {
 	case State::Wait:
 		timer_ += GameEngine::GetDeltaTime();
@@ -57,7 +75,7 @@ void TitleMoji::Update() {
 		timer_ += GameEngine::GetDeltaTime();
 		timer_ = min(timer_, stopTime_);
 
-		if (timer_ == stopTime_) {
+		if (timer_ == stopTime_ && !isStop_) {
 			timer_ = 0;
 			state_ = State::Spread;
 			explosionSE_->SoundPlayWave();
@@ -75,7 +93,7 @@ void TitleMoji::Update() {
 		// 外側に飛ばす
 		for (int i = 0; i < blocks_.size(); ++i) {
 			SRT transform = blocks_[i]->GetTransform();
-			transform.translate += spreadVel_[i];
+			transform.translate += spreadVel_[i] * GameEngine::GetDeltaTimeRate();
 			blocks_[i]->SetTransform(transform);
 			blocks_[i]->Update();
 		}
@@ -93,11 +111,13 @@ void TitleMoji::Update() {
 }
 
 void TitleMoji::Draw() {
-	for (auto& block : blocks_) {
-		block->Draw3D();
-	}
+	if (state_ != State::End) {
+		for (auto& block : blocks_) {
+			block->Draw3D();
+		}
 
-	wind_->Draw();
+		wind_->Draw();
+	}
 }
 
 void TitleMoji::LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> directionalLight) {

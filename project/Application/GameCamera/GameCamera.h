@@ -199,6 +199,8 @@ public:
 	std::shared_ptr<Camera> GetCamera() { return camera_; }
 	
 	float GetCameraPosBottom() { return cameraPosBottom_; }
+
+	bool IsEndChangeCamera() { return nextCamera_ == nullptr; }
 };
 
 class StartCamera : public BaseCamera{

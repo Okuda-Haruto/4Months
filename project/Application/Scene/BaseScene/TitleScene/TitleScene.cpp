@@ -21,7 +21,7 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
 	logo_ = std::make_unique<TitleMoji>();
-	logo_->Initialize(directionalLight_);
+	logo_->Initialize(directionalLight_, input_);
 
 	//デバッグカメラ
 	debugCamera_ = make_shared<DebugCamera>();
@@ -109,20 +109,39 @@ void TitleScene::Update() {
 		logo_->Update();
 	}
 
+	//文字が爆散したらセレクトに行く
 	if (logo_->IsEnd() && !isChangeStudioCamera_) {
 		studioGameCamera_->ChangeCamera(std::make_unique<SelectCamera>(), 2.0f);
 		isChangeStudioCamera_ = true;
 	}
 
-	if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && (fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {
+	//全て終わった後にSpace(Bボタン)でステージに
+	if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && (studioGameCamera_->IsEndChangeCamera() && isChangeStudioCamera_ && fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {
 		selectSE_->SoundPlayWave();
 		sceneChange_ = true;
+	}
+
+	//全て終わった後にESCAPE(ボタン)でステージに
+	if ((keyboard.trigger[DIK_ESCAPE] || pad.Button[PAD_BUTTON_START].trigger) && (studioGameCamera_->IsEndChangeCamera() && isChangeStudioCamera_ && fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {
+		selectSE_->SoundPlayWave();
+		isBackTitle_ = true;
+		studioGameCamera_->ChangeCamera(std::make_unique<StudioCamera>(), 2.0f);
 	}
 
 	if (sceneChange_) {
 		gameTransition->Update();
 		if (gameTransition->IsEnd()) {
 			SceneManager::GetInstance()->ChangeScene("Game");
+		}
+	}
+
+	if (isBackTitle_) {
+		if (studioGameCamera_->IsEndChangeCamera()) {
+			logo_.reset();
+			logo_ = std::make_unique<TitleMoji>();
+			logo_->Initialize(directionalLight_, input_);
+			isBackTitle_ = false;
+			isChangeStudioCamera_ = false;
 		}
 	}
 

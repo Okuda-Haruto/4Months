@@ -5,7 +5,7 @@
 
 class TitleMoji {
 public:
-	void Initialize(std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<Input> input);
 	void Update();
 	void Draw();
 
@@ -26,6 +26,10 @@ private:
 	const float vacuumEndTime_ = 3.0f;
 	const float stopTime_ = 0.3f;
 	const float spreadTime_ = 0.5f;
+
+	std::shared_ptr<Input> input_;
+	//ボタンを押すまでStop状態から変化させない
+	bool isStop_;
 
 	enum class State {
 		Wait,
