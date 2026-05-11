@@ -88,7 +88,6 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 #ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
-	ImGui::DragFloat3("速度", &velocity_.translate.x);
 	ImGui::DragFloat("まぜる時間", &vacuumTime_);
 	ImGui::DragFloat("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);
