@@ -94,6 +94,14 @@ void Human::Update() {
 		transform_.translate += velocity_.translate + knockBackVelocity_;
 	}
 
+	// リザルト中の場合
+	if (isResult_) {
+		// 範囲内でループ
+		if (transform_.translate.y < resultLoopEndY) {
+			transform_.translate.y = resultLoopStartY;
+		}
+	}
+
 	// 分離しているときの先頭
 	switch (vacuumState_) {
 	case None:
@@ -307,5 +315,10 @@ Vector3 Human::CalcVacuumPosition() {
 	return transform_.translate + dir * distance;
 }
 void Human::SetResult(bool flag) {
+	if (!isResult_ && flag) {
+		resultLoopStartY = transform_.translate.y - 25;
+		resultLoopEndY = resultLoopStartY - 30;
+	}
+
 	isResult_ = flag;
 }
