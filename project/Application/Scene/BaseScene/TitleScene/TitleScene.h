@@ -48,6 +48,9 @@ private:
 	std::unique_ptr<Combine> gameTransition = nullptr;
 	bool sceneChange_ = false;
 
+	//セレクトからタイトルに戻しているか
+	bool isBackTitle_ = false;
+
 	//デバッグカメラ
 	std::shared_ptr<DebugCamera> debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
