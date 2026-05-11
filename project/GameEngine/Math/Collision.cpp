@@ -213,6 +213,7 @@ bool IsCollision(const AABB& aabb, const Line& line) {
 	}
 	return false;
 }
+
 //AABBと半直線の衝突
 bool IsCollision(const AABB& aabb, const Ray& ray) {
 
@@ -331,59 +332,75 @@ Vector3 GetHitNormal(const AABB& aabb, const Ray& ray) {
 	return normal;
 }
 
-
-//AABBと線分の衝突
+// AABBと線分の衝突
 bool IsCollision(const AABB& aabb, const Segment& segment) {
 
-	Vector3 min = {
-		(aabb.min.x - segment.origin.x) / segment.diff.x,
-		(aabb.min.y - segment.origin.y) / segment.diff.y,
-		(aabb.min.z - segment.origin.z) / segment.diff.z,
-	};
-	//Nan対策
-	if ((aabb.min.x - segment.origin.x) == 0 && segment.diff.x == 0) {
-		min.x = (aabb.min.x - (segment.origin.x - 0.00001f)) / (segment.diff.x - 0.00001f);
+	const float EPS = 1e-6f;
+
+	Vector3 min, max;
+
+	// ===== X =====
+	if (fabsf(segment.diff.x) < EPS) {
+		// 平行
+		if (segment.origin.x < aabb.min.x ||
+			segment.origin.x > aabb.max.x) {
+			return false;
+		}
+		min.x = -INFINITY;
+		max.x = INFINITY;
 	}
-	if ((aabb.min.y - segment.origin.y) == 0 && segment.diff.y == 0) {
-		min.y = (aabb.min.y - (segment.origin.y - 0.00001f)) / (segment.diff.y - 0.00001f);
-	}
-	if ((aabb.min.z - segment.origin.z) == 0 && segment.diff.z == 0) {
-		min.z = (aabb.min.z - (segment.origin.z - 0.00001f)) / (segment.diff.z - 0.00001f);
+	else {
+		min.x = (aabb.min.x - segment.origin.x) / segment.diff.x;
+		max.x = (aabb.max.x - segment.origin.x) / segment.diff.x;
 	}
 
-	Vector3 max = {
-		(aabb.max.x - segment.origin.x) / segment.diff.x,
-		(aabb.max.y - segment.origin.y) / segment.diff.y,
-		(aabb.max.z - segment.origin.z) / segment.diff.z,
-	};
-	//Nan対策
-	if ((aabb.max.x - segment.origin.x) == 0 && segment.diff.x == 0) {
-		max.x = (aabb.max.x - (segment.origin.x - 0.00001f)) / (segment.diff.x - 0.00001f);
+	// ===== Y =====
+	if (fabsf(segment.diff.y) < EPS) {
+		if (segment.origin.y < aabb.min.y ||
+			segment.origin.y > aabb.max.y) {
+			return false;
+		}
+		min.y = -INFINITY;
+		max.y = INFINITY;
 	}
-	if ((aabb.max.y - segment.origin.y) == 0 && segment.diff.y == 0) {
-		max.y = (aabb.max.y - (segment.origin.y - 0.00001f)) / (segment.diff.y - 0.00001f);
-	}
-	if ((aabb.max.z - segment.origin.z) == 0 && segment.diff.z == 0) {
-		max.z = (aabb.max.z - (segment.origin.z - 0.00001f)) / (segment.diff.z - 0.00001f);
+	else {
+		min.y = (aabb.min.y - segment.origin.y) / segment.diff.y;
+		max.y = (aabb.max.y - segment.origin.y) / segment.diff.y;
 	}
 
-	float tNearX = std::min(min.x, max.x), tFarX = std::max(min.x, max.x);
-	float tNearY = std::min(min.y, max.y), tFarY = std::max(min.y, max.y);
-	float tNearZ = std::min(min.z, max.z), tFarZ = std::max(min.z, max.z);
+	// ===== Z =====
+	if (fabsf(segment.diff.z) < EPS) {
+		if (segment.origin.z < aabb.min.z ||
+			segment.origin.z > aabb.max.z) {
+			return false;
+		}
+		min.z = -INFINITY;
+		max.z = INFINITY;
+	}
+	else {
+		min.z = (aabb.min.z - segment.origin.z) / segment.diff.z;
+		max.z = (aabb.max.z - segment.origin.z) / segment.diff.z;
+	}
 
-	//AABBとの衝突点(貫通点)のtが小さい方
+	float tNearX = std::min(min.x, max.x);
+	float tFarX = std::max(min.x, max.x);
+
+	float tNearY = std::min(min.y, max.y);
+	float tFarY = std::max(min.y, max.y);
+
+	float tNearZ = std::min(min.z, max.z);
+	float tFarZ = std::max(min.z, max.z);
+
 	float tmin = std::max(std::max(tNearX, tNearY), tNearZ);
-	//AABBとの衝突点(貫通点)のtが大きい方
 	float tmax = std::min(std::min(tFarX, tFarY), tFarZ);
 
-	if (fabsf(tmin) == INFINITY || fabsf(tmax) == INFINITY) {
-		return true;
-	}
+	// slab交差チェック
+	if (tmin > tmax) return false;
 
-	if (tmin <= tmax && tmin <= 1.0f && tmax >= 0.0f) {
-		return true;
-	}
-	return false;
+	// 線分範囲 [0,1]
+	if (tmax < 0.0f || tmin > 1.0f) return false;
+
+	return true;
 }
 
 //OBBと球の衝突

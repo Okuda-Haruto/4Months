@@ -27,6 +27,7 @@ private:
 	void CheckVacuum(Human* human);
 
 	bool IsHitCapsule(const Vector3& p0, const Vector3& p1, float capsuleRadius, const AABB& aabb);
+	bool IsHitCapsuleHuman(const Vector3& p0, const Vector3& p1, float capsuleRadius, const AABB& aabb);
 
 	Course* course_;
 	GameCamera* gameCamera_;

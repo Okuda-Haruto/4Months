@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "CheckCollision.h"
 #include "Human/Human.h"
 #include "Course/Course.h"
@@ -34,10 +35,16 @@ void CheckCollision::CheckBullet(Human* human) {
 	float radius = prev.radius;
 
 	// ボクセル
+	course_->GetVoxel()->Collision(Sphere{ Lerp(p0, p1,0.25f) ,radius });
+	course_->GetVoxel()->Collision(Sphere{ Lerp(p0, p1,0.50f) ,radius });
+	course_->GetVoxel()->Collision(Sphere{ Lerp(p0, p1,0.75f) ,radius });
 	course_->GetVoxel()->Collision(curr);
 
 	for (auto& box : course_->GetBoxes()) {
 		AABB boxAABB = box->GetCollider();
+
+		boxAABB.min -= {0.1f, 0.1f, 0.1f};
+		boxAABB.max += {0.1f, 0.1f, 0.1f};
 
 		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
 			human->StopBullet(closest_);
@@ -49,20 +56,26 @@ void CheckCollision::CheckBullet(Human* human) {
 void CheckCollision::CheckVoxel(Human* human) {
 	if (human->IsInvincible()) { return; }
 	Sphere prev = { human->GetTransform().translate, 3.0f };
-	Sphere curr = { prev.center + human->GetVelocity(), 3.0f };
+	Sphere curr = { prev.center + human->GetVelocity() * GameEngine::GetDeltaTimeRate(), 3.0f};
 
 	Vector3 p0 = prev.center;
 	Vector3 p1 = curr.center;
 	float radius = prev.radius;
 
 	//ボクセル
+	course_->GetVoxel()->Collision(Sphere{ Lerp(p0, p1,0.25f) ,radius});
+	course_->GetVoxel()->Collision(Sphere{ Lerp(p0, p1,0.50f) ,radius });
+	course_->GetVoxel()->Collision(Sphere{ Lerp(p0, p1,0.75f) ,radius });
 	course_->GetVoxel()->Collision(curr);
 
 	for (auto& box : course_->GetBoxes()) {
 		AABB boxAABB = box->GetCollider();
 
+		boxAABB.min -= {0.1f, 0.1f, 0.1f};
+		boxAABB.max += {0.1f, 0.1f, 0.1f};
+
 		// 判定
-		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
+		if (IsHitCapsuleHuman(p0, p1, radius, boxAABB)) {
 			// 衝突
 			if (box->GetTransform().scale.x > 1.0f) {
 				if (human->CanShoot()) {
@@ -151,6 +164,23 @@ bool CheckCollision::IsHitCapsule(
 	float distSq = Dot(diff, diff);
 
 	return distSq <= (capsuleRadius * capsuleRadius);
+}
+
+bool CheckCollision::IsHitCapsuleHuman(
+	const Vector3& p0,
+	const Vector3& p1,
+	float capsuleRadius,
+	const AABB& aabb)
+{
+	Segment C_segment;
+	C_segment.origin = p0;
+	C_segment.diff = p1 - p0;
+	AABB C_aabb = aabb;
+	C_aabb.min -= Vector3{ capsuleRadius, capsuleRadius, capsuleRadius};
+	C_aabb.max += Vector3{ capsuleRadius, capsuleRadius, capsuleRadius };
+
+
+	return IsCollision(C_aabb, C_segment);
 }
 
 Vector3 CheckCollision::HitPreview(Human* human) {

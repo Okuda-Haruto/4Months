@@ -78,20 +78,32 @@ void Human::Update() {
 		fallingSpeed_ = max(fallingSpeed_ - gravity * GameEngine::GetDeltaTimeRate(), -maxFall);
 	}
 
-	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } *GameEngine::GetDeltaTimeRate();
+	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } * GameEngine::GetDeltaTimeRate();
 
 	//NANチェック
 	float len = Length(knockBackAcceleration_);
 
 	if (len > 1e-6f && std::isfinite(len)) {
 		knockBackVelocity_ = Normalize(knockBackAcceleration_) * kNockBackSpeed_ * GameEngine::GetDeltaTimeRate();
-		knockBackVelocity_.y *= kNockBackFallingSpeed_ / kNockBackSpeed_;
 	}
 
 	knockBackAcceleration_ = {};
 
+#ifdef USE_IMGUI
+
+	ImGui::Begin("Human");
+	ImGui::DragFloat3("速度", &velocity_.translate.x);
+	ImGui::End();
+
+#endif // USE_IMGUI
+
 	if (!stop) {
-		transform_.translate += velocity_.translate + knockBackVelocity_;
+		if (isCharging_) {
+			transform_.translate += velocity_.translate / 4 + knockBackVelocity_;
+		}
+		else {
+			transform_.translate += velocity_.translate + knockBackVelocity_;
+		}
 	}
 
 	// 分離しているときの先頭
@@ -202,7 +214,7 @@ void Human::OnHitVoxel(AABB aabb) {
 		knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
 	}
 	else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
-		knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
+		//knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
 	}
 	else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
 		knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
@@ -216,7 +228,6 @@ void Human::OnHitVoxel(AABB aabb) {
 		fallingSpeed_ = 0.0f;
 	}
 
-	speed_ = 1.0f;
 	if (vacuumState_ == None) {
 		if (isAutoBurst_) {
 			charge_ = max(kMaxCharge_ * 0.1f, charge_ * 0.5f);
@@ -243,7 +254,9 @@ void Human::Throw() {
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
-	fallingSpeed_ += 7 + bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
+	fallingSpeed_ += 5 + bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
+	speed_ = 0.0f;
+	velocity_.translate.y = 0.0f;
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
 	vacuumTime_ = (charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime;
 	returnTime_ = (charge_ / kMaxCharge_) * (kMaxReturnTime - kMinReturnTime) + kMinReturnTime;
