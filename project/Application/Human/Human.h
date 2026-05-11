@@ -50,6 +50,8 @@ public:
 	float GetMaxCharge() { return kMaxCharge_; }
 	Vector3 GetVacuumStartPos() { return vacuumStartPos_; }
 	float GetFallingSpeed() { return fallingSpeed_; }
+	bool IsResult() { return isResult_; }
+
 	// ★これ追加
 	void SetResult(bool flag);
 	bool isAutoBurst_ = true;
@@ -140,6 +142,10 @@ protected:
 	bool isResult_;
 
 	float humanFootOffset = 2.4f;
+
+	// リザルト中のループ地点
+	float resultLoopStartY = 0;
+	float resultLoopEndY = 0;
 	
 	// SE
 	std::unique_ptr<Audio> shootSE_ = nullptr;

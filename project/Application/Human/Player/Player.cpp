@@ -19,11 +19,11 @@ void Player::Update(const std::shared_ptr<Input> input) {
 
 	Vector2 vector{};
 
+	Keyboard keyboard = input->GetKeyBoard();
+	Pad pad = input->GetPad(0);
+
 	// ★ここから入力を止める
 	if (!isResult_) {
-
-		Keyboard keyboard = input->GetKeyBoard();
-		Pad pad = input->GetPad(0);
 
 		isCharging_ = false;
 		if (keyboard.trigger[DIK_L]) {
@@ -58,6 +58,14 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			if ((keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release)) {
 				Throw();
 			}
+		}
+	} else {
+		// 簡易リザルト終了
+		if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
+			float blockSize = 3.0f;
+			float offset = transform_.translate.y - std::floor(transform_.translate.y / blockSize) * blockSize;
+			transform_.translate.y = resultLoopEndY + offset;
+			isResult_ = false;
 		}
 	}
 	
