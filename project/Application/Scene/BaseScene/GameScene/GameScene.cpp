@@ -75,6 +75,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialzie();
+	fade_->SetFadeMode(Fade::FADE_MODE::FADE_IN);
 
 	// タイトルから遷移
 	gameTransition = std::make_unique<Combine>();
