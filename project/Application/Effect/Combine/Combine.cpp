@@ -94,7 +94,7 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 	SRT h;
 	h.scale = { 1.0f / 0.13f,1.0f / 0.13f ,1.0f / 0.13f };
 	h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-	h.translate = RotateVector({ 0,defaultY_,gameDefaultZ_ }, lookRot);
+	h.translate = RotateVector({ 0,defaultHY_,gameDefaultZ_ }, lookRot);
 	human_->SetTransform(h);
 	human_->SetIsUseAnimation(true);
 	human_->SetAnimationIndex(19);
@@ -174,12 +174,12 @@ void Combine::Update() {
 	}
 	case Phase::Fall:
 	{
-		rotate_ += 0.1f;
+		rotate_ += 0.07f;
 
 		// バラバラのパーツが降下
 		float t = min(timer_ / kFallTime, 1.0f);
 		auto b = beyblade_->GetTransform();
-		b.translate = Lerp(RotateVector(Vector3{ 0,defaultY_,0 }, lookRot) + startPos, startPos, t);
+		b.translate = Lerp(RotateVector(Vector3{ 0,defaultBY_,0 }, lookRot) + startPos, startPos, t);
 		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
 		beyblade_->SetTransform(b);
 
@@ -201,8 +201,8 @@ void Combine::Update() {
 			// パーツごとのタイマー
 			setCountdown_[i] -= deltaTime;
 
-			if (setCountdown_[i] <= 0.4f) {
-				float t = 1.0f - max(setCountdown_[i] / 0.4f, 0.0f);
+			if (setCountdown_[i] <= 0.3f) {
+				float t = 1.0f - max(setCountdown_[i] / 0.3f, 0.0f);
 				t = EaseOutCubic(t);
 				parts[i].transform->translate = Lerp(RotateVector(partsTranslate[i], lookRot), Vector3{}, t);
 				beyblade_->SetParts(parts[i], i);
@@ -302,7 +302,7 @@ void Combine::Update() {
 			black_->SetUVTransform(uv);
 
 			float inT = min(timer_ - kStartIrisIn, kStartTime - kStartIrisIn) / (kStartTime - kStartIrisIn);
-			black_->SetSize(Vector2{ 1280,720 } *inT * 80);
+			black_->SetSize(Vector2{ 1280,720 } *inT * 100);
 			Vector2 screenSize = { float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()) };
 			black_->SetPosition(screenSize * 0.5f);
 		}
