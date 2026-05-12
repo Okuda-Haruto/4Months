@@ -48,78 +48,6 @@ void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, CSVData data
 
 void Voxel::Update() {
 
-
-#ifdef USE_IMGUI
-	ImGui::Begin("マップチップCSV書き込みツール");
-
-	static int chunkIndexY = 0;
-	static int chunkIndexZ = 0;
-	static int chunkIndexX = 0;
-	ImGui::SliderInt("チャンク番号_Y", &chunkIndexY, 0, int(data_.size.y - 1));
-	ImGui::SliderInt("チャンク番号_Z", &chunkIndexZ, 0, int(data_.size.z - 1));
-	ImGui::SliderInt("チャンク番号_X", &chunkIndexX, 0, int(data_.size.x - 1));
-	static int yIndex = 0;
-	ImGui::SliderInt("Y軸", &yIndex, 0, 15);
-	ImGui::Text("マップエディター");
-	// テクスチャID (DxLibやDirectXから取得したID)
-	ImTextureID textureID = (ImTextureID)GameEngine::GetSRVManager()->GetGPUDescriptorHandle(face_->GetTextureIndex(0)).ptr;
-	ImVec2 uv00 = ImVec2(0.0f, 0.0f); // タイルのUV開始位置
-	ImVec2 uv11 = ImVec2(0.0f, 1.0f); // タイルのUV終了位置 (例: 4x4のタイルセットの左上)
-
-	for (int z = 15; z >= 0; z--) {
-		for (int x = 0; x < 16; x++) {
-			std::string id = "tile##" + std::to_string(z) + "_" + std::to_string(x);
-			//TILEの見た目変更
-			if (chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] != TILE_None) {
-				uv00.x = float(chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] - 1) / int(VOXEL_TILE_END - 1);
-			} else {
-				uv00.x = 0.0f;
-			}
-			uv11.x = float(chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x]) / int(VOXEL_TILE_END - 1);
-
-			// クリック可能なマップチップボタン
-			if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv00, uv11)) {
-				// タイルが選択された時の処理
-				chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x]++;
-				if (chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] >= VOXEL_TILE_END) {
-					chunks_[chunkIndexY][chunkIndexZ][chunkIndexX].mapChip[yIndex][z][x] = TILE_None;
-				}
-			}
-
-			// グリッドを並べる
-			if (x < 15) ImGui::SameLine();
-		}
-	}
-
-	std::string str;
-	if (ImGui::Button("SAVE")) {
-		for (int y = 0; y < chunks_.size(); y++) {
-			for (int z = 0; z < chunks_[y].size(); z++) {
-				for (int x = 0; x < chunks_[y][z].size(); x++) {
-					str = data_.directoryPath + "/chunk_" + std::to_string(y) + "_" + std::to_string(z) + "_" + std::to_string(x) + ".csv";
-					WriteChunk(chunks_[y][z][x], str);
-				}
-			}
-		}
-	}
-
-	SRT cameraTransform = camera_->GetTransform();
-	Vector3 cameraPosition;
-	cameraPosition.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) % 16);
-	cameraPosition.y = -float(int(cameraTransform.translate.y / (scale * 2)) % 16);
-	cameraPosition.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) % 16);
-	Vector3 cameraChunkNumber;
-	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) / 16);
-	cameraChunkNumber.y = -float(int(cameraTransform.translate.y / (scale * 2)) / 16);
-	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
-
-	ImGui::DragFloat3("cameraPosition", &cameraPosition.x);
-	ImGui::DragFloat3("cameraChunkNumber", &cameraChunkNumber.x);
-
-	ImGui::End();
-
-#endif // USE_IMGUI
-
 }
 
 void Voxel::Draw() {
@@ -577,6 +505,30 @@ void Voxel::DrawChunkAll(int chunkY, int chunkZ, int chunkX, Vector3 cameraChunk
 						}
 					}
 				}
+				//下面
+				if (y >= 15) {
+					//下が空白
+					if (chunkY >= chunks_.size() - 1) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x,chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x],MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+					else if (!chunks_[chunkY + 1][chunkZ][chunkX].mapChip[0][z][x]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x,chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x],MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+				}
+				else {
+					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y + 1][z][x]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x,chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x],MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+				}
 				//前面
 				if (z >= 15) {
 					//前が空白
@@ -714,7 +666,36 @@ void Voxel::DrawChunkAllUp(
 						index_++;
 					}
 				}
-
+				//下面
+				if (y >= 15) {
+					//下が空白
+					if (chunkY >= chunks_.size() - 1) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x,
+								chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x],
+								MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+					else if (!chunks_[chunkY + 1][chunkZ][chunkX].mapChip[0][z][x]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x,
+								chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x],
+								MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+				}
+				else {
+					if (!chunks_[chunkY][chunkZ][chunkX].mapChip[y + 1][z][x]) {
+						if (index_ < objects_.size()) {
+							drawOdjects_.push_back(AddFace(chunkY, chunkZ, chunkX, y, z, x,
+								chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x],
+								MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, std::numbers::pi_v<float> / 2)));
+							index_++;
+						}
+					}
+				}
 				// 前面
 				if (z >= 15) {
 					if (chunkZ >= chunks_[chunkY].size() - 1) {
