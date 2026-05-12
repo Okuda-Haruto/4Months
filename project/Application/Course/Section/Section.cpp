@@ -1,6 +1,11 @@
 #include "Section.h"
+#include "Voxel/Voxel.h"
+#include "Box/Box.h"
 
-void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore) {
+void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, Voxel* voxel) {
+	startChunkY_ = startChunkY;
+	endChunkY_ = endChunkY;
+
 	float blockScale = 3.0f;
 	float chunkSize = blockScale * 2 * 16;
 	startY_ = -startChunkY * chunkSize;
@@ -8,6 +13,9 @@ void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int c
 	clearBreakScore_ = clearScore;
 	maxBreakScore_ = maxScore;
 	isSubSection_ = false;
+
+	voxel_ = voxel;
+	startVoxelCount_ = voxel->CountObjects(startChunkY, endChunkY);
 
 	timer_ = std::make_unique<GameTimer>();
 	timer_->Initialize(maxSeconds);
@@ -70,4 +78,18 @@ void Section::AddBreak(int breakCount) {
 		breakSETimer_ = breakSEInterval_;
 	}
 
+}
+
+float Section::GetBreakRate(std::vector<Box*> boxes) {
+	int boxCount = 0;
+	for (auto box : boxes) {
+		if (box->GetTransform().scale.x >= 3.0f) {
+			float boxY = box->GetTransform().translate.y;
+			if (boxY < startY_ && boxY > endY_) {
+				boxCount++;
+			}
+		}
+	}
+
+	return 1.0f - (float(voxel_->CountObjects(startChunkY_, endChunkY_) + boxCount) / startVoxelCount_);
 }

@@ -89,6 +89,9 @@ public:
 	//セーブ
 	void Save(const std::string& directoryPath);
 
+	// 一定Yチャンク範囲内のブロック数
+	int CountObjects(int startY, int endY);
+
 private:
 
 	void DrawChunk(int chunkY, int chunkZ, int chunkX, Vector3 cameraTranslate, Vector3 cameraChunkNumber);
