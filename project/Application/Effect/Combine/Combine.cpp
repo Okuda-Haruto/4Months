@@ -1,6 +1,10 @@
 #include "Combine.h"
 #include <numbers>
 
+static float EaseInCubic(float t) {
+	return t * t * t;
+}
+
 static float EaseOutCubic(float t) {
 	return 1.0f - powf(1.0f - t, 3.0f);
 }
@@ -57,31 +61,6 @@ Quaternion MakeLookRotation(const Vector3& forward, const Vector3& up) {
 void Combine::InitializeTitle(std::shared_ptr<DirectionalLight> directionalLight, shared_ptr<Camera> camera) {
 	camera_ = camera;
 
-	human_ = std::make_unique<Object>();
-	human_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.gltf"));
-	human_->SetDirectionalLight(directionalLight);
-	human_->SetShininess(0);
-	SRT transform = human_->GetTransform();
-	transform.scale = { 1.0f / 0.13f,1.0f / 0.13f ,1.0f / 0.13f };
-	transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>);
-	transform.translate = { 0,defaultY_,0 };
-	human_->SetTransform(transform);
-	human_->SetIsUseAnimation(true);
-	human_->SetAnimationIndex(19);
-
-	beyblade_ = std::make_unique<Object>();
-	beyblade_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title/startAnim", "beyblade.obj"));
-	beyblade_->SetDirectionalLight(directionalLight);
-	beyblade_->SetShininess(0);
-	beyblade_->SetTransform({ {1,1,1},{},Vector3{ 0,defaultY_,0 } });
-
-	// 初期配置
-	auto parts = beyblade_->GetParts();
-	for (int i = 0; i < 8; i++) {
-		parts[i].transform->translate = partsTranslate[i];
-		beyblade_->SetParts(parts[i], i);
-	}
-
 	isTitle_ = true;
 	phase_ = Phase::Black;
 
@@ -95,33 +74,54 @@ void Combine::InitializeTitle(std::shared_ptr<DirectionalLight> directionalLight
 void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<Camera> camera) {
 	camera_ = camera;
 
+	// カメラのワールド行列を取得（ビュー行列の逆）
+	Matrix4x4 view = camera_->GetViewMatrix();
+	Matrix4x4 cameraWorld = Inverse(view);
+	// カメラ位置と前方ベクトル（ワールド空間）
+	Vector3 cameraPos = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
+	Vector3 cameraForward = { cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] };
+	cameraForward = Normalize(cameraForward);
+	// カメラの相対位置
+	Vector3 worldPos = cameraPos + cameraForward * gameDefaultZ_;
+	// キャラをカメラ方向に向ける
+	Quaternion lookRot = MakeLookRotation(cameraPos - worldPos, Vector3{ 0,1,0 });
+
+	// 人モデル
 	human_ = std::make_unique<Object>();
 	human_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.gltf"));
 	human_->SetDirectionalLight(directionalLight);
 	human_->SetShininess(0);
-	SRT transform = human_->GetTransform();
-	transform.scale = { 1.0f / 0.13f,1.0f / 0.13f ,1.0f / 0.13f };
-	Quaternion rot = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-	transform.rotate = rot;
-	transform.translate = { 0, endY_, backAmount_ };
-	human_->SetTransform(transform);
+	SRT h;
+	h.scale = { 1.0f / 0.13f,1.0f / 0.13f ,1.0f / 0.13f };
+	h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
+	h.translate = RotateVector({ 0,defaultY_,gameDefaultZ_ }, lookRot);
+	human_->SetTransform(h);
 	human_->SetIsUseAnimation(true);
-	human_->SetAnimationIndex(27);
+	human_->SetAnimationIndex(19);
 	human_->Update();
 
-	Vector3 translate = { 0, 0, backAmount_ };
+	// コマモデル
 	beyblade_ = std::make_unique<Object>();
 	beyblade_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title/startAnim", "beyblade.obj"));
 	beyblade_->SetDirectionalLight(directionalLight);
 	beyblade_->SetShininess(0);
-	transform = beyblade_->GetTransform();
-	transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-	transform.translate = translate;
-	beyblade_->SetTransform(transform);
+	beyblade_->SetTransform({
+		{1,1,1},
+		 MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_)),
+		worldPos
+		}
+	);
+
+	// 初期配置
+	auto parts = beyblade_->GetParts();
+	for (int i = 0; i < 8; i++) {
+		parts[i].transform->translate = partsTranslate[i];
+		beyblade_->SetParts(parts[i], i);
+	}
 
 	isTitle_ = false;
 
-	phase_ = Phase::Wait;
+	phase_ = Phase::Fall;
 
 	black_ = std::make_unique<Sprite>();
 	black_->Initialize("resources/Effect/Combine/hole.png");
@@ -133,13 +133,24 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 }
 
 void Combine::Update() {
+	// カメラのワールド行列を取得（ビュー行列の逆）
+	Matrix4x4 view = camera_->GetViewMatrix();
+	Matrix4x4 cameraWorld = Inverse(view);
+
+	// カメラ位置と前方ベクトル（ワールド空間）
+	Vector3 cameraPos = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
+	Vector3 cameraForward = { cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] };
+	cameraForward = Normalize(cameraForward);
+
+	Vector3 startPos = cameraPos + cameraForward * gameDefaultZ_;
+	Quaternion lookRot = MakeLookRotation(cameraPos - startPos, Vector3{ 0,1,0 });
 
 	switch (phase_) {
 	case Phase::Black:
 	{
 		float t = min(timer_, kDarkTime) / kDarkTime;
 		if (t <= kDarkTime) {
-			black_->SetSize(Vector2{ 1280,720 } *max((1 - t), 0.03f) * 40);
+			black_->SetSize(Vector2{ 1280,720 } *max((1 - t), 0.03f) * 60);
 			Vector2 screenSize = { float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()) };
 			black_->SetPosition(screenSize * 0.5f);
 
@@ -157,7 +168,7 @@ void Combine::Update() {
 
 		if (timer_ / (kDarkTime + kDarkWaitTime) >= 1.0f) {
 			timer_ = 0;
-			phase_ = Phase::Fall;
+			isEnd_ = true;
 		}
 		break;
 	}
@@ -167,10 +178,10 @@ void Combine::Update() {
 
 		// バラバラのパーツが降下
 		float t = min(timer_ / kFallTime, 1.0f);
-		auto transform = beyblade_->GetTransform();
-		transform.translate = Lerp(Vector3{ 0,defaultY_,0 }, Vector3{ 0,0,0 }, t);
-		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		beyblade_->SetTransform(transform);
+		auto b = beyblade_->GetTransform();
+		b.translate = Lerp(RotateVector(Vector3{ 0,defaultY_,0 }, lookRot) + startPos, startPos, t);
+		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		beyblade_->SetTransform(b);
 
 		if (t == 1.0f) {
 			timer_ = 0;
@@ -190,17 +201,17 @@ void Combine::Update() {
 			// パーツごとのタイマー
 			setCountdown_[i] -= deltaTime;
 
-			if (setCountdown_[i] <= 0.2f) {
-				float t = 1.0f - max(setCountdown_[i] / 0.2f, 0.0f);
+			if (setCountdown_[i] <= 0.4f) {
+				float t = 1.0f - max(setCountdown_[i] / 0.4f, 0.0f);
 				t = EaseOutCubic(t);
-				parts[i].transform->translate = Lerp(partsTranslate[i], Vector3{}, t);
+				parts[i].transform->translate = Lerp(RotateVector(partsTranslate[i], lookRot), Vector3{}, t);
 				beyblade_->SetParts(parts[i], i);
 			}
 		}
 
-		auto transform = beyblade_->GetTransform();
-		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		beyblade_->SetTransform(transform);
+		auto b = beyblade_->GetTransform();
+		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		beyblade_->SetTransform(b);
 
 		if (timer_ / kSetTime >= 1.0f) {
 			timer_ = 0;
@@ -208,7 +219,6 @@ void Combine::Update() {
 		}
 	}
 	break;
-
 	case Phase::Ride:
 	{
 		rotate_ += 0.1f;
@@ -217,68 +227,63 @@ void Combine::Update() {
 		float deltaTime = GameEngine::GetDeltaTime();
 		float t = min(timer_, kRideTime) / kRideTime;
 		auto parts = beyblade_->GetParts();
-		parts[4].transform->translate = Lerp(partsTranslate[4], Vector3{}, t);
+		parts[4].transform->translate = Lerp(RotateVector(partsTranslate[4], lookRot) + startPos, startPos, t);
 		beyblade_->SetParts(parts[4], 4);
 
-		auto transformHuman = human_->GetTransform();
-		transformHuman.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		transformHuman.translate = parts[4].transform->translate + Vector3{ 0, endY_,0 };
-		human_->SetTransform(transformHuman);
+		auto h = human_->GetTransform();
+		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
+		h.translate = parts[4].transform->translate + Vector3{ 0, endY_,0 };
+		human_->SetTransform(h);
 		human_->Update();
 
-		auto transform = beyblade_->GetTransform();
-		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		beyblade_->SetTransform(transform);
+		auto b = beyblade_->GetTransform();
+		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		beyblade_->SetTransform(b);
 
 		if (timer_ / kRideTime >= 1.0f) {
 			timer_ = 0;
 			phase_ = Phase::Back;
 		}
-		break;
 	}
+	break;
 	case Phase::Back:
 	{
-		rotate_ += 0.05f;
+		rotate_ += 0.15f;
 
 		float t = min(timer_, kBackTime) / kBackTime;
-		auto transformHuman = human_->GetTransform();
-		transformHuman.translate = Vector3{ 0,0,1 } *(t * backAmount_) + Vector3{ 0,endY_,0 };
-		human_->SetTransform(transformHuman);
+		SRT h = human_->GetTransform();
+		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
+		h.translate = startPos + cameraForward * (t * backAmount_) + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
+		human_->SetTransform(h);
 		human_->Update();
 
-		auto transform = beyblade_->GetTransform();
-		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		transform.translate = transformHuman.translate - Vector3{ 0,endY_ ,0 };
-		beyblade_->SetTransform(transform);
+		auto b = beyblade_->GetTransform();
+		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.translate = h.translate - RotateVector(Vector3{ 0,endY_ ,0 }, lookRot);
+		beyblade_->SetTransform(b);
 
 		if (timer_ / kBackTime >= 1.0f) {
-			isEnd_ = true;
+			phase_ = Phase::Wait;
 		}
-		break;
 	}
+	break;
 	case Phase::Wait:
 	{
-		Matrix4x4 view = camera_->GetViewMatrix();
-		Matrix4x4 cameraWorld = Inverse(view);
-
-		Vector3 cameraPos = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
-		Vector3 cameraForward = { cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] };
-		cameraForward = Normalize(cameraForward);
-		Vector3 startPos = cameraPos + cameraForward * backAmount_ + Vector3{ 0,endY_,0 };
+		Vector3 pos = startPos + cameraForward * backAmount_;
 
 		// キャラをカメラ方向に向ける
 		Quaternion lookRot = MakeLookRotation(cameraPos - startPos, Vector3{ 0,1,0 });
 
 		SRT h = human_->GetTransform();
-		h.translate = startPos;
 		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
+		h.translate = pos + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
 		human_->SetTransform(h);
 		human_->Update();
 
-		auto transform = beyblade_->GetTransform();
-		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
-		transform.translate = startPos - Vector3{ 0,endY_,0 };
-		beyblade_->SetTransform(transform);
+		auto b = beyblade_->GetTransform();
+		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.translate = pos;
+		beyblade_->SetTransform(b);
 	}
 
 	if (timer_ / kBackTime >= 1.0f) {
@@ -288,48 +293,39 @@ void Combine::Update() {
 	break;
 	case Phase::GameStart:
 	{
-		// カメラのワールド行列を取得（ビュー行列の逆）
-		Matrix4x4 view = camera_->GetViewMatrix();
-		Matrix4x4 cameraWorld = Inverse(view);
-
-		// カメラ位置と前方ベクトル（ワールド空間）
-		Vector3 cameraPos = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
-		Vector3 cameraForward = { cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] };
-		cameraForward = Normalize(cameraForward);
-
 		rotate_ += 0.15f;
 
 		float t = min(timer_, kStartTime) / kStartTime;
-		if (timer_ > kStartIrisIn) {
+		if (timer_ > kStartIrisIn + 0.05f) {
 			SRT uv = black_->GetUVTransform();
 			uv.scale = { 1, 1, 1 };
 			black_->SetUVTransform(uv);
 
 			float inT = min(timer_ - kStartIrisIn, kStartTime - kStartIrisIn) / (kStartTime - kStartIrisIn);
-			black_->SetSize(Vector2{ 1280,720 } *inT * 50);
+			black_->SetSize(Vector2{ 1280,720 } *inT * 80);
 			Vector2 screenSize = { float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()) };
 			black_->SetPosition(screenSize * 0.5f);
 		}
 
 		// カメラの相対位置
-		float ease = EaseOutCubic(t);
-		Vector3 startPos = cameraPos + cameraForward * backAmount_;
-		Vector3 endPos = cameraPos + cameraForward * -30.0f;
-		Vector3 worldPos = Lerp(startPos, endPos, ease);
+		float ease = EaseInCubic(t);
+		Vector3 start = startPos + cameraForward * backAmount_;
+		Vector3 end = cameraPos + cameraForward * -30.0f;
+		Vector3 worldPos = Lerp(start, end, ease);
 
 		// キャラをカメラ方向に向ける
 		Quaternion lookRot = MakeLookRotation(cameraPos - worldPos, Vector3{ 0,1,0 });
 
 		SRT h = human_->GetTransform();
-		h.translate = worldPos + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
 		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
+		h.translate = worldPos + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
 		human_->SetTransform(h);
 		human_->Update();
 
-		auto transform = beyblade_->GetTransform();
-		transform.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
-		transform.translate = worldPos;
-		beyblade_->SetTransform(transform);
+		auto b = beyblade_->GetTransform();
+		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.translate = worldPos;
+		beyblade_->SetTransform(b);
 
 		if (timer_ / kStartTime >= 1.0f) {
 			isEnd_ = true;
@@ -345,7 +341,8 @@ void Combine::Draw() {
 	black_->Update();
 	black_->Draw2D();
 
-	if (phase_ > Phase::Black)
+	if (phase_ > Phase::Black) {
 		human_->Draw3D();
-	beyblade_->Draw3D();
+		beyblade_->Draw3D();
+	}
 }

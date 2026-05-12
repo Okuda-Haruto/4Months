@@ -25,9 +25,10 @@ private:
 	float endY_ = 7.5f;
 	float setStart = 0.3f;
 	float setCountdown_[8] = {
-		0.6f,0.7f,0.8f,0.9f,5.0f,0.3f,0.3f,0.3f
+		0.8f,0.9f,1.0f,1.0f,5.0f,0.5f,0.5f,0.5f
 	};
 	float backAmount_ = 50.0f;
+	const float gameDefaultZ_ = 50.0f;
 	float angle_ = 0.5f;
 	Vector3 partsTranslate[8] = {
 		{ 0,0,20 },
@@ -53,13 +54,13 @@ private:
 
 	float timer_ = 0;
 	const float kDarkTime = 1.0f;
-	const float kDarkWaitTime = 0.5f;
-	const float kFallTime = 0.3f;
-	const float kSetTime = 0.8f;
+	const float kDarkWaitTime = 0.2f;
+	const float kFallTime = 0.5f;
+	const float kSetTime = 1.0f;
 	const float kRideTime = 0.3f;
-	const float kBackTime = 0.4f;
-	const float kWaitTime = 0.5f;
-	const float kStartTime = 1.5f;
+	const float kBackTime = 0.5f;
+	const float kWaitTime = 0.8f;
+	const float kStartTime = 1.0f;
 
 	const float kStartIrisIn = 0.5f;
 
