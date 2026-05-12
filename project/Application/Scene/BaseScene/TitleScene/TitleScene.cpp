@@ -120,6 +120,10 @@ void TitleScene::Update() {
 		selectSE_->SoundPlayWave();
 		sceneChange_ = true;
 	}
+	//スキップ
+	else if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && isChangeStudioCamera_ && !isBackTitle_) {
+		studioGameCamera_->ChangeCamera(std::make_unique<SelectCamera>(), 0.0f);
+	}
 
 	//全て終わった後にESCAPE(ボタン)でステージに
 	if ((keyboard.trigger[DIK_ESCAPE] || pad.Button[PAD_BUTTON_START].trigger) && (studioGameCamera_->IsEndChangeCamera() && isChangeStudioCamera_ && fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {

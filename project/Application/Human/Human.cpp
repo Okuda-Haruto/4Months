@@ -6,7 +6,7 @@
 
 void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.gltf"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/test", "Player.gltf"));
 	model_->SetShininess(30.0f);
 	bulletModel_ = make_unique<Object>();
 	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
@@ -19,7 +19,7 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
 	model_->SetIsUseAnimation(true);
-	model_->SetAnimationIndex(28);
+	model_->SetAnimationIndex(7);
 	model_->Update();
 
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
@@ -154,7 +154,7 @@ void Human::Update() {
 			headRotateEffect_->Catch();
 			catchSE_->SoundPlayWave();
 
-			model_->SetAnimationIndex(28);
+			model_->SetAnimationIndex(7);
 		}
 	}
 
@@ -284,13 +284,13 @@ void Human::Throw() {
 	}
 
 	model_->ResetAnimationTime();
-	model_->SetAnimationIndex(24);
+	model_->SetAnimationIndex(11);
 }
 
 void Human::Charge() {
 	if (charge_ == 0) {
 		model_->ResetAnimationTime();
-		model_->SetAnimationIndex(28);
+		model_->SetAnimationIndex(12);
 
 		chargeSE_->SoundPlayWave();
 	}
