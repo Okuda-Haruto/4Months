@@ -181,6 +181,11 @@ void GameScene::Update() {
 		isUseDebugCamera_ = !isUseDebugCamera_;
 	}
 	ImGui::Text("現在区間 : %d", section);
+	if (course_->InSubSection()) {
+		ImGui::Text("破壊率 : %.2f", course_->GetPrevBreakRate());
+	} else {
+		ImGui::Text("破壊率 : %.2f", course_->GetCurrBreakRate());
+	}
 	ImGui::End();
 #endif
 

@@ -2,10 +2,12 @@
 #include "GameEngine.h"
 #include "GameTimer/GameTimer.h"
 
+class Box;
+class Voxel;
 class Section {
 public:
 	// メインの区間
-	void Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore);
+	void Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, Voxel* voxel);
 
 	// ノルマなし区間
 	void Initialize(int startChunkY, int endChunkY);
@@ -14,6 +16,9 @@ public:
 
 	// スコア追加
 	void AddBreak(int breakCount);
+
+	// 現在の破壊率計算
+	float GetBreakRate(std::vector<Box*> boxes);
 
 	// ノルマなし区間か
 	bool IsSubSection() { return isSubSection_; }
@@ -63,6 +68,9 @@ private:
 	float endY_ = 0;
 	float currentY_ = 0;
 
+	int startChunkY_ = 0;
+	int endChunkY_ = 0;
+
 	// ノルマなしの区間
 	bool isSubSection_ = false;
 
@@ -70,4 +78,7 @@ private:
 	std::unique_ptr<Audio> breakSE_ = nullptr;
 	float breakSETimer_ = 0;
 	const float breakSEInterval_ = 0.075f;
+
+	Voxel* voxel_ = nullptr;
+	int startVoxelCount_ = 0;
 };
