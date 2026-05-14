@@ -25,9 +25,20 @@ struct Chunk {
 	std::array<std::array<std::array<uint8_t, 16>, 16>, 16> mapChip;
 };
 
+struct VoxelStatus {
+	//どれだけ吸引されやすいか
+	float vacuumSensitivity;
+	//最大耐久度
+	float MaxHP;
+	//最大耐久度の乱数範囲
+	float randomRate;
+};
+
 struct CSVData {
 	Vector3 size;
-	std::string directoryPath;
+	std::string chunkDataDirectoryPath;
+	std::vector<VoxelStatus> voxelStatus;
+	std::string voxelDataFilePath;
 };
 
 class Voxel {
@@ -54,10 +65,10 @@ private:
 	GameCamera* camera_;
 
 	//セーブするときに使う
-	CSVData data_;
+	CSVData csvData_;
 
 public:
-	void Initialize(Course* course, std::shared_ptr<Model> face, CSVData data, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLigth);
+	void Initialize(Course* course, std::shared_ptr<Model> face, CSVData csvData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLigth);
 
 	void Update();
 
@@ -77,6 +88,10 @@ public:
 
 	//ボクセルのセット
 	void SetVoxel(Vector3 chunkPos, int y, int z, int x, uint8_t voxelNum) { chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y][z][x] = voxelNum; }
+	//上のマップチップをコピー
+	void CopyUpperMapChip(Vector3 chunkPos, int y);
+	//下のマップチップをコピー
+	void CopyUnderMapChip(Vector3 chunkPos, int y);
 	//チャンク縦回転
 	void ChunkVerticalRotation(Vector3 chunkPos);
 	//チャンク横回転
@@ -85,6 +100,12 @@ public:
 	void ChunkCopy(Vector3 fromChunkPos, Vector3 toChunkPos);
 	//チャンク交換
 	void ChunkSwap(Vector3 fromChunkPos, Vector3 toChunkPos);
+
+	//チャンク数変更
+	void Resize(Vector3 size);
+
+	void SetVoxelData(std::vector<VoxelStatus> voxelStatus) { csvData_.voxelStatus = voxelStatus; }
+	std::vector<VoxelStatus>  GetVoxelData() { return csvData_.voxelStatus; }
 
 	//セーブ
 	void Save(const std::string& directoryPath);
@@ -99,4 +120,7 @@ private:
 
 	Chunk LoadChunk(std::string loadFile);
 	void WriteChunk(const Chunk& chunk, const std::string& loadFile);
+
+	std::vector<VoxelStatus> LoadVoxel(std::string loadFile);
+	void WriteVoxel(const std::string& loadFile);
 };

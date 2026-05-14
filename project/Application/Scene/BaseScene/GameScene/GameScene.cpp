@@ -41,18 +41,15 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	player_ = std::make_unique<Player>();
 	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_, defaultCamera_);
 
-	CSVData courseData;
-	courseData.size = { 2,18,2 };
-	courseData.directoryPath = "resources/CSV";
-
 	course_ = std::make_unique<Course>();
+	LoadCourse("resources/CourseData/course_01.csv");
 
 	// カメラ
 	gameCamera_ = make_unique<GameCamera>();
 	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get(), course_.get());
 
 	// コース
-	course_->Initialize(courseData, gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData_.csvData, gameCamera_.get(), directionalLight_);
 	chunkHeight_ = int(course_->GetChunkData().size.y);
 	float cameraPosBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
 	gameCamera_->SetCameraPosBottom(cameraPosBottom);
@@ -241,4 +238,49 @@ void GameScene::Draw() {
 	if (!gameTransition->IsEnd()) {
 		gameTransition->Draw();
 	}
+}
+
+void GameScene::LoadCourse(std::string filePath) {
+	std::ifstream file(filePath);
+	assert(file.is_open());
+
+	// 1行分の文字列を入れる変数
+	std::string line;
+
+	while (std::getline(file, line)) {
+
+		// 1行分の文字列をストリームに変換して解析しやすくする
+		std::istringstream line_stream(line);
+
+		std::string word;
+		//,区切りで行の先頭文字列を取得
+		getline(line_stream, word, ',');
+
+		// コメント
+		if (word.find("//") == 0) {
+			continue;
+		}
+
+		// カンマ区切りで読む
+		if (word.find("ChunkSize") == 0) {
+			getline(line_stream, word, ',');
+			courseData_.csvData.size.x = stof(word);
+			getline(line_stream, word, ',');
+			courseData_.csvData.size.y = stof(word);
+			getline(line_stream, word, ',');
+			courseData_.csvData.size.z = stof(word);
+		}
+
+		if (word.find("ChunkDataDirectoryPath") == 0) {
+			getline(line_stream, word, ',');
+			courseData_.csvData.chunkDataDirectoryPath = word;
+		}
+
+		if (word.find("VoxelDataFilePath") == 0) {
+			getline(line_stream, word, ',');
+			courseData_.csvData.voxelDataFilePath = word;
+		}
+	}
+
+	file.close();
 }

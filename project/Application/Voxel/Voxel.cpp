@@ -6,7 +6,7 @@
 #include <numbers>
 #include <cassert>
 
-void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, CSVData data, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLigth) {
+void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, CSVData csvData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLigth) {
 
 	course_ = course;
 	face_ = face;
@@ -27,22 +27,24 @@ void Voxel::Initialize(Course* course, std::shared_ptr<Model> face, CSVData data
 	std::string str;
 	Chunk chunk;
 	//サイズ変更
-	chunks_.resize(int(data.size.y));
-	for (int y = 0; y < data.size.y; y++) {
+	chunks_.resize(int(csvData.size.y));
+	for (int y = 0; y < csvData.size.y; y++) {
 		//サイズ変更
-		chunks_[y].resize(int(data.size.z));
-		for (int z = 0; z < data.size.z; z++) {
+		chunks_[y].resize(int(csvData.size.z));
+		for (int z = 0; z < csvData.size.z; z++) {
 			//サイズ変更
-			chunks_[y][z].resize(int(data.size.x));
-			for (int x = 0; x < data.size.x; x++) {
-				str = data.directoryPath + "/chunk_" + std::to_string(y) + "_" + std::to_string(z) + "_" + std::to_string(x) + ".csv";
+			chunks_[y][z].resize(int(csvData.size.x));
+			for (int x = 0; x < csvData.size.x; x++) {
+				str = csvData.chunkDataDirectoryPath + "/chunk_" + std::to_string(y) + "_" + std::to_string(z) + "_" + std::to_string(x) + ".csv";
 				chunk = LoadChunk(str);
 				chunks_[y][z][x] = chunk;
 			}
 		}
 	}
 
-	data_ = data;
+	csvData.voxelStatus = LoadVoxel(csvData.voxelDataFilePath);
+
+	csvData_ = csvData;
 
 }
 
@@ -56,13 +58,13 @@ void Voxel::Draw() {
 
 	SRT cameraTransform = camera_->GetTransform();
 	Vector3 cameraPosition;
-	cameraPosition.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) % 16);
+	cameraPosition.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * csvData_.size.x) % 16);
 	cameraPosition.y = -float(int(cameraTransform.translate.y / (scale * 2)) % 16);
-	cameraPosition.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) % 16);
+	cameraPosition.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * csvData_.size.z) % 16);
 	Vector3 cameraChunkNumber;
-	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) / 16);
+	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * csvData_.size.x) / 16);
 	cameraChunkNumber.y = -float(int(cameraTransform.translate.y / (scale * 2)) / 16);
-	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
+	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * csvData_.size.z) / 16);
 
 	for (int y = 0; y < chunks_.size(); y++) {
 		for (int z = 0; z < chunks_[y].size(); z++) {
@@ -83,9 +85,9 @@ void Voxel::Draw(AABB drawRange) {
 
 	SRT cameraTransform = camera_->GetTransform();
 	Vector3 cameraChunkNumber;
-	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) / 16);
+	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * csvData_.size.x) / 16);
 	cameraChunkNumber.y = -float(int(cameraTransform.translate.y / (scale * 2)) / 16);
-	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
+	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * csvData_.size.z) / 16);
 
 	for (int y = int(drawRange.min.y); y < int(drawRange.max.y); y++) {
 		for (int z = int(drawRange.min.z); z < int(drawRange.max.z); z++) {
@@ -108,9 +110,9 @@ void Voxel::DrawAll() {
 
 	SRT cameraTransform = camera_->GetTransform();
 	Vector3 cameraChunkNumber;
-	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) / 16);
+	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * csvData_.size.x) / 16);
 	cameraChunkNumber.y = -float(int(cameraTransform.translate.y / (scale * 2)) / 16);
-	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
+	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * csvData_.size.z) / 16);
 
 	for (int y = 0; y < chunks_.size(); y++) {
 		//範囲を絞る
@@ -137,9 +139,9 @@ void Voxel::DrawUp() {
 	SRT cameraTransform = camera_->GetTransform();
 
 	Vector3 cameraChunkNumber;
-	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * data_.size.x) / 16);
+	cameraChunkNumber.x = float(int((cameraTransform.translate.x / (scale * 2)) + 8 * csvData_.size.x) / 16);
 	cameraChunkNumber.y = -float(int(cameraTransform.translate.y / (scale * 2)) / 16);
-	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * data_.size.z) / 16);
+	cameraChunkNumber.z = float(int((cameraTransform.translate.z / (scale * 2)) + 8 * csvData_.size.z) / 16);
 
 	int maxUpRange = 5; // カメラから上に何チャンクまで描画するか
 	for (int y = 0; y < chunks_.size(); y++) {
@@ -171,9 +173,9 @@ Object* Voxel::AddFace(int chunkY, int chunkZ, int chunkX, int y, int z, int x, 
 		float chunkSize = voxelSize * 16.0f;
 
 		transform.translate = {
-			(chunkX * chunkSize - chunkSize / 2 * data_.size.x) + x * voxelSize + voxelSize * 0.5f,
+			(chunkX * chunkSize - chunkSize / 2 * csvData_.size.x) + x * voxelSize + voxelSize * 0.5f,
 			-(chunkY * chunkSize + y * voxelSize + voxelSize * 0.5f),
-			(chunkZ * chunkSize - chunkSize / 2 * data_.size.z) + z * voxelSize + voxelSize * 0.5f
+			(chunkZ * chunkSize - chunkSize / 2 * csvData_.size.z) + z * voxelSize + voxelSize * 0.5f
 		};
 
 		objects_[index_]->SetTransform(transform);
@@ -200,9 +202,9 @@ void Voxel::Collision(Sphere sphere) {
 				float chunkSize = voxelSize * 16.0f;
 
 				Vector3 chunkOrigin = {
-					chunkX * chunkSize - chunkSize / 2 * data_.size.x,
+					chunkX * chunkSize - chunkSize / 2 * csvData_.size.x,
 					-((chunkY + 1) * chunkSize),
-					chunkZ * chunkSize - chunkSize / 2 * data_.size.z
+					chunkZ * chunkSize - chunkSize / 2 * csvData_.size.z
 				};
 
 				chunkAABB.min = chunkOrigin;
@@ -239,18 +241,17 @@ void Voxel::Collision(Sphere sphere) {
 												voxelAABB.min.z + voxelSize * 0.5f
 											};
 
-											switch (chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]) {
-											case 1:
-												//Boxにする
-												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.5f, GameEngine::randomFloat(4, 7));
-												break;
-											case 2:
-												//Boxにする
-												course_->AddBox(transform, {}, chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x], 0.05f, GameEngine::randomFloat(12, 15));
-												break;
-											default:
-												break;
-											}
+											//Boxにする
+											course_->AddBox(
+												transform,
+												{},
+												chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x],
+												csvData_.voxelStatus[chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]].vacuumSensitivity,
+												GameEngine::randomFloat(
+													csvData_.voxelStatus[chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]].MaxHP - csvData_.voxelStatus[chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]].randomRate,
+													csvData_.voxelStatus[chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]].MaxHP + csvData_.voxelStatus[chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x]].randomRate
+												)
+											);
 
 											chunks_[chunkY][chunkZ][chunkX].mapChip[y][z][x] = 0;
 										}
@@ -279,9 +280,9 @@ CollisionVoxel Voxel::GetCollisionVoxel(Ray ray, AABB chunkRate) {
 				float chunkSize = voxelSize * 16.0f;
 
 				Vector3 chunkOrigin = {
-					chunkX * chunkSize - chunkSize / 2 * data_.size.x,
+					chunkX * chunkSize - chunkSize / 2 * csvData_.size.x,
 					-((chunkY + 1) * chunkSize),
-					chunkZ * chunkSize - chunkSize / 2 * data_.size.z
+					chunkZ * chunkSize - chunkSize / 2 * csvData_.size.z
 				};
 
 				chunkAABB.min = chunkOrigin;
@@ -868,6 +869,67 @@ void Voxel::WriteChunk(const Chunk& chunk, const std::string& loadFile) {
 	file.close();
 }
 
+std::vector<VoxelStatus> Voxel::LoadVoxel(std::string loadFile) {
+	std::ifstream file(loadFile);
+
+	std::vector<VoxelStatus> data{};
+
+	//開けないなら空データを返す
+	if (!file.is_open()) {
+		//空気用ダミー
+		VoxelStatus status{};
+
+		data.push_back(status);
+		return data;
+	}
+
+	std::string line;
+
+	while (std::getline(file, line)) {
+
+		// 1行分の文字列をストリームに変換して解析しやすくする
+		std::istringstream line_stream(line);
+
+		std::string word;
+		//,区切りで行の先頭文字列を取得
+		getline(line_stream, word, ',');
+
+		// コメント
+		if (word.find("//") == 0) {
+			continue;
+		}
+
+		// カンマ区切りで読む
+		if (word.find("VoxelData") == 0) {
+			VoxelStatus status;
+
+			getline(line_stream, word, ',');
+			status.MaxHP = stof(word);
+			getline(line_stream, word, ',');
+			status.randomRate = stof(word);
+			getline(line_stream, word, ',');
+			status.vacuumSensitivity = stof(word);
+
+			data.push_back(status);
+		}
+
+	}
+
+	file.close();
+	return data;
+}
+
+void Voxel::WriteVoxel(const std::string& loadFile) {
+	std::ofstream file(loadFile);
+	assert(file.is_open());
+	
+	for (int i = 0; i < csvData_.voxelStatus.size(); i++) {
+		file << "VoxelData" << "," << csvData_.voxelStatus[i].MaxHP << "," << csvData_.voxelStatus[i].randomRate << "," << csvData_.voxelStatus[i].vacuumSensitivity << "\n\n";
+	}
+
+	file.close();
+}
+
 std::optional<Vector3> Voxel::CollisionCheck(Sphere sphere) {
 
 	float minDistSq = FLT_MAX;
@@ -882,9 +944,9 @@ std::optional<Vector3> Voxel::CollisionCheck(Sphere sphere) {
 				float chunkSize = voxelSize * 16.0f;
 
 				Vector3 chunkOrigin = {
-					chunkX * chunkSize - chunkSize / 2 * data_.size.x,
+					chunkX * chunkSize - chunkSize / 2 * csvData_.size.x,
 					-((chunkY + 1) * chunkSize),
-					chunkZ * chunkSize - chunkSize / 2 * data_.size.z
+					chunkZ * chunkSize - chunkSize / 2 * csvData_.size.z
 				};
 
 				AABB chunkAABB;
@@ -937,6 +999,54 @@ std::optional<Vector3> Voxel::CollisionCheck(Sphere sphere) {
 	return std::nullopt;
 }
 
+//上のマップチップをコピー
+void Voxel::CopyUpperMapChip(Vector3 chunkPos, int y) {
+	if (y <= 0) {
+		if (int(chunkPos.y) <= 0) {
+			//空白にする
+			for (int z = 0; z < 16; z++) {
+				for (int x = 0; x < 16; x++) {
+					chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y][z][x] = 0;
+				}
+			}
+		}
+		else {
+			//上のチャンクの一番下
+			chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y] = 
+				chunks_[int(chunkPos.y - 1)][int(chunkPos.z)][int(chunkPos.x)].mapChip[15];
+		}
+	}
+	else {
+		//上のマップチップをコピー
+		chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y] =
+			chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y - 1];
+	}
+}
+
+//下のマップチップをコピー
+void Voxel::CopyUnderMapChip(Vector3 chunkPos, int y) {
+	if (y >= 15) {
+		if (int(chunkPos.y) >= csvData_.size.y) {
+			//空白にする
+			for (int z = 0; z < 16; z++) {
+				for (int x = 0; x < 16; x++) {
+					chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y][z][x] = 0;
+				}
+			}
+		}
+		else {
+			//下のチャンクの一番上
+			chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y] =
+				chunks_[int(chunkPos.y + 1)][int(chunkPos.z)][int(chunkPos.x)].mapChip[0];
+		}
+	}
+	else {
+		//下のマップchipをコピー
+		chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y] =
+			chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y + 1];
+	}
+}
+
 //チャンク縦回転
 void Voxel::ChunkVerticalRotation(Vector3 chunkPos) {
 	Chunk newChunk{};
@@ -975,13 +1085,32 @@ void Voxel::ChunkSwap(Vector3 fromChunkPos, Vector3 toChunkPos) {
 	chunks_[int(fromChunkPos.y)][int(fromChunkPos.z)][int(fromChunkPos.x)] = keepChunk;
 }
 
+//チャンク数変更
+void Voxel::Resize(Vector3 size) {
+	csvData_.size = size;
+
+	//サイズ変更
+	chunks_.resize(int(csvData_.size.y));
+	for (int y = 0; y < csvData_.size.y; y++) {
+		//サイズ変更
+		chunks_[y].resize(int(csvData_.size.z));
+		for (int z = 0; z < csvData_.size.z; z++) {
+			//サイズ変更
+			chunks_[y][z].resize(int(csvData_.size.x));
+		}
+	}
+}
+
 void Voxel::Save(const std::string& directoryPath) {
+	std::string str;
 	for (int y = 0; y < chunks_.size(); y++) {
 		for (int z = 0; z < chunks_[y].size(); z++) {
 			for (int x = 0; x < chunks_[y][z].size(); x++) {
-				std::string str = data_.directoryPath + "/chunk_" + std::to_string(y) + "_" + std::to_string(z) + "_" + std::to_string(x) + ".csv";
+				str = csvData_.chunkDataDirectoryPath + "/chunk_" + std::to_string(y) + "_" + std::to_string(z) + "_" + std::to_string(x) + ".csv";
 				WriteChunk(chunks_[y][z][x], str);
 			}
 		}
 	}
+
+	WriteVoxel(csvData_.voxelDataFilePath);
 }
