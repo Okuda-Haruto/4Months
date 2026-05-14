@@ -103,6 +103,8 @@ public:
 
 	//チャンク数変更
 	void Resize(Vector3 size);
+	//上にチャンク入れ込み
+	void AddChunkY(int chunkPos);
 
 	void SetVoxelData(std::vector<VoxelStatus> voxelStatus) { csvData_.voxelStatus = voxelStatus; }
 	std::vector<VoxelStatus>  GetVoxelData() { return csvData_.voxelStatus; }
