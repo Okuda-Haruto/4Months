@@ -1114,3 +1114,44 @@ void Voxel::Save(const std::string& directoryPath) {
 
 	WriteVoxel(csvData_.voxelDataFilePath);
 }
+
+int Voxel::CountObjects(int startY, int endY) {
+	// 範囲補正
+	startY = max(0, startY);
+	endY = min(endY, int(chunks_.size()) - 1);
+
+	if (startY > endY) {
+		return 0;
+	}
+
+	int count = 0;
+
+	// Y範囲
+	for (int chunkY = startY; chunkY <= endY; chunkY++) {
+
+		// Z方向
+		for (int chunkZ = 0; chunkZ < chunks_[chunkY].size(); chunkZ++) {
+
+			// X方向
+			for (int chunkX = 0; chunkX < chunks_[chunkY][chunkZ].size(); chunkX++) {
+
+				Chunk& chunk = chunks_[chunkY][chunkZ][chunkX];
+
+				// チャンク内部
+				for (int y = 0; y < 16; y++) {
+					for (int z = 0; z < 16; z++) {
+						for (int x = 0; x < 16; x++) {
+
+							// voxel存在
+							if (chunk.mapChip[y][z][x] != 0) {
+								count++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return count;
+}

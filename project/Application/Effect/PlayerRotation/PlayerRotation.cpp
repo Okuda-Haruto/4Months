@@ -16,6 +16,7 @@ void PlayerRotation::Initialize(std::shared_ptr<DirectionalLight> directionalLig
 			model->Initialize(ModelManager::GetInstance()->GetModel("resources/Effect/Rotate", "RotationEffect.obj"));
 			model->SetDirectionalLight(directionalLight);
 			model->SetShininess(0);
+			model->GetParts()[0].material->reflection = 0;
 			rotEffect_[i].object.push_back(std::move(model));
 		}
 	}
@@ -29,6 +30,7 @@ void PlayerRotation::Initialize(std::shared_ptr<DirectionalLight> directionalLig
 		model->SetShininess(0);
 		model->SetTransform(chargingEffect_.transform[i]);
 		model->SetColor({ 1.0f,0.5f,0,0.8f });
+		model->GetParts()[0].material->reflection = 0;
 		chargingEffect_.object.push_back(std::move(model));
 	}
 
@@ -80,8 +82,8 @@ void PlayerRotation::Update(const Vector3& playerPos, const Vector3& position, c
 
 	if (isCatching_) {
 		Vector2 size = ring_->GetSize();
-		size = size - Vector2{ringShrinkSpeed_, ringShrinkSpeed_} * GameEngine::GetDeltaTime();
-		ring_->SetPosition(ToScreen(camera_,position));
+		size = size - Vector2{ ringShrinkSpeed_, ringShrinkSpeed_ } * GameEngine::GetDeltaTime();
+		ring_->SetPosition(ToScreen(camera_, position));
 		ring_->SetSize(size);
 		ring_->Update();
 
@@ -181,7 +183,7 @@ void PlayerRotation::EmitChargingEffect(bool isChargeMax) {
 			if (isShooting_) {
 				chargingEffect_.radius[i] = 0;
 				size = 1.0f;
-			}else if (isChargeMax) {
+			} else if (isChargeMax) {
 				chargingEffect_.radius[i] = kMaxChargingStartRadius;
 				size = 0.8f;
 			} else {
@@ -194,7 +196,7 @@ void PlayerRotation::EmitChargingEffect(bool isChargeMax) {
 			Vector3 dir = { sin(rotate),0,cos(rotate) };
 
 			chargingEffect_.isActivated[i] = true;
-			chargingEffect_.transform[i].scale = { size,size,size * 4 };
+			chargingEffect_.transform[i].scale = { size,size * 0.7f,size * 4 };
 			chargingEffect_.transform[i].translate = chargingEffect_.spawnPoint + dir * chargingEffect_.radius[i];
 			chargingEffect_.object[i]->SetTransform(chargingEffect_.transform[i]);
 			break;
@@ -207,10 +209,12 @@ void PlayerRotation::UpdateRotationEffect(const Vector3& position) {
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < kRotationEffectCount; ++j) {
 			if (rotEffect_[i].isActivated[j]) {
+				float t = rotEffect_[i].lifetime[j] / kRotationLifetime;
 				// 移動
+				rotEffect_[i].transform[j].scale = { t * t,t * t,t * t };
 				rotEffect_[i].transform[j].translate.y = position.y + (1.0f - rotEffect_[i].lifetime[j] / kRotationLifetime) * 0.05f; // プレイヤーに近い高さにする
 				rotEffect_[i].object[j]->SetTransform(rotEffect_[i].transform[j]);
-				rotEffect_[i].object[j]->SetColor({ 1,1,0,rotEffect_[i].lifetime[j] / kRotationLifetime });
+				rotEffect_[i].object[j]->SetColor({ 1,1,0,t });
 				rotEffect_[i].lifetime[j] -= GameEngine::GetDeltaTime();
 				if (rotEffect_[i].lifetime[j] <= 0) {
 					rotEffect_[i].isActivated[j] = false;
@@ -243,7 +247,7 @@ void PlayerRotation::UpdateChargingEffect(const Vector3& position, const bool is
 			float rotSpeed = 0;
 			if (isShooting_) {
 				rotSpeed = kPulseRotateSpeed * GameEngine::GetDeltaTime();
-			} else if(isChargeMax){
+			} else if (isChargeMax) {
 				rotSpeed = -(kChargingRotateSpeed * GameEngine::GetDeltaTime()) * 1.35f;
 			} else {
 				rotSpeed = -kChargingRotateSpeed * GameEngine::GetDeltaTime();

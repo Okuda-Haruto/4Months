@@ -204,7 +204,7 @@ void Combine::Update() {
 			if (setCountdown_[i] <= 0.3f) {
 				float t = 1.0f - max(setCountdown_[i] / 0.3f, 0.0f);
 				t = EaseOutCubic(t);
-				parts[i].transform->translate = Lerp(RotateVector(partsTranslate[i], lookRot), Vector3{}, t);
+				parts[i].transform->translate = Lerp(partsTranslate[i], Vector3{}, t);
 				beyblade_->SetParts(parts[i], i);
 			}
 		}

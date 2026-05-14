@@ -201,7 +201,7 @@ void Course::SpawnBox() {
 
 void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore) {
 	std::unique_ptr<Section> newSection = std::make_unique<Section>();
-	newSection->Initialize(startChunkY, endChunkY, maxSeconds, clearScore, maxScore);
+	newSection->Initialize(startChunkY, endChunkY, maxSeconds, clearScore, maxScore, voxel_.get());
 
 	// 間が空いていればノルマなし区間を挿入
 	if (!sections_.empty()) {

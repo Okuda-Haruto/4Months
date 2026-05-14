@@ -73,6 +73,9 @@ public:
 
 	bool isNoNormaMode_ = false;
 
+	// 直前の区間の破壊率
+	float GetPrevBreakRate() { return sections_[currentSectionNum_ - 1]->GetBreakRate(GetBoxes()); }
+	float GetCurrBreakRate() { return sections_[currentSectionNum_]->GetBreakRate(GetBoxes()); }
 public:
 	void SetNoNormaMode(bool flag) { isNoNormaMode_ = flag; }
 	bool GetNoNormaMode() const { return isNoNormaMode_; }

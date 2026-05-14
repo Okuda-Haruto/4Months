@@ -60,6 +60,9 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			}
 		}
 	} else {
+		transform_.translate.x = 0;
+		transform_.translate.z = 0;
+
 		// 簡易リザルト終了
 		if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
 			float blockSize = 3.0f;

@@ -24,8 +24,8 @@ private:
 
 	// 回転エフェクト
 	static constexpr int kRotationEffectCount = 200; // 発生ポイントごとの最大数
-	const float kRotationLifetime = 0.2f; // 消えるまでの時間
-	float t = 0.5f; // 中間生成（0.5なら完全に半フレーム位置）
+	const float kRotationLifetime = 0.5f; // 消えるまでの時間
+
 	struct RotationEffect {
 		std::vector<std::unique_ptr<Object>> object;
 		SRT transform[kRotationEffectCount];
@@ -36,13 +36,13 @@ private:
 
 	// 溜めエフェクト
 	static constexpr int kChargingEffectCount = 100; // 最大数
-	const float kChargingEmitTime = 3.0f / 60.0f; // 間隔
+	const float kChargingEmitTime = 0.05f; // 間隔
 	float chargingEmitTimer_ = 0; // 出現タイマー
 	static constexpr float kChargingStartRadius = 8.0f; // 出現半径
 	const float kChargingRadiusShrinkSpeed = 0.15f * 60.0f; // 半径が縮まる速度
 	const float kChargingRotateSpeed = 0.05f * 60.0f; // 回転速度
 
-	const float kMaxChargingEmitTime = 2.5f / 60.0f; // 間隔
+	const float kMaxChargingEmitTime = 0.04f; // 間隔
 	const float kMaxChargingStartRadius = 12.0f;
 	const float kMaxChargingRadiusShrinkSpeed = 0.25f * 60.0f; // 半径が縮まる速度
 
