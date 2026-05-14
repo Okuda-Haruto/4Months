@@ -1101,6 +1101,23 @@ void Voxel::Resize(Vector3 size) {
 	}
 }
 
+//上にチャンク入れ込み
+void Voxel::AddChunkY(int chunkPos) {
+	csvData_.size.y++;
+
+	//サイズ変更
+	chunks_.resize(int(csvData_.size.y));
+	for (int y = int(csvData_.size.y) - 1; y > chunkPos; y--) {
+		chunks_[y] = chunks_[y - 1];
+	}
+
+	for (int z = 0; z <int(csvData_.size.z); z++) {
+		for (int x = 0; x < int(csvData_.size.x); x++) {
+			chunks_[chunkPos][z][x].mapChip = {};
+		}
+	}
+}
+
 void Voxel::Save(const std::string& directoryPath) {
 	std::string str;
 	for (int y = 0; y < chunks_.size(); y++) {

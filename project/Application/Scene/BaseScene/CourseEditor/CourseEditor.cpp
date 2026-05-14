@@ -207,6 +207,7 @@ void CourseEditor::Update() {
 		if (ImGui::TreeNode("コース設定")) {
 
 			if (ImGui::Button("コースサイズ変更")) {
+				copyCourseSize_ = courseData_.csvData.size;
 				chunkSettingItem_ = ChunkSettingItem::Resize;
 			}
 
@@ -240,6 +241,11 @@ void CourseEditor::Update() {
 			}
 			if (ImGui::Button("チャンクを交換")) {
 				chunkSettingItem_ = ChunkSettingItem::Swap;
+			}
+			if (ImGui::Button("チャンクを上に差し込む")) {
+				course_->GetVoxel()->AddChunkY(int(selectChunk_.y));
+				selectChunk_.y += 1.0f;
+				courseData_.csvData.size.y += 1.0f;
 			}
 
 			ImGui::TreePop();
@@ -375,6 +381,7 @@ void CourseEditor::Update() {
 
 		if (ImGui::Button("SAVE")) {
 			course_->GetVoxel()->Save(courseData_.csvData.chunkDataDirectoryPath);
+			SaveCourse(courseDataDirectoryPath_ + "/" + courseData_.fileName + ".csv");
 		}
 
 #pragma endregion
@@ -543,7 +550,7 @@ void CourseEditor::Update() {
 			ImGui::Text("チャンク数");
 			ImGui::InputScalarN("##チャンク数",
 				ImGuiDataType_Float,
-				&courseData_.csvData.size.x,
+				&copyCourseSize_.x,
 				3,
 				&step,
 				&step,
@@ -556,6 +563,7 @@ void CourseEditor::Update() {
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("変更")) {
+				courseData_.csvData.size = copyCourseSize_;
 				course_->GetVoxel()->Resize(courseData_.csvData.size);
 				drawAABB_.min.x = 0;						drawAABB_.min.z = 0;
 				drawAABB_.max.x = courseData_.csvData.size.x;	drawAABB_.max.z = courseData_.csvData.size.z;
@@ -891,8 +899,8 @@ void CourseEditor::SaveCourse(std::string filePath) {
 	assert(file.is_open());
 
 	file << "ChunkSize" << "," << courseData_.csvData.size.x << "," << courseData_.csvData.size.y << "," << courseData_.csvData.size.z << '\n';
-	file << "ChunkDirectoryPath" << "," << courseData_.csvData.chunkDataDirectoryPath;
-	file << "VoxelFilePath" << "," << courseData_.csvData.voxelDataFilePath;
+	file << "ChunkDataDirectoryPath" << "," << courseData_.csvData.chunkDataDirectoryPath << '\n';
+	file << "VoxelDataFilePath" << "," << courseData_.csvData.voxelDataFilePath;
 
 	file.close();
 }

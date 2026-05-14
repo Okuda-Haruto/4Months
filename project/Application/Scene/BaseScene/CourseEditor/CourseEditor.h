@@ -70,6 +70,8 @@ private:
 	//コピー元チャンク位置
 	Vector3 copyChunkPos_;
 
+	Vector3 copyCourseSize_;
+
 	//チャンク操作の設定
 	ChunkSettingItem chunkSettingItem_ = ChunkSettingItem::None;
 
