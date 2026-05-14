@@ -18,6 +18,8 @@ private:
 	DirectionalLightElement directionalLightElement_{};
 	std::shared_ptr<DirectionalLight> directionalLight_ = nullptr;
 
+	std::unique_ptr<Object> skydome_;
+
 	std::unique_ptr<Player> player_;
 
 	//選択エリア
@@ -45,6 +47,7 @@ private:
 	//コースファイルデータ
 	CourseData courseData_;
 
+
 	enum class MenuItem {
 		None,
 		MakeNewFile,
@@ -58,6 +61,7 @@ private:
 		None,
 		Copy,
 		Swap,
+		Resize,
 	};
 
 	//選択中のチャンク
