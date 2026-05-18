@@ -107,11 +107,9 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 
 		if (i == 0) {
 			sectionResult_[i]->Initialize("./resources/HUD/result.png");
-		}
-		else if (i == 1) {
+		} else if (i == 1) {
 			sectionResult_[i]->Initialize("./resources/HUD/time.png");
-		}
-		else {
+		} else {
 			sectionResult_[i]->Initialize("./resources/HUD/destruction.png");
 		}
 
@@ -204,7 +202,7 @@ void HUD::Draw() {
 
 		// 破壊量
 		for (int i = 0; i < 6; ++i) {
-			//breakAmountSprite_[i]->Draw2D();
+			breakAmountSprite_[i]->Draw2D();
 		}
 	}
 
@@ -326,34 +324,33 @@ void HUD::UpdateBreakRate(Course* course) {
 		}
 	}
 
-	breakRateSprite_[0]->SetTextureLeftTop({ num[0] * kNumberSize.x, 0 });
-	breakRateSprite_[1]->SetTextureLeftTop({ num[1]  * kNumberSize.x, 0 });
-	breakRateSprite_[2]->SetTextureLeftTop({ num[2] * kNumberSize.x, 0 });
-
 	for (int i = 0; i < 3; ++i) {
+		breakRateSprite_[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
 		breakRateSprite_[i]->Update();
 	}
 }
 
 void HUD::UpdateBreakAmount(Course* course) {
-	//if (!course->InSubSection()) return;
-	//if(course->)
+	if (!course->InSubSection()) return;
 
-	//int num[3] = { percent / 100, percent % 100 / 10, percent % 10 };
-	//for (int i = 0; i < 3; ++i) {
-	//	if (num[i] == 0) {
-	//		num[i] = 9;
-	//	} else {
-	//		num[i]--;
-	//	}
-	//}
+	int breakCount = course->GetBreakCount();
+	int num[6]{};
+	for (int i = 5; i >= 0; --i) {
+		num[i] = breakCount % 10;
+		breakCount /= 10;
+	}
 
-	//breakRateSprite_[0]->SetTextureLeftTop({ num[0] * kNumberSize.x, 0 });
-	//breakRateSprite_[1]->SetTextureLeftTop({ num[1] * kNumberSize.x, 0 });
-	//breakRateSprite_[2]->SetTextureLeftTop({ num[2] * kNumberSize.x, 0 });
+	for (int i = 0; i < 6; ++i) {
+		if (num[i] == 0) {
+			num[i] = 9;
+		} else {
+			num[i]--;
+		}
+	}
 
-	for (int i = 0; i < 3; ++i) {
-		//breakAmountSprite_[i]->Update();
+	for (int i = 0; i < 6; ++i) {
+		breakAmountSprite_[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
+		breakAmountSprite_[i]->Update();
 	}
 }
 
@@ -377,7 +374,7 @@ void HUD::UpdateSection(Player* player, Course* course) {
 			sectionResult_[i]->SetSize(resultSize_ * t);
 			sectionResult_[i]->Update();
 		}
-		
+
 	} else if (course->GetResultState() == ResultState::RotateOut) {
 		float outTime = 0.12f;
 		resultTimer_ += GameEngine::GetDeltaTime();
@@ -395,6 +392,8 @@ void HUD::UpdateSection(Player* player, Course* course) {
 			breakAmountSprite_[i]->SetSize(breakAmountSize_ * t);
 			breakAmountSprite_[i]->Update();
 		}
+	} else {
+		resultTimer_ = 0;
 	}
 }
 

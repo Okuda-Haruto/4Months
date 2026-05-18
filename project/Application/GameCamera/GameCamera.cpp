@@ -111,14 +111,15 @@ void DownCamera::Update() {
 			transform_.translate = nextTranslate + Lerp(resultInTransform.translate, setTransform.translate, t);
 			transform_.rotate = Slerp(resultInTransform.rotate, setTransform.rotate, t);
 
+#ifdef USE_IMGUI
 			ImGui::Begin("ResultCamera");
 			ImGui::DragFloat3("camT", &setTransform.translate.x, 0.01f);
 			ImGui::DragFloat4("camR4", &setTransform.rotate.x, 0.01f);
 			if (ImGui::DragFloat3("camR3", &setRot.x, 0.01f)) {
 				setTransform.rotate = MatrixToQuaternion(MakeAffineMatrix({ 1,1,1 }, setRot, {setTransform.translate}));
 			}
-
 			ImGui::End();
+#endif
 
 			if (t == 1.0f) {
 				resultInTimer_ = 0;
@@ -131,6 +132,7 @@ void DownCamera::Update() {
 			transform_.translate = nextTranslate + setTransform.translate;
 			transform_.rotate = setTransform.rotate;
 
+#ifdef USE_IMGUI
 			ImGui::Begin("ResultCamera");
 			ImGui::DragFloat3("camT", &setTransform.translate.x, 0.01f);
 			ImGui::DragFloat4("camR4", &setTransform.rotate.x, 0.01f);
@@ -138,6 +140,7 @@ void DownCamera::Update() {
 				setTransform.rotate = MatrixToQuaternion(MakeAffineMatrix({ 1,1,1 }, setRot, { setTransform.translate }));
 			}
 			ImGui::End();
+#endif
 
 			if (!player_->IsResult()) course_->SetResultState(ResultState::RotateOut);
 		}

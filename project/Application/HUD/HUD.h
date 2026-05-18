@@ -82,7 +82,7 @@ private:
 	// ブロック破壊個数
 	std::unique_ptr<Sprite> breakAmountSprite_[6]{};
 	Vector2 breakAmountSize_ = { 64,64 };
-	Vector2 breakAmountPos_[6] = { {750,660},{750 + 35,660},{750 + 70,660},{750 + 105,660},{750 + 140,660},{750 + 175,660} };
+	Vector2 breakAmountPos_[6] = { {750,460},{750 + 35,460},{750 + 70,460},{750 + 105,460},{750 + 140,460},{750 + 175,460} };
 	
 	float resultTimer_ = 0;
 

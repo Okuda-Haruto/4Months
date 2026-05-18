@@ -98,8 +98,10 @@ void Human::Update() {
 #endif // USE_IMGUI
 
 	if (!stop) {
-		if (isCharging_ || isResult_) {
+		if (isCharging_) {
 			transform_.translate += velocity_.translate / 4 + knockBackVelocity_;
+		} else if (isResult_) {
+			transform_.translate += velocity_.translate / 8;
 		}
 		else {
 			transform_.translate += velocity_.translate + knockBackVelocity_;

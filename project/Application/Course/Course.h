@@ -86,6 +86,10 @@ public:
 	// 直前の区間の破壊率
 	float GetPrevBreakRate() { return sections_[currentSectionNum_ - 1]->GetBreakRate(GetBoxes()); }
 	float GetCurrBreakRate() { return sections_[currentSectionNum_]->GetBreakRate(GetBoxes()); }
+	int GetBreakCount() {
+		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetCurrentScore(); }
+		return currentSection_->GetCurrentScore();
+	}
 
 	// リザルトの段階
 	void SetResultState(ResultState state) { resultState_ = state; }
