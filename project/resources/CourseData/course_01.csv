@@ -1,2 +1,3 @@
-ChunkSize,2,18,2
-DirectoryPath,resources/CSV
+ChunkSize,2,22,2
+ChunkDataDirectoryPath,resources/CSV
+VoxelDataFilePath,resources/VoxelData/VoxelData.csv

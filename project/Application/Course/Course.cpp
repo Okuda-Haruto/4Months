@@ -16,9 +16,9 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
 
 	// 区間の設定(上~下)
- 	AddSection(0, 2, 30, 2000, 4000);
-	AddSection(4, 8, 40, 12000, 15000);
-	AddSection(10, 16, 60, 20000, 25000);
+	AddSection(0, 2, 30, 2000, 4000);
+	AddSection(4, 10, 40, 12000, 15000);
+	AddSection(12, 20, 60, 20000, 25000);
 	goalBarriers_.clear();
 	for (int i = 0; i < sections_.size(); ++i) {
 		float y = sections_[i]->GetEndPos().y;

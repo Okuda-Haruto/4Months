@@ -8,7 +8,7 @@
 
 //コースファイルデータ
 struct CourseData {
-	CSVData data;
+	CSVData csvData;
 	std::string fileName;
 };
 

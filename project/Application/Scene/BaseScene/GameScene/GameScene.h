@@ -70,6 +70,8 @@ private:
 
 	float skipHold_ = 0;
 
+	CourseData courseData_;
+
 	// BGM
 	std::unique_ptr<Audio> bgm_ = nullptr;
 
@@ -82,4 +84,8 @@ public:
 	void Update() override;
 	//描画
 	void Draw() override;
+
+private:
+	//コースを読む
+	void LoadCourse(std::string filePath);
 };

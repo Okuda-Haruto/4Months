@@ -25,6 +25,11 @@ void CourseEditor::Initialize(std::shared_ptr<Input> input) {
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
+	skydome_ = std::make_unique<Object>();
+	skydome_->Initialize(ModelManager::GetInstance()->GetModel("resources/Course/GoalBarrier", "Skydome.obj"));
+	skydome_->SetReflection(REFLECTION_None);
+	skydome_->SetCamera(defaultCamera_);
+
 	mapchipAreaObject_ = std::make_unique<Object>();
 	mapchipAreaObject_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/box", "box.obj"));
 	mapchipAreaObject_->SetCamera(gameCamera_->GetCamera());
@@ -93,6 +98,7 @@ void CourseEditor::Update() {
 		//選択した場合場合別のウィンドウを開く
 		static char fileName[16] = "";
 		static char directoryPath[64] = "";
+		static char voxelPath[64] = "";
 		float step = 1.0f;
 		switch (isOpenFile_)
 		{
@@ -108,12 +114,14 @@ void CourseEditor::Update() {
 			ImGui::Text("チャンク数");
 			ImGui::InputScalarN("##チャンク数",
 				ImGuiDataType_Float,
-				&courseData_.data.size.x,
+				&courseData_.csvData.size.x,
 				3,
 				&step,
 				&step,
 				"%.0f"
 			);
+			ImGui::Text("使用するボクセルデータ");
+			ImGui::InputText("##使用するボクセルデータ", voxelPath, sizeof(voxelPath));
 
 			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 75);
@@ -124,7 +132,8 @@ void CourseEditor::Update() {
 			ImGui::SameLine();
 			if (ImGui::Button("作成")) {
 				courseData_.fileName = fileName;
-				courseData_.data.directoryPath = directoryPath;
+				courseData_.csvData.chunkDataDirectoryPath = directoryPath;
+				courseData_.csvData.voxelDataFilePath = voxelPath;
 				MakeNewCourse();
 			}
 			ImGui::End();
@@ -167,9 +176,9 @@ void CourseEditor::Update() {
 		float chunkSize = voxelSize * 16.0f;
 
 		Vector3 chunkOrigin = {
-			selectChunk_.x * chunkSize - chunkSize / 2 * courseData_.data.size.x,
+			selectChunk_.x * chunkSize - chunkSize / 2 * courseData_.csvData.size.x,
 			-((selectChunk_.y + 1) * chunkSize),
-			selectChunk_.z * chunkSize - chunkSize / 2 * courseData_.data.size.z
+			selectChunk_.z * chunkSize - chunkSize / 2 * courseData_.csvData.size.z
 		};
 
 		AABB chunkAABB;
@@ -177,9 +186,9 @@ void CourseEditor::Update() {
 		chunkAABB.max = chunkOrigin + Vector3{ chunkSize, chunkSize, chunkSize };
 
 		Vector3 chunkOriginSub = {
-			selectChunkSub_.x * chunkSize - chunkSize / 2 * courseData_.data.size.x,
+			selectChunkSub_.x * chunkSize - chunkSize / 2 * courseData_.csvData.size.x,
 			-((selectChunkSub_.y + 1) * chunkSize),
-			selectChunkSub_.z * chunkSize - chunkSize / 2 * courseData_.data.size.z
+			selectChunkSub_.z * chunkSize - chunkSize / 2 * courseData_.csvData.size.z
 		};
 
 		AABB chunkAABBSub;
@@ -193,16 +202,32 @@ void CourseEditor::Update() {
 
 #pragma endregion
 
+#pragma region コース設定
+
+		if (ImGui::TreeNode("コース設定")) {
+
+			if (ImGui::Button("コースサイズ変更")) {
+				copyCourseSize_ = courseData_.csvData.size;
+				chunkSettingItem_ = ChunkSettingItem::Resize;
+			}
+
+			ImGui::TreePop();
+		}
+
+#pragma endregion
+
 #pragma region チャンク操作
 
 		PrimitiveManager::GetInstance()->AddAABB(chunkAABB);
 
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
+
 		if (ImGui::TreeNode("チャンク操作")) {
 
 			ImGui::Text("チャンク選択");
-			ImGui::SliderFloat("X##1", &selectChunk_.x, 0, courseData_.data.size.x - 1, "%.0f");
-			ImGui::SliderFloat("Y##1", &selectChunk_.y, 0, courseData_.data.size.y - 1, "%.0f");
-			ImGui::SliderFloat("Z##1", &selectChunk_.z, 0, courseData_.data.size.z - 1, "%.0f");
+			ImGui::SliderFloat("X##1", &selectChunk_.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##1", &selectChunk_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##1", &selectChunk_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 
 			if (ImGui::Button("チャンク横回転(Y軸回転)")) {
 				course_->GetVoxel()->ChunkHorizontalRotation(selectChunk_);
@@ -216,6 +241,11 @@ void CourseEditor::Update() {
 			}
 			if (ImGui::Button("チャンクを交換")) {
 				chunkSettingItem_ = ChunkSettingItem::Swap;
+			}
+			if (ImGui::Button("チャンクを上に差し込む")) {
+				course_->GetVoxel()->AddChunkY(int(selectChunk_.y));
+				selectChunk_.y += 1.0f;
+				courseData_.csvData.size.y += 1.0f;
 			}
 
 			ImGui::TreePop();
@@ -290,6 +320,13 @@ void CourseEditor::Update() {
 				}
 			}
 
+			if (ImGui::Button("上のマップチップをコピー")) {
+				course_->GetVoxel()->CopyUpperMapChip(selectChunk_, mapchipAreaY_);
+			}
+			if (ImGui::Button("下のマップチップをコピー")) {
+				course_->GetVoxel()->CopyUnderMapChip(selectChunk_, mapchipAreaY_);
+			}
+
 			ImGui::TreePop();
 		}
 
@@ -302,24 +339,24 @@ void CourseEditor::Update() {
 		if (ImGui::TreeNode("描画範囲")) {
 
 			ImGui::Text("min");
-			ImGui::SliderFloat("X##3", &drawAABB_.min.x, 0, courseData_.data.size.x, "%.0f");
-			ImGui::SliderFloat("Y##3", &drawAABB_.min.y, 0, courseData_.data.size.y, "%.0f");
-			ImGui::SliderFloat("Z##3", &drawAABB_.min.z, 0, courseData_.data.size.z, "%.0f");
+			ImGui::SliderFloat("X##3", &drawAABB_.min.x, 0, courseData_.csvData.size.x, "%.0f");
+			ImGui::SliderFloat("Y##3", &drawAABB_.min.y, 0, courseData_.csvData.size.y, "%.0f");
+			ImGui::SliderFloat("Z##3", &drawAABB_.min.z, 0, courseData_.csvData.size.z, "%.0f");
 			ImGui::Text("max");
-			ImGui::SliderFloat("X##4", &drawAABB_.max.x, 0, courseData_.data.size.x, "%.0f");
-			ImGui::SliderFloat("Y##4", &drawAABB_.max.y, 0, courseData_.data.size.y, "%.0f");
-			ImGui::SliderFloat("Z##4", &drawAABB_.max.z, 0, courseData_.data.size.z, "%.0f");
+			ImGui::SliderFloat("X##4", &drawAABB_.max.x, 0, courseData_.csvData.size.x, "%.0f");
+			ImGui::SliderFloat("Y##4", &drawAABB_.max.y, 0, courseData_.csvData.size.y, "%.0f");
+			ImGui::SliderFloat("Z##4", &drawAABB_.max.z, 0, courseData_.csvData.size.z, "%.0f");
 
 			if (ImGui::Button("1チャンク下げる")) {
-				drawAABB_.min.y = std::min(drawAABB_.min.y + 1.0f, courseData_.data.size.y - 1.0f);
-				drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.data.size.y - 1.0f);
+				drawAABB_.min.y = std::min(drawAABB_.min.y + 1.0f, courseData_.csvData.size.y - 1.0f);
+				drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.csvData.size.y - 1.0f);
 			}
 			if (ImGui::Button("1チャンク上げる")) {
 				drawAABB_.min.y = std::max(drawAABB_.min.y - 1.0f, 0.0f);
 				drawAABB_.max.y = std::max(drawAABB_.max.y - 1.0f, 0.0f);
 			}
 			if (ImGui::Button("1チャンク下に広げる")) {
-				drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.data.size.y - 1.0f);
+				drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.csvData.size.y - 1.0f);
 			}
 			if (ImGui::Button("1チャンク上に広げる")) {
 				drawAABB_.min.y = std::max(drawAABB_.min.y - 1.0f, 0.0f);
@@ -343,7 +380,8 @@ void CourseEditor::Update() {
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
 
 		if (ImGui::Button("SAVE")) {
-			course_->GetVoxel()->Save(courseData_.data.directoryPath);
+			course_->GetVoxel()->Save(courseData_.csvData.chunkDataDirectoryPath);
+			SaveCourse(courseDataDirectoryPath_ + "/" + courseData_.fileName + ".csv");
 		}
 
 #pragma endregion
@@ -421,6 +459,24 @@ void CourseEditor::Update() {
 			ImGui::PopStyleVar(2);
 			ImGui::PopStyleColor(3);
 		}
+
+		//空気以外ならステータスを変更可能に
+		if (selectedTile_ != 0) {
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
+
+			courseData_.csvData.voxelStatus = course_->GetVoxel()->GetVoxelData();
+			if (courseData_.csvData.voxelStatus.size() <= selectedTile_) {
+				courseData_.csvData.voxelStatus.resize(selectedTile_ + 1);
+			}
+
+			ImGui::DragFloat("耐久度",&courseData_.csvData.voxelStatus[selectedTile_].MaxHP,0.1f,0.0f,180.0f);
+			ImGui::DragFloat("耐久度乱数範囲", &courseData_.csvData.voxelStatus[selectedTile_].randomRate, 0.1f, 0.0f, 180.0f);
+			ImGui::DragFloat("巻き込まれやすさ", &courseData_.csvData.voxelStatus[selectedTile_].vacuumSensitivity, 0.01f, 0.0f, 1.0f);
+
+			course_->GetVoxel()->SetVoxelData(courseData_.csvData.voxelStatus);
+		}
+
+
 		ImGui::End();
 #pragma endregion
 
@@ -436,13 +492,13 @@ void CourseEditor::Update() {
 
 			ImGui::Begin("チャンクをコピー");
 			ImGui::Text("コピー元");
-			ImGui::SliderFloat("X##1", &selectChunk_.x, 0, courseData_.data.size.x - 1, "%.0f");
-			ImGui::SliderFloat("Y##1", &selectChunk_.y, 0, courseData_.data.size.y - 1, "%.0f");
-			ImGui::SliderFloat("Z##1", &selectChunk_.z, 0, courseData_.data.size.z - 1, "%.0f");
+			ImGui::SliderFloat("X##1", &selectChunk_.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##1", &selectChunk_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##1", &selectChunk_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 			ImGui::Text("コピー先");
-			ImGui::SliderFloat("X##2", &selectChunkSub_.x, 0, courseData_.data.size.x - 1, "%.0f");
-			ImGui::SliderFloat("Y##2", &selectChunkSub_.y, 0, courseData_.data.size.y - 1, "%.0f");
-			ImGui::SliderFloat("Z##2", &selectChunkSub_.z, 0, courseData_.data.size.z - 1, "%.0f");
+			ImGui::SliderFloat("X##2", &selectChunkSub_.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##2", &selectChunkSub_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##2", &selectChunkSub_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 
 			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
@@ -464,13 +520,13 @@ void CourseEditor::Update() {
 
 			ImGui::Begin("チャンクを交換");
 			ImGui::Text("交換元");
-			ImGui::SliderFloat("X##1", &selectChunk_.x, 0, courseData_.data.size.x - 1, "%.0f");
-			ImGui::SliderFloat("Y##1", &selectChunk_.y, 0, courseData_.data.size.y - 1, "%.0f");
-			ImGui::SliderFloat("Z##1", &selectChunk_.z, 0, courseData_.data.size.z - 1, "%.0f");
+			ImGui::SliderFloat("X##1", &selectChunk_.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##1", &selectChunk_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##1", &selectChunk_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 			ImGui::Text("交換先");
-			ImGui::SliderFloat("X##2", &selectChunkSub_.x, 0, courseData_.data.size.x - 1, "%.0f");
-			ImGui::SliderFloat("Y##2", &selectChunkSub_.y, 0, courseData_.data.size.y - 1, "%.0f");
-			ImGui::SliderFloat("Z##2", &selectChunkSub_.z, 0, courseData_.data.size.z - 1, "%.0f");
+			ImGui::SliderFloat("X##2", &selectChunkSub_.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##2", &selectChunkSub_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##2", &selectChunkSub_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 
 			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
@@ -486,6 +542,35 @@ void CourseEditor::Update() {
 
 			PrimitiveManager::GetInstance()->AddAABB(chunkAABBSub, Vector4{0,1,0,1});
 
+			break;
+		case CourseEditor::ChunkSettingItem::Resize:
+			ImGui::SetNextWindowSize(ImVec2(600, 128));
+
+			ImGui::Begin("チャンクサイズ変更");
+			ImGui::Text("チャンク数");
+			ImGui::InputScalarN("##チャンク数",
+				ImGuiDataType_Float,
+				&copyCourseSize_.x,
+				3,
+				&step,
+				&step,
+				"%.0f"
+			);
+
+
+			if (ImGui::Button("戻る")) {
+				chunkSettingItem_ = ChunkSettingItem::None;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("変更")) {
+				courseData_.csvData.size = copyCourseSize_;
+				course_->GetVoxel()->Resize(courseData_.csvData.size);
+				drawAABB_.min.x = 0;						drawAABB_.min.z = 0;
+				drawAABB_.max.x = courseData_.csvData.size.x;	drawAABB_.max.z = courseData_.csvData.size.z;
+				chunkSettingItem_ = ChunkSettingItem::None;
+			}
+
+			ImGui::End();
 			break;
 		default:
 			break;
@@ -551,7 +636,7 @@ void CourseEditor::Update() {
 					} else if (collisionVoxel.mapChipPos.x > 15) {
 						collisionVoxel.chunkPos.x += 1;
 						collisionVoxel.mapChipPos.x -= 16;
-						if (collisionVoxel.chunkPos.x > courseData_.data.size.x - 1) {
+						if (collisionVoxel.chunkPos.x > courseData_.csvData.size.x - 1) {
 							isCursorVoxel_ = false;
 						}
 					}
@@ -564,7 +649,7 @@ void CourseEditor::Update() {
 					} else if (collisionVoxel.mapChipPos.y > 15) {
 						collisionVoxel.chunkPos.y += 1;
 						collisionVoxel.mapChipPos.y -= 16;
-						if (collisionVoxel.chunkPos.y > courseData_.data.size.y - 1) {
+						if (collisionVoxel.chunkPos.y > courseData_.csvData.size.y - 1) {
 							isCursorVoxel_ = false;
 						}
 					}
@@ -577,7 +662,7 @@ void CourseEditor::Update() {
 					} else if (collisionVoxel.mapChipPos.z > 15) {
 						collisionVoxel.chunkPos.z += 1;
 						collisionVoxel.mapChipPos.z -= 16;
-						if (collisionVoxel.chunkPos.z > courseData_.data.size.z - 1) {
+						if (collisionVoxel.chunkPos.z > courseData_.csvData.size.z - 1) {
 							isCursorVoxel_ = false;
 						}
 					}
@@ -596,9 +681,9 @@ void CourseEditor::Update() {
 				}
 
 				Vector3 collisionChunkOrigin = {
-					collisionVoxel.chunkPos.x * chunkSize - chunkSize / 2 * courseData_.data.size.x,
+					collisionVoxel.chunkPos.x * chunkSize - chunkSize / 2 * courseData_.csvData.size.x,
 					-((collisionVoxel.chunkPos.y + 1) * chunkSize),
-					collisionVoxel.chunkPos.z * chunkSize - chunkSize / 2 * courseData_.data.size.z
+					collisionVoxel.chunkPos.z * chunkSize - chunkSize / 2 * courseData_.csvData.size.z
 				};
 
 				cursorVoxelTransform_.translate =
@@ -645,16 +730,16 @@ void CourseEditor::Update() {
 			selectChunk_.y = std::max(selectChunk_.y - 1, 0.0f);
 		}
 		if (key.trigger[DIK_PGDN]) {
-			selectChunk_.y = std::min(selectChunk_.y + 1, courseData_.data.size.y - 1);
+			selectChunk_.y = std::min(selectChunk_.y + 1, courseData_.csvData.size.y - 1);
 		}
 		if (key.trigger[DIK_UPARROW]) {
-			selectChunk_.z = std::min(selectChunk_.z + 1, courseData_.data.size.z - 1);
+			selectChunk_.z = std::min(selectChunk_.z + 1, courseData_.csvData.size.z - 1);
 		}
 		if (key.trigger[DIK_DOWNARROW]) {
 			selectChunk_.z = std::max(selectChunk_.z - 1, 0.0f);
 		}
 		if (key.trigger[DIK_RIGHTARROW]) {
-			selectChunk_.x = std::min(selectChunk_.x + 1, courseData_.data.size.x - 1);
+			selectChunk_.x = std::min(selectChunk_.x + 1, courseData_.csvData.size.x - 1);
 		}
 		if (key.trigger[DIK_LEFTARROW]) {
 			selectChunk_.x = std::max(selectChunk_.x - 1, 0.0f);
@@ -671,10 +756,10 @@ void CourseEditor::Update() {
 			drawAABB_.max.y = std::max(drawAABB_.max.y - 1.0f, 0.0f);
 		}
 		if ((key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) && key.trigger[DIK_S]) {
-			drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.data.size.y - 1.0f);
+			drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.csvData.size.y - 1.0f);
 		} else if (key.trigger[DIK_S]) {
-			drawAABB_.min.y = std::min(drawAABB_.min.y + 1.0f, courseData_.data.size.y - 1.0f);
-			drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.data.size.y - 1.0f);
+			drawAABB_.min.y = std::min(drawAABB_.min.y + 1.0f, courseData_.csvData.size.y - 1.0f);
+			drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.csvData.size.y - 1.0f);
 		}
 		if ((key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) && key.trigger[DIK_R]) {
 			OpenCourse();
@@ -684,6 +769,8 @@ void CourseEditor::Update() {
 #pragma endregion
 
 	GameEngine::RenderPreDraw("BackGround", 0);
+
+	skydome_->Draw3DNoFog();
 
 	GameEngine::RenderPostDraw("BackGround");
 
@@ -714,12 +801,13 @@ void CourseEditor::MakeNewCourse() {
 	SaveCourse(courseDataDirectoryPath_ + "/" + courseData_.fileName + ".csv");
 
 	course_ = std::make_unique<Course>();
-	course_->Initialize(courseData_.data, gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData_.csvData, gameCamera_.get(), directionalLight_);
+
 	float courseBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
 	gameCamera_->SetCameraPosBottom(courseBottom);
 
 	drawAABB_.min = { 0,0,0 };
-	drawAABB_.max = { courseData_.data.size.x,min(courseData_.data.size.y,3.0f),courseData_.data.size.x };
+	drawAABB_.max = { courseData_.csvData.size.x,min(courseData_.csvData.size.y,3.0f),courseData_.csvData.size.x };
 
 	WriteRecentFile();
 }
@@ -728,12 +816,13 @@ void CourseEditor::OpenCourse() {
 	LoadCourse(courseDataDirectoryPath_ + "/" + courseData_.fileName + ".csv");
 
 	course_ = std::make_unique<Course>();
-	course_->Initialize(courseData_.data, gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData_.csvData, gameCamera_.get(), directionalLight_);
+
 	float courseBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
 	gameCamera_->SetCameraPosBottom(courseBottom);
 
 	drawAABB_.min = { 0,0,0 };
-	drawAABB_.max = { courseData_.data.size.x,min(courseData_.data.size.y,3.0f),courseData_.data.size.x };
+	drawAABB_.max = { courseData_.csvData.size.x,min(courseData_.csvData.size.y,3.0f),courseData_.csvData.size.x };
 
 	WriteRecentFile();
 }
@@ -781,21 +870,24 @@ void CourseEditor::LoadCourse(std::string filePath) {
 			continue;
 		}
 
-		int x = 0; // 横
-
 		// カンマ区切りで読む
 		if (word.find("ChunkSize") == 0) {
 			getline(line_stream, word, ',');
-			courseData_.data.size.x = stof(word);
+			courseData_.csvData.size.x = stof(word);
 			getline(line_stream, word, ',');
-			courseData_.data.size.y = stof(word);
+			courseData_.csvData.size.y = stof(word);
 			getline(line_stream, word, ',');
-			courseData_.data.size.z = stof(word);
+			courseData_.csvData.size.z = stof(word);
 		}
 
-		if (word.find("DirectoryPath") == 0) {
+		if (word.find("ChunkDataDirectoryPath") == 0) {
 			getline(line_stream, word, ',');
-			courseData_.data.directoryPath = word;
+			courseData_.csvData.chunkDataDirectoryPath = word;
+		}
+
+		if (word.find("VoxelDataFilePath") == 0) {
+			getline(line_stream, word, ',');
+			courseData_.csvData.voxelDataFilePath = word;
 		}
 	}
 
@@ -806,8 +898,9 @@ void CourseEditor::SaveCourse(std::string filePath) {
 	std::ofstream file(filePath);
 	assert(file.is_open());
 
-	file << "ChunkSize" << "," << courseData_.data.size.x << "," << courseData_.data.size.y << "," << courseData_.data.size.z << '\n';
-	file << "DirectoryPath" << "," << courseData_.data.directoryPath;
+	file << "ChunkSize" << "," << courseData_.csvData.size.x << "," << courseData_.csvData.size.y << "," << courseData_.csvData.size.z << '\n';
+	file << "ChunkDataDirectoryPath" << "," << courseData_.csvData.chunkDataDirectoryPath << '\n';
+	file << "VoxelDataFilePath" << "," << courseData_.csvData.voxelDataFilePath;
 
 	file.close();
 }
