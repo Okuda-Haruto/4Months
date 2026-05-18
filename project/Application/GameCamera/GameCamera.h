@@ -4,8 +4,9 @@
 
 #include <numbers>
 class Course;
-
 class GameCamera;
+
+Quaternion MatrixToQuaternion(const Matrix4x4& m);
 
 class BaseCamera {
 protected:
@@ -28,6 +29,15 @@ class DownCamera : public BaseCamera {
 private:
 	//回転がない場合のカメラ座標
 	const Vector3 kCameraPos = { 0, 0, -30 };
+
+	// リザルト演出用
+	float resultInTimer_ = 0;
+	const float kResultInTime = 2.5f;
+	const float kResultSetTime = 0.12f;
+	const float kResultOutTime = 1.0f;
+	SRT resultInTransform = {};
+	SRT setTransform = { {1,1,1}, {-0.057f ,0.919f ,-0.27f, 0.146f }, { 0.89f, 7.0f, 12.8f } };
+	Vector3 setRot{};
 
 public:
 	//初期化
@@ -220,5 +230,4 @@ public:
 	//更新処理
 	void Update() override;
 	Quaternion LookAt(const Vector3& eye, const Vector3& target);
-	Quaternion MatrixToQuaternion(const Matrix4x4& m);
 };

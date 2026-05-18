@@ -216,6 +216,7 @@
     <ClCompile Include="Application\TitleMoji\TitleScreen\TitleScreen.cpp" />
     <ClCompile Include="Application\Fade\Fade.cpp" />
     <ClCompile Include="Application\Effect\Combine\Combine.cpp" />
+    <ClCompile Include="Application\Effect\Flash\Flash.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -536,6 +537,7 @@
     <ClInclude Include="Application\TitleMoji\TitleScreen\TitleScreen.h" />
     <ClInclude Include="Application\Fade\Fade.h" />
     <ClInclude Include="Application\Effect\Combine\Combine.h" />
+    <ClInclude Include="Application\Effect\Flash\Flash.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

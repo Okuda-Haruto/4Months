@@ -54,6 +54,7 @@ public:
 
 	// ★これ追加
 	void SetResult(bool flag);
+	void SetCanSkipResult(bool canSkip) { canSkipResult_ = canSkip; }
 	bool isAutoBurst_ = true;
 	bool isJumpFlashMode_ = false;
 protected:
@@ -140,6 +141,7 @@ protected:
 
 	bool stop;
 	bool isResult_;
+	bool canSkipResult_;
 
 	float humanFootOffset = 2.4f;
 
