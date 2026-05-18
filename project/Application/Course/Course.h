@@ -4,11 +4,21 @@
 #include "OBB.h"
 #include "Section/Section.h"
 #include "GoalBarrier/GoalBarrier.h"
+#include "Effect/Flash/Flash.h"
 
 //コースファイルデータ
 struct CourseData {
 	CSVData csvData;
 	std::string fileName;
+};
+
+// 区間リザルトのカメラ移動
+enum class ResultState {
+	RotateIn,
+	SetResults,
+	Wait,
+	RotateOut,
+	End,
 };
 
 class Course {
@@ -76,6 +86,14 @@ public:
 	// 直前の区間の破壊率
 	float GetPrevBreakRate() { return sections_[currentSectionNum_ - 1]->GetBreakRate(GetBoxes()); }
 	float GetCurrBreakRate() { return sections_[currentSectionNum_]->GetBreakRate(GetBoxes()); }
+	int GetBreakCount() {
+		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetCurrentScore(); }
+		return currentSection_->GetCurrentScore();
+	}
+
+	// リザルトの段階
+	void SetResultState(ResultState state) { resultState_ = state; }
+	ResultState GetResultState() { return resultState_; }
 public:
 	void SetNoNormaMode(bool flag) { isNoNormaMode_ = flag; }
 	bool GetNoNormaMode() const { return isNoNormaMode_; }
@@ -117,6 +135,9 @@ private:
 	std::vector<SectionData> sectionsData_;
 
 	std::unique_ptr<Audio> failSE_;
+
+	ResultState resultState_ = ResultState::RotateIn;
+	std::unique_ptr<Flash> resultFlash_;
 };
 
 

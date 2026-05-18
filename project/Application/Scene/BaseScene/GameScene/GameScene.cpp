@@ -127,7 +127,8 @@ void GameScene::Update() {
 	} else {
 
 		// ★追加：簡易リザルト状態を渡す
-		player_->SetResult(course_->InSubSection());
+		player_->SetResult(course_->InSubSection() && course_->GetResultState() <= ResultState::Wait);
+		player_->SetCanSkipResult(course_->GetResultState() == ResultState::Wait);
 
 		player_->Update(input_);
 
@@ -179,9 +180,9 @@ void GameScene::Update() {
 	}
 	ImGui::Text("現在区間 : %d", section);
 	if (course_->InSubSection()) {
-		ImGui::Text("破壊率 : %.2f", course_->GetPrevBreakRate());
+		ImGui::Text("破壊率 : %.1f%%", course_->GetPrevBreakRate() * 100);
 	} else {
-		ImGui::Text("破壊率 : %.2f", course_->GetCurrBreakRate());
+		ImGui::Text("破壊率 : %.1f%%", course_->GetCurrBreakRate() * 100);
 	}
 	ImGui::End();
 #endif

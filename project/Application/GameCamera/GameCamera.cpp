@@ -4,6 +4,39 @@
 #include "Course/Course.h"
 #include <numbers>
 
+Quaternion MatrixToQuaternion(const Matrix4x4& m) {
+	Quaternion q{};
+	float trace = m.m[0][0] + m.m[1][1] + m.m[2][2];
+
+	if (trace > 0.0f) {
+		float s = sqrtf(trace + 1.0f) * 2.0f; // S=4*qw
+		q.w = 0.25f * s;
+		q.x = (m.m[2][1] - m.m[1][2]) / s;
+		q.y = (m.m[0][2] - m.m[2][0]) / s;
+		q.z = (m.m[1][0] - m.m[0][1]) / s;
+	} else if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2]) {
+		float s = sqrtf(1.0f + m.m[0][0] - m.m[1][1] - m.m[2][2]) * 2.0f;
+		q.w = (m.m[2][1] - m.m[1][2]) / s;
+		q.x = 0.25f * s;
+		q.y = (m.m[0][1] + m.m[1][0]) / s;
+		q.z = (m.m[0][2] + m.m[2][0]) / s;
+	} else if (m.m[1][1] > m.m[2][2]) {
+		float s = sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]) * 2.0f;
+		q.w = (m.m[0][2] - m.m[2][0]) / s;
+		q.x = (m.m[0][1] + m.m[1][0]) / s;
+		q.y = 0.25f * s;
+		q.z = (m.m[1][2] + m.m[2][1]) / s;
+	} else {
+		float s = sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]) * 2.0f;
+		q.w = (m.m[1][0] - m.m[0][1]) / s;
+		q.x = (m.m[0][2] + m.m[2][0]) / s;
+		q.y = (m.m[1][2] + m.m[2][1]) / s;
+		q.z = 0.25f * s;
+	}
+
+	return Normalize(q);
+}
+
 #pragma region 落下カメラ
 
 void DownCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
@@ -24,29 +57,130 @@ void DownCamera::Update() {
 	// 折り返し基礎回転
 	Quaternion nextRotate;
 	if (course_->InSubSection()) {
-		nextRotate = MakeRotateAxisAngleQuaternion(
-			Vector3{ 0,1,0 },
-			std::numbers::pi_v<float>
-		);
+		switch (course_->GetResultState()) {
+		case ResultState::RotateIn:
+		{
+			resultInTimer_ += GameEngine::GetDeltaTime();
+			float x = resultInTimer_ / kResultInTime;
+			x = std::clamp(x, 0.0f, 1.0f);
+			float t = 1.0f - (1.0f - x) * (1.0f - x);
+			t = std::clamp(t, 0.0f, 1.0f);
 
-		float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
+			// 注目地点
+			Vector3 focus = nextTranslate + Vector3{ 0, 1.0f,0 };
 
-		float rate = 1.0f - powf(0.5f, dt * 16.0f); // ← 減衰速度
+			// 円運動
+			float angle = -t * std::numbers::pi_v<float> *1.6f;
 
-		transform_.rotate = Slerp(
-			transform_.rotate,
-			nextRotate,
-			rate
-		);
+			// 距離変更
+			float radius = sinf(t * std::numbers::pi_v<float>) * 40.0f + 7.5f;
+			Vector3 offset = {
+				cosf(angle) * radius,
+				8,
+				sinf(angle) * radius
+			};
+			transform_.translate = nextTranslate + offset;
 
-		nextTranslate += (kCameraPos + Vector3{7.5f,0,0})* MakeRotateMatrix(transform_.rotate);
-		transform_.translate.y = player_->GetTransform().translate.y + 3.0f;
+			// プレイヤーを視界の中心に置く
+			Vector3 forward = Normalize(focus - transform_.translate);
+			Vector3 up = { 0,1,0 };
+			Vector3 right = Normalize(Cross(up, forward));
+			Vector3 newUp = Cross(forward, right);
+			Matrix4x4 m;
+			m.m[0][0] = right.x;   m.m[0][1] = right.y;   m.m[0][2] = right.z;
+			m.m[1][0] = newUp.x;   m.m[1][1] = newUp.y;   m.m[1][2] = newUp.z;
+			m.m[2][0] = forward.x; m.m[2][1] = forward.y; m.m[2][2] = forward.z;
 
-		transform_.translate = Lerp(
-			transform_.translate,
-			nextTranslate,
-			rate
-		);
+			transform_.rotate = Normalize(MatrixToQuaternion(m));
+
+			if (t == 1.0f) {
+				resultInTimer_ = 0;
+				course_->SetResultState(ResultState::SetResults);
+				resultInTransform = transform_;
+				resultInTransform.translate -= nextTranslate;
+			}
+		}
+		break;
+		case ResultState::SetResults:
+		{
+			resultInTimer_ += GameEngine::GetDeltaTime();
+			float t = resultInTimer_ / kResultSetTime;
+			t = std::clamp(t, 0.0f, 1.0f);
+
+			// 右後ろに移動
+			transform_.translate = nextTranslate + Lerp(resultInTransform.translate, setTransform.translate, t);
+			transform_.rotate = Slerp(resultInTransform.rotate, setTransform.rotate, t);
+
+#ifdef USE_IMGUI
+			ImGui::Begin("ResultCamera");
+			ImGui::DragFloat3("camT", &setTransform.translate.x, 0.01f);
+			ImGui::DragFloat4("camR4", &setTransform.rotate.x, 0.01f);
+			if (ImGui::DragFloat3("camR3", &setRot.x, 0.01f)) {
+				setTransform.rotate = MatrixToQuaternion(MakeAffineMatrix({ 1,1,1 }, setRot, {setTransform.translate}));
+			}
+			ImGui::End();
+#endif
+
+			if (t == 1.0f) {
+				resultInTimer_ = 0;
+				course_->SetResultState(ResultState::Wait);
+			}
+		}
+		break;
+		case ResultState::Wait:
+		{
+			transform_.translate = nextTranslate + setTransform.translate;
+			transform_.rotate = setTransform.rotate;
+
+#ifdef USE_IMGUI
+			ImGui::Begin("ResultCamera");
+			ImGui::DragFloat3("camT", &setTransform.translate.x, 0.01f);
+			ImGui::DragFloat4("camR4", &setTransform.rotate.x, 0.01f);
+			if (ImGui::DragFloat3("camR3", &setRot.x, 0.01f)) {
+				setTransform.rotate = MatrixToQuaternion(MakeAffineMatrix({ 1,1,1 }, setRot, { setTransform.translate }));
+			}
+			ImGui::End();
+#endif
+
+			if (!player_->IsResult()) course_->SetResultState(ResultState::RotateOut);
+		}
+		break;
+		case ResultState::RotateOut:
+		{
+			resultInTimer_ += GameEngine::GetDeltaTime();
+			float t = resultInTimer_ / kResultOutTime;
+			t = std::clamp(t, 0.0f, 1.0f);
+
+			// 上からのカメラに戻す
+			nextRotate = MakeRotateAxisAngleQuaternion(
+				Vector3{ 1,0,0 },
+				-std::numbers::pi_v<float> / 2
+			);
+			transform_.rotate = Slerp(setTransform.rotate, nextRotate, t);
+
+			
+			nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
+			Vector3 translate = transform_.translate;
+			translate.y += player_->GetFallingSpeed() * 0.75f;
+
+			float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
+			float rate = 1.0f - powf(0.5f, dt * 16.0f);
+			translate = Lerp(
+				transform_.translate,
+				nextTranslate,
+				rate
+			);
+
+			transform_.translate = Lerp(nextTranslate + setTransform.translate, translate, t);
+
+			if (t == 1.0f) {
+				resultInTimer_ = 0;
+				course_->SetResultState(ResultState::End);
+			}
+		}
+		break;
+		}
+
 	} else {
 		nextRotate = MakeRotateAxisAngleQuaternion(
 			Vector3{ 1,0,0 },
@@ -230,7 +364,7 @@ void SelectCamera::Update() {
 
 #ifdef USE_IMGUI
 
-void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player,Course* course) {
+void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
@@ -270,8 +404,7 @@ void EditorCamera::Update() {
 		//ホイールy軸移動
 		if (key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) {
 			centerPoint_.y += mouse.Movement.z / 40 * GameEngine::GetDeltaTimeRate();
-		}
-		else {
+		} else {
 			centerPoint_.y += mouse.Movement.z / 120 * GameEngine::GetDeltaTimeRate();
 		}
 	}
@@ -422,7 +555,7 @@ void GameCamera::StartShake(float amplitude, float time) {
 
 #pragma region ゲーム開始前カメラ
 
-void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player,Course* course) {
+void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
@@ -434,7 +567,7 @@ void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inpu
 void StartCamera::Update() {
 	timer_ += GameEngine::GetDeltaTime();
 	float t = 0;
-	Vector3 target{0,0,0};
+	Vector3 target{ 0,0,0 };
 	float radius = 0;
 	float angle = 0;
 	Vector3 offset{};
@@ -491,37 +624,4 @@ Quaternion StartCamera::LookAt(const Vector3& eye, const Vector3& target) {
 	m.m[2][0] = forward.x; m.m[2][1] = forward.y; m.m[2][2] = forward.z;
 
 	return Normalize(MatrixToQuaternion(m));
-}
-
-Quaternion StartCamera::MatrixToQuaternion(const Matrix4x4& m) {
-	Quaternion q{};
-	float trace = m.m[0][0] + m.m[1][1] + m.m[2][2];
-
-	if (trace > 0.0f) {
-		float s = sqrtf(trace + 1.0f) * 2.0f; // S=4*qw
-		q.w = 0.25f * s;
-		q.x = (m.m[2][1] - m.m[1][2]) / s;
-		q.y = (m.m[0][2] - m.m[2][0]) / s;
-		q.z = (m.m[1][0] - m.m[0][1]) / s;
-	} else if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2]) {
-		float s = sqrtf(1.0f + m.m[0][0] - m.m[1][1] - m.m[2][2]) * 2.0f;
-		q.w = (m.m[2][1] - m.m[1][2]) / s;
-		q.x = 0.25f * s;
-		q.y = (m.m[0][1] + m.m[1][0]) / s;
-		q.z = (m.m[0][2] + m.m[2][0]) / s;
-	} else if (m.m[1][1] > m.m[2][2]) {
-		float s = sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]) * 2.0f;
-		q.w = (m.m[0][2] - m.m[2][0]) / s;
-		q.x = (m.m[0][1] + m.m[1][0]) / s;
-		q.y = 0.25f * s;
-		q.z = (m.m[1][2] + m.m[2][1]) / s;
-	} else {
-		float s = sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]) * 2.0f;
-		q.w = (m.m[1][0] - m.m[0][1]) / s;
-		q.x = (m.m[0][2] + m.m[2][0]) / s;
-		q.y = (m.m[1][2] + m.m[2][1]) / s;
-		q.z = 0.25f * s;
-	}
-
-	return Normalize(q);
 }

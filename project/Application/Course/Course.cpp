@@ -31,6 +31,9 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 
 	currentSection_ = sections_[0].get();
 
+	resultFlash_ = std::make_unique<Flash>();
+	resultFlash_->Initialize();
+
 	failSE_ = std::make_unique<Audio>();
 	failSE_->Initialize("resources/SE・BGM/Game/failure.mp3", 0.5f);
 }
@@ -43,6 +46,11 @@ void Course::Update(Human* player) {
 		if (sections_[i]->IsEnter(player->GetTransform().translate.y)) {
 			currentSectionNum_ = i;
 			currentSection_ = sections_[i].get();
+
+			if (!sections_[i]->IsSubSection()) {
+				resultState_ = ResultState::RotateIn;
+				resultFlash_->Set();
+			}
 		}
 
 		if (!sections_[i]->IsSubSection()) {
@@ -64,6 +72,8 @@ void Course::Update(Human* player) {
 					}
 				}
 			}
+		} else {
+			resultFlash_->Update();
 		}
 	}
 
@@ -139,6 +149,7 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 	}
 
 	voxel_->Draw(drawRange);
+	resultFlash_->Draw();
 }
 
 void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -151,6 +162,7 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	voxel_->DrawAll();
+	resultFlash_->Draw();
 }
 
 void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -167,6 +179,7 @@ void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	voxel_->DrawUp();
+	resultFlash_->Draw();
 }
 
 void Course::DrawGoalBarrier() {
