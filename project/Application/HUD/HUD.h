@@ -36,7 +36,13 @@ private:
 	float kBreakBarWidth = 1280 - 64;
 	float bonusRate_ = 0.6f; // ボーナス部分の見た目の長さ
 	Vector2 breakLTPos_ = { 32, 48 };
+
+
+	bool canDrawScore_ = false;
+	bool isSectionFailed_ = false;
+
 	bool canDrawPlayingInfo_ = false;
+
 
 	// 数字ひとつ分の画像内サイズ
 	Vector2 kNumberSize = { 256,256 };

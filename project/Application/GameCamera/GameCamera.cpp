@@ -56,6 +56,14 @@ void DownCamera::Update() {
 
 	// 折り返し基礎回転
 	Quaternion nextRotate;
+
+	//resultカメラは別で用意してくれ
+	if (course_->InSubSection() && !course_->GetIsSectionFailed()) {
+		nextRotate = MakeRotateAxisAngleQuaternion(
+			Vector3{ 0,1,0 },
+			std::numbers::pi_v<float>
+		);
+
 	if (course_->InSubSection()) {
 		switch (course_->GetResultState()) {
 		case ResultState::RotateIn:

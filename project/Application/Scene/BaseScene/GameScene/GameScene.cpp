@@ -130,7 +130,7 @@ void GameScene::Update() {
 		player_->SetResult(course_->InSubSection() && course_->GetResultState() <= ResultState::Wait);
 		player_->SetCanSkipResult(course_->GetResultState() == ResultState::Wait);
 
-		player_->Update(input_);
+		player_->Update(input_,course_.get());
 
 		if (isClear_) {
 			if (isUp_) {
@@ -191,16 +191,20 @@ void GameScene::Update() {
 		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
-	if (course_->isAllCleared()) {
-		if (!isClear_) {
-			clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
-			clearCameraTransform_.rotate = IdentityQuaternion();
-			clearCameraTransform_.scale = { 1,1,1 };
-			gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
+	//ゲームオーバー画面のままおわらせない
+	if (!player_->IsBreak() && !course_->GetIsSectionFailed()) {
+		if (course_->isAllCleared()) {
+			if (!isClear_) {
+				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
+				clearCameraTransform_.rotate = IdentityQuaternion();
+				clearCameraTransform_.scale = { 1,1,1 };
+				gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
+			}
+			isClear_ = true;
 		}
-		isClear_ = true;
-	} else if (course_->isEnd()) {
-		fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
+		else if (course_->isEnd()) {
+			fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
+		}
 	}
 
 	if (fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_OUT) {
@@ -221,29 +225,38 @@ void GameScene::Draw() {
 
 	skydome_->Draw3DNoFog();
 
-	if (isClear_) {
-		course_->DrawAll(directionalLight_);
-
-		fade_->Draw();
-	} else if (startCountdown_->IsPreStart()) {
-		course_->DrawUp(directionalLight_);
-	} else {
-
-		if (course_->InSubSection()) {
+	if (!player_->IsBreak()) {
+		if (isClear_) {
 			course_->DrawAll(directionalLight_);
-		} else {
-			course_->Draw(directionalLight_);
-		}
 
-		player_->Draw();
-		hud_->Draw();
-		hitPreview_->Draw();
-		startCountdown_->Draw();
+			fade_->Draw();
+		}
+		else if (startCountdown_->IsPreStart()) {
+			course_->DrawUp(directionalLight_);
+		}
+		else {
+
+			if (course_->InSubSection() && !course_->GetIsSectionFailed()) {
+				course_->DrawAll(directionalLight_);
+			}
+			else {
+				course_->Draw(directionalLight_);
+			}
+
+			player_->Draw();
+			hud_->Draw();
+			hitPreview_->Draw();
+			startCountdown_->Draw();
+		}
+	}
+	else {
+		course_->DrawGameOver();
 	}
 
 	if (!gameTransition->IsEnd()) {
 		gameTransition->Draw();
 	}
+	
 }
 
 void GameScene::LoadCourse(std::string filePath) {
