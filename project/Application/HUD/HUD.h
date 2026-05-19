@@ -34,7 +34,9 @@ private:
 	float kBreakBarWidth = 1280 - 64;
 	float bonusRate_ = 0.6f; // ボーナス部分の見た目の長さ
 	Vector2 breakLTPos_ = { 32, 48 };
+
 	bool canDrawScore_ = false;
+	bool isSectionFailed_ = false;
 
 	// タイマー
 	std::unique_ptr<Sprite> currentTimeSprite_[4]{};

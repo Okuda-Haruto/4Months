@@ -55,16 +55,17 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 
 	for (int i = 0; i < humans_.size(); i++) {
 		humans_[i] = std::make_unique<Object>();
-		humans_[i]->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.gltf"));
+		humans_[i]->Initialize(ModelManager::GetInstance()->GetModel("resources/test", "Player.gltf"));
 		humans_[i]->SetCamera(studioCamera_);
 		humans_[i]->SetDirectionalLight(directionalLight_);
 		human_Tranaforms_[i].scale = { 18,18,18 };
 		humans_[i]->SetTransform(human_Tranaforms_[i]);
+		humans_[i]->SetAnimationIndex(1);
 	}
 
 	human_Tranaforms_[0].translate = { 55,30,-28 };
 	human_Tranaforms_[0].rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float> / 180 * 60);
-	humans_[0]->SetAnimationIndex(15);
+	humans_[0]->SetAnimationIndex(8);
 	humans_[0]->SetIsUseAnimation(true);
 	humans_[0]->SetIsLoopAnimation(true);
 

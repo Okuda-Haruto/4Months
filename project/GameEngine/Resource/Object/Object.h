@@ -112,6 +112,7 @@ public:
 	void SetIsLoopAnimation(bool isLoopAnimation) { isLoopAnimation_ = isLoopAnimation; }
 	//アニメーション時間リセット
 	void ResetAnimationTime() { animationTime_ = 0.0f; }
+	void SetAnimationTime(float time) { animationTime_ = time; }
 	//アニメーションが終了しているか
 	bool IsEndAnimation(){ return model_->IsEndAnimation(animationTime_, animationIndex_); }
 	//アニメーション補完方法

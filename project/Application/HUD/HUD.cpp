@@ -166,7 +166,7 @@ void HUD::Draw() {
 		stars_->Draw();
 
 		canShoot_->Draw2D();
-	} else {
+	} else if(!isSectionFailed_){
 		for (int i = 0; i < 3; ++i) {
 			sectionResult_[i]->Draw2D();
 		}
@@ -216,6 +216,7 @@ void HUD::UpdateScore(Course* course) {
 
 	// 区間などの情報を描画するかどうか
 	canDrawScore_ = !currentSection->IsSubSection();
+	isSectionFailed_ = course->GetIsSectionFailed();
 
 	if (canDrawScore_) {
 		// 割合を求める
