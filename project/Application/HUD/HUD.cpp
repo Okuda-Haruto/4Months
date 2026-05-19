@@ -49,7 +49,7 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 		currentTimeSprite_[i]->SetSize(currentTimeSpriteSize_);
 		currentTimeSprite_[i]->SetAnchorPoint({ 0.5f,0.5f });
 		currentTimeSprite_[i]->SetPosition(timePos_[i]);
-		currentTimeSprite_[i]->SetTextureSize(kTimeNumSize);
+		currentTimeSprite_[i]->SetTextureSize(kNumberSize);
 	}
 
 	// 区間
@@ -101,23 +101,44 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	canShoot_->SetPosition({ 640,300 });
 	canShoot_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 
+	// リザルト項目
 	for (int i = 0; i < 3; ++i) {
 		sectionResult_[i] = std::make_unique<Sprite>();
 
 		if (i == 0) {
 			sectionResult_[i]->Initialize("./resources/HUD/result.png");
-		}
-		else if (i == 1) {
+		} else if (i == 1) {
 			sectionResult_[i]->Initialize("./resources/HUD/time.png");
-		}
-		else {
+		} else {
 			sectionResult_[i]->Initialize("./resources/HUD/destruction.png");
 		}
 
-		sectionResult_[i]->SetSize(resultSize_);
+		sectionResult_[i]->SetSize({});
 		sectionResult_[i]->SetPosition(resultPos_[i]);
 		sectionResult_[i]->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 		sectionResult_[i]->Update();
+	}
+
+	// リザルト:破壊率
+	for (int i = 0; i < 3; ++i) {
+		breakRateSprite_[i] = std::make_unique<Sprite>();
+		breakRateSprite_[i]->Initialize("./resources/HUD/Numbers/Number.png");
+		breakRateSprite_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		breakRateSprite_[i]->SetSize(breakRateSize_);
+		breakRateSprite_[i]->SetAnchorPoint({ 0.5f,0.5f });
+		breakRateSprite_[i]->SetPosition(breakRatePos_[i]);
+		breakRateSprite_[i]->SetTextureSize(kNumberSize);
+	}
+
+	// リザルト:破壊量
+	for (int i = 0; i < 6; ++i) {
+		breakAmountSprite_[i] = std::make_unique<Sprite>();
+		breakAmountSprite_[i]->Initialize("./resources/HUD/Numbers/Number.png");
+		breakAmountSprite_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		breakAmountSprite_[i]->SetSize(breakAmountSize_);
+		breakAmountSprite_[i]->SetAnchorPoint({ 0.5f,0.5f });
+		breakAmountSprite_[i]->SetPosition(breakAmountPos_[i]);
+		breakAmountSprite_[i]->SetTextureSize(kNumberSize);
 	}
 }
 
@@ -125,6 +146,8 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	UpdateCharge(player);
 	UpdateScore(course);
 	UpdateTimer(course);
+	UpdateBreakRate(course);
+	UpdateBreakAmount(course);
 	UpdateSection(player, course);
 	UpdateInfo();
 	UpdateStartNum(startNum);
@@ -145,7 +168,7 @@ void HUD::Draw() {
 	chargeBGSprite_->Draw2D();
 	currentChargeSprite_->Draw2D();
 
-	if (canDrawScore_) {
+	if (canDrawPlayingInfo_) {
 		// 区間
 		breakBGSprite_->Draw2D();
 		bonusBreakSprite_->Draw2D();
@@ -166,9 +189,21 @@ void HUD::Draw() {
 		stars_->Draw();
 
 		canShoot_->Draw2D();
+    
 	} else if(!isSectionFailed_){
+		// リザルト中
 		for (int i = 0; i < 3; ++i) {
 			sectionResult_[i]->Draw2D();
+		}
+
+		// 破壊率
+		for (int i = 0; i < 3; ++i) {
+			breakRateSprite_[i]->Draw2D();
+		}
+
+		// 破壊量
+		for (int i = 0; i < 6; ++i) {
+			breakAmountSprite_[i]->Draw2D();
 		}
 	}
 
@@ -214,11 +249,16 @@ void HUD::UpdateScore(Course* course) {
 	int max = currentSection->GetMaxScore();
 	if (current < 0) return;
 
+
 	// 区間などの情報を描画するかどうか
 	canDrawScore_ = !currentSection->IsSubSection();
 	isSectionFailed_ = course->GetIsSectionFailed();
 
-	if (canDrawScore_) {
+	// プレイ中の情報を描画するかどうか
+	canDrawPlayingInfo_ = !currentSection->IsSubSection();
+
+
+	if (canDrawPlayingInfo_) {
 		// 割合を求める
 		float rate = float(current) / float(clear);
 		rate = clamp(rate, 0.0f, 1.0f);
@@ -266,13 +306,58 @@ void HUD::UpdateTimer(Course* course) {
 			}
 		}
 
-		currentTimeSprite_[0]->SetTextureLeftTop({ num[0] * kTimeNumSize.x, 0 });
-		currentTimeSprite_[1]->SetTextureLeftTop({ 10.0f * kTimeNumSize.x, 0 });
-		currentTimeSprite_[2]->SetTextureLeftTop({ num[1] * kTimeNumSize.x, 0 });
-		currentTimeSprite_[3]->SetTextureLeftTop({ num[2] * kTimeNumSize.x, 0 });
+		currentTimeSprite_[0]->SetTextureLeftTop({ num[0] * kNumberSize.x, 0 });
+		currentTimeSprite_[1]->SetTextureLeftTop({ 10.0f * kNumberSize.x, 0 });
+		currentTimeSprite_[2]->SetTextureLeftTop({ num[1] * kNumberSize.x, 0 });
+		currentTimeSprite_[3]->SetTextureLeftTop({ num[2] * kNumberSize.x, 0 });
 		for (int i = 0; i < 4; ++i) {
 			currentTimeSprite_[i]->Update();
 		}
+	}
+}
+
+void HUD::UpdateBreakRate(Course* course) {
+	if (!course->InSubSection()) return;
+
+	// リザルト中なら破壊率表示準備
+	float rate = course->GetPrevBreakRate();
+	int percent = int(rate * 100);
+	int num[3] = { percent / 100, percent % 100 / 10, percent % 10 };
+	for (int i = 0; i < 3; ++i) {
+		if (num[i] == 0) {
+			num[i] = 9;
+		} else {
+			num[i]--;
+		}
+	}
+
+	for (int i = 0; i < 3; ++i) {
+		breakRateSprite_[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
+		breakRateSprite_[i]->Update();
+	}
+}
+
+void HUD::UpdateBreakAmount(Course* course) {
+	if (!course->InSubSection()) return;
+
+	int breakCount = course->GetBreakCount();
+	int num[6]{};
+	for (int i = 5; i >= 0; --i) {
+		num[i] = breakCount % 10;
+		breakCount /= 10;
+	}
+
+	for (int i = 0; i < 6; ++i) {
+		if (num[i] == 0) {
+			num[i] = 9;
+		} else {
+			num[i]--;
+		}
+	}
+
+	for (int i = 0; i < 6; ++i) {
+		breakAmountSprite_[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
+		breakAmountSprite_[i]->Update();
 	}
 }
 
@@ -285,6 +370,38 @@ void HUD::UpdateSection(Player* player, Course* course) {
 	progressSprite_->SetSize({ sectionBarSize_.x, length });
 	sectionSprite_->Update();
 	progressSprite_->Update();
+
+
+	if (course->GetResultState() == ResultState::SetResults) {
+		float setTime = 0.12f;
+		resultTimer_ += GameEngine::GetDeltaTime();
+		float t = std::clamp(resultTimer_ / setTime, 0.0f, 1.0f);
+
+		for (int i = 0; i < 3; ++i) {
+			sectionResult_[i]->SetSize(resultSize_ * t);
+			sectionResult_[i]->Update();
+		}
+
+	} else if (course->GetResultState() == ResultState::RotateOut) {
+		float outTime = 0.12f;
+		resultTimer_ += GameEngine::GetDeltaTime();
+		float t = std::clamp(1.0f - resultTimer_ / outTime, 0.0f, 1.0f);
+
+		for (int i = 0; i < 3; ++i) {
+			sectionResult_[i]->SetSize(resultSize_ * t);
+			sectionResult_[i]->Update();
+
+			breakRateSprite_[i]->SetSize(breakRateSize_ * t);
+			breakRateSprite_[i]->Update();
+		}
+
+		for (int i = 0; i < 6; ++i) {
+			breakAmountSprite_[i]->SetSize(breakAmountSize_ * t);
+			breakAmountSprite_[i]->Update();
+		}
+	} else {
+		resultTimer_ = 0;
+	}
 }
 
 void HUD::UpdateInfo() {

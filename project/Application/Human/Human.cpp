@@ -112,6 +112,8 @@ void Human::Update() {
 	if (!stop) {
 		if (isCharging_) {
 			transform_.translate += velocity_.translate / 4 + knockBackVelocity_;
+		} else if (isResult_) {
+			transform_.translate += velocity_.translate / 8;
 		}
 		else {
 			transform_.translate += velocity_.translate + knockBackVelocity_;
@@ -122,7 +124,7 @@ void Human::Update() {
 	if (isResult_) {
 		// 範囲内でループ
 		if (transform_.translate.y < resultLoopEndY) {
-			transform_.translate.y = resultLoopStartY;
+			transform_.translate.y = resultLoopStartY - (resultLoopEndY - transform_.translate.y);
 		}
 	}
 
@@ -401,8 +403,8 @@ Vector3 Human::CalcVacuumPosition() {
 }
 void Human::SetResult(bool flag) {
 	if (!isResult_ && flag) {
-		resultLoopStartY = transform_.translate.y - 25;
-		resultLoopEndY = resultLoopStartY - 30;
+		resultLoopStartY = transform_.translate.y;
+		resultLoopEndY = resultLoopStartY - 9;
 	}
 
 	isResult_ = flag;

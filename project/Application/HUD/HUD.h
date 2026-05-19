@@ -16,6 +16,8 @@ private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);
 	void UpdateTimer(Course* course);
+	void UpdateBreakRate(Course* course);
+	void UpdateBreakAmount(Course* course);
 	void UpdateSection(Player* player, Course* course);
 	void UpdateInfo();
 	void UpdateStartNum(int num);
@@ -35,20 +37,25 @@ private:
 	float bonusRate_ = 0.6f; // ボーナス部分の見た目の長さ
 	Vector2 breakLTPos_ = { 32, 48 };
 
+
 	bool canDrawScore_ = false;
 	bool isSectionFailed_ = false;
 
+	bool canDrawPlayingInfo_ = false;
+
+
+	// 数字ひとつ分の画像内サイズ
+	Vector2 kNumberSize = { 256,256 };
 	// タイマー
 	std::unique_ptr<Sprite> currentTimeSprite_[4]{};
 	Vector2 currentTimeSpriteSize_ = { 64,64 };
-	Vector2 kTimeNumSize = { 256,256 };
-	Vector2 timePos_[4] = { {60,60},{60 + 35,60},{60 + 70,60},{60 + 105,60}};
+	Vector2 timePos_[4] = { {60,60},{60 + 35,60},{60 + 70,60},{60 + 105,60} };
 
 	// 区間の進度
 	std::unique_ptr<Sprite> sectionSprite_ = nullptr;
 	std::unique_ptr<Sprite> progressSprite_ = nullptr;
 	Vector2 sectionBarSize_ = { 32,450 };
-	Vector2 sectionLTPos_ = { 1280 - 48, 150};
+	Vector2 sectionLTPos_ = { 1280 - 48, 150 };
 
 	// エネルギー
 	std::unique_ptr<Sprite> infoSprite_ = nullptr;
@@ -72,6 +79,18 @@ private:
 	std::unique_ptr<Sprite> sectionResult_[3]{};
 	Vector2 resultPos_[3] = { {900,200},{900, 400}, {900, 600} };
 	Vector2 resultSize_ = { 550,120 };
+
+	// ブロック破壊率
+	std::unique_ptr<Sprite> breakRateSprite_[3]{};
+	Vector2 breakRateSize_ = { 128,128 };
+	Vector2 breakRatePos_[3] = { {900 - 70,660},{900,660},{900 + 70,660} };
+
+	// ブロック破壊個数
+	std::unique_ptr<Sprite> breakAmountSprite_[6]{};
+	Vector2 breakAmountSize_ = { 64,64 };
+	Vector2 breakAmountPos_[6] = { {750,460},{750 + 35,460},{750 + 70,460},{750 + 105,460},{750 + 140,460},{750 + 175,460} };
+	
+	float resultTimer_ = 0;
 
 	Input* input_;
 
