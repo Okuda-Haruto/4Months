@@ -17,10 +17,22 @@ public:
 		}
 		return false;
 	}
+	bool SetResultEnd() {
+		if (state_ == State::PreStart) {
+			timer_ = 0;
+			state_ = State::Start;
+			return true;
+		}
+		return false;
+	}
+	bool IsFirsttime() { return firstTime_; }
 	void SkipPreStart() { timer_ = -0.5f; state_ = State::Start; }
-	void SkipAll() { count_ = 0; state_ = State::Stop; }
+	void SkipAll() { count_ = 0; state_ = State::Stop; firstTime_ = false; }
+
+	void Reset(const Vector3& pos);
 private:
 	void LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> directionalLight, int countNumber);
+	void Reload(std::string filename, int countNumber);
 
 	std::vector<std::unique_ptr<Object>> blocks_;
 	std::vector<std::vector<Vector3>> positions_;
@@ -53,6 +65,8 @@ private:
 	
 	Vector3 basePos_ = { 0,200.0f, 5};
 	std::vector<Vector3> startPos_;
+
+	bool firstTime_ = true;
 
 	std::unique_ptr<Audio> countSE_ = nullptr;
 };

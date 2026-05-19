@@ -332,7 +332,7 @@ Vector3 Human::CalcVacuumPosition() {
 void Human::SetResult(bool flag) {
 	if (!isResult_ && flag) {
 		resultLoopStartY = transform_.translate.y;
-		resultLoopEndY = resultLoopStartY - 9;
+		resultLoopEndY = resultLoopStartY - 12;
 	}
 
 	isResult_ = flag;

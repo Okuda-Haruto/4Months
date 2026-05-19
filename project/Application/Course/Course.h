@@ -84,7 +84,16 @@ public:
 	bool isNoNormaMode_ = false;
 
 	// 直前の区間の破壊率
-	float GetPrevBreakRate() { return sections_[currentSectionNum_ - 1]->GetBreakRate(GetBoxes()); }
+	float GetPrevBreakRate() {
+		if (currentSectionNum_ == 0) { return 0; }
+		int i = 0;
+		while (currentSectionNum_ - i > 0) {
+			i++;
+			if (sections_[currentSectionNum_ - i]->IsSubSection()) continue;
+			return sections_[currentSectionNum_ - i]->GetBreakRate(GetBoxes());
+		}
+		return 0;
+	}
 	float GetCurrBreakRate() { return sections_[currentSectionNum_]->GetBreakRate(GetBoxes()); }
 	int GetBreakCount() {
 		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetCurrentScore(); }

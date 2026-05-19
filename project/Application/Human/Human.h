@@ -51,6 +51,7 @@ public:
 	Vector3 GetVacuumStartPos() { return vacuumStartPos_; }
 	float GetFallingSpeed() { return fallingSpeed_; }
 	bool IsResult() { return isResult_; }
+	bool IsEndResult() { return isEndResult_; }
 
 	// ★これ追加
 	void SetResult(bool flag);
@@ -141,6 +142,7 @@ protected:
 
 	bool stop;
 	bool isResult_;
+	bool isEndResult_;
 	bool canSkipResult_;
 
 	float humanFootOffset = 2.4f;
