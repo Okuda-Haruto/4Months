@@ -249,7 +249,6 @@ void SectionResultCamera::Update() {
 		);
 
 		nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
-		transform_.translate.y += player_->GetFallingSpeed() * 0.75f;
 
 		transform_.translate = Lerp(
 			transform_.translate,

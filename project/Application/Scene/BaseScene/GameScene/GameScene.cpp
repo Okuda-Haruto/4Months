@@ -125,9 +125,13 @@ void GameScene::Update() {
 				}
 
 			} else if(course_->GetResultState() == ResultState::End){
+				// 区間リザルト終了
 				startCountdown_->SetResultEnd();
-				isSectionResult_ = false;
-				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+
+				if (startCountdown_->IsEnd()) {
+					isSectionResult_ = false;
+					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.3f);
+				}
 			}
 		}
 
@@ -247,7 +251,7 @@ void GameScene::Draw() {
 
 			fade_->Draw();
 		}
-		else if (startCountdown_->IsPreStart()) {
+		else if (startCountdown_->IsPreStart() && startCountdown_->IsFirsttime()) { 
 			course_->DrawUp(directionalLight_);
 		}
 		else {
