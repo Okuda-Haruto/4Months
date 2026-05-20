@@ -30,6 +30,18 @@ private:
 	//回転がない場合のカメラ座標
 	const Vector3 kCameraPos = { 0, 0, -30 };
 
+public:
+	//初期化
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	//更新処理
+	void Update() override;
+};
+
+class SectionResultCamera : public BaseCamera {
+private:
+	//回転がない場合のカメラ座標
+	const Vector3 kCameraPos = { 0, 0, -30 };
+
 	// リザルト演出用
 	float resultInTimer_ = 0;
 	const float kResultInTime = 2.75f;

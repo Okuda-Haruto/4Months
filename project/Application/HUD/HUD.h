@@ -81,9 +81,6 @@ private:
 	Vector2 resultPos_[3] = { {900,100},{900, 300}, {900, 500} };
 	Vector2 resultSize_ = { 550,120 };
 
-	// 数字ひとつ分の画像内サイズ
-	Vector2 kNumberSize = { 256,256 };
-
 	struct NumberDisplay {
 		std::vector<std::unique_ptr<Sprite>> sprite;
 		Vector2 size;
