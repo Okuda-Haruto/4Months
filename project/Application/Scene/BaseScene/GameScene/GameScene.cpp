@@ -123,16 +123,24 @@ void GameScene::Update() {
 				} else {
 					skipHold_ = 0;
 				}
-			} else if(course_->GetResultState() >= ResultState::End){
+
+			} else if(course_->GetResultState() == ResultState::End){
 				startCountdown_->SetResultEnd();
+				isSectionResult_ = false;
+				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
 			}
 		}
 
 	} else {
 
 		// ★追加：簡易リザルト状態を渡す
-		player_->SetResult(course_->InSubSection() && course_->GetResultState() <= ResultState::Wait);
+		if (!isSectionResult_ && course_->InSubSection() && course_->GetResultState() <= ResultState::Wait) {
+			isSectionResult_ = true;
+			gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
+		}
+		player_->SetResult(isSectionResult_);
 		player_->SetCanSkipResult(course_->GetResultState() == ResultState::Wait);
+
 
 		player_->Update(input_,course_.get());
 

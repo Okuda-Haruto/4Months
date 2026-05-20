@@ -69,6 +69,7 @@ private:
 	int32_t chunkHeight_;
 
 	float skipHold_ = 0;
+	bool isSectionResult_ = false;
 
 	CourseData courseData_;
 

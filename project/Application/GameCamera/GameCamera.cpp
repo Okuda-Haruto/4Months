@@ -57,7 +57,52 @@ void DownCamera::Update() {
 	// 折り返し基礎回転
 	Quaternion nextRotate;
 
-	//resultカメラは別で用意してくれ
+	nextRotate = MakeRotateAxisAngleQuaternion(
+		Vector3{ 1,0,0 },
+		-std::numbers::pi_v<float> / 2
+	);
+
+	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
+
+	float rate = 1.0f - powf(0.5f, dt * 16.0f); // ← 減衰速度
+
+	transform_.rotate = Slerp(
+		transform_.rotate,
+		nextRotate,
+		rate
+	);
+
+	nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
+	transform_.translate.y += player_->GetFallingSpeed() * 0.75f;
+
+	transform_.translate = Lerp(
+		transform_.translate,
+		nextTranslate,
+		rate
+	);
+}
+#pragma endregion
+
+#pragma region 区間リザルトカメラ
+
+void SectionResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+	gameCamera_ = gameCamera;
+	input_ = input;
+	player_ = player;
+	course_ = course;
+
+	//初期値として現在の向きを入れる
+	transform_.scale = { 1,1,1 };
+	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+	transform_.translate = player_->GetTransform().translate + Vector3{ 0,50,0 };
+}
+void SectionResultCamera::Update() {
+
+	Vector3 nextTranslate = player_->GetTransform().translate;
+
+	// 折り返し基礎回転
+	Quaternion nextRotate;
+
 	if (course_->InSubSection() && course_->GetResultState() != ResultState::End && !course_->GetIsSectionFailed()) {
 
 		switch (course_->GetResultState()) {
@@ -119,7 +164,7 @@ void DownCamera::Update() {
 			ImGui::DragFloat3("camT", &setTransform.translate.x, 0.01f);
 			ImGui::DragFloat4("camR4", &setTransform.rotate.x, 0.01f);
 			if (ImGui::DragFloat3("camR3", &setRot.x, 0.01f)) {
-				setTransform.rotate = MatrixToQuaternion(MakeAffineMatrix({ 1,1,1 }, setRot, {setTransform.translate}));
+				setTransform.rotate = MatrixToQuaternion(MakeAffineMatrix({ 1,1,1 }, setRot, { setTransform.translate }));
 			}
 			ImGui::End();
 #endif
@@ -161,7 +206,7 @@ void DownCamera::Update() {
 			);
 			transform_.rotate = Slerp(setTransform.rotate, nextRotate, t);
 
-			
+
 			nextTranslate += kCameraPos * MakeRotateMatrix(transform_.rotate);
 			Vector3 translate = transform_.translate;
 			translate.y += player_->GetFallingSpeed() * 0.75f;
@@ -178,8 +223,6 @@ void DownCamera::Update() {
 			Vector3 normalPos = player_->GetTransform().translate + kCameraPos * MakeRotateMatrix(nextRotate);
 
 			transform_.translate = Lerp(resultPos, normalPos, t);
-
-			//transform_.translate = Lerp(nextTranslate + setTransform.translate, translate, t);
 
 			if (t == 1.0f) {
 				resultInTimer_ = 0;
