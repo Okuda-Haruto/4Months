@@ -1,4 +1,5 @@
 #include "Player.h"
+#include <Course/Course.h>
 #include <numbers>
 
 void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
@@ -8,7 +9,7 @@ void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight
 	startTime_ = 0.1f;
 }
 
-void Player::Update(const std::shared_ptr<Input> input) {
+void Player::Update(const std::shared_ptr<Input> input, Course* course) {
 
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;
@@ -23,7 +24,7 @@ void Player::Update(const std::shared_ptr<Input> input) {
 	Pad pad = input->GetPad(0);
 
 	// ★ここから入力を止める
-	if (!isResult_) {
+	if (!isResult_ && !isBreak_) {
 
 		isCharging_ = false;
 		if (keyboard.trigger[DIK_L]) {
@@ -59,12 +60,12 @@ void Player::Update(const std::shared_ptr<Input> input) {
 				Throw();
 			}
 		}
-
 		isEndResult_ = false;
-	} else {
-		transform_.translate.x = 0;
-		transform_.translate.z = 0;
 
+	} else if(vacuumState_ != Break){
+    transform_.translate.x = 0;
+		transform_.translate.z = 0;
+    
 		// 簡易リザルト終了
 		if (canSkipResult_ && (keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release)) {
 			float blockSize = 3.0f;
@@ -72,6 +73,24 @@ void Player::Update(const std::shared_ptr<Input> input) {
 			transform_.translate.y = resultLoopEndY + offset;
 			isResult_ = false;
 			isEndResult_ = true;
+		}
+	}
+	else {
+		// 簡易リザルト終了
+		if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
+			float blockSize = 3.0f;
+			float offset = transform_.translate.y - std::floor(transform_.translate.y / blockSize) * blockSize;
+			transform_.translate.y = resultLoopEndY + offset;
+			isResult_ = false;
+			isBreak_ = false;
+			vacuumState_ = None;
+
+			//やられモーションから治す
+			model_->ResetAnimationTime();
+			model_->SetAnimationIndex(7);
+			model_->SetIsLoopAnimation(false);
+
+			course->ResetFailed();
 		}
 	}
 	

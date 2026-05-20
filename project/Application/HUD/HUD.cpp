@@ -315,7 +315,8 @@ void HUD::Draw() {
 		stars_->Draw();
 
 		canShoot_->Draw2D();
-	} else {
+    
+	} else if(!isSectionFailed_){
 		// リザルト中
 		for (int i = 0; i < 3; ++i) {
 			sectionResult_[i]->Draw2D();
@@ -381,8 +382,14 @@ void HUD::UpdateScore(Course* course) {
 	int max = currentSection->GetMaxScore();
 	if (current < 0) return;
 
+
+	// 区間などの情報を描画するかどうか
+	canDrawScore_ = !currentSection->IsSubSection();
+	isSectionFailed_ = course->GetIsSectionFailed();
+
 	// プレイ中の情報を描画するかどうか
 	canDrawPlayingInfo_ = !currentSection->IsSubSection();
+
 
 	if (canDrawPlayingInfo_) {
 		// 割合を求める

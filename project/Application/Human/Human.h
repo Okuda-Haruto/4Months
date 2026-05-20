@@ -24,6 +24,8 @@ public:
 	void OnHitVoxel(AABB aabb);
 	void StopBullet(const Vector3& hitPos) { headTransform_.translate = hitPos; headSpeed_ = 0; returnTime_ /= 3; }
 
+	void BreakSpinner();
+
 	SRT GetTransform() { return transform_; }
 	float GetSpeed() { return speed_; }
 	Vector3 GetVelocity() { return velocity_.translate + knockBackVelocity_; }
@@ -34,13 +36,11 @@ public:
 	bool CanShoot() { return vacuumState_ == None; }
 	bool IsCharging() { return isCharging_; }
 
-	//ドリフト中か
-	bool isDrifting_ = false;
-
 	//setter
 	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
 	void ResetPos(const Vector3& pos) { transform_.translate = pos; vacuumState_ = None; }
 	void ApproachCenter(const Vector2& center);
+	void RepairSpinner() { isBreak_ = false; }
 
 	//getter
 	float GetCameraEffectTime() { return cameraEffectTime_; }
@@ -52,6 +52,7 @@ public:
 	float GetFallingSpeed() { return fallingSpeed_; }
 	bool IsResult() { return isResult_; }
 	bool IsEndResult() { return isEndResult_; }
+	bool IsBreak() { return isBreak_; }
 
 	// ★これ追加
 	void SetResult(bool flag);
@@ -62,6 +63,15 @@ protected:
 	// モデル
 	std::unique_ptr<Object> model_ = nullptr;
 	std::unique_ptr<Object> bulletModel_ = nullptr;
+
+	std::unique_ptr<Object> bulletModel_Break_ = nullptr;
+	//壊れたパーツごとのtransform
+	std::vector<SRT> breakBulletTransform_;
+	//壊れたパーツが動く向き
+	std::vector<Quaternion> breakBulletDirection_;
+	float breakBulletSpeed_ = 1.0f;
+	//壊れたパーツの回転
+	std::vector<Quaternion> breakBulletRotateVelocity_;
 
 	// トランスフォーム
 	SRT transform_;
@@ -99,6 +109,7 @@ protected:
 		Going,
 		Vacuum,
 		Return,
+		Break,
 	};
 	VacuumState vacuumState_;
 
@@ -150,6 +161,9 @@ protected:
 	// リザルト中のループ地点
 	float resultLoopStartY = 0;
 	float resultLoopEndY = 0;
+
+	//ゲームオーバー演出
+	bool isBreak_ = false;
 	
 	// SE
 	std::unique_ptr<Audio> shootSE_ = nullptr;

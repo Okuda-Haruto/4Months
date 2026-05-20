@@ -56,7 +56,10 @@ void DownCamera::Update() {
 
 	// 折り返し基礎回転
 	Quaternion nextRotate;
-	if (course_->InSubSection() && course_->GetResultState() != ResultState::End) {
+
+	//resultカメラは別で用意してくれ
+	if (course_->InSubSection() && course_->GetResultState() != ResultState::End && !course_->GetIsSectionFailed()) {
+
 		switch (course_->GetResultState()) {
 		case ResultState::RotateIn:
 		{

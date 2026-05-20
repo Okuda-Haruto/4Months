@@ -36,6 +36,9 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 
 	failSE_ = std::make_unique<Audio>();
 	failSE_->Initialize("resources/SE・BGM/Game/failure.mp3", 0.5f);
+
+	gameover_ = std::make_unique<GameOver>();
+	gameover_->Initialize(directionalLight_);
 }
 
 void Course::Update(Human* player) {
@@ -61,6 +64,13 @@ void Course::Update(Human* player) {
 
 				if (!sectionsData_[i].isFailed) {
 					sectionsData_[i].isFailed = true;
+					
+					isSectionFailed_ = true;
+
+					if (!player->IsBreak()) {
+						player->BreakSpinner();
+					}
+
 					failSE_->SoundPlayWave();
 				}
 
@@ -75,6 +85,10 @@ void Course::Update(Human* player) {
 		} else {
 			resultFlash_->Update();
 		}
+	}
+
+	if (isSectionFailed_ && player->IsBreak()) {
+		gameover_->Update();
 	}
 
 	currentSection_->Update(player->GetTransform().translate.y);
@@ -132,6 +146,7 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 			goalBarriers_[i]->Draw();
 		}
 	}
+
 }
 
 // 描画
@@ -149,6 +164,7 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 	}
 
 	voxel_->Draw(drawRange);
+  
 	resultFlash_->Draw();
 }
 
@@ -186,6 +202,10 @@ void Course::DrawGoalBarrier() {
 	//for (auto& barrier : goalBarriers_) {
 	//	barrier->Draw();
 	//}
+}
+
+void Course::DrawGameOver() {
+	gameover_->Draw();
 }
 
 void Course::AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP) {

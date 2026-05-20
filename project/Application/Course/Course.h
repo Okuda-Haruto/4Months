@@ -4,6 +4,7 @@
 #include "OBB.h"
 #include "Section/Section.h"
 #include "GoalBarrier/GoalBarrier.h"
+#include "./GameOver/GameOver.h"
 #include "Effect/Flash/Flash.h"
 
 //コースファイルデータ
@@ -41,6 +42,8 @@ public:
 	void DrawUp(const std::shared_ptr<DirectionalLight> directionalLight);
 
 	void DrawGoalBarrier();
+
+	void DrawGameOver();
 
 	// Getter
 	Vector2 GetColliderCenter() { return colliderCenter_; }
@@ -82,6 +85,11 @@ public:
 	std::vector<Vector3> GetBreakPos() { return breakPos_; }
 
 	bool isNoNormaMode_ = false;
+
+	//getter
+	bool GetIsSectionFailed(){return isSectionFailed_;}
+	//setter
+	void ResetFailed() { isSectionFailed_ = false; gameover_->Reset(); }
 
 	// 直前の区間の破壊率
 	float GetPrevBreakRate() {
@@ -145,6 +153,10 @@ private:
 
 	std::unique_ptr<Audio> failSE_;
 
+	//ゲームオーバー演出
+	bool isSectionFailed_;
+	std::unique_ptr<GameOver> gameover_;
+  
 	ResultState resultState_ = ResultState::RotateIn;
 	std::unique_ptr<Flash> resultFlash_;
 };

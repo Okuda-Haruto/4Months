@@ -11,6 +11,18 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 	bulletModel_ = make_unique<Object>();
 	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
 	bulletModel_->SetShininess(30.0f);
+	bulletModel_Break_ = make_unique<Object>();
+	bulletModel_Break_->Initialize(ModelManager::GetInstance()->GetModel("resources/Title/StartAnim", "beyblade.obj"));
+	bulletModel_Break_->SetShininess(30.0f);
+	bulletModel_Break_->SetDirectionalLight(directionalLight);
+	bulletModel_Break_->SetCamera(camera);
+
+	int partsNum = int(bulletModel_Break_->GetParts().size());
+
+	breakBulletTransform_.resize(partsNum);
+	breakBulletDirection_.resize(partsNum);
+	breakBulletRotateVelocity_.resize(partsNum);
+
 	//カメラで使う
 	transform_ = {};
 	transform_.scale = { 2.5f,2.5f,2.5f };
@@ -116,6 +128,7 @@ void Human::Update() {
 		}
 	}
 
+	std::vector<Parts> parts = bulletModel_Break_->GetParts();
 	// 分離しているときの先頭
 	switch (vacuumState_) {
 	case None:
@@ -156,8 +169,28 @@ void Human::Update() {
 			headRotateEffect_->Catch();
 			catchSE_->SoundPlayWave();
 
+			model_->ResetAnimationTime();
 			model_->SetAnimationIndex(7);
+			model_->SetIsLoopAnimation(false);
 		}
+		break;
+	case Break:
+		headTransform_ = { headTransform_.scale,transform_.rotate, transform_.translate };
+		headTransform_.translate.y += 15;
+		for (int i = 0; i < parts.size(); i++) {
+			//移動
+			rotateMatrix = MakeRotateMatrix(breakBulletDirection_[i]);
+			breakBulletTransform_[i].translate += Vector3{ 0,0,breakBulletSpeed_ } * rotateMatrix;
+			//少しずつ下向きに
+			breakBulletDirection_[i] = Slerp(breakBulletDirection_[i], MakeRotateAxisAngleQuaternion({ -1,0,0 }, std::numbers::pi_v<float> / 2), 0.1f);
+			//回転
+			breakBulletTransform_[i].rotate = breakBulletTransform_[i].rotate * breakBulletRotateVelocity_[i];
+
+			*parts[i].transform = breakBulletTransform_[i];
+			bulletModel_Break_->SetParts(parts[i], i);
+		}
+
+		break;
 	}
 
 	// 回転
@@ -208,8 +241,14 @@ void Human::Update() {
 
 void Human::Draw() {
 	model_->Draw3D();
-	bulletModel_->Draw3D();
-	headRotateEffect_->Draw();
+
+	if (vacuumState_ != Break) {
+		bulletModel_->Draw3D();
+		headRotateEffect_->Draw();
+	}
+	else {
+		bulletModel_Break_->Draw3D();
+	}
 
 	if (vacuumState_ == Vacuum) {
 		wind_->Draw();
@@ -217,38 +256,69 @@ void Human::Draw() {
 }
 
 void Human::OnHitVoxel(AABB aabb) {
-	Slowdown();
+	if (!isBreak_) {
+		Slowdown();
 
-	Vector3 closest;
+		Vector3 closest;
 
-	closest.x = std::clamp(transform_.translate.x, aabb.min.x, aabb.max.x) - transform_.translate.x;
-	closest.y = std::clamp(transform_.translate.y, aabb.min.y, aabb.max.y) - transform_.translate.y;
-	closest.z = std::clamp(transform_.translate.z, aabb.min.z, aabb.max.z) - transform_.translate.z;
+		closest.x = std::clamp(transform_.translate.x, aabb.min.x, aabb.max.x) - transform_.translate.x;
+		closest.y = std::clamp(transform_.translate.y, aabb.min.y, aabb.max.y) - transform_.translate.y;
+		closest.z = std::clamp(transform_.translate.z, aabb.min.z, aabb.max.z) - transform_.translate.z;
 
-	if (fabsf(closest.x) >= fabsf(closest.y) && fabsf(closest.x) >= fabsf(closest.z)) {
-		knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
-	}
-	else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
-		//knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
-	}
-	else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
-		knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
-	}
-
-	// ★追加：ジャンピングフラッシュ風
-	if (isJumpFlashMode_) {
-		fallingSpeed_ = bounceBackSpeed_ * 0.33f;
-	}
-	else {
-		fallingSpeed_ = 0.0f;
-	}
-
-	if (vacuumState_ == None) {
-		if (isAutoBurst_) {
-			charge_ = max(kMaxCharge_ * 0.1f, charge_ * 0.5f);
-			Throw();
-			headRotateEffect_->Shoot();
+		if (fabsf(closest.x) >= fabsf(closest.y) && fabsf(closest.x) >= fabsf(closest.z)) {
+			knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
 		}
+		else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
+			//knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
+		}
+		else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
+			knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
+		}
+
+		// ★追加：ジャンピングフラッシュ風
+		if (isJumpFlashMode_) {
+			fallingSpeed_ = bounceBackSpeed_ * 0.33f;
+		}
+		else {
+			fallingSpeed_ = 0.0f;
+		}
+
+		if (vacuumState_ == None) {
+			if (isAutoBurst_) {
+				charge_ = max(kMaxCharge_ * 0.1f, charge_ * 0.5f);
+				Throw();
+				headRotateEffect_->Shoot();
+			}
+		}
+	}
+}
+
+void Human::BreakSpinner() {
+	vacuumState_ = Break;
+	fallingSpeed_ = 1.0f;
+	speed_ = 0.0f;
+	velocity_.translate.y = 0.0f;
+	isResult_ = false;
+	model_->SetIsLoopAnimation(true);
+	model_->SetAnimationIndex(2);
+
+	bulletModel_Break_->SetTransform(headTransform_);
+
+	for (int i = 0; i < breakBulletDirection_.size();i++) {
+		breakBulletTransform_[i] = { {0.125f,0.125f,0.125f},IdentityQuaternion(), {0,0,0} };
+
+		// 30~60
+		breakBulletDirection_[i] = MakeRotateAxisAngleQuaternion({ 1,0,0 }, GameEngine::randomFloat(std::numbers::pi_v<float> * 70.0f / 180.0f, std::numbers::pi_v<float> * 85.0f / 180.0f));
+		// 0~360
+		breakBulletDirection_[i] = breakBulletDirection_[i] * MakeRotateAxisAngleQuaternion({ 0,1,0 }, GameEngine::randomFloat(0.0f, std::numbers::pi_v<float> * 2.0f));
+
+		//乱数
+		breakBulletRotateVelocity_[i] = Normalize(
+			Quaternion{ GameEngine::randomFloat(0.0f, 1.0f),
+			GameEngine::randomFloat(0.0f, 1.0f),
+			GameEngine::randomFloat(0.0f, 1.0f),
+			GameEngine::randomFloat(0.0f, 1.0f)
+			});
 	}
 }
 
@@ -287,12 +357,14 @@ void Human::Throw() {
 
 	model_->ResetAnimationTime();
 	model_->SetAnimationIndex(11);
+	model_->SetIsLoopAnimation(false);
 }
 
 void Human::Charge() {
 	if (charge_ == 0) {
 		model_->ResetAnimationTime();
 		model_->SetAnimationIndex(12);
+		model_->SetIsLoopAnimation(false);
 
 		chargeSE_->SoundPlayWave();
 	}
@@ -336,4 +408,8 @@ void Human::SetResult(bool flag) {
 	}
 
 	isResult_ = flag;
+
+	if (vacuumState_ == Break && fallingSpeed_ < 0.0f && transform_.translate.y - 25 < resultLoopStartY) {
+		isBreak_ = true;
+	}
 }

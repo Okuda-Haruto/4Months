@@ -46,6 +46,7 @@
     <ClCompile Include="Application\Box\Box.cpp" />
     <ClCompile Include="Application\Course\Course.cpp" />
     <ClCompile Include="Application\CheckCollision\CheckCollision.cpp" />
+    <ClCompile Include="Application\Course\GameOver\GameOver.cpp" />
     <ClCompile Include="Application\Course\GoalBarrier\GoalBarrier.cpp" />
     <ClCompile Include="Application\Effect\Combine\Combine.cpp" />
     <ClCompile Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="Application\Box\Box.h" />
     <ClInclude Include="Application\Course\Course.h" />
     <ClInclude Include="Application\CheckCollision\CheckCollision.h" />
+    <ClInclude Include="Application\Course\GameOver\GameOver.h" />
     <ClInclude Include="Application\Course\GoalBarrier\GoalBarrier.h" />
     <ClInclude Include="Application\Effect\Combine\Combine.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
