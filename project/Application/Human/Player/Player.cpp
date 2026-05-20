@@ -60,13 +60,19 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course) {
 				Throw();
 			}
 		}
+		isEndResult_ = false;
+
 	} else if(vacuumState_ != Break){
+    transform_.translate.x = 0;
+		transform_.translate.z = 0;
+    
 		// 簡易リザルト終了
-		if (keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release) {
+		if (canSkipResult_ && (keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release)) {
 			float blockSize = 3.0f;
 			float offset = transform_.translate.y - std::floor(transform_.translate.y / blockSize) * blockSize;
 			transform_.translate.y = resultLoopEndY + offset;
 			isResult_ = false;
+			isEndResult_ = true;
 		}
 	}
 	else {

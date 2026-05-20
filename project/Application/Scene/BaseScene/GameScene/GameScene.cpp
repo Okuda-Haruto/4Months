@@ -104,23 +104,27 @@ void GameScene::Update() {
 			// 開始カウントダウン
 			startCountdown_->Update();
 
-			// ゲーム中のカメラに移行
-			if (startCountdown_->IsDownCameraTime()) {
-				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
-			}
-
-			if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
-				skipHold_ += GameEngine::GetDeltaTime();
-				if (skipHold_ > 0.5f) {
-					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-					startCountdown_->SkipPreStart();
+			if (startCountdown_->IsFirsttime()) {
+				// ゲーム中のカメラに移行
+				if (startCountdown_->IsDownCameraTime()) {
+					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
 				}
+
+				if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
+					skipHold_ += GameEngine::GetDeltaTime();
+					if (skipHold_ > 0.5f) {
+						gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+						startCountdown_->SkipPreStart();
+					}
 #ifdef USE_IMGUI
-				gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-				startCountdown_->SkipAll();
+					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+					startCountdown_->SkipAll();
 #endif
-			} else {
-				skipHold_ = 0;
+				} else {
+					skipHold_ = 0;
+				}
+			} else if(course_->GetResultState() >= ResultState::End){
+				startCountdown_->SetResultEnd();
 			}
 		}
 
@@ -152,6 +156,10 @@ void GameScene::Update() {
 		checkCollision_->UpdateImGui();
 
 		hitPreview_->Update(player_.get(), checkCollision_.get());
+
+		if (player_->IsEndResult()) {
+			startCountdown_->Reset(player_->GetTransform().translate);
+		}
 	}
 
 	//カメラ更新
@@ -236,13 +244,7 @@ void GameScene::Draw() {
 		}
 		else {
 
-			if (course_->InSubSection() && !course_->GetIsSectionFailed()) {
-				course_->DrawAll(directionalLight_);
-			}
-			else {
-				course_->Draw(directionalLight_);
-			}
-
+			course_->Draw(directionalLight_);
 			player_->Draw();
 			hud_->Draw();
 			hitPreview_->Draw();

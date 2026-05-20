@@ -141,7 +141,7 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 	voxel_->Draw();
 
-	for (int i = 0; i < goalBarriers_.size(); ++i){
+	for (int i = currentSectionNum_; i < goalBarriers_.size(); ++i){
 		if (!sections_[i]->IsSubSection()) {
 			goalBarriers_[i]->Draw();
 		}

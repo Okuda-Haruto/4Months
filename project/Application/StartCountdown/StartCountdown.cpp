@@ -120,6 +120,7 @@ void StartCountdown::Update() {
 		}
 
 		if (timer_ == spreadTime_) {
+			firstTime_ = false;
 			timer_ = 0;
 			state_ = State::Stop;
 		}
@@ -192,6 +193,104 @@ void StartCountdown::LoadCSV(std::string filename, std::shared_ptr<DirectionalLi
 			object->SetParts(parts[0], 0);
 			blocks_.push_back(std::move(object));
 		}
+
+		int index = 0;
+		int side = int(ceil(cbrt(float(blocks_.size()))));
+		int sideX = side;
+		int sideY = side;
+		int sideZ = int(ceil(float(blocks_.size()) / (sideX * sideY)));
+
+		// 初期配置
+		for (int z = 0; z < sideZ; z++) {
+			for (int y = 0; y < sideY; y++) {
+				for (int x = 0; x < sideX; x++) {
+
+					if (index >= int(blocks_.size())) break;
+
+					Vector3 pos;
+					float spacing = blockSize_ * 15.0f;
+					float half = (side - 1) * 0.5f;
+
+					pos.x = (x - half) * spacing;
+					pos.y = (y - half) * spacing;
+					pos.z = z * spacing;
+
+					SRT transform = blocks_[index]->GetTransform();
+					transform.scale = { 0,0,0 };
+					transform.translate = pos + basePos_;
+
+					blocks_[index]->SetTransform(transform);
+					startPos_.push_back(transform.translate);
+
+					index++;
+				}
+			}
+		}
+
+		for (int i = 0; i < positions_.size(); ++i) {
+			// 一番多いブロック数に合わせて余ったブロックの位置を設定
+			int add = maxBlocks_ - int(positions_[i].size());
+			if (add > 0) {
+				for (int j = 0; j < add; ++j) {
+					positions_[i].push_back(positions_[i][GameEngine::randomInt(0, int(positions_.size()) - 1)]);
+				}
+			}
+		}
+	}
+}
+
+void StartCountdown::Reset(const Vector3& pos) {
+	if (!IsEnd()) return;
+	state_ = State::PreStart;
+	count_ = kMaxCount_;
+
+	positions_.clear();
+	positions_.resize(count_ + 1);
+	basePos_ = pos + Vector3{0,0,5};
+	Reload("resources/Countdown/Go.csv", 0);
+	Reload("resources/Countdown/1.csv", 1);
+	Reload("resources/Countdown/2.csv", 2);
+	Reload("resources/Countdown/3.csv", 3);
+}
+
+void StartCountdown::Reload(std::string filename, int countNumber) {
+	ifstream file(filename);
+	// 全行読み込み
+	std::vector<std::string> lines;
+	std::string line;
+	while (getline(file, line)) {
+		lines.push_back(line);
+	}
+
+	int height = int(lines.size());
+	int width = 0;
+
+	for (const auto& l : lines) {
+		if (l.length() > width) {
+			width = int(l.length());
+		}
+	}
+
+	// 中心を0にするためのオフセット
+	Vector2 offset{ (width - 1) * 0.5f, (height - 1) * 0.5f };
+
+	// 配置
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < lines[y].length(); x++) {
+			char c = lines[y][x];
+
+			if (c == '#') {
+				Vector2 pos{
+				(x - offset.x) * blockSize_,
+				-(y - offset.y) * blockSize_
+				};
+
+				positions_[countNumber].push_back(Vector3{ pos.x, 0, pos.y } + basePos_);
+			}
+		}
+	}
+
+	if (countNumber == kMaxCount_) {
 
 		int index = 0;
 		int side = int(ceil(cbrt(float(blocks_.size()))));

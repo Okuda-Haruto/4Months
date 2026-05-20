@@ -58,7 +58,7 @@ void DownCamera::Update() {
 	Quaternion nextRotate;
 
 	//resultカメラは別で用意してくれ
-	if (course_->InSubSection() && !course_->GetIsSectionFailed()) {
+	if (course_->InSubSection() && course_->GetResultState() != ResultState::End && !course_->GetIsSectionFailed()) {
 
 		switch (course_->GetResultState()) {
 		case ResultState::RotateIn:
@@ -174,7 +174,12 @@ void DownCamera::Update() {
 				rate
 			);
 
-			transform_.translate = Lerp(nextTranslate + setTransform.translate, translate, t);
+			Vector3 resultPos = player_->GetTransform().translate + setTransform.translate;
+			Vector3 normalPos = player_->GetTransform().translate + kCameraPos * MakeRotateMatrix(nextRotate);
+
+			transform_.translate = Lerp(resultPos, normalPos, t);
+
+			//transform_.translate = Lerp(nextTranslate + setTransform.translate, translate, t);
 
 			if (t == 1.0f) {
 				resultInTimer_ = 0;

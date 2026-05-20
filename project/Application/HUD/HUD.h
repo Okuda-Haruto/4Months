@@ -22,6 +22,7 @@ private:
 	void UpdateInfo();
 	void UpdateStartNum(int num);
 	void UpdateReload(Player* player, std::shared_ptr<Camera> camera);
+	void UpdateResult(Course* course);
 
 	// エネルギー
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
@@ -77,19 +78,56 @@ private:
 
 	// 区間の結果
 	std::unique_ptr<Sprite> sectionResult_[3]{};
-	Vector2 resultPos_[3] = { {900,200},{900, 400}, {900, 600} };
+	Vector2 resultPos_[3] = { {900,100},{900, 300}, {900, 500} };
 	Vector2 resultSize_ = { 550,120 };
 
+	// 数字ひとつ分の画像内サイズ
+	Vector2 kNumberSize = { 256,256 };
+
+	struct NumberDisplay {
+		std::vector<std::unique_ptr<Sprite>> sprite;
+		Vector2 size;
+		Vector2 pos;
+		int digitCount;
+		float spacing;
+	};
+
+	// タイマー
+	NumberDisplay timer_ = {
+		.size = {64,64},
+		.pos = {40,60},
+		.digitCount = 5,
+		.spacing = 35
+	};
+	int lastTime_ = 0;
+
 	// ブロック破壊率
-	std::unique_ptr<Sprite> breakRateSprite_[3]{};
-	Vector2 breakRateSize_ = { 128,128 };
-	Vector2 breakRatePos_[3] = { {900 - 70,660},{900,660},{900 + 70,660} };
+	NumberDisplay breakRate_ = {
+		.size = {128, 128},
+		.pos = {900, 200},
+		.digitCount = 3,
+		.spacing = 70
+	};
 
 	// ブロック破壊個数
-	std::unique_ptr<Sprite> breakAmountSprite_[6]{};
-	Vector2 breakAmountSize_ = { 64,64 };
-	Vector2 breakAmountPos_[6] = { {750,460},{750 + 35,460},{750 + 70,460},{750 + 105,460},{750 + 140,460},{750 + 175,460} };
-	
+	NumberDisplay breakCount_ = {
+		.size = {128, 128},
+		.pos = {900, 400},
+		.digitCount = 6,
+		.spacing = 50
+	};
+
+	// リザルト時タイマー
+	NumberDisplay sectionTime_ = {
+		.size = {128, 128},
+		.pos = {900, 600},
+		.digitCount = 5,
+		.spacing = 70
+	};
+	int unuseDigitCountBreakRate_ = 0;
+	int unuseDigitCountBreakAmount_ = 0;
+	bool useMinusSectionTime_ = false;
+
 	float resultTimer_ = 0;
 
 	Input* input_;

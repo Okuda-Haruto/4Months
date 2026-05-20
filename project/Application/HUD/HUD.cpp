@@ -42,14 +42,15 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	bonusBreakSprite_->SetPosition(breakLTPos_);
 
 	// 時間
-	for (int i = 0; i < 4; ++i) {
-		currentTimeSprite_[i] = std::make_unique<Sprite>();
-		currentTimeSprite_[i]->Initialize("./resources/HUD/Numbers/Number.png");
-		currentTimeSprite_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-		currentTimeSprite_[i]->SetSize(currentTimeSpriteSize_);
-		currentTimeSprite_[i]->SetAnchorPoint({ 0.5f,0.5f });
-		currentTimeSprite_[i]->SetPosition(timePos_[i]);
-		currentTimeSprite_[i]->SetTextureSize(kNumberSize);
+	timer_.sprite.resize(timer_.digitCount);
+	for (int i = 0; i < timer_.digitCount; ++i) {
+		timer_.sprite[i] = std::make_unique<Sprite>();
+		timer_.sprite[i]->Initialize("./resources/HUD/Numbers/Number.png");
+		timer_.sprite[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		timer_.sprite[i]->SetSize(timer_.size);
+		timer_.sprite[i]->SetAnchorPoint({ 0.5f,0.5f });
+		timer_.sprite[i]->SetPosition({ timer_.pos.x + timer_.spacing * i, timer_.pos.y });
+		timer_.sprite[i]->SetTextureSize(kNumberSize);
 	}
 
 	// 区間
@@ -120,25 +121,45 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 	}
 
 	// リザルト:破壊率
-	for (int i = 0; i < 3; ++i) {
-		breakRateSprite_[i] = std::make_unique<Sprite>();
-		breakRateSprite_[i]->Initialize("./resources/HUD/Numbers/Number.png");
-		breakRateSprite_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-		breakRateSprite_[i]->SetSize(breakRateSize_);
-		breakRateSprite_[i]->SetAnchorPoint({ 0.5f,0.5f });
-		breakRateSprite_[i]->SetPosition(breakRatePos_[i]);
-		breakRateSprite_[i]->SetTextureSize(kNumberSize);
+	breakRate_.sprite.resize(breakRate_.digitCount);
+	float width = breakRate_.spacing * (breakRate_.digitCount - 1);
+	float startX = breakRate_.pos.x - width * 0.5f;
+	for (int i = 0; i < breakRate_.digitCount; ++i) {
+		breakRate_.sprite[i] = std::make_unique<Sprite>();
+		breakRate_.sprite[i]->Initialize("./resources/HUD/Numbers/Number.png");
+		breakRate_.sprite[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		breakRate_.sprite[i]->SetSize({});
+		breakRate_.sprite[i]->SetAnchorPoint({ 0.5f,0.5f });
+		breakRate_.sprite[i]->SetPosition({ startX + breakRate_.spacing * i, breakRate_.pos.y });
+		breakRate_.sprite[i]->SetTextureSize(kNumberSize);
 	}
 
 	// リザルト:破壊量
-	for (int i = 0; i < 6; ++i) {
-		breakAmountSprite_[i] = std::make_unique<Sprite>();
-		breakAmountSprite_[i]->Initialize("./resources/HUD/Numbers/Number.png");
-		breakAmountSprite_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-		breakAmountSprite_[i]->SetSize(breakAmountSize_);
-		breakAmountSprite_[i]->SetAnchorPoint({ 0.5f,0.5f });
-		breakAmountSprite_[i]->SetPosition(breakAmountPos_[i]);
-		breakAmountSprite_[i]->SetTextureSize(kNumberSize);
+	breakCount_.sprite.resize(breakCount_.digitCount);
+	width = breakCount_.spacing * (breakCount_.digitCount - 1);
+	startX = breakCount_.pos.x - width * 0.5f;
+	for (int i = 0; i < breakCount_.digitCount; ++i) {
+		breakCount_.sprite[i] = std::make_unique<Sprite>();
+		breakCount_.sprite[i]->Initialize("./resources/HUD/Numbers/Number.png");
+		breakCount_.sprite[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		breakCount_.sprite[i]->SetSize({});
+		breakCount_.sprite[i]->SetAnchorPoint({ 0.5f,0.5f });
+		breakCount_.sprite[i]->SetPosition({ startX + breakCount_.spacing * i, breakCount_.pos.y });
+		breakCount_.sprite[i]->SetTextureSize(kNumberSize);
+	}
+
+	// リザルト:時間
+	sectionTime_.sprite.resize(sectionTime_.digitCount);
+	width = sectionTime_.spacing * (sectionTime_.digitCount - 1);
+	startX = sectionTime_.pos.x - width * 0.5f;
+	for (int i = 0; i < sectionTime_.digitCount; ++i) {
+		sectionTime_.sprite[i] = std::make_unique<Sprite>();
+		sectionTime_.sprite[i]->Initialize("./resources/HUD/Numbers/Number.png");
+		sectionTime_.sprite[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		sectionTime_.sprite[i]->SetSize(sectionTime_.size);
+		sectionTime_.sprite[i]->SetAnchorPoint({ 0.5f,0.5f });
+		sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing * i, sectionTime_.pos.y });
+		sectionTime_.sprite[i]->SetTextureSize(kNumberSize);
 	}
 }
 
@@ -152,6 +173,7 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	UpdateInfo();
 	UpdateStartNum(startNum);
 	UpdateReload(player, camera);
+	UpdateResult(course);
 
 	// エフェクト
 	auto pos = course->GetBreakPos();
@@ -162,6 +184,109 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	center.x += bonusBreakSprite_->GetSize().x;
 	center.y /= 2.0f;
 	stars_->Update(breakLTPos_ + center);
+
+#ifdef USE_IMGUI
+	ImGui::Begin("Result HUD");
+	ImGui::DragFloat2("rate.pos", &breakRate_.pos.x, 0.5f);
+	ImGui::DragFloat2("rate.size", &breakRate_.size.x, 0.5f);
+	ImGui::DragFloat("rate.spacing", &breakRate_.spacing, 0.5f);
+
+	ImGui::DragFloat2("count.pos", &breakCount_.pos.x, 0.5f);
+	ImGui::DragFloat2("count.size", &breakCount_.size.x, 0.5f);
+	ImGui::DragFloat("count.spacing", &breakCount_.spacing, 0.5f);
+
+	ImGui::DragFloat2("time.pos", &sectionTime_.pos.x, 0.5f);
+	ImGui::DragFloat2("time.size", &sectionTime_.size.x, 0.5f);
+	ImGui::DragFloat("time.spacing", &sectionTime_.spacing, 0.5f);
+
+	ImGui::DragFloat2("resultItem.pos0", &resultPos_[0].x, 0.5f);
+	ImGui::DragFloat2("resultItem.pos1", &resultPos_[1].x, 0.5f);
+	ImGui::DragFloat2("resultItem.pos2", &resultPos_[2].x, 0.5f);
+	ImGui::DragFloat2("resultItem.size", &resultSize_.x, 0.5f);
+
+	float t = 0;
+
+	if (course->GetResultState() == ResultState::SetResults) {
+		float setTime = 0.12f;
+		resultTimer_ += GameEngine::GetDeltaTime();
+		t = std::clamp(1.0f - powf(1 - resultTimer_ / setTime, 3), 0.0f, 1.0f);
+
+	} else if (course->GetResultState() == ResultState::RotateOut) {
+		float outTime = 0.12f;
+		resultTimer_ += GameEngine::GetDeltaTime();
+		t = std::clamp(powf(1 - resultTimer_ / outTime, 3), 0.0f, 1.0f);
+
+	} else  if (course->GetResultState() == ResultState::Wait) {
+		t = 1;
+		resultTimer_ = 0;
+	}
+
+	for (int i = 0; i < 3; ++i) {
+		sectionResult_[i]->SetSize(resultSize_ * t);
+		sectionResult_[i]->Update();
+	}
+
+	// 破壊率
+	unuseDigitCountBreakRate_ = 0;
+	if (course->GetPrevBreakRate() < 100) unuseDigitCountBreakRate_++;
+	if (course->GetPrevBreakRate() < 10) unuseDigitCountBreakRate_++;
+
+	float width = breakRate_.size.x + breakRate_.spacing * (breakRate_.digitCount - unuseDigitCountBreakRate_ - 1);
+	float startX = breakRate_.pos.x - width * 0.5f + breakRate_.size.x * 0.5f;
+	int index = 0;
+	for (int i = unuseDigitCountBreakRate_; i < breakRate_.digitCount; ++i) {
+		breakRate_.sprite[i]->SetSize(breakRate_.size * t);
+		breakRate_.sprite[i]->SetPosition({ startX + breakRate_.spacing * index, breakRate_.pos.y });
+		breakRate_.sprite[i]->Update();
+
+		index++;
+	}
+
+	// 破壊個数
+	unuseDigitCountBreakAmount_ = 0;
+	if (course->GetBreakCount() < 100000) unuseDigitCountBreakAmount_++;
+	if (course->GetBreakCount() < 10000) unuseDigitCountBreakAmount_++;
+	if (course->GetBreakCount() < 1000) unuseDigitCountBreakAmount_++;
+	if (course->GetBreakCount() < 100) unuseDigitCountBreakAmount_++;
+	if (course->GetBreakCount() < 10) unuseDigitCountBreakAmount_++;
+
+	width = breakCount_.size.x + breakCount_.spacing * (breakCount_.digitCount - unuseDigitCountBreakAmount_ - 1);
+	startX = breakCount_.pos.x - width * 0.5f + breakCount_.size.x * 0.5f;
+	index = 0;
+	for (int i = unuseDigitCountBreakAmount_; i < breakCount_.digitCount; ++i) {
+		breakCount_.sprite[i]->SetSize(breakCount_.size * t);
+		breakCount_.sprite[i]->SetPosition({ startX + breakCount_.spacing * index, breakCount_.pos.y });
+		breakCount_.sprite[i]->Update();
+
+		index++;
+	}
+
+	// 時間
+	useMinusSectionTime_ = lastTime_ < 0;
+	if (useMinusSectionTime_) {
+		float width = sectionTime_.size.x + sectionTime_.spacing * (sectionTime_.digitCount - 1);
+		float startX = sectionTime_.pos.x - width * 0.5f + sectionTime_.size.x * 0.5f;
+		for (int i = 0; i < sectionTime_.digitCount; ++i) {
+			sectionTime_.sprite[i]->SetSize(sectionTime_.size * t);
+			sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing * i, sectionTime_.pos.y });
+			sectionTime_.sprite[i]->Update();
+		}
+	} else {
+		// 一番左(マイナス)を非表示
+		float width = sectionTime_.size.x + sectionTime_.spacing * (sectionTime_.digitCount - 2);
+		float startX = sectionTime_.pos.x - width * 0.5f + sectionTime_.size.x * 0.5f;
+		index = 0;
+		for (int i = 1; i < sectionTime_.digitCount; ++i) {
+			sectionTime_.sprite[i]->SetSize(sectionTime_.size * t);
+			sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing * index, sectionTime_.pos.y });
+			sectionTime_.sprite[i]->Update();
+
+			index++;
+		}
+	}
+
+	ImGui::End();
+#endif
 }
 
 void HUD::Draw() {
@@ -177,13 +302,14 @@ void HUD::Draw() {
 		sectionSprite_->Draw2D();
 		progressSprite_->Draw2D();
 
-		// 時間
-		for (int i = 0; i < 4; ++i) {
-			currentTimeSprite_[i]->Draw2D();
-		}
-
 		// 目的
 		currentObjective_->Draw2D();
+
+		int start = 0;
+		if (!useMinusSectionTime_) start++;
+		for (int i = start; i < timer_.digitCount; ++i) {
+			timer_.sprite[i]->Draw2D();
+		}
 
 		// エフェクト
 		stars_->Draw();
@@ -197,13 +323,20 @@ void HUD::Draw() {
 		}
 
 		// 破壊率
-		for (int i = 0; i < 3; ++i) {
-			breakRateSprite_[i]->Draw2D();
+		for (int i = unuseDigitCountBreakRate_; i < breakRate_.digitCount; ++i) {
+			breakRate_.sprite[i]->Draw2D();
 		}
 
 		// 破壊量
-		for (int i = 0; i < 6; ++i) {
-			breakAmountSprite_[i]->Draw2D();
+		for (int i = unuseDigitCountBreakAmount_; i < breakCount_.digitCount; ++i) {
+			breakCount_.sprite[i]->Draw2D();
+		}
+
+		// 時間
+		int start = 0;
+		if (!useMinusSectionTime_) start++;
+		for (int i = start; i < sectionTime_.digitCount; ++i) {
+			sectionTime_.sprite[i]->Draw2D();
 		}
 	}
 
@@ -293,9 +426,9 @@ void HUD::UpdateScore(Course* course) {
 void HUD::UpdateTimer(Course* course) {
 	Section* currentSection = course->GetCurrentSection();
 	if (!currentSection->IsSubSection()) {
-		int time = int(currentSection->GetTimer()->GetCurrent());
-		int min = time / 60;
-		int sec = time % 60;
+		lastTime_ = int(currentSection->GetTimer()->GetCurrent());
+		int min = lastTime_ / 60;
+		int sec = lastTime_ % 60;
 
 		int num[3] = { min, sec / 10, sec % 10 };
 		for (int i = 0; i < 3; ++i) {
@@ -306,12 +439,35 @@ void HUD::UpdateTimer(Course* course) {
 			}
 		}
 
-		currentTimeSprite_[0]->SetTextureLeftTop({ num[0] * kNumberSize.x, 0 });
-		currentTimeSprite_[1]->SetTextureLeftTop({ 10.0f * kNumberSize.x, 0 });
-		currentTimeSprite_[2]->SetTextureLeftTop({ num[1] * kNumberSize.x, 0 });
-		currentTimeSprite_[3]->SetTextureLeftTop({ num[2] * kNumberSize.x, 0 });
-		for (int i = 0; i < 4; ++i) {
-			currentTimeSprite_[i]->Update();
+		if (lastTime_ < 0) {
+			// マイナス
+			//timer_.sprite[0]->SetTextureLeftTop({ 11.0f * kNumberSize.x, 0 });
+
+			for (int i = 0; i < timer_.digitCount; ++i) {
+				timer_.sprite[i]->SetColor({ 1,0,0,1 });
+				sectionTime_.sprite[i]->SetColor({ 1,0,0,1 });
+			}
+		} else {
+			for (int i = 0; i < timer_.digitCount; ++i) {
+				timer_.sprite[i]->SetColor({ 1,1,1,1 });
+				sectionTime_.sprite[i]->SetColor({ 1,1,1,1 });
+			}
+		}
+
+		timer_.sprite[1]->SetTextureLeftTop({ num[0] * kNumberSize.x, 0 });
+		timer_.sprite[2]->SetTextureLeftTop({ 10.0f * kNumberSize.x, 0 });
+		timer_.sprite[3]->SetTextureLeftTop({ num[1] * kNumberSize.x, 0 });
+		timer_.sprite[4]->SetTextureLeftTop({ num[2] * kNumberSize.x, 0 });
+		for (int i = 0; i < timer_.digitCount; ++i) {
+			timer_.sprite[i]->Update();
+		}
+
+		sectionTime_.sprite[1]->SetTextureLeftTop({ num[0] * kNumberSize.x, 0 });
+		sectionTime_.sprite[2]->SetTextureLeftTop({ 10.0f * kNumberSize.x, 0 });
+		sectionTime_.sprite[3]->SetTextureLeftTop({ num[1] * kNumberSize.x, 0 });
+		sectionTime_.sprite[4]->SetTextureLeftTop({ num[2] * kNumberSize.x, 0 });
+		for (int i = 0; i < sectionTime_.digitCount; ++i) {
+			sectionTime_.sprite[i]->Update();
 		}
 	}
 }
@@ -331,9 +487,9 @@ void HUD::UpdateBreakRate(Course* course) {
 		}
 	}
 
-	for (int i = 0; i < 3; ++i) {
-		breakRateSprite_[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
-		breakRateSprite_[i]->Update();
+	for (int i = 0; i < breakRate_.digitCount; ++i) {
+		breakRate_.sprite[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
+		breakRate_.sprite[i]->Update();
 	}
 }
 
@@ -355,9 +511,11 @@ void HUD::UpdateBreakAmount(Course* course) {
 		}
 	}
 
-	for (int i = 0; i < 6; ++i) {
-		breakAmountSprite_[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
-		breakAmountSprite_[i]->Update();
+	for (int i = 0; i < breakCount_.digitCount; ++i) {
+
+
+		breakCount_.sprite[i]->SetTextureLeftTop({ num[i] * kNumberSize.x, 0 });
+		breakCount_.sprite[i]->Update();
 	}
 }
 
@@ -370,38 +528,6 @@ void HUD::UpdateSection(Player* player, Course* course) {
 	progressSprite_->SetSize({ sectionBarSize_.x, length });
 	sectionSprite_->Update();
 	progressSprite_->Update();
-
-
-	if (course->GetResultState() == ResultState::SetResults) {
-		float setTime = 0.12f;
-		resultTimer_ += GameEngine::GetDeltaTime();
-		float t = std::clamp(resultTimer_ / setTime, 0.0f, 1.0f);
-
-		for (int i = 0; i < 3; ++i) {
-			sectionResult_[i]->SetSize(resultSize_ * t);
-			sectionResult_[i]->Update();
-		}
-
-	} else if (course->GetResultState() == ResultState::RotateOut) {
-		float outTime = 0.12f;
-		resultTimer_ += GameEngine::GetDeltaTime();
-		float t = std::clamp(1.0f - resultTimer_ / outTime, 0.0f, 1.0f);
-
-		for (int i = 0; i < 3; ++i) {
-			sectionResult_[i]->SetSize(resultSize_ * t);
-			sectionResult_[i]->Update();
-
-			breakRateSprite_[i]->SetSize(breakRateSize_ * t);
-			breakRateSprite_[i]->Update();
-		}
-
-		for (int i = 0; i < 6; ++i) {
-			breakAmountSprite_[i]->SetSize(breakAmountSize_ * t);
-			breakAmountSprite_[i]->Update();
-		}
-	} else {
-		resultTimer_ = 0;
-	}
 }
 
 void HUD::UpdateInfo() {
@@ -437,6 +563,89 @@ void HUD::UpdateReload(Player* player, std::shared_ptr<Camera> camera) {
 	}
 	canShoot_->SetPosition(screen + Vector2{ 0,-50 });
 	canShoot_->Update();
+}
+
+void HUD::UpdateResult(Course* course) {
+	if (course->GetResultState() == ResultState::SetResults ||
+		course->GetResultState() == ResultState::RotateOut) {
+		float t = 0;
+
+		if (course->GetResultState() == ResultState::SetResults) {
+			float setTime = 0.12f;
+			resultTimer_ += GameEngine::GetDeltaTime();
+			t = std::clamp(1.0f - powf(1 - resultTimer_ / setTime, 3), 0.0f, 1.0f);
+
+		} else if (course->GetResultState() == ResultState::RotateOut) {
+			float outTime = 0.12f;
+			resultTimer_ += GameEngine::GetDeltaTime();
+			t = std::clamp(powf(1 - resultTimer_ / outTime, 3), 0.0f, 1.0f);
+
+		}
+
+		for (int i = 0; i < 3; ++i) {
+			sectionResult_[i]->SetSize(resultSize_ * t);
+			sectionResult_[i]->Update();
+		}
+
+		// 破壊率
+		unuseDigitCountBreakRate_ = 0;
+		if (course->GetPrevBreakRate() < 100) unuseDigitCountBreakRate_++;
+		if (course->GetPrevBreakRate() < 10) unuseDigitCountBreakRate_++;
+
+		float width = breakRate_.size.x + breakRate_.spacing * (breakRate_.digitCount - unuseDigitCountBreakRate_ - 1);
+		float startX = breakRate_.pos.x - width * 0.5f + breakRate_.size.x * 0.5f;
+		int index = 0;
+		for (int i = unuseDigitCountBreakRate_; i < breakRate_.digitCount; ++i) {
+			breakRate_.sprite[i]->SetSize(breakRate_.size * t);
+			breakRate_.sprite[i]->SetPosition({ startX + breakRate_.spacing * index, breakRate_.pos.y });
+			breakRate_.sprite[i]->Update();
+
+			index++;
+		}
+
+		// 破壊個数
+		unuseDigitCountBreakAmount_ = 0;
+		if (course->GetBreakCount() < 100000) unuseDigitCountBreakAmount_++;
+		if (course->GetBreakCount() < 10000) unuseDigitCountBreakAmount_++;
+		if (course->GetBreakCount() < 1000) unuseDigitCountBreakAmount_++;
+		if (course->GetBreakCount() < 100) unuseDigitCountBreakAmount_++;
+		if (course->GetBreakCount() < 10) unuseDigitCountBreakAmount_++;
+
+		width = breakCount_.size.x + breakCount_.spacing * (breakCount_.digitCount - unuseDigitCountBreakAmount_ - 1);
+		startX = breakCount_.pos.x - width * 0.5f + breakCount_.size.x * 0.5f;
+		index = 0;
+		for (int i = unuseDigitCountBreakAmount_; i < breakCount_.digitCount; ++i) {
+			breakCount_.sprite[i]->SetSize(breakCount_.size * t);
+			breakCount_.sprite[i]->SetPosition({ startX + breakCount_.spacing * index, breakCount_.pos.y });
+			breakCount_.sprite[i]->Update();
+
+			index++;
+		}
+
+		// 時間
+		useMinusSectionTime_ = lastTime_ < 0;
+		if (useMinusSectionTime_) {
+			float width = sectionTime_.size.x + sectionTime_.spacing * (sectionTime_.digitCount - 1);
+			float startX = sectionTime_.pos.x - width * 0.5f + sectionTime_.size.x * 0.5f;
+			for (int i = 0; i < sectionTime_.digitCount; ++i) {
+				sectionTime_.sprite[i]->SetSize(sectionTime_.size * t);
+				sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing * i, sectionTime_.pos.y });
+				sectionTime_.sprite[i]->Update();
+			}
+		} else {
+			// 一番左(マイナス)を非表示
+			float width = sectionTime_.size.x + sectionTime_.spacing * (sectionTime_.digitCount - 2);
+			float startX = sectionTime_.pos.x - width * 0.5f + sectionTime_.size.x * 0.5f;
+			index = 0;
+			for (int i = 1; i < sectionTime_.digitCount; ++i) {
+				sectionTime_.sprite[i]->SetSize(sectionTime_.size * t);
+				sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing  * index, sectionTime_.pos.y });
+				sectionTime_.sprite[i]->Update();
+
+				index++;
+			}
+		}
+	}
 }
 
 inline Vector4 Transform(const Vector4& vector, const Matrix4x4& matrix) {
