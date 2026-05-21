@@ -81,6 +81,18 @@ private:
 	Vector2 resultPos_[3] = { {900,100},{900, 300}, {900, 500} };
 	Vector2 resultSize_ = { 550,120 };
 
+	struct HUDSprite {
+		std::unique_ptr<Sprite> sprite;
+		Vector2 size;
+		Vector2 pos;
+	};
+
+	// ランク
+	HUDSprite sectionRank_ = {
+		.size = {200,200},
+		.pos = {350,550}
+	};
+
 	struct NumberDisplay {
 		std::vector<std::unique_ptr<Sprite>> sprite;
 		Vector2 size;
@@ -121,6 +133,7 @@ private:
 		.digitCount = 5,
 		.spacing = 70
 	};
+
 	int unuseDigitCountBreakRate_ = 0;
 	int unuseDigitCountBreakAmount_ = 0;
 	bool useMinusSectionTime_ = false;

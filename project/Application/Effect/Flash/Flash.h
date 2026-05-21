@@ -12,7 +12,7 @@ private:
 	std::unique_ptr<Sprite> flash_ = nullptr;
 
 	float timer_ = 0;
-	float time_ = 0.7f;
+	float time_ = 1.5f;
 	bool isStart_ = false;
 };
 

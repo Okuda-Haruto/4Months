@@ -86,12 +86,11 @@ void Human::Update() {
 		float jumpFlashGravity = gravity * 0.4f;
 		float jumpFlashMaxFall = maxFall * 0.8f;
 		fallingSpeed_ = max(fallingSpeed_ - jumpFlashGravity * GameEngine::GetDeltaTimeRate(), -jumpFlashMaxFall);
-	}
-	else {
+	} else {
 		fallingSpeed_ = max(fallingSpeed_ - gravity * GameEngine::GetDeltaTimeRate(), -maxFall);
 	}
 
-	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } * GameEngine::GetDeltaTimeRate();
+	velocity_.translate += Vector3{ 0,fallingSpeed_,0 } *GameEngine::GetDeltaTimeRate();
 
 	//NANチェック
 	float len = Length(knockBackAcceleration_);
@@ -115,8 +114,7 @@ void Human::Update() {
 			transform_.translate += velocity_.translate / 4 + knockBackVelocity_;
 		} else if (isResult_) {
 			transform_.translate += velocity_.translate / 8;
-		}
-		else {
+		} else {
 			transform_.translate += velocity_.translate + knockBackVelocity_;
 		}
 	}
@@ -181,7 +179,7 @@ void Human::Update() {
 		for (int i = 0; i < parts.size(); i++) {
 			//移動
 			rotateMatrix = MakeRotateMatrix(breakBulletDirection_[i]);
-			breakBulletTransform_[i].translate += Vector3{ 0,0,breakBulletSpeed_ } * rotateMatrix;
+			breakBulletTransform_[i].translate += Vector3{ 0,0,breakBulletSpeed_ } *rotateMatrix;
 			//少しずつ下向きに
 			breakBulletDirection_[i] = Slerp(breakBulletDirection_[i], MakeRotateAxisAngleQuaternion({ -1,0,0 }, std::numbers::pi_v<float> / 2), 0.1f);
 			//回転
@@ -197,11 +195,9 @@ void Human::Update() {
 	// 回転
 	if (charge_ == kMaxCharge_) {
 		headRotate_ += 0.2f * GameEngine::GetDeltaTimeRate();
-	}
-	else if (isCharging_ || vacuumState_ != None) {
+	} else if (isCharging_ || vacuumState_ != None) {
 		headRotate_ += 0.1f * GameEngine::GetDeltaTimeRate();
-	}
-	else {
+	} else {
 		headRotate_ += 0.05f * GameEngine::GetDeltaTimeRate();
 	}
 
@@ -215,7 +211,7 @@ void Human::Update() {
 	Vector3 up = RotateVector({ 0,1,0 }, modelTransform.rotate);
 	up.x *= -1; up.z *= -1;
 	modelTransform.translate = transform_.translate + up * humanFootOffset;
-	
+
 	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, isCharging_, charge_ == kMaxCharge_);
 
 	float dt = GameEngine::GetDeltaTimeRate() / 60.0f;
@@ -238,14 +234,24 @@ void Human::Update() {
 	wind_->Update();
 }
 
+void Human::UpdateEffectsOnly() {
+	isCharging_ = false;
+	charge_ = 0;
+
+	headRotate_ += 0.05f * GameEngine::GetDeltaTimeRate();
+	SRT modelTransform = transform_;
+	modelTransform.rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, std::numbers::pi_v<float> / 2) * transform_.rotate;
+	headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_) * modelTransform.rotate;
+	headRotateEffect_->Update(transform_.translate, headTransform_.translate, headTransform_.scale.x, headRotate_, false, false);
+}
+
 void Human::Draw() {
 	model_->Draw3D();
 
 	if (vacuumState_ != Break) {
 		bulletModel_->Draw3D();
 		headRotateEffect_->Draw();
-	}
-	else {
+	} else {
 		bulletModel_Break_->Draw3D();
 	}
 
@@ -266,19 +272,16 @@ void Human::OnHitVoxel(AABB aabb) {
 
 		if (fabsf(closest.x) >= fabsf(closest.y) && fabsf(closest.x) >= fabsf(closest.z)) {
 			knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
-		}
-		else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
+		} else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
 			//knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
-		}
-		else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
+		} else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
 			knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
 		}
 
 		// ★追加：ジャンピングフラッシュ風
 		if (isJumpFlashMode_) {
 			fallingSpeed_ = bounceBackSpeed_ * 0.33f;
-		}
-		else {
+		} else {
 			fallingSpeed_ = 0.0f;
 		}
 
@@ -308,13 +311,13 @@ void Human::BreakSpinner() {
 
 	bulletModel_Break_->SetTransform(headTransform_);
 
-	for (int i = 0; i < breakBulletDirection_.size();i++) {
+	for (int i = 0; i < breakBulletDirection_.size(); i++) {
 		breakBulletTransform_[i] = { {0.125f,0.125f,0.125f},IdentityQuaternion(), {0,0,0} };
 
 		// 30~60
-		breakBulletDirection_[i] = MakeRotateAxisAngleQuaternion({ 1,0,0 }, GameEngine::randomFloat(std::numbers::pi_v<float> * 70.0f / 180.0f, std::numbers::pi_v<float> * 85.0f / 180.0f));
+		breakBulletDirection_[i] = MakeRotateAxisAngleQuaternion({ 1,0,0 }, GameEngine::randomFloat(std::numbers::pi_v<float> *70.0f / 180.0f, std::numbers::pi_v<float> *85.0f / 180.0f));
 		// 0~360
-		breakBulletDirection_[i] = breakBulletDirection_[i] * MakeRotateAxisAngleQuaternion({ 0,1,0 }, GameEngine::randomFloat(0.0f, std::numbers::pi_v<float> * 2.0f));
+		breakBulletDirection_[i] = breakBulletDirection_[i] * MakeRotateAxisAngleQuaternion({ 0,1,0 }, GameEngine::randomFloat(0.0f, std::numbers::pi_v<float> *2.0f));
 
 		//乱数
 		breakBulletRotateVelocity_[i] = Normalize(
@@ -330,8 +333,7 @@ void Human::ApproachCenter(const Vector2& center) {
 	Vector3 target = { center.x,transform_.translate.y, center.y };
 	if (Length(transform_.translate - target) < 0.5f) {
 		transform_.translate = target;
-	}
-	else {
+	} else {
 		Vector3 dir = Normalize(target - transform_.translate);
 		transform_.translate += (speed_ * 0.5f) * dir;
 	}

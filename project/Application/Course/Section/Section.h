@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine.h"
 #include "GameTimer/GameTimer.h"
+#include "Ranks.h"
 
 class Box;
 class Voxel;
@@ -37,6 +38,9 @@ public:
 	int GetMaxScore() { return maxBreakScore_; }
 	// 現在スコア
 	int GetCurrentScore() { return breakScore_; }
+
+	// ランク
+	int GetRank() { return rank_; }
 
 	// 区間終わりまでの進み具合
 	float GetPositionRate() { return clamp((currentY_ - startY_) / (endY_ - startY_), 0.0f, 1.0f); }
@@ -81,4 +85,6 @@ private:
 
 	Voxel* voxel_ = nullptr;
 	int startVoxelCount_ = 0;
+
+	int rank_ = Rank::C;
 };

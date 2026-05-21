@@ -120,6 +120,7 @@
     <ClInclude Include="Application\Effect\Combine\Combine.h" />
     <ClInclude Include="Application\Effect\Voxel_Vacuum\Voxel_Vacuum.h" />
     <ClInclude Include="Application\Fade\Fade.h" />
+    <ClInclude Include="Application\Course\Section\Ranks.h" />
     <ClInclude Include="Application\Human\Human.h" />
     <ClInclude Include="Application\Mix.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />

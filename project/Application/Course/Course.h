@@ -107,6 +107,10 @@ public:
 		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetCurrentScore(); }
 		return currentSection_->GetCurrentScore();
 	}
+	int GetRank() {
+		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetRank(); }
+		return currentSection_->GetRank();
+	}
 
 	// リザルトの段階
 	void SetResultState(ResultState state) { resultState_ = state; }

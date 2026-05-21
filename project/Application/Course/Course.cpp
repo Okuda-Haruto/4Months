@@ -64,7 +64,7 @@ void Course::Update(Human* player) {
 
 				if (!sectionsData_[i].isFailed) {
 					sectionsData_[i].isFailed = true;
-					
+
 					isSectionFailed_ = true;
 
 					if (!player->IsBreak()) {
@@ -82,7 +82,9 @@ void Course::Update(Human* player) {
 					}
 				}
 			}
-		} else {
+		}
+
+		if (currentSection_->IsSubSection() && !isSectionFailed_) {
 			resultFlash_->Update();
 		}
 	}
@@ -141,12 +143,15 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 	voxel_->Draw();
 
-	for (int i = currentSectionNum_; i < goalBarriers_.size(); ++i){
+	for (int i = currentSectionNum_; i < goalBarriers_.size(); ++i) {
 		if (!sections_[i]->IsSubSection()) {
 			goalBarriers_[i]->Draw();
 		}
 	}
 
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 // 描画
@@ -164,8 +169,10 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 	}
 
 	voxel_->Draw(drawRange);
-  
-	resultFlash_->Draw();
+
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -178,7 +185,9 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	voxel_->DrawAll();
-	resultFlash_->Draw();
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -195,7 +204,9 @@ void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	voxel_->DrawUp();
-	resultFlash_->Draw();
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 void Course::DrawGoalBarrier() {
