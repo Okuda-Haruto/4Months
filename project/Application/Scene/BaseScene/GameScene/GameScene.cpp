@@ -259,8 +259,8 @@ void GameScene::Draw() {
 		}
 		else {
 
-			course_->Draw(directionalLight_);
 			player_->Draw();
+			course_->Draw(directionalLight_);
 			hud_->Draw();
 			hitPreview_->Draw();
 			startCountdown_->Draw();

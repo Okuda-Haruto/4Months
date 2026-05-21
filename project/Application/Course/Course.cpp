@@ -84,7 +84,7 @@ void Course::Update(Human* player) {
 			}
 		}
 
-		if (currentSection_->IsSubSection()) {
+		if (currentSection_->IsSubSection() && !isSectionFailed_) {
 			resultFlash_->Update();
 		}
 	}
