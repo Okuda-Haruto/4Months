@@ -104,6 +104,9 @@ void GameScene::Update() {
 			// 開始カウントダウン
 			startCountdown_->Update();
 
+			player_->UpdateEffectsOnly();
+			course_->Update(player_.get());
+
 			if (startCountdown_->IsFirsttime()) {
 				// ゲーム中のカメラに移行
 				if (startCountdown_->IsDownCameraTime()) {

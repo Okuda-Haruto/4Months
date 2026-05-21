@@ -16,6 +16,7 @@ public:
 
 	// 更新
 	void Update();
+	void UpdateEffectsOnly(); // エフェクトと回転だけ
 
 	// 描画
 	void Draw();

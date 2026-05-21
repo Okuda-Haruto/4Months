@@ -161,6 +161,14 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 		sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing * i, sectionTime_.pos.y });
 		sectionTime_.sprite[i]->SetTextureSize(kNumberSize);
 	}
+
+	// ランク
+	sectionRank_.sprite = std::make_unique<Sprite>();
+	sectionRank_.sprite->Initialize("./resources/HUD/Numbers/Number.png");
+	sectionRank_.sprite->SetSize(sectionRank_.size);
+	sectionRank_.sprite->SetAnchorPoint({ 0.5f,0.5f });
+	sectionRank_.sprite->SetPosition(sectionRank_.pos);
+	sectionRank_.sprite->SetTextureSize(kNumberSize);
 }
 
 void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera) {
@@ -187,22 +195,44 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Result HUD");
-	ImGui::DragFloat2("rate.pos", &breakRate_.pos.x, 0.5f);
-	ImGui::DragFloat2("rate.size", &breakRate_.size.x, 0.5f);
-	ImGui::DragFloat("rate.spacing", &breakRate_.spacing, 0.5f);
+	if (ImGui::BeginTabBar("HUD")) {
+		if (ImGui::BeginTabItem("Rate")) {
+			ImGui::DragFloat2("rate.pos", &breakRate_.pos.x, 0.5f);
+			ImGui::DragFloat2("rate.size", &breakRate_.size.x, 0.5f);
+			ImGui::DragFloat("rate.spacing", &breakRate_.spacing, 0.5f);
+			ImGui::EndTabItem();
+		}
 
-	ImGui::DragFloat2("count.pos", &breakCount_.pos.x, 0.5f);
-	ImGui::DragFloat2("count.size", &breakCount_.size.x, 0.5f);
-	ImGui::DragFloat("count.spacing", &breakCount_.spacing, 0.5f);
+		if (ImGui::BeginTabItem("Count")) {
+			ImGui::DragFloat2("count.pos", &breakCount_.pos.x, 0.5f);
+			ImGui::DragFloat2("count.size", &breakCount_.size.x, 0.5f);
+			ImGui::DragFloat("count.spacing", &breakCount_.spacing, 0.5f);
+			ImGui::EndTabItem();
+		}
 
-	ImGui::DragFloat2("time.pos", &sectionTime_.pos.x, 0.5f);
-	ImGui::DragFloat2("time.size", &sectionTime_.size.x, 0.5f);
-	ImGui::DragFloat("time.spacing", &sectionTime_.spacing, 0.5f);
+		if (ImGui::BeginTabItem("Time")) {
+			ImGui::DragFloat2("time.pos", &sectionTime_.pos.x, 0.5f);
+			ImGui::DragFloat2("time.size", &sectionTime_.size.x, 0.5f);
+			ImGui::DragFloat("time.spacing", &sectionTime_.spacing, 0.5f);
+			ImGui::EndTabItem();
+		}
 
-	ImGui::DragFloat2("resultItem.pos0", &resultPos_[0].x, 0.5f);
-	ImGui::DragFloat2("resultItem.pos1", &resultPos_[1].x, 0.5f);
-	ImGui::DragFloat2("resultItem.pos2", &resultPos_[2].x, 0.5f);
-	ImGui::DragFloat2("resultItem.size", &resultSize_.x, 0.5f);
+		if (ImGui::BeginTabItem("Rank")) {
+			ImGui::DragFloat2("rank.pos", &sectionRank_.pos.x, 0.5f);
+			ImGui::DragFloat2("rank.size", &sectionRank_.size.x, 0.5f);
+			ImGui::EndTabItem();
+		}
+
+		if (ImGui::BeginTabItem("Items")) {
+			ImGui::DragFloat2("resultItem.pos0", &resultPos_[0].x, 0.5f);
+			ImGui::DragFloat2("resultItem.pos1", &resultPos_[1].x, 0.5f);
+			ImGui::DragFloat2("resultItem.pos2", &resultPos_[2].x, 0.5f);
+			ImGui::DragFloat2("resultItem.size", &resultSize_.x, 0.5f);
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+	}
 
 	float t = 0;
 
@@ -285,6 +315,12 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 		}
 	}
 
+	// ランク
+	sectionRank_.sprite->SetSize(sectionRank_.size * t);
+	sectionRank_.sprite->SetPosition(sectionRank_.pos);
+	sectionRank_.sprite->SetTextureLeftTop({ course->GetRank() * kNumberSize.x,0 });
+	sectionRank_.sprite->Update();
+
 	ImGui::End();
 #endif
 }
@@ -315,8 +351,8 @@ void HUD::Draw() {
 		stars_->Draw();
 
 		canShoot_->Draw2D();
-    
-	} else if(!isSectionFailed_){
+
+	} else if (!isSectionFailed_) {
 		// リザルト中
 		for (int i = 0; i < 3; ++i) {
 			sectionResult_[i]->Draw2D();
@@ -338,6 +374,8 @@ void HUD::Draw() {
 		for (int i = start; i < sectionTime_.digitCount; ++i) {
 			sectionTime_.sprite[i]->Draw2D();
 		}
+
+		sectionRank_.sprite->Draw2D();
 	}
 
 	infoSprite_->Draw2D();
@@ -639,12 +677,19 @@ void HUD::UpdateResult(Course* course) {
 			index = 0;
 			for (int i = 1; i < sectionTime_.digitCount; ++i) {
 				sectionTime_.sprite[i]->SetSize(sectionTime_.size * t);
-				sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing  * index, sectionTime_.pos.y });
+				sectionTime_.sprite[i]->SetPosition({ startX + sectionTime_.spacing * index, sectionTime_.pos.y });
 				sectionTime_.sprite[i]->Update();
 
 				index++;
 			}
 		}
+
+		// ランク
+		sectionRank_.sprite->SetSize(sectionRank_.size * t);
+		sectionRank_.sprite->SetPosition(sectionRank_.pos);
+		sectionRank_.sprite->SetTextureLeftTop({ course->GetRank() * kNumberSize.x,0 });
+		sectionRank_.sprite->Update();
+		
 	}
 }
 

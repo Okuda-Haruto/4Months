@@ -59,6 +59,14 @@ void Section::Update(float playerY) {
 		}
 	}
 
+	if (breakScore_ > maxBreakScore_ / 2.0f) {
+		rank_ = A;
+	}else if (breakScore_ > clearBreakScore_) {
+		rank_ = B;
+	} else {
+		rank_ = C;
+	}
+
 	breakSETimer_ -= GameEngine::GetDeltaTime();
 }
 
