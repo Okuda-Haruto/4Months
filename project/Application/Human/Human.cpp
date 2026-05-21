@@ -71,6 +71,7 @@ void Human::Update() {
 	float time = GameEngine::GetDeltaTimeRate();
 
 	//向いている向きに速度を向ける
+	velocity_ = {};
 	velocity_.translate += Vector3{ 0,0,1 } *rotateMatrix * speed_ * GameEngine::GetDeltaTimeRate();
 	float gravity = kGravity_;
 	float maxFall = maxFallingSpeed_;
@@ -226,8 +227,6 @@ void Human::Update() {
 	knockBackVelocity_.y = Lerp(knockBackVelocity_.y, 0.0f, rate);
 	knockBackVelocity_.z = Lerp(knockBackVelocity_.z, 0.0f, rate);
 
-	velocity_ = {};
-
 #ifdef USE_IMGUI
 
 #endif
@@ -295,8 +294,13 @@ void Human::OnHitVoxel(AABB aabb) {
 
 void Human::BreakSpinner() {
 	vacuumState_ = Break;
-	fallingSpeed_ = 1.0f;
+	fallingSpeed_ = 2.5f;
 	speed_ = 0.0f;
+
+	transform_.translate -= velocity_.translate;
+	resultLoopStartY = transform_.translate.y;
+	resultLoopEndY = resultLoopStartY - 9;
+
 	velocity_.translate.y = 0.0f;
 	isResult_ = false;
 	model_->SetIsLoopAnimation(true);
@@ -409,7 +413,7 @@ void Human::SetResult(bool flag) {
 
 	isResult_ = flag;
 
-	if (vacuumState_ == Break && fallingSpeed_ < 0.0f && transform_.translate.y - 25 < resultLoopStartY) {
+	if (vacuumState_ == Break && fallingSpeed_ < 0.0f && transform_.translate.y < resultLoopStartY) {
 		isBreak_ = true;
 	}
 }

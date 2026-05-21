@@ -56,7 +56,7 @@ void CheckCollision::CheckBullet(Human* human) {
 void CheckCollision::CheckVoxel(Human* human) {
 	if (human->IsInvincible()) { return; }
 	Sphere prev = { human->GetTransform().translate, 3.0f };
-	Sphere curr = { prev.center + human->GetVelocity() * GameEngine::GetDeltaTimeRate(), 3.0f};
+	Sphere curr = { prev.center + human->GetVelocity(), 3.0f};
 
 	Vector3 p0 = prev.center;
 	Vector3 p1 = curr.center;
@@ -71,15 +71,13 @@ void CheckCollision::CheckVoxel(Human* human) {
 	for (auto& box : course_->GetBoxes()) {
 		AABB boxAABB = box->GetCollider();
 
-		boxAABB.min -= {0.1f, 0.1f, 0.1f};
-		boxAABB.max += {0.1f, 0.1f, 0.1f};
-
 		// 判定
-		if (IsHitCapsuleHuman(p0, p1, radius, boxAABB)) {
+		if (IsHitCapsule(p0, p1, radius, boxAABB)) {
 			// 衝突
 			if (box->GetTransform().scale.x > 1.0f) {
 				if (human->CanShoot()) {
 					// 跳ね上がるため再ヒット防止
+					human->SetTranslate(closest_);
 					human->OnHitVoxel(boxAABB);
 					box->Damage(4);
 					break;
