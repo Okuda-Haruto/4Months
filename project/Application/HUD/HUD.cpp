@@ -109,9 +109,9 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera) {
 		if (i == 0) {
 			sectionResult_[i]->Initialize("./resources/HUD/result.png");
 		} else if (i == 1) {
-			sectionResult_[i]->Initialize("./resources/HUD/time.png");
-		} else {
 			sectionResult_[i]->Initialize("./resources/HUD/destruction.png");
+		} else {
+			sectionResult_[i]->Initialize("./resources/HUD/time.png");
 		}
 
 		sectionResult_[i]->SetSize({});
@@ -432,9 +432,10 @@ void HUD::UpdateScore(Course* course) {
 	if (canDrawPlayingInfo_) {
 		// 割合を求める
 		float rate = float(current) / float(clear);
+		float clearRate = float(clear) / float(max);
 		rate = clamp(rate, 0.0f, 1.0f);
 		// 必要スコアに応じてスプライトのサイズ変更
-		float length = kBreakBarWidth * rate * (1.0f - bonusRate_);
+		float length = kBreakBarWidth * rate * clearRate;
 		currentBreakSprite_->SetSize({ length, currentBreakSprite_->GetSize().y });
 		currentBreakSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y });
 		breakBGSprite_->Update();
@@ -443,13 +444,13 @@ void HUD::UpdateScore(Course* course) {
 		// 割合を求める
 		rate = 0;
 		if (currentSection->IsCleared()) {
-			rate = float(current - clear) / float(max);
+			rate = float(current - clear) / float(max - clear);
 			rate = clamp(rate, 0.0f, 1.0f);
 		}
 		// 最大スコアに応じてスプライトのサイズ変更
-		length = kBreakBarWidth * rate * bonusRate_;
+		length = kBreakBarWidth * rate * (1.0f - clearRate);
 		bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
-		bonusBreakSprite_->SetPosition({ breakLTPos_.x + kBreakBarWidth * (1 - bonusRate_), breakLTPos_.y });
+		bonusBreakSprite_->SetPosition({ breakLTPos_.x + kBreakBarWidth * clearRate, breakLTPos_.y });
 		bonusBreakSprite_->Update();
 
 		// ノルマ達成/未達成

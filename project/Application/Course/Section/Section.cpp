@@ -59,7 +59,7 @@ void Section::Update(float playerY) {
 		}
 	}
 
-	if (breakScore_ > maxBreakScore_ / 2.0f) {
+	if (breakScore_ > clearBreakScore_ + ((maxBreakScore_ - clearBreakScore_) / 2.0f)) {
 		rank_ = A;
 	}else if (breakScore_ > clearBreakScore_) {
 		rank_ = B;
