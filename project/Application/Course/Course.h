@@ -89,7 +89,7 @@ public:
 	//getter
 	bool GetIsSectionFailed(){return isSectionFailed_;}
 	//setter
-	void ResetFailed() { isSectionFailed_ = false; gameover_->Reset(); }
+	void ResetFailed() { isSectionFailed_ = false; gameover_->Reset(); resultState_ = ResultState::End; }
 
 	// 直前の区間の破壊率
 	float GetPrevBreakRate() {

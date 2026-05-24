@@ -69,6 +69,12 @@ void Course::Update(Human* player) {
 
 					if (!player->IsBreak()) {
 						player->BreakSpinner();
+
+						if (sections_.size() > i + 2) {
+							// 次の区間に入る
+							currentSectionNum_+= 2;
+							currentSection_ = sections_[currentSectionNum_].get();
+						}
 					}
 
 					failSE_->SoundPlayWave();
@@ -78,7 +84,7 @@ void Course::Update(Human* player) {
 				if (sections_.size() < i) {
 					if (sections_[i + 1]) {
 						// 次の地点に移動
-						player->ResetPos(sections_[i + 1]->GetStartPos());
+						player->SetTranslate(sections_[i + 1]->GetStartPos());
 					}
 				}
 			}
