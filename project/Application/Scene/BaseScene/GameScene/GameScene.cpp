@@ -127,7 +127,7 @@ void GameScene::Update() {
 					skipHold_ = 0;
 				}
 
-			} else if(course_->GetResultState() == ResultState::End){
+			} else if (course_->GetResultState() == ResultState::End) {
 				// 区間リザルト終了
 				startCountdown_->SetResultEnd();
 
@@ -145,11 +145,14 @@ void GameScene::Update() {
 			isSectionResult_ = true;
 			gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
 		}
+		if (player_->IsBreak()) {
+			gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
+		}
+
 		player_->SetResult(isSectionResult_);
 		player_->SetCanSkipResult(course_->GetResultState() == ResultState::Wait);
 
-
-		player_->Update(input_,course_.get());
+		player_->Update(input_, course_.get(), startCountdown_.get());
 
 		if (isClear_) {
 			if (isUp_) {
@@ -224,8 +227,7 @@ void GameScene::Update() {
 				gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
 			}
 			isClear_ = true;
-		}
-		else if (course_->isEnd()) {
+		} else if (course_->isEnd()) {
 			fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
 		}
 	}
@@ -253,11 +255,9 @@ void GameScene::Draw() {
 			course_->DrawAll(directionalLight_);
 
 			fade_->Draw();
-		}
-		else if (startCountdown_->IsPreStart() && startCountdown_->IsFirsttime()) { 
+		} else if (startCountdown_->IsPreStart() && startCountdown_->IsFirsttime()) {
 			course_->DrawUp(directionalLight_);
-		}
-		else {
+		} else {
 
 			player_->Draw();
 			course_->Draw(directionalLight_);
@@ -265,15 +265,14 @@ void GameScene::Draw() {
 			hitPreview_->Draw();
 			startCountdown_->Draw();
 		}
-	}
-	else {
+	} else {
 		course_->DrawGameOver();
 	}
 
 	if (!gameTransition->IsEnd()) {
 		gameTransition->Draw();
 	}
-	
+
 }
 
 void GameScene::LoadCourse(std::string filePath) {

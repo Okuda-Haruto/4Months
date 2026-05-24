@@ -2,6 +2,7 @@
 #include "Human/Human.h"
 
 class Course;
+class StartCountdown;
 
 class Player : public Human{
 public:
@@ -9,7 +10,7 @@ public:
 	void Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera);
 
 	// 更新
-	void Update(const std::shared_ptr<Input> input, Course* course);
+	void Update(const std::shared_ptr<Input> input, Course* course, StartCountdown* countdown);
 
 	// 描画
 	void Draw();
