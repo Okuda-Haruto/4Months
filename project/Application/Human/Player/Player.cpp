@@ -1,5 +1,6 @@
 #include "Player.h"
 #include <Course/Course.h>
+#include <StartCountdown/StartCountdown.h>
 #include <numbers>
 
 void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
@@ -9,7 +10,7 @@ void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight
 	startTime_ = 0.1f;
 }
 
-void Player::Update(const std::shared_ptr<Input> input, Course* course) {
+void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCountdown* countdown) {
 
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;
@@ -62,10 +63,10 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course) {
 		}
 		isEndResult_ = false;
 
-	} else if(vacuumState_ != Break){
-    transform_.translate.x = 0;
+	} else if (vacuumState_ != Break) {
+		transform_.translate.x = 0;
 		transform_.translate.z = 0;
-    
+
 		// 簡易リザルト終了
 		if (canSkipResult_ && (keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release)) {
 			float blockSize = 3.0f;
@@ -74,13 +75,12 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course) {
 			isResult_ = false;
 			isEndResult_ = true;
 		}
-	}
-	else {
+	} else {
 		// 簡易リザルト終了
 		if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
 			float blockSize = 3.0f;
 			float offset = transform_.translate.y - std::floor(transform_.translate.y / blockSize) * blockSize;
-			transform_.translate.y = resultLoopEndY + offset;
+			transform_.translate = { 0,resultLoopEndY + offset,0 };
 			isResult_ = false;
 			isBreak_ = false;
 			vacuumState_ = None;
@@ -91,9 +91,10 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course) {
 			model_->SetIsLoopAnimation(false);
 
 			course->ResetFailed();
+			countdown->Reset(transform_.translate);
 		}
 	}
-	
+
 	// ★入力が無い場合でも回転処理はそのまま通る
 	if (Length(vector) > 0.0f) {
 		if (Length(vector) > 1.0f) {
@@ -109,7 +110,9 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course) {
 	transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f * GameEngine::GetDeltaTimeRate());
 
 	//速度などを加算する
-	Human::Update();
+	if (!isBreak_) {
+		Human::Update();
+	}
 
 #ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");

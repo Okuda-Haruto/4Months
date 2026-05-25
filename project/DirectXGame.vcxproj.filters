@@ -217,6 +217,7 @@
     <ClCompile Include="Application\Fade\Fade.cpp" />
     <ClCompile Include="Application\Effect\Combine\Combine.cpp" />
     <ClCompile Include="Application\Effect\Flash\Flash.cpp" />
+    <ClCompile Include="Application\Course\GameOver\GameOver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -538,6 +539,8 @@
     <ClInclude Include="Application\Fade\Fade.h" />
     <ClInclude Include="Application\Effect\Combine\Combine.h" />
     <ClInclude Include="Application\Effect\Flash\Flash.h" />
+    <ClInclude Include="Application\Course\GameOver\GameOver.h" />
+    <ClInclude Include="Application\Course\Section\Ranks.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

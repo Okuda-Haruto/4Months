@@ -89,7 +89,7 @@ public:
 	//getter
 	bool GetIsSectionFailed(){return isSectionFailed_;}
 	//setter
-	void ResetFailed() { isSectionFailed_ = false; gameover_->Reset(); }
+	void ResetFailed() { isSectionFailed_ = false; gameover_->Reset(); resultState_ = ResultState::End; }
 
 	// 直前の区間の破壊率
 	float GetPrevBreakRate() {
@@ -106,6 +106,10 @@ public:
 	int GetBreakCount() {
 		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetCurrentScore(); }
 		return currentSection_->GetCurrentScore();
+	}
+	int GetRank() {
+		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetRank(); }
+		return currentSection_->GetRank();
 	}
 
 	// リザルトの段階

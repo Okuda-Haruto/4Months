@@ -64,11 +64,17 @@ void Course::Update(Human* player) {
 
 				if (!sectionsData_[i].isFailed) {
 					sectionsData_[i].isFailed = true;
-					
+
 					isSectionFailed_ = true;
 
 					if (!player->IsBreak()) {
 						player->BreakSpinner();
+
+						if (sections_.size() > i + 2) {
+							// 次の区間に入る
+							currentSectionNum_+= 2;
+							currentSection_ = sections_[currentSectionNum_].get();
+						}
 					}
 
 					failSE_->SoundPlayWave();
@@ -78,11 +84,13 @@ void Course::Update(Human* player) {
 				if (sections_.size() < i) {
 					if (sections_[i + 1]) {
 						// 次の地点に移動
-						player->ResetPos(sections_[i + 1]->GetStartPos());
+						player->SetTranslate(sections_[i + 1]->GetStartPos());
 					}
 				}
 			}
-		} else {
+		}
+
+		if (currentSection_->IsSubSection() && !isSectionFailed_) {
 			resultFlash_->Update();
 		}
 	}
@@ -141,12 +149,21 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 
 	voxel_->Draw();
 
-	for (int i = currentSectionNum_; i < goalBarriers_.size(); ++i){
-		if (!sections_[i]->IsSubSection()) {
-			goalBarriers_[i]->Draw();
+	if (isSectionFailed_) {
+		for (auto& barrier : goalBarriers_) {
+			barrier->Draw();
+		}
+	} else {
+		for (int i = currentSectionNum_; i < goalBarriers_.size(); ++i) {
+			if (!sections_[i]->IsSubSection()) {
+				goalBarriers_[i]->Draw();
+			}
 		}
 	}
 
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 // 描画
@@ -164,8 +181,10 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 	}
 
 	voxel_->Draw(drawRange);
-  
-	resultFlash_->Draw();
+
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -178,7 +197,9 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	voxel_->DrawAll();
-	resultFlash_->Draw();
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
@@ -195,7 +216,9 @@ void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 	}
 
 	voxel_->DrawUp();
-	resultFlash_->Draw();
+	if (currentSection_->IsSubSection()) {
+		resultFlash_->Draw();
+	}
 }
 
 void Course::DrawGoalBarrier() {

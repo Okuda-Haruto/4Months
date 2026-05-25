@@ -33,7 +33,9 @@ void Flash::Update() {
 }
 
 void Flash::Draw() {
-	flash_->Draw2D();
+	if (isStart_) {
+		flash_->Draw2D();
+	}
 }
 
 void Flash::Set() {
