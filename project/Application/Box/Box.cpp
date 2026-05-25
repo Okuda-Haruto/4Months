@@ -15,8 +15,8 @@ void Box::Initialize(Course* course, SRT transform, Vector3 velocity, int8_t num
 	object_->SetDirectionalLight(directionalLight);
 	object_->SetShininess(0);
 	std::vector<Parts> parts = object_->GetParts();
-	parts[0].UVtransform.scale.x = 0.5f;
-	parts[0].UVtransform.translate.x = 0.5f * (number_ - 1);
+	parts[0].UVtransform.scale.x = 1.0f / (VOXEL_TILE_END - 1);
+	parts[0].UVtransform.translate.x = (1.0f / (VOXEL_TILE_END - 1)) * (number - 1);
 	object_->SetParts(parts[0], 0);
 
 	transform_ = transform;

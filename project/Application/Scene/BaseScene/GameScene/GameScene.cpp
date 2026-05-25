@@ -42,7 +42,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_, defaultCamera_);
 
 	course_ = std::make_unique<Course>();
-	LoadCourse("resources/CourseData/course_01.csv");
+	LoadCourse("resources/CourseData/Stage1.csv");
 
 	// カメラ
 	gameCamera_ = make_unique<GameCamera>();
