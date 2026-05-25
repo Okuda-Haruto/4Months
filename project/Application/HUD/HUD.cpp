@@ -318,7 +318,7 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	// ランク
 	sectionRank_.sprite->SetSize(sectionRank_.size * t);
 	sectionRank_.sprite->SetPosition(sectionRank_.pos);
-	sectionRank_.sprite->SetTextureLeftTop({ course->GetRank() * kNumberSize.x,0 });
+	sectionRank_.sprite->SetTextureLeftTop({ (course->GetRank() - 1) * kNumberSize.x,0 });
 	sectionRank_.sprite->Update();
 
 	ImGui::End();

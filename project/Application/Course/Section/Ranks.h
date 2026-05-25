@@ -1,9 +1,7 @@
 #pragma once
 
 enum Rank {
-	A,
-	B,
-	C,
-
-	RankCount
+	C = 1,
+	B = 2,
+	A = 3,
 };

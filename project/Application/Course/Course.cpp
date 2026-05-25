@@ -16,9 +16,9 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
 
 	// 区間の設定(上~下)
-	AddSection(0, 2, 30, 2000, 4000);
-	AddSection(4, 10, 40, 12000, 15000);
-	AddSection(12, 20, 60, 20000, 25000);
+	AddSection(0, 2, 30, 2000, 4000, RankBorders{{ 80, 40 }, { 3000, 2000 }, { 10, 0 }});
+	AddSection(4, 10, 40, 12000, 15000, RankBorders{ { 60, 30 }, { 14000, 12000 }, { 10, 0 } });
+	AddSection(12, 20, 60, 20000, 25000, RankBorders{ { 40, 20 }, { 23000, 20000 }, { 15, 0 } });
 	goalBarriers_.clear();
 	for (int i = 0; i < sections_.size(); ++i) {
 		float y = sections_[i]->GetEndPos().y;
@@ -43,7 +43,7 @@ void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<D
 
 void Course::Update(Human* player) {
 	breakPos_.clear();
-
+	
 	// 今いる区間
 	for (int i = currentSectionNum_; i < sections_.size(); ++i) { // 今より上に行っても区間は戻らない
 		if (sections_[i]->IsEnter(player->GetTransform().translate.y)) {
@@ -255,9 +255,9 @@ void Course::SpawnBox() {
 
 }
 
-void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore) {
+void Course::AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, const RankBorders& rankBorders) {
 	std::unique_ptr<Section> newSection = std::make_unique<Section>();
-	newSection->Initialize(startChunkY, endChunkY, maxSeconds, clearScore, maxScore, voxel_.get());
+	newSection->Initialize(startChunkY, endChunkY, maxSeconds, clearScore, maxScore, voxel_.get(), rankBorders);
 
 	// 間が空いていればノルマなし区間を挿入
 	if (!sections_.empty()) {

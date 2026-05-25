@@ -180,7 +180,7 @@ void Combine::Update() {
 		float t = min(timer_ / kFallTime, 1.0f);
 		auto b = beyblade_->GetTransform();
 		b.translate = Lerp(RotateVector(Vector3{ 0,defaultBY_,0 }, lookRot) + startPos, startPos, t);
-		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.rotate = Normalize(MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_)));
 		beyblade_->SetTransform(b);
 
 		if (t == 1.0f) {
@@ -210,7 +210,7 @@ void Combine::Update() {
 		}
 
 		auto b = beyblade_->GetTransform();
-		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.rotate = Normalize(MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_)));
 		beyblade_->SetTransform(b);
 
 		if (timer_ / kSetTime >= 1.0f) {
@@ -227,17 +227,17 @@ void Combine::Update() {
 		float deltaTime = GameEngine::GetDeltaTime();
 		float t = min(timer_, kRideTime) / kRideTime;
 		auto parts = beyblade_->GetParts();
-		parts[4].transform->translate = Lerp(RotateVector(partsTranslate[4], lookRot) + startPos, startPos, t);
+		parts[4].transform->translate = Lerp(RotateVector(partsTranslate[4], lookRot), {}, t);
 		beyblade_->SetParts(parts[4], 4);
 
 		auto h = human_->GetTransform();
-		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
+		h.rotate = Normalize(lookRot * MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
 		h.translate = parts[4].transform->translate + Vector3{ 0, endY_,0 };
 		human_->SetTransform(h);
 		human_->Update();
 
 		auto b = beyblade_->GetTransform();
-		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.rotate = Normalize(MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_)));
 		beyblade_->SetTransform(b);
 
 		if (timer_ / kRideTime >= 1.0f) {
@@ -252,14 +252,15 @@ void Combine::Update() {
 
 		float t = min(timer_, kBackTime) / kBackTime;
 		SRT h = human_->GetTransform();
-		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		h.translate = startPos + cameraForward * (t * backAmount_) + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
+		h.rotate = Normalize(lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot * t));
+		Vector3 translate = startPos + cameraForward * (t * backAmount_) + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
+		h.translate = translate + RotateVector(Vector3{ 0,0,kFixOffset }, h.rotate);
 		human_->SetTransform(h);
 		human_->Update();
 
 		auto b = beyblade_->GetTransform();
-		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
-		b.translate = h.translate - RotateVector(Vector3{ 0,endY_ ,0 }, lookRot);
+		b.rotate = Normalize(MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_)) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot * t));
+		b.translate = translate - RotateVector(Vector3{ 0,endY_ ,0 }, lookRot);
 		beyblade_->SetTransform(b);
 
 		if (timer_ / kBackTime >= 1.0f) {
@@ -275,13 +276,13 @@ void Combine::Update() {
 		Quaternion lookRot = MakeLookRotation(cameraPos - startPos, Vector3{ 0,1,0 });
 
 		SRT h = human_->GetTransform();
-		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		h.translate = pos + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
+		h.rotate = Normalize( lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot));
+		h.translate = pos + RotateVector(Vector3{ 0,endY_,0 }, lookRot) + RotateVector(Vector3{ 0,0,kFixOffset }, h.rotate);
 		human_->SetTransform(h);
 		human_->Update();
 
 		auto b = beyblade_->GetTransform();
-		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.rotate = Normalize(MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_)) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot));
 		b.translate = pos;
 		beyblade_->SetTransform(b);
 	}
@@ -317,13 +318,13 @@ void Combine::Update() {
 		Quaternion lookRot = MakeLookRotation(cameraPos - worldPos, Vector3{ 0,1,0 });
 
 		SRT h = human_->GetTransform();
-		h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
-		h.translate = worldPos + RotateVector(Vector3{ 0,endY_,0 }, lookRot);
+		h.rotate = Normalize(lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot));
+		h.translate = worldPos + RotateVector(Vector3{ 0,endY_,0 }, lookRot) + RotateVector(Vector3{ 0,0,kFixOffset }, h.rotate);
 		human_->SetTransform(h);
 		human_->Update();
 
 		auto b = beyblade_->GetTransform();
-		b.rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_));
+		b.rotate = Normalize(MakeRotateAxisAngleQuaternion({ 0,1,0 }, rotate_) * (lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_)) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot));
 		b.translate = worldPos;
 		beyblade_->SetTransform(b);
 
