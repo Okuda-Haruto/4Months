@@ -83,7 +83,9 @@ void TextureManager::MakeRenderTexture(const std::string& renderName) {
 	textureData.metadata.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	const Vector4 kRenderTargetClearValue{ 1.0f,0.0f,0.0f,1.0f };	//いったんわかりやすいように赤
-	textureData.resource = dxCommon_->CreateRenderTextureResource(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
+	DirectXCommon::RenderTextureData data = dxCommon_->CreateRenderTextureResource(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
+	textureData.resource = data.resource;
+	textureData.rtvindex = data.rtvindex;
 
 	//dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
 
@@ -135,6 +137,17 @@ ID3D12Resource* TextureManager::GetResource(const std::string& renderName) {
 
 	assert(0);
 	return nullptr;
+}
+
+int8_t TextureManager::GetRTVIndex(const std::string& renderName) {
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(renderName)) {
+		//読み込み済みなら要素番号を返す
+		return textureDatas[renderName].rtvindex;
+	}
+
+	assert(0);
+	return  -1;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& filePath) {
