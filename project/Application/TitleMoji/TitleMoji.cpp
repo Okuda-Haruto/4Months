@@ -1,5 +1,6 @@
 #include "TitleMoji.h"
 #include "Mix.h"
+#include <Voxel/Voxel.h>
 
 void TitleMoji::Initialize(std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<Input> input) {
 	LoadCSV("resources/Title/logo.csv", directionalLight);
@@ -162,8 +163,8 @@ void TitleMoji::LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> 
 				object->SetDirectionalLight(directionalLight);
 				object->SetShininess(0);
 				std::vector<Parts> parts = object->GetParts();
-				parts[0].UVtransform.scale.x = 0.5f;
-				parts[0].UVtransform.translate.x = 0.5f;
+				parts[0].UVtransform.scale.x = 1.0f / (VOXEL_TILE_END - 1);
+				parts[0].UVtransform.translate.x = (1.0f / (VOXEL_TILE_END - 1)) * 0;
 				object->SetParts(parts[0], 0);
 				blocks_.push_back(std::move(object));
 				timers_.push_back(0 - pos.y / 40); // ここの調整で組みあがり速度

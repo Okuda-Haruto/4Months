@@ -141,7 +141,9 @@ void DirectXCommon::PostDraw() {
 }
 
 //描画前処理
-void DirectXCommon::RenderPreDraw(std::string textureName, UINT rtvIndex) {
+void DirectXCommon::RenderPreDraw(std::string textureName) {
+
+	int8_t index = TextureManager::GetInstance()->GetRTVIndex(textureName);
 
 	//TransitionBarrierの設定
 	//今回のバリアはTransition
@@ -159,10 +161,10 @@ void DirectXCommon::RenderPreDraw(std::string textureName, UINT rtvIndex) {
 
 	//描画先のRTVとDSVを設定する
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetCPUDescriptorHandle(dsvDescriptorheap_, descriptorSizeDSV_, 0);
-	commandList_->OMSetRenderTargets(1, &rtvHandles_[rtvIndex + kSwapChainDescriptorSize_], false, &dsvHandle);
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[index], false, &dsvHandle);
 	//指定した色で画面全体をクリアする
 	float crearColor[] = { 1.0f,0.0f,0.0f,1.0f };
-	commandList_->ClearRenderTargetView(rtvHandles_[rtvIndex + kSwapChainDescriptorSize_], crearColor, 0, nullptr);
+	commandList_->ClearRenderTargetView(rtvHandles_[index], crearColor, 0, nullptr);
 	//指定した深度で画面全体をクリアする
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
@@ -772,7 +774,10 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(const DirectX::TexMe
 }
 
 //レンダーテクスチャリソースの生成
-ComPtr<ID3D12Resource> DirectXCommon::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4 clearColor) {
+DirectXCommon::RenderTextureData DirectXCommon::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4 clearColor) {
+
+	RenderTextureData textureData;
+
 	//metadataを基にResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = width;	//Textureの幅
@@ -804,16 +809,20 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateRenderTextureResource(uint32_t width
 		&resourceDesc,	//Resourceの設定
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,	//描画していない状態がデフォルトなのでPIXEL_SHADER_RESOURCE
 		&clearValue,	//Clear最適値。
-		IID_PPV_ARGS(&resource)	//作成するResourceポインタへのポインタ
+		IID_PPV_ARGS(&textureData.resource)	//作成するResourceポインタへのポインタ
 	);
 	assert(SUCCEEDED(hr));
 
-	//RTVハンドルを取得。スワップチェーンで使っているものの次を使う
-	rtvHandles_[kSwapChainDescriptorSize_] = GetCPUDescriptorHandle(rtvDescriptorHeap_, descriptorSizeRTV_, kSwapChainDescriptorSize_);
-	//RTV作成
-	device_->CreateRenderTargetView(resource.Get(), &rtvDesc_, rtvHandles_[kSwapChainDescriptorSize_]);
+	textureData.rtvindex = nowRtvIndex_ + kSwapChainDescriptorSize_;
 
-	return resource;
+	//RTVハンドルを取得。スワップチェーンで使っているものの次を使う
+	rtvHandles_[textureData.rtvindex] = GetCPUDescriptorHandle(rtvDescriptorHeap_, descriptorSizeRTV_, textureData.rtvindex);
+	//RTV作成
+	device_->CreateRenderTargetView(textureData.resource.Get(), &rtvDesc_, rtvHandles_[textureData.rtvindex]);
+
+	nowRtvIndex_++;
+
+	return textureData;
 }
 
 //テクスチャデータの転送
@@ -1127,6 +1136,8 @@ void DirectXCommon::RenderTargetViewInitialize() {
 	rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	//2dテクスチャとして書き込む
 	rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+	nowRtvIndex_ = 0;
 
 	for (uint32_t i = 0; i < 2; i++) {
 		//RTVハンドルを取得

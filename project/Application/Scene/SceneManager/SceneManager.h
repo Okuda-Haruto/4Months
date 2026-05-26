@@ -17,6 +17,8 @@ private:
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 
 	shared_ptr<Input> input_;
+
+	bool isSelect_ = false;
 public:
 
 	SceneManager() = default;
@@ -40,4 +42,7 @@ public:
 	//シーンファクトリーのセッター
 	void SetSceneFactory(AbstractSceneFactory* sceneFactory) { sceneFactory_ = sceneFactory; }
 	void SetInput(shared_ptr<Input> input) { input_ = input; }
+
+	void SetIsSelect(bool isSelect) { isSelect_ = isSelect; }
+	bool GetIsSelect() { return isSelect_; }
 };

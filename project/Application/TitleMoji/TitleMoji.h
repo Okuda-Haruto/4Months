@@ -10,6 +10,8 @@ public:
 	void Draw();
 
 	bool IsEnd() { return state_ == State::End; }
+
+	void SetEnd() { state_ = State::End; }
 private:
 	void LoadCSV(std::string filename, std::shared_ptr<DirectionalLight> directionalLight);
 

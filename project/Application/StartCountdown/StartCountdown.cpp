@@ -1,6 +1,7 @@
 #include "StartCountdown.h"
 #include "Mix.h"
 #include <numbers>
+#include <Voxel/Voxel.h>
 
 void StartCountdown::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 	count_ = kMaxCount_;
@@ -188,8 +189,8 @@ void StartCountdown::LoadCSV(std::string filename, std::shared_ptr<DirectionalLi
 			object->SetDirectionalLight(directionalLight);
 			object->SetShininess(0);
 			std::vector<Parts> parts = object->GetParts();
-			parts[0].UVtransform.scale.x = 0.5f;
-			parts[0].UVtransform.translate.x = 0.5f;
+			parts[0].UVtransform.scale.x = 1.0f / (VOXEL_TILE_END - 1);
+			parts[0].UVtransform.translate.x = (1.0f / (VOXEL_TILE_END - 1)) * 0;
 			object->SetParts(parts[0], 0);
 			blocks_.push_back(std::move(object));
 		}

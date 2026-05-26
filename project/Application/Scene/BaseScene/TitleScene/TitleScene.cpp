@@ -94,6 +94,16 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	bgm_->Initialize("resources/SE・BGM/Title/bgm_title.mp3", 0.5f);
 	selectSE_ = make_unique<Audio>();
 	selectSE_->Initialize("resources/SE・BGM/deceid.mp3", 0.5f);
+
+	if (SceneManager::GetInstance()->GetIsSelect()) {
+		studioGameCamera_->ChangeCamera(std::make_unique<SelectCamera>(), 0.0f);
+		livingGameCamera_->ChangeCamera(std::make_unique<TVCamera>(), 0.0f);
+		isChangeStudioCamera_ = true;
+		logo_->SetEnd();
+		titleScreen_->SetEnd();
+
+		SceneManager::GetInstance()->SetIsSelect(false);
+	}
 }
 
 void TitleScene::Finalize() {
@@ -105,8 +115,11 @@ void TitleScene::Update() {
 	Pad pad = input_->GetPad(0);
 
 	title_Sprite_->Update();
-	titleScreen_->Update();
-	if (titleScreen_->IsEnd()) {
+
+	if (!titleScreen_->IsEnd()) {
+		titleScreen_->Update();
+	}
+	if (titleScreen_->IsEnd() && !logo_->IsEnd()) {
 		logo_->Update();
 	}
 
@@ -188,7 +201,7 @@ void TitleScene::Update() {
 
 	fade_->Update();
 
-	GameEngine::RenderPreDraw("BackGround", 0);
+	GameEngine::RenderPreDraw("BackGround");
 
 	if (!gameTransition->IsPlaying()) {
 		studio_->Draw3DNoFog();

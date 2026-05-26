@@ -771,7 +771,7 @@ void CourseEditor::Update() {
 
 #pragma endregion
 
-	GameEngine::RenderPreDraw("BackGround", 0);
+	GameEngine::RenderPreDraw("BackGround");
 
 	skydome_->Draw3DNoFog();
 

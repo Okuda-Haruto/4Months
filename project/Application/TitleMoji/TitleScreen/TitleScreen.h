@@ -42,4 +42,6 @@ public:
 
 	bool IsClear() { return isClear_; }
 	bool IsEnd() { return isEnd_; }
+
+	void SetEnd() { isEnd_ = true; }
 };

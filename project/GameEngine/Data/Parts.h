@@ -8,7 +8,7 @@ using namespace std;
 struct Parts {
 	UINT textureIndex;
 	shared_ptr<Material> material = nullptr;
-	shared_ptr<SRT> parent = nullptr;
+	shared_ptr<Matrix4x4> parent = nullptr;
 	shared_ptr<SRT> transform = nullptr;
 	SRT UVtransform;
 };
