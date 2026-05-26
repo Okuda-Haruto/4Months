@@ -41,7 +41,7 @@ private:
 		{ -10,0,10 },
 		{ -10,0,-10 }
 	};
-	const float kExtraXRot = 0.2f;
+	const float kExtraXRot = 0.3f;
 	const float kFixOffset = 4.0f;
 
 	enum class Phase {

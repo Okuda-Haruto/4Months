@@ -58,9 +58,8 @@ void Course::Update(Human* player) {
 
 		if (!sections_[i]->IsSubSection()) {
 			// 失敗時
-			if ((!sections_[i]->IsCleared() &&
-				sections_[i]->IsOver(player->GetTransform().translate.y)) ||
-				sections_[i]->GetTimer()->GetCurrent() <= 0) {
+			if (!sections_[i]->IsCleared() &&
+				sections_[i]->IsOver(player->GetTransform().translate.y)) {
 
 				if (!sectionsData_[i].isFailed) {
 					sectionsData_[i].isFailed = true;
