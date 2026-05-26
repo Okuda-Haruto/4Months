@@ -2,7 +2,7 @@
 #include "Voxel/Voxel.h"
 #include "Box/Box.h"
 
-void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, Voxel* voxel) {
+void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, Voxel* voxel, const RankBorders& rankBorders) {
 	startChunkY_ = startChunkY;
 	endChunkY_ = endChunkY;
 
@@ -24,6 +24,8 @@ void Section::Initialize(int startChunkY, int endChunkY, float maxSeconds, int c
 	addScoreSE_->Initialize("resources/SE・BGM/Game/star.mp3", 0.7f);
 	breakSE_ = std::make_unique<Audio>();
 	breakSE_->Initialize("resources/SE・BGM/Game/destruction.mp3", 0.7f);
+
+	rankBorders_ = rankBorders;
 }
 
 void Section::Initialize(int startChunkY, int endChunkY) {
@@ -59,15 +61,36 @@ void Section::Update(float playerY) {
 		}
 	}
 
-	if (breakScore_ > clearBreakScore_ + ((maxBreakScore_ - clearBreakScore_) / 2.0f)) {
-		rank_ = A;
-	}else if (breakScore_ > clearBreakScore_) {
-		rank_ = B;
+	breakSETimer_ -= GameEngine::GetDeltaTime();
+}
+
+int Section::JudgeRank(std::vector<Box*> boxes) {
+	breakRate_ = int(std::roundf(GetBreakRate(boxes)));
+	if (breakRate_ > rankBorders_.rate.aScore) {
+		rankItems_.rateRank = A;
+	} else if (breakRate_ > rankBorders_.rate.bScore) {
+		rankItems_.rateRank = B;
 	} else {
-		rank_ = C;
+		rankItems_.rateRank = C;
 	}
 
-	breakSETimer_ -= GameEngine::GetDeltaTime();
+	if (breakScore_ > rankBorders_.count.aScore) {
+		rankItems_.countRank = A;
+	} else if (breakScore_ > rankBorders_.count.bScore) {
+		rankItems_.countRank = B;
+	} else {
+		rankItems_.countRank = C;
+	}
+
+	if (timer_->GetCurrent() > rankBorders_.time.aScore) {
+		rankItems_.timeRank = A;
+	}else if (timer_->GetCurrent() > rankBorders_.time.bScore) {
+		rankItems_.timeRank = B;
+	} else {
+		rankItems_.timeRank = C;
+	}
+
+	return int(std::roundf(float(rankItems_.rateRank + rankItems_.countRank + rankItems_.timeRank) / 3.0f));
 }
 
 void Section::AddBreak(int breakCount) {
@@ -89,15 +112,6 @@ void Section::AddBreak(int breakCount) {
 }
 
 float Section::GetBreakRate(std::vector<Box*> boxes) {
-	int boxCount = 0;
-	for (auto box : boxes) {
-		if (box->GetTransform().scale.x >= 3.0f) {
-			float boxY = box->GetTransform().translate.y;
-			if (boxY < startY_ && boxY > endY_) {
-				boxCount++;
-			}
-		}
-	}
-
-	return 1.0f - (float(voxel_->CountObjects(startChunkY_, endChunkY_) + boxCount) / startVoxelCount_);
+	if (startVoxelCount_ == 0)return 0;
+	return (1.0f - (float(voxel_->CountObjects(startChunkY_, endChunkY_)) / startVoxelCount_)) * 100;
 }

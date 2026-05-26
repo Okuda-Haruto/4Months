@@ -3,17 +3,37 @@
 #include "GameTimer/GameTimer.h"
 #include "Ranks.h"
 
+struct RankBorder {
+	int aScore;
+	int bScore;
+};
+
+struct RankBorders {
+	RankBorder rate;
+	RankBorder count;
+	RankBorder time;
+};
+
+struct ResultScores {
+	int rateRank;
+	int countRank;
+	int timeRank;
+};
+
 class Box;
 class Voxel;
 class Section {
 public:
 	// メインの区間
-	void Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, Voxel* voxel);
+	void Initialize(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, Voxel* voxel, const RankBorders& rankBorders);
 
 	// ノルマなし区間
 	void Initialize(int startChunkY, int endChunkY);
 
 	void Update(float playerY);
+
+	// ランク計算
+	int JudgeRank(std::vector<Box*> boxes);
 
 	// スコア追加
 	void AddBreak(int breakCount);
@@ -59,6 +79,9 @@ private:
 	int clearBreakScore_ = 0;
 	int maxBreakScore_ = 0;
 
+	// 破壊率
+	int breakRate_ = 0;
+
 	struct Delay {
 		float time;
 		int score;
@@ -86,5 +109,8 @@ private:
 	Voxel* voxel_ = nullptr;
 	int startVoxelCount_ = 0;
 
+	// 区間のランク
+	RankBorders rankBorders_;
+	ResultScores rankItems_;
 	int rank_ = Rank::C;
 };

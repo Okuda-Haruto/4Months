@@ -73,7 +73,7 @@ public:
 	void SpawnBox();
 
 	// 区間追加
-	void AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore);
+	void AddSection(int startChunkY, int endChunkY, float maxSeconds, int clearScore, int maxScore, const RankBorders& rankBorders);
 	void AddSubSection(int startChunkY, int endChunkY);
 
 	Section* GetCurrentSection() { return currentSection_; }
@@ -108,8 +108,8 @@ public:
 		return currentSection_->GetCurrentScore();
 	}
 	int GetRank() {
-		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetRank(); }
-		return currentSection_->GetRank();
+		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->JudgeRank(GetBoxes()); }
+		return currentSection_->JudgeRank(GetBoxes());
 	}
 
 	// リザルトの段階

@@ -60,7 +60,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	// HUD
 	hud_ = std::make_unique<HUD>();
-	hud_->Initialize(input.get(), gameCamera_->GetCamera());
+	hud_->Initialize(input.get(), gameCamera_->GetCamera(), directionalLight_);
 
 	// 予測表示
 	hitPreview_ = std::make_unique<HitPreview>();
@@ -206,9 +206,9 @@ void GameScene::Update() {
 	}
 	ImGui::Text("現在区間 : %d", section);
 	if (course_->InSubSection()) {
-		ImGui::Text("破壊率 : %.1f%%", course_->GetPrevBreakRate() * 100);
+		ImGui::Text("破壊率 : %.1f%%", course_->GetPrevBreakRate());
 	} else {
-		ImGui::Text("破壊率 : %.1f%%", course_->GetCurrBreakRate() * 100);
+		ImGui::Text("破壊率 : %.1f%%", course_->GetCurrBreakRate());
 	}
 	ImGui::End();
 #endif
