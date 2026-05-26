@@ -235,6 +235,9 @@ void CourseEditor::Update() {
 			if (ImGui::Button("チャンク縦回転(X軸回転)")) {
 				course_->GetVoxel()->ChunkVerticalRotation(selectChunk_);
 			}
+			if (ImGui::Button("チャンク鏡面反転")) {
+				course_->GetVoxel()->ChunkMirror(selectChunk_);
+			}
 
 			if (ImGui::Button("チャンクをコピー")) {
 				chunkSettingItem_ = ChunkSettingItem::Copy;
@@ -339,13 +342,13 @@ void CourseEditor::Update() {
 		if (ImGui::TreeNode("描画範囲")) {
 
 			ImGui::Text("min");
-			ImGui::SliderFloat("X##3", &drawAABB_.min.x, 0, courseData_.csvData.size.x, "%.0f");
-			ImGui::SliderFloat("Y##3", &drawAABB_.min.y, 0, courseData_.csvData.size.y, "%.0f");
-			ImGui::SliderFloat("Z##3", &drawAABB_.min.z, 0, courseData_.csvData.size.z, "%.0f");
+			ImGui::SliderFloat("X##3", &drawAABB_.min.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##3", &drawAABB_.min.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##3", &drawAABB_.min.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 			ImGui::Text("max");
-			ImGui::SliderFloat("X##4", &drawAABB_.max.x, 0, courseData_.csvData.size.x, "%.0f");
-			ImGui::SliderFloat("Y##4", &drawAABB_.max.y, 0, courseData_.csvData.size.y, "%.0f");
-			ImGui::SliderFloat("Z##4", &drawAABB_.max.z, 0, courseData_.csvData.size.z, "%.0f");
+			ImGui::SliderFloat("X##4", &drawAABB_.max.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##4", &drawAABB_.max.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##4", &drawAABB_.max.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 
 			if (ImGui::Button("1チャンク下げる")) {
 				drawAABB_.min.y = std::min(drawAABB_.min.y + 1.0f, courseData_.csvData.size.y - 1.0f);

@@ -15,6 +15,12 @@ enum VOXEL_TILE {
 	TILE_None,
 	TILE_TEST_01,
 	TILE_TEST_02,
+	TILE_Stage1_01,
+	TILE_Stage1_02,
+	TILE_Stage1_03,
+	TILE_Stage1_04,
+	TILE_Stage1_05,
+	TILE_Stage1_06,
 
 	VOXEL_TILE_END,
 };
@@ -96,6 +102,8 @@ public:
 	void ChunkVerticalRotation(Vector3 chunkPos);
 	//チャンク横回転
 	void ChunkHorizontalRotation(Vector3 chunkPos);
+	//チャンク鏡反転
+	void ChunkMirror(Vector3 chunkPos);
 	//チャンクコピー
 	void ChunkCopy(Vector3 fromChunkPos, Vector3 toChunkPos);
 	//チャンク交換

@@ -1073,6 +1073,20 @@ void Voxel::ChunkHorizontalRotation(Vector3 chunkPos) {
 	chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)] = newChunk;
 }
 
+//チャンク鏡反転
+void Voxel::ChunkMirror(Vector3 chunkPos) {
+	Chunk newChunk{};
+	for (int y = 0; y < 16; y++) {
+		for (int z = 0; z < 16; z++) {
+			for (int x = 0; x < 16; x++) {
+				newChunk.mapChip[y][z][15 - x] = chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)].mapChip[y][z][x];
+			}
+		}
+	}
+
+	chunks_[int(chunkPos.y)][int(chunkPos.z)][int(chunkPos.x)] = newChunk;
+}
+
 //チャンクコピー
 void Voxel::ChunkCopy(Vector3 fromChunkPos, Vector3 toChunkPos) {
 	chunks_[int(toChunkPos.y)][int(toChunkPos.z)][int(toChunkPos.x)] = chunks_[int(fromChunkPos.y)][int(fromChunkPos.z)][int(fromChunkPos.x)];
