@@ -25,6 +25,11 @@ public:
 	static const uint32_t kOffscreenDescriptorSize_ = 8;
 	//全体RTVデスクリプタサイズ
 	static const uint32_t kRTVHandleSize_ = 10;
+
+	struct RenderTextureData {
+		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+		uint8_t rtvindex;
+	};
 private:
 	//WindowsAPI
 	WindowsAPI* winApp_ = nullptr;
@@ -101,6 +106,8 @@ private:
 
 	float deltaTime_ = 0.0f;
 
+	int8_t nowRtvIndex_ = 0;
+
 public:
 
 	~DirectXCommon();
@@ -114,7 +121,7 @@ public:
 	void PostDraw();
 
 	//描画前処理
-	void RenderPreDraw(std::string textureName, UINT rtvIndex);
+	void RenderPreDraw(std::string textureName);
 	//描画後処理
 	void RenderPostDraw(std::string textureName);
 
@@ -135,7 +142,7 @@ public:
 	//テクスチャリソースの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 	//レンダーテクスチャリソースの生成
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4 clearColor);
+	RenderTextureData CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4 clearColor);
 	//テクスチャデータの転送
 	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
 

@@ -11,6 +11,7 @@
 #include "GameCamera/GameCamera.h"
 #include "Fade/Fade.h"
 #include "Effect/Combine/Combine.h"
+#include <Menu/Menu.h>
 
 class GameScene : public BaseScene{
 private:
@@ -53,6 +54,9 @@ private:
 	std::unique_ptr<StartCountdown> startCountdown_ = nullptr;
 
 	std::unique_ptr<Fade> fade_;
+
+	//メニュー
+	std::unique_ptr<Menu> menu_;
 
 	// タイトルからの遷移
 	std::unique_ptr<Combine> gameTransition = nullptr;

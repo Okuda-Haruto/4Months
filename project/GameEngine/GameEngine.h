@@ -214,7 +214,7 @@ private:
 	void PreDraw_();
 	void PostDraw_();
 
-	void RenderPreDraw_(std::string textureName, UINT rtvIndex);
+	void RenderPreDraw_(std::string textureName);
 	void RenderPostDraw_(std::string textureName);
 
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
@@ -299,7 +299,7 @@ public:
 	static void PostDraw() { GetInstance()->PostDraw_(); }
 
 	//描画前処理
-	static void RenderPreDraw(std::string textureName, UINT rtvIndex) { GetInstance()->RenderPreDraw_(textureName, rtvIndex); }
+	static void RenderPreDraw(std::string textureName) { GetInstance()->RenderPreDraw_(textureName); }
 
 	//描画後処理
 	static void RenderPostDraw(std::string textureName) { GetInstance()->RenderPostDraw_(textureName); }

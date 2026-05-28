@@ -46,7 +46,7 @@ public:
 
 	//ヒープをセット
 	void PreDraw();
-	void RenderPreDraw(std::string textureName, UINT rtvIndex);
+	void RenderPreDraw(std::string textureName);
 
 	//SRVセット
 	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);

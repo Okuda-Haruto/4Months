@@ -49,7 +49,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get(), course_.get());
 
 	// コース
-	course_->Initialize(courseData_.csvData, gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData_, gameCamera_.get(), directionalLight_);
 	chunkHeight_ = int(course_->GetChunkData().size.y);
 	float cameraPosBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
 	gameCamera_->SetCameraPosBottom(cameraPosBottom);
@@ -74,6 +74,10 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	fade_->Initialzie();
 	fade_->SetFadeMode(Fade::FADE_MODE::FADE_IN);
 
+	menu_ = std::make_unique<Menu>();
+	menu_->Initialize(input_, fade_.get());
+
+
 	// タイトルから遷移
 	gameTransition = std::make_unique<Combine>();
 	gameTransition->InitializeGame(directionalLight_, gameCamera_->GetCamera());
@@ -96,103 +100,116 @@ void GameScene::Update() {
 	Keyboard keyboard = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
 
-	if (!startCountdown_->IsEnd()) {
-		if (!gameTransition->IsEnd()) {
-			gameTransition->Update();
-		} else {
+	//メニュー中は一切動かさない
+	if (menu_->GetPhase() != Menu::Menu_Phase::Idle && menu_->GetPhase() != Menu::Menu_Phase::End) {
 
-			// 開始カウントダウン
-			startCountdown_->Update();
+		if (!startCountdown_->IsEnd()) {
+			if (!gameTransition->IsEnd()) {
+				gameTransition->Update();
+			}
+			else {
 
-			player_->UpdateEffectsOnly();
+				// 開始カウントダウン
+				startCountdown_->Update();
+
+				player_->UpdateEffectsOnly();
+				course_->Update(player_.get());
+
+				if (startCountdown_->IsFirsttime()) {
+					// ゲーム中のカメラに移行
+					if (startCountdown_->IsDownCameraTime()) {
+						gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
+					}
+
+					if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
+						skipHold_ += GameEngine::GetDeltaTime();
+						if (skipHold_ > 0.5f) {
+							gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+							startCountdown_->SkipPreStart();
+						}
+#ifdef USE_IMGUI
+						gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
+						startCountdown_->SkipAll();
+#endif
+					}
+					else {
+						skipHold_ = 0;
+					}
+
+				}
+				else if (course_->GetResultState() == ResultState::End) {
+					// 区間リザルト終了
+					startCountdown_->SetResultEnd();
+
+					if (startCountdown_->IsEnd()) {
+						isSectionResult_ = false;
+						gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.3f);
+					}
+				}
+			}
+
+		}
+		else {
+
+			// ★追加：簡易リザルト状態を渡す
+			if (!isSectionResult_ && course_->InSubSection() && course_->GetResultState() <= ResultState::Wait) {
+				isSectionResult_ = true;
+				gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
+			}
+			if (player_->IsBreak()) {
+				gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
+			}
+
+			player_->SetResult(isSectionResult_);
+			player_->SetCanSkipResult(course_->GetResultState() == ResultState::Wait);
+
+			player_->Update(input_, course_.get(), startCountdown_.get());
+
+			if (isClear_) {
+				if (isUp_) {
+					clearY_ += GameEngine::GetDeltaTimeRate();
+					if (clearY_ > 0) isUp_ = false;
+				}
+				else {
+					clearY_ -= GameEngine::GetDeltaTimeRate();
+					if (clearY_ < -32 * 3.0f * 4) isUp_ = true;
+				}
+
+				if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
+					fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
+				}
+			}
+
 			course_->Update(player_.get());
 
-			if (startCountdown_->IsFirsttime()) {
-				// ゲーム中のカメラに移行
-				if (startCountdown_->IsDownCameraTime()) {
-					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 2.0f);
-				}
+			checkCollision_->Update(player_.get());
+			checkCollision_->UpdateImGui();
 
-				if ((keyboard.hold[DIK_SPACE] || pad.Button[PAD_BUTTON_B].hold) && startCountdown_->IsPreStart()) {
-					skipHold_ += GameEngine::GetDeltaTime();
-					if (skipHold_ > 0.5f) {
-						gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-						startCountdown_->SkipPreStart();
-					}
-#ifdef USE_IMGUI
-					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.0f);
-					startCountdown_->SkipAll();
-#endif
-				} else {
-					skipHold_ = 0;
-				}
+			hitPreview_->Update(player_.get(), checkCollision_.get());
 
-			} else if (course_->GetResultState() == ResultState::End) {
-				// 区間リザルト終了
-				startCountdown_->SetResultEnd();
-
-				if (startCountdown_->IsEnd()) {
-					isSectionResult_ = false;
-					gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.3f);
-				}
+			if (player_->IsEndResult()) {
+				startCountdown_->Reset(player_->GetTransform().translate);
 			}
 		}
 
-	} else {
-
-		// ★追加：簡易リザルト状態を渡す
-		if (!isSectionResult_ && course_->InSubSection() && course_->GetResultState() <= ResultState::Wait) {
-			isSectionResult_ = true;
-			gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
-		}
-		if (player_->IsBreak()) {
-			gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
+		//カメラ更新
+		if (gameTransition->IsEnd()) {
+			gameCamera_->Update();
 		}
 
-		player_->SetResult(isSectionResult_);
-		player_->SetCanSkipResult(course_->GetResultState() == ResultState::Wait);
-
-		player_->Update(input_, course_.get(), startCountdown_.get());
-
-		if (isClear_) {
-			if (isUp_) {
-				clearY_ += GameEngine::GetDeltaTimeRate();
-				if (clearY_ > 0) isUp_ = false;
-			} else {
-				clearY_ -= GameEngine::GetDeltaTimeRate();
-				if (clearY_ < -32 * 3.0f * 4) isUp_ = true;
-			}
-
-			if (keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) {
-				fade_->SetFadeMode(Fade::FADE_MODE::FADE_OUT);
-			}
+		if (isUseDebugCamera_) {
+			defaultCamera_->Update();
 		}
+		directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
-		course_->Update(player_.get());
+		hud_->SetPauseDisplay(!startCountdown_->IsEnd());
 
-		checkCollision_->Update(player_.get());
-		checkCollision_->UpdateImGui();
+		hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
 
-		hitPreview_->Update(player_.get(), checkCollision_.get());
-
-		if (player_->IsEndResult()) {
-			startCountdown_->Reset(player_->GetTransform().translate);
-		}
 	}
 
-	//カメラ更新
-	if (gameTransition->IsEnd()) {
-		gameCamera_->Update();
-	}
-
-	if (isUseDebugCamera_) {
-		defaultCamera_->Update();
-	}
-	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
-
-	hud_->SetPauseDisplay(!startCountdown_->IsEnd());
-
-	hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
+	//メニュー
+	menu_->Update();
 
 	if (!bgm_->IsSoundPlayingWave()) {
 		bgm_->SoundPlayWave();
@@ -221,9 +238,6 @@ void GameScene::Update() {
 	if (!player_->IsBreak() && !course_->GetIsSectionFailed()) {
 		if (course_->isAllCleared()) {
 			if (!isClear_) {
-				clearCameraTransform_.translate = { 0,-16 * 3 * 2,-16 * 3 - 300 };
-				clearCameraTransform_.rotate = IdentityQuaternion();
-				clearCameraTransform_.scale = { 1,1,1 };
 				gameCamera_->ChangeCamera(std::make_unique<ResultCamera>(), 1.0f);
 			}
 			isClear_ = true;
@@ -233,39 +247,57 @@ void GameScene::Update() {
 	}
 
 	if (fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_OUT) {
-		SceneManager::GetInstance()->ChangeScene("Title");
+		if (menu_->GetPhase() == Menu::Menu_Phase::End) {
+			switch (menu_->GetState())
+			{
+			case Menu::Menu_State::Retry:
+				SceneManager::GetInstance()->ChangeScene("Game");
+				break;
+			case Menu::Menu_State::Title:
+				SceneManager::GetInstance()->ChangeScene("Title");
+				break;
+			case Menu::Menu_State::Select:
+				SceneManager::GetInstance()->SetIsSelect(true);
+				SceneManager::GetInstance()->ChangeScene("Title");
+				break;
+			default:
+				break;
+			}
+		}
+		else {
+			SceneManager::GetInstance()->ChangeScene("Title");
+		}
 	}
 
 	fade_->Update();
 
-	GameEngine::RenderPreDraw("BackGround", 0);
+	GameEngine::RenderPreDraw("BackGround");
 
 	skydome_->Draw3DNoFog();
 	course_->DrawGoalBarrier();
 
 	GameEngine::RenderPostDraw("BackGround");
-}
 
-void GameScene::Draw() {
+	GameEngine::RenderPreDraw("Play");
 
 	skydome_->Draw3DNoFog();
 
 	if (!player_->IsBreak()) {
 		if (isClear_) {
 			course_->DrawAll(directionalLight_);
-
-			fade_->Draw();
-		} else if (startCountdown_->IsPreStart() && startCountdown_->IsFirsttime()) {
+		}
+		else if (startCountdown_->IsPreStart() && startCountdown_->IsFirsttime()) {
 			course_->DrawUp(directionalLight_);
-		} else {
+		}
+		else {
 
 			course_->Draw(directionalLight_);
-			hud_->Draw();
 			hitPreview_->Draw();
 			startCountdown_->Draw();
 			player_->Draw();
 		}
-	} else {
+	}
+	else {
 		course_->DrawGameOver();
 	}
 
@@ -273,6 +305,27 @@ void GameScene::Draw() {
 		gameTransition->Draw();
 	}
 
+	GameEngine::RenderPostDraw("Play");
+
+	GameEngine::RenderPreDraw("Screen");
+
+	GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("Play"));
+
+	hud_->Draw();
+
+	startCountdown_->Draw();
+
+	GameEngine::RenderPostDraw("Screen");
+}
+
+void GameScene::Draw() {
+
+	GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("Screen"));
+
+
+	menu_->Draw();
+
+	fade_->Draw();
 }
 
 void GameScene::LoadCourse(std::string filePath) {

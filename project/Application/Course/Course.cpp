@@ -7,18 +7,23 @@ Course::Course() {
 Course::~Course() {
 }
 
-void Course::Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight) {
-	chunkData_ = chunkData;
+void Course::Initialize(CourseData courseData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight) {
+	courseData_ = courseData;
 	camera_ = camera;
-	directionalLight_ = directionalLight; chunkData_;
+	directionalLight_ = directionalLight;
 
 	voxel_ = std::make_unique<Voxel>();
-	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), chunkData_, camera_, directionalLight_);
+	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), courseData.csvData, camera_, directionalLight_);
 
 	// 区間の設定(上~下)
-	AddSection(0, 2, 30, 2000, 4000, RankBorders{{ 80, 40 }, { 3000, 2000 }, { 10, 0 }});
-	AddSection(4, 10, 40, 12000, 15000, RankBorders{ { 60, 30 }, { 14000, 12000 }, { 10, 0 } });
-	AddSection(13, 20, 60, 20000, 25000, RankBorders{ { 40, 20 }, { 23000, 20000 }, { 15, 0 } });
+	for (auto& section : courseData_.sectionDatas) {
+		AddSection(section.startChunkY, section.endChunkY, section.maxSeconds, section.clearScore, section.maxScore, section.rankBorders);
+	}
+
+	// 区間の設定(上~下)
+	//AddSection(0, 2, 30, 2000, 4000, RankBorders{{ 80, 40 }, { 3000, 2000 }, { 10, 0 }});
+	//AddSection(4, 10, 40, 12000, 15000, RankBorders{ { 60, 30 }, { 14000, 12000 }, { 10, 0 } });
+	//AddSection(13, 20, 60, 20000, 25000, RankBorders{ { 40, 20 }, { 23000, 20000 }, { 15, 0 } });
 	goalBarriers_.clear();
 	for (int i = 0; i < sections_.size(); ++i) {
 		float y = sections_[i]->GetEndPos().y;
@@ -285,4 +290,16 @@ bool Course::InSubSection() {
 		return currentSection_->IsSubSection();
 	}
 	return false;
+}
+
+void Course::ResetGoalBarrier() {
+	goalBarriers_.clear();
+	for (int i = 0; i < sections_.size(); ++i) {
+		float y = sections_[i]->GetEndPos().y;
+
+		std::unique_ptr<GoalBarrier> barrier = std::make_unique<GoalBarrier>();
+		barrier->Initialize(y, camera_->GetCamera());
+
+		goalBarriers_.push_back(std::move(barrier));
+	}
 }

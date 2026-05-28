@@ -326,8 +326,8 @@ void GameEngine::PostDraw_() {
 	instancingSpriteIndex_ = 0;
 }
 
-void GameEngine::RenderPreDraw_(std::string textureName, UINT rtvIndex) {
-	srvManager_->RenderPreDraw(textureName, rtvIndex);
+void GameEngine::RenderPreDraw_(std::string textureName) {
+	srvManager_->RenderPreDraw(textureName);
 }
 
 void GameEngine::RenderPostDraw_(std::string textureName) {
@@ -368,7 +368,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
 			//親を持つPartsのローカル座標
-			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			Matrix4x4 parentMatrix = *parts[i].parent;
 			partsMatrix = partsMatrix * parentMatrix;
 		} else {
 			//ワールド座標を親に持つPartsのローカル座標
@@ -466,7 +466,7 @@ void GameEngine::DrawNoFogObject_3D_(Object* object, shared_ptr<DirectionalLight
 		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
 			//親を持つPartsのローカル座標
-			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			Matrix4x4 parentMatrix = *parts[i].parent;
 			partsMatrix = partsMatrix * parentMatrix;
 		} else {
 			//ワールド座標を親に持つPartsのローカル座標
@@ -563,7 +563,7 @@ void GameEngine::DrawAddBlendObject_3D_(Object* object, shared_ptr<DirectionalLi
 		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
 			//親を持つPartsのローカル座標
-			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			Matrix4x4 parentMatrix = *parts[i].parent;
 			partsMatrix = partsMatrix * parentMatrix;
 		} else {
 			//ワールド座標を親に持つPartsのローカル座標
@@ -660,7 +660,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
 		//親を持つPartsのローカル座標
-		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		Matrix4x4 parentMatrix = *parts[partsIndex].parent;
 		partsMatrix = partsMatrix * parentMatrix;
 	} else {
 		//ワールド座標を親に持つPartsのローカル座標
@@ -756,7 +756,7 @@ void GameEngine::DrawNoFogParts_3D_(Object* object, uint32_t partsIndex, shared_
 	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
 		//親を持つPartsのローカル座標
-		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		Matrix4x4 parentMatrix = *parts[partsIndex].parent;
 		partsMatrix = partsMatrix * parentMatrix;
 	}
 	else {
@@ -853,7 +853,7 @@ void GameEngine::DrawRenderNoFogParts_3D_(Object* object, uint32_t partsIndex, s
 	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
 		//親を持つPartsのローカル座標
-		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		Matrix4x4 parentMatrix = *parts[partsIndex].parent;
 		partsMatrix = partsMatrix * parentMatrix;
 	}
 	else {
@@ -1015,7 +1015,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
 			//親を持つPartsのローカル座標
-			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			Matrix4x4 parentMatrix = *parts[i].parent;
 			partsMatrix = partsMatrix * parentMatrix;
 		} else {
 			//ワールド座標を親に持つPartsのローカル座標
@@ -1110,7 +1110,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
 		//親を持つPartsのローカル座標
-		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		Matrix4x4 parentMatrix = *parts[partsIndex].parent;
 		partsMatrix = partsMatrix * parentMatrix;
 	} else {
 		//ワールド座標を親に持つPartsのローカル座標
@@ -1249,7 +1249,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 
 			if (parts[numInstance][i].parent) {
 				//親を持つPartsのローカル座標
-				Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[numInstance][i].parent->scale, parts[numInstance][i].parent->rotate, parts[numInstance][i].parent->translate);
+				Matrix4x4 parentMatrix = *parts[numInstance][i].parent;
 				partsMatrix = partsMatrix * parentMatrix;
 			} else {
 				//ワールド座標を親に持つPartsのローカル座標
@@ -1399,7 +1399,7 @@ void GameEngine::DrawInstancingVoxel_3D_(std::list<Object*> objects, UINT backGr
 
 			if (parts[numInstance][i].parent) {
 				//親を持つPartsのローカル座標
-				Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[numInstance][i].parent->scale, parts[numInstance][i].parent->rotate, parts[numInstance][i].parent->translate);
+				Matrix4x4 parentMatrix = *parts[numInstance][i].parent;
 				partsMatrix = partsMatrix * parentMatrix;
 			} else {
 				//ワールド座標を親に持つPartsのローカル座標

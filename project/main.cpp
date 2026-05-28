@@ -10,6 +10,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	GameEngine::Initialize(L"LE2A_03_オクダ_ハルト", 1280, 720);
 
 	TextureManager::GetInstance()->MakeRenderTexture("BackGround");
+	TextureManager::GetInstance()->MakeRenderTexture("Play");
+	TextureManager::GetInstance()->MakeRenderTexture("Screen");
 
 	//シーンマネージャー生成
 	unique_ptr<SceneFactory> sceneFactory = make_unique<SceneFactory>();
@@ -18,8 +20,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	input->Initialize(GameEngine::GetWindowsAPI());
 	SceneManager::GetInstance()->SetInput(input);
 
-	SceneManager::GetInstance()->ChangeScene("Game");
-	//SceneManager::GetInstance()->ChangeScene("CourseEditor");
+	//SceneManager::GetInstance()->ChangeScene("Title");
+	SceneManager::GetInstance()->ChangeScene("CourseEditor");
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {

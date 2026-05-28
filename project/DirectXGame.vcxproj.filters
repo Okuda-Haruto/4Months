@@ -220,6 +220,7 @@
     <ClCompile Include="Application\Effect\Flash\Flash.cpp" />
     <ClCompile Include="Application\Course\GameOver\GameOver.cpp" />
     <ClCompile Include="resources\Shader\FlameNeonGlow.VS.hlsl" />
+    <ClCompile Include="Application\Menu\Menu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -544,6 +545,7 @@
     <ClInclude Include="Application\Course\GameOver\GameOver.h" />
     <ClInclude Include="Application\Course\Section\Ranks.h" />
     <ClInclude Include="GameEngine\Data\GlowMaterial.h" />
+    <ClInclude Include="Application\Menu\Menu.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

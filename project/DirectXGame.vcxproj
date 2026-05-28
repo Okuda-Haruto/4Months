@@ -58,6 +58,7 @@
     <ClCompile Include="Application\Fade\Fade.cpp" />
     <ClCompile Include="Application\Human\Human.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
+    <ClCompile Include="Application\Menu\Menu.cpp" />
     <ClCompile Include="Application\Scene\BaseScene\CourseEditor\CourseEditor.cpp" />
     <ClCompile Include="Application\Scene\BaseScene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Application\Scene\SceneFactory\SceneFactory.cpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="Application\Fade\Fade.h" />
     <ClInclude Include="Application\Course\Section\Ranks.h" />
     <ClInclude Include="Application\Human\Human.h" />
+    <ClInclude Include="Application\Menu\Menu.h" />
     <ClInclude Include="Application\Mix.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\Scene\BaseScene\BaseScene.h" />
