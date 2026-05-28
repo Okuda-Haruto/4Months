@@ -78,6 +78,10 @@ void CourseEditor::Update() {
 
 	barrier_->Update(gameCamera_.get());
 
+	std::vector<Parts> parts = skydome_->GetParts();
+	parts[0].UVtransform.translate.y += 0.01f;
+	skydome_->SetParts(parts[0], 0);
+
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImVec2(340, 720));
 	ImGui::Begin("エディターメニュー");
@@ -209,6 +213,13 @@ void CourseEditor::Update() {
 			if (ImGui::Button("コースサイズ変更")) {
 				copyCourseSize_ = courseData_.csvData.size;
 				chunkSettingItem_ = ChunkSettingItem::Resize;
+			}
+
+			if (ImGui::Button("セクション追加")) {
+				sectionSettingItem_ = SectionSettingItem::Add;
+			}
+			if (ImGui::Button("セクション変更")) {
+				sectionSettingItem_ = SectionSettingItem::Resize;
 			}
 
 			ImGui::TreePop();
@@ -580,6 +591,92 @@ void CourseEditor::Update() {
 		}
 #pragma endregion
 
+#pragma region Setcionコピー
+
+		static int sectionIndex = 0;
+		switch (sectionSettingItem_)
+		{
+		case SectionSettingItem::Add:
+			ImGui::SetNextWindowSize(ImVec2(600, 446));
+
+			ImGui::Begin("セクションを追加");
+			ImGui::Text("セクションチャンク");
+			ImGui::SliderInt("開始地点", &sectionData_.startChunkY, 0, int(courseData_.csvData.size.y) - 1);
+			ImGui::SliderInt("終了地点", &sectionData_.endChunkY, 0, int(courseData_.csvData.size.y) - 1);
+			ImGui::Text("最大時間");
+			ImGui::DragFloat("##Time", &sectionData_.maxSeconds);
+			ImGui::Text("制限スコア");
+			ImGui::DragInt("クリア", &sectionData_.clearScore,100);
+			ImGui::DragInt("最大", &sectionData_.maxScore, 100);
+			ImGui::Text("Aランクライン");
+			ImGui::DragInt("破壊割合##A", &sectionData_.rankBorders.rate.aScore, 1,0,100);
+			ImGui::DragInt("破壊スコア##A", &sectionData_.rankBorders.count.aScore, 100);
+			ImGui::DragInt("クリア時間##A", &sectionData_.rankBorders.time.aScore, 1, 0, int(sectionData_.maxSeconds));
+			ImGui::Text("Bランクライン");
+			ImGui::DragInt("破壊割合##B", &sectionData_.rankBorders.rate.bScore, 1, 0, 100);
+			ImGui::DragInt("破壊スコア##B", &sectionData_.rankBorders.count.bScore, 100);
+			ImGui::DragInt("クリア時間##B", &sectionData_.rankBorders.time.bScore, 1, 0, int(sectionData_.maxSeconds));
+
+			// 右寄せ
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
+
+			if (ImGui::Button("戻る")) {
+				sectionSettingItem_ = SectionSettingItem::None;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("追加")) {
+				courseData_.sectionDatas.push_back(sectionData_);
+				course_->AddSection(sectionData_.startChunkY, sectionData_.endChunkY, sectionData_.maxSeconds, sectionData_.clearScore, sectionData_.maxScore, sectionData_.rankBorders);
+				sectionSettingItem_ = SectionSettingItem::None;
+
+				course_->ResetGoalBarrier();
+			}
+			ImGui::End();
+
+			break;
+		case SectionSettingItem::Resize:
+			ImGui::SetNextWindowSize(ImVec2(600, 472));
+
+			ImGui::Begin("セクション変更");
+			ImGui::SliderInt("セクション番号", &sectionIndex, 0, int(courseData_.sectionDatas.size() - 1));
+			ImGui::Text("セクションチャンク");
+			ImGui::SliderInt("開始地点", &courseData_.sectionDatas[sectionIndex].startChunkY, 0, int(courseData_.csvData.size.y) - 1);
+			ImGui::SliderInt("終了地点", &courseData_.sectionDatas[sectionIndex].endChunkY, 0, int(courseData_.csvData.size.y) - 1);
+			ImGui::Text("最大時間");
+			ImGui::DragFloat("##Time", &courseData_.sectionDatas[sectionIndex].maxSeconds);
+			ImGui::Text("制限スコア");
+			ImGui::DragInt("クリア", &courseData_.sectionDatas[sectionIndex].clearScore, 100);
+			ImGui::DragInt("最大", &courseData_.sectionDatas[sectionIndex].maxScore, 100);
+			ImGui::Text("Aランクライン");
+			ImGui::DragInt("破壊割合##A", &courseData_.sectionDatas[sectionIndex].rankBorders.rate.aScore, 1, 0, 100);
+			ImGui::DragInt("破壊スコア##A", &courseData_.sectionDatas[sectionIndex].rankBorders.count.aScore, 100);
+			ImGui::DragInt("クリア時間##A", &courseData_.sectionDatas[sectionIndex].rankBorders.time.aScore, 1, 0, int(courseData_.sectionDatas[sectionIndex].maxSeconds));
+			ImGui::Text("Bランクライン");
+			ImGui::DragInt("破壊割合##B", &courseData_.sectionDatas[sectionIndex].rankBorders.rate.bScore, 1, 0, 100);
+			ImGui::DragInt("破壊スコア##B", &courseData_.sectionDatas[sectionIndex].rankBorders.count.bScore, 100);
+			ImGui::DragInt("クリア時間##B", &courseData_.sectionDatas[sectionIndex].rankBorders.time.bScore, 1, 0, int(courseData_.sectionDatas[sectionIndex].maxSeconds));
+
+			// 右寄せ
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
+
+			if (ImGui::Button("戻る")) {
+				sectionSettingItem_ = SectionSettingItem::None;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("変更")) {
+				//ステージエディターだとサイズ以外関係ない
+				course_->SetSectionChunkSize(courseData_.sectionDatas[sectionIndex].startChunkY, courseData_.sectionDatas[sectionIndex].endChunkY, sectionIndex);
+				sectionSettingItem_ = SectionSettingItem::None;
+
+				course_->ResetGoalBarrier();
+			}
+			ImGui::End();
+			break;
+		default:
+			break;
+		}
+#pragma endregion
+
 #pragma region マウス配置
 
 		if (!ImGui::IsAnyItemActive() &&
@@ -803,8 +900,13 @@ void CourseEditor::Draw() {
 void CourseEditor::MakeNewCourse() {
 	SaveCourse(courseDataDirectoryPath_ + "/" + courseData_.fileName + ".csv");
 
+	if (courseData_.sectionDatas.size() <= 0) {
+		SectionData data{};
+		courseData_.sectionDatas.push_back(data);
+	}
+
 	course_ = std::make_unique<Course>();
-	course_->Initialize(courseData_.csvData, gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData_, gameCamera_.get(), directionalLight_);
 
 	float courseBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
 	gameCamera_->SetCameraPosBottom(courseBottom);
@@ -818,8 +920,13 @@ void CourseEditor::MakeNewCourse() {
 void CourseEditor::OpenCourse() {
 	LoadCourse(courseDataDirectoryPath_ + "/" + courseData_.fileName + ".csv");
 
+	if (courseData_.sectionDatas.size() <= 0) {
+		SectionData data{};
+		courseData_.sectionDatas.push_back(data);
+	}
+
 	course_ = std::make_unique<Course>();
-	course_->Initialize(courseData_.csvData, gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData_, gameCamera_.get(), directionalLight_);
 
 	float courseBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
 	gameCamera_->SetCameraPosBottom(courseBottom);
@@ -866,7 +973,7 @@ void CourseEditor::LoadCourse(std::string filePath) {
 
 		std::string word;
 		//,区切りで行の先頭文字列を取得
-		getline(line_stream, word, ',');
+		std::getline(line_stream, word, ',');
 
 		// コメント
 		if (word.find("//") == 0) {
@@ -875,22 +982,50 @@ void CourseEditor::LoadCourse(std::string filePath) {
 
 		// カンマ区切りで読む
 		if (word.find("ChunkSize") == 0) {
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.size.x = stof(word);
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.size.y = stof(word);
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.size.z = stof(word);
 		}
 
 		if (word.find("ChunkDataDirectoryPath") == 0) {
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.chunkDataDirectoryPath = word;
 		}
 
 		if (word.find("VoxelDataFilePath") == 0) {
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.voxelDataFilePath = word;
+		}
+
+		if (word.find("Section") == 0) {
+			SectionData section;
+			std::getline(line_stream, word, ',');
+			section.startChunkY = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.endChunkY = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.maxSeconds = stof(word);
+			std::getline(line_stream, word, ',');
+			section.clearScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.maxScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.rate.aScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.rate.bScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.count.aScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.count.bScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.time.aScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.time.bScore = stoi(word);
+
+			courseData_.sectionDatas.push_back(section);
 		}
 	}
 
@@ -903,7 +1038,19 @@ void CourseEditor::SaveCourse(std::string filePath) {
 
 	file << "ChunkSize" << "," << courseData_.csvData.size.x << "," << courseData_.csvData.size.y << "," << courseData_.csvData.size.z << '\n';
 	file << "ChunkDataDirectoryPath" << "," << courseData_.csvData.chunkDataDirectoryPath << '\n';
-	file << "VoxelDataFilePath" << "," << courseData_.csvData.voxelDataFilePath;
+	file << "VoxelDataFilePath" << "," << courseData_.csvData.voxelDataFilePath << '\n';
+	for (int i = 0; i < courseData_.sectionDatas.size(); i++) {
+		file << "Section"
+			<< "," << courseData_.sectionDatas[i].startChunkY
+			<< "," << courseData_.sectionDatas[i].endChunkY
+			<< "," << courseData_.sectionDatas[i].maxSeconds
+			<< "," << courseData_.sectionDatas[i].clearScore
+			<< "," << courseData_.sectionDatas[i].maxScore
+			<< "," << courseData_.sectionDatas[i].rankBorders.rate.aScore << "," << courseData_.sectionDatas[i].rankBorders.rate.bScore
+			<< "," << courseData_.sectionDatas[i].rankBorders.count.aScore << "," << courseData_.sectionDatas[i].rankBorders.count.bScore
+			<< "," << courseData_.sectionDatas[i].rankBorders.time.aScore << "," << courseData_.sectionDatas[i].rankBorders.time.bScore
+			<< '\n';
+	}
 
 	file.close();
 }

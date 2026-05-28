@@ -11,6 +11,7 @@
 struct CourseData {
 	CSVData csvData;
 	std::string fileName;
+	std::vector<SectionData> sectionDatas;
 };
 
 // 区間リザルトのカメラ移動
@@ -28,7 +29,7 @@ public:
 	~Course();
 
 	// 初期化
-	void Initialize(CSVData chunkData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight);
+	void Initialize(CourseData courseData, GameCamera* camera, std::shared_ptr<DirectionalLight> directionalLight);
 
 	// 更新
 	void Update(Human* player);
@@ -66,7 +67,7 @@ public:
 	}
 
 	Voxel* GetVoxel() { return voxel_.get(); }
-	CSVData GetChunkData() { return chunkData_; }
+	CSVData GetChunkData() { return courseData_.csvData; }
 
 	void AddBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP);
 	void AddSplitBox(const SRT& transform, Vector3 velocity, int8_t number, float vacuumSensitivity, const float maxHP);
@@ -115,6 +116,13 @@ public:
 	// リザルトの段階
 	void SetResultState(ResultState state) { resultState_ = state; }
 	ResultState GetResultState() { return resultState_; }
+
+	size_t GetSectionSize() { return sections_.size(); }
+	int GetSectionStartChunk(int8_t index) { sections_[index]->GetStartChunkY(); }
+	int GetSectionEndChunk(int8_t index) { sections_[index]->GetEndChunkY(); }
+	void SetSectionChunkSize(int startChunkY, int endChunkY, int8_t index) { sections_[index]->SetSectionChunk(startChunkY, endChunkY); }
+
+	void ResetGoalBarrier();
 public:
 	void SetNoNormaMode(bool flag) { isNoNormaMode_ = flag; }
 	bool GetNoNormaMode() const { return isNoNormaMode_; }
@@ -134,7 +142,7 @@ private:
 	std::vector<std::unique_ptr<GoalBarrier>> goalBarriers_;
 
 	//チャンクデータ
-	CSVData chunkData_;
+	CourseData courseData_;
 
 	// トランスフォーム
 	SRT transform_;

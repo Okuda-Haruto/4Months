@@ -20,6 +20,17 @@ struct ResultScores {
 	int timeRank;
 };
 
+
+
+struct SectionData {
+	int startChunkY;
+	int endChunkY;
+	float maxSeconds;
+	int clearScore;
+	int maxScore;
+	RankBorders rankBorders;
+};
+
 class Box;
 class Voxel;
 class Section {
@@ -69,6 +80,17 @@ public:
 	Vector3 GetStartPos() { return Vector3{ 0,startY_,0 }; }
 	// ゴール地点
 	Vector3 GetEndPos() { return Vector3{ 0,endY_,0 }; }
+
+	void SetSectionChunk(int startChunkY, int endChunkY) {
+		float blockScale = 3.0f;
+		float chunkSize = blockScale * 2 * 16;
+
+		startY_ = -startChunkY * chunkSize;
+		endY_ = -(endChunkY + 1) * chunkSize; 
+	}
+
+	int GetStartChunkY() { return startChunkY_; }
+	int GetEndChunkY() { return endChunkY_; }
 
 private:
 	// 区間タイム
