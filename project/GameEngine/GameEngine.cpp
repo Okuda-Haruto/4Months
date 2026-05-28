@@ -948,7 +948,7 @@ void GameEngine::DrawObject3D_Glow_(Object* object, GlowMaterial mat) {
 		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
 			//親を持つPartsのローカル座標
-			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			Matrix4x4 parentMatrix = *parts[i].parent;
 			partsMatrix = partsMatrix * parentMatrix;
 		} else {
 			//ワールド座標を親に持つPartsのローカル座標
