@@ -38,9 +38,10 @@ private:
 	std::unique_ptr<Sprite> breakBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentBreakSprite_ = nullptr;
 	std::unique_ptr<Sprite> bonusBreakSprite_ = nullptr;
-	float kBreakBarWidth = 1280 - 64;
-	float bonusRate_ = 0.6f; // ボーナス部分の見た目の長さ
-	Vector2 breakLTPos_ = { 32, 48 };
+	Vector2 kBreakBarSize = { 150 * 7.68f, 150.0f };
+	Vector2 breakLTPos_ = { 640 - 75 * 7.68f, 64 - 75 };
+	const float kBreakBarStart = 1320;
+	const float kBreakBarEnd = 6450;
 
 
 	bool canDrawScore_ = false;

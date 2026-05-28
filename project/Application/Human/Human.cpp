@@ -249,7 +249,7 @@ void Human::Draw() {
 	model_->Draw3D();
 
 	if (vacuumState_ != Break) {
-		bulletModel_->DrawGlow3D();
+		bulletModel_->Draw3D();
 		headRotateEffect_->Draw();
 	} else {
 		bulletModel_Break_->Draw3D();

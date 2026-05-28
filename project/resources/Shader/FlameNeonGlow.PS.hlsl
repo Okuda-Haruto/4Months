@@ -11,7 +11,7 @@ struct TransformationMatrix
 ConstantBuffer<TransformationMatrix>
     gTransformationMatrix : register(b0);
 
-ConstantBuffer<FlameMaterial>
+ConstantBuffer<GlowMaterial>
     gMaterial : register(b1);
 
 struct PixelShaderOutput

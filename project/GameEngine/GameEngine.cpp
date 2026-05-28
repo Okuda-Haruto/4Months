@@ -918,7 +918,7 @@ void GameEngine::DrawRenderNoFogParts_3D_(Object* object, uint32_t partsIndex, s
 	objectIndex_++;
 }
 
-void GameEngine::DrawObject3D_Glow_(Object* object) {
+void GameEngine::DrawObject3D_Glow_(Object* object, GlowMaterial mat) {
 
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
@@ -964,11 +964,6 @@ void GameEngine::DrawObject3D_Glow_(Object* object) {
 
 		//マテリアルデータを更新
 		glowMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&glowMaterialData_[objectIndex_]));
-		GlowMaterial mat{};
-		mat.baseColor = { 0.0f, 0.6f, 1.0f, 1.0f };
-		mat.tipColor = { 0.6f, 0.9f, 1.0f, 1.0f };
-		mat.glowIntensity = 1.2f;  
-		mat.flameHeight = 0.2f;
 		*glowMaterialData_[objectIndex_] = mat;
 
 		glowMaterialResource_[objectIndex_]->Unmap(0, nullptr);

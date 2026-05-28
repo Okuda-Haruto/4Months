@@ -6,7 +6,7 @@ struct GlowVertexShaderOutput
     float3 localPosition : TEXCOORD0;
 };
 
-struct FlameMaterial
+struct GlowMaterial
 {
     float4 baseColor;
     float4 tipColor;

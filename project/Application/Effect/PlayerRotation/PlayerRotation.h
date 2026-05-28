@@ -25,6 +25,7 @@ private:
 	// 回転エフェクト
 	static constexpr int kRotationEffectCount = 200; // 発生ポイントごとの最大数
 	const float kRotationLifetime = 0.5f; // 消えるまでの時間
+	float kRotationDefaultScale = 2;
 
 	struct RotationEffect {
 		std::vector<std::unique_ptr<Object>> object;

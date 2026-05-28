@@ -165,7 +165,7 @@
     <ClInclude Include="GameEngine\Debug\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h" />
     <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h" />
-    <ClInclude Include="GameEngine\Data\FlameMaterial.h" />
+    <ClInclude Include="GameEngine\Data\GlowMaterial.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h" />
     <ClInclude Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.h" />
     <ClInclude Include="GameEngine\Math\Operation\Operation.h" />

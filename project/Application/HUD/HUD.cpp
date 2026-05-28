@@ -24,22 +24,20 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 
 	// 破壊量背景
 	breakBGSprite_ = std::make_unique<Sprite>();
-	breakBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	breakBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	breakBGSprite_->SetSize({ kBreakBarWidth, 32.0f });
+	breakBGSprite_->Initialize("./resources/HUD/Norma/norma_flame.png");
+	breakBGSprite_->SetSize(kBreakBarSize);
 	breakBGSprite_->SetPosition(breakLTPos_);
 
 	// 現在破壊量
 	currentBreakSprite_ = std::make_unique<Sprite>();
-	currentBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	currentBreakSprite_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	currentBreakSprite_->SetSize({ kBreakBarWidth, 32.0f });
+	currentBreakSprite_->Initialize("./resources/HUD/Norma/norma_light.png");
+	currentBreakSprite_->SetSize(kBreakBarSize);
 	currentBreakSprite_->SetPosition(breakLTPos_);
 
 	bonusBreakSprite_ = std::make_unique<Sprite>();
-	bonusBreakSprite_->Initialize("./resources/DebugResources/white2x2.png");
+	bonusBreakSprite_->Initialize("./resources/HUD/Norma/norma_light.png");
 	bonusBreakSprite_->SetColor({ 1.0f, 0.6f, 0.6f, 1.0f });
-	bonusBreakSprite_->SetSize({ kBreakBarWidth, 32.0f });
+	bonusBreakSprite_->SetSize(kBreakBarSize);
 	bonusBreakSprite_->SetPosition(breakLTPos_);
 
 	// 時間
@@ -79,7 +77,6 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 		objective_[i]->SetSize(objectiveSize_);
 		objective_[i]->Update();
 	}
-
 
 	//情報
 	infoSprite_ = std::make_unique<Sprite>();
@@ -379,7 +376,7 @@ void HUD::Draw() {
 	if (canDrawPlayingInfo_) {
 		// 区間
 		breakBGSprite_->Draw2D();
-		bonusBreakSprite_->Draw2D();
+		//bonusBreakSprite_->Draw2D();
 		currentBreakSprite_->Draw2D();
 
 		sectionSprite_->Draw2D();
@@ -482,23 +479,11 @@ void HUD::UpdateScore(Course* course) {
 		float clearRate = float(clear) / float(max);
 		rate = clamp(rate, 0.0f, 1.0f);
 		// 必要スコアに応じてスプライトのサイズ変更
-		float length = kBreakBarWidth * rate * clearRate;
-		currentBreakSprite_->SetSize({ length, currentBreakSprite_->GetSize().y });
-		currentBreakSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y });
+		float requireSizeRate = rate * (float(current) / float(max));
+		currentBreakSprite_->SetTextureSize({ 7680 * requireSizeRate, 1000 });
+		currentBreakSprite_->SetSize({ kBreakBarSize.x * requireSizeRate, kBreakBarSize.y });
 		breakBGSprite_->Update();
 		currentBreakSprite_->Update();
-
-		// 割合を求める
-		rate = 0;
-		if (currentSection->IsCleared()) {
-			rate = float(current - clear) / float(max - clear);
-			rate = clamp(rate, 0.0f, 1.0f);
-		}
-		// 最大スコアに応じてスプライトのサイズ変更
-		length = kBreakBarWidth * rate * (1.0f - clearRate);
-		bonusBreakSprite_->SetSize({ length, bonusBreakSprite_->GetSize().y });
-		bonusBreakSprite_->SetPosition({ breakLTPos_.x + kBreakBarWidth * clearRate, breakLTPos_.y });
-		bonusBreakSprite_->Update();
 
 		// ノルマ達成/未達成
 		if (currentSection->IsCleared()) {

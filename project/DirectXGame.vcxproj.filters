@@ -543,7 +543,7 @@
     <ClInclude Include="Application\Effect\Flash\Flash.h" />
     <ClInclude Include="Application\Course\GameOver\GameOver.h" />
     <ClInclude Include="Application\Course\Section\Ranks.h" />
-    <ClInclude Include="GameEngine\Data\FlameMaterial.h" />
+    <ClInclude Include="GameEngine\Data\GlowMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

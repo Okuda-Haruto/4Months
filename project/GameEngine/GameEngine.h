@@ -39,7 +39,7 @@
 #include <vector>
 #include <array>
 #include <list>
-#include <FlameMaterial.h>
+#include <GlowMaterial.h>
 
 using namespace std;
 
@@ -225,7 +225,7 @@ private:
 	void DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawNoFogParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawRenderNoFogParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
-	void DrawObject3D_Glow_(Object* object);
+	void DrawObject3D_Glow_(Object* object, GlowMaterial mat);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
@@ -328,7 +328,7 @@ public:
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawInstancingVoxel_3D(std::list<Object*> objects, UINT backGroundTextureIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingVoxel_3D_(objects, backGroundTextureIndex, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
-	static void DrawGlow3D(Object* object) { return GetInstance()->DrawObject3D_Glow_(object); }
+	static void DrawGlow3D(Object* object, GlowMaterial mat) { return GetInstance()->DrawObject3D_Glow_(object, mat); }
 
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
 	static void DrawSpriteAdditive(Sprite* sprite) { return GetInstance()->DrawSpriteAdditive_(sprite); }
