@@ -342,7 +342,7 @@ void GameScene::LoadCourse(std::string filePath) {
 
 		std::string word;
 		//,区切りで行の先頭文字列を取得
-		getline(line_stream, word, ',');
+		std::getline(line_stream, word, ',');
 
 		// コメント
 		if (word.find("//") == 0) {
@@ -351,22 +351,50 @@ void GameScene::LoadCourse(std::string filePath) {
 
 		// カンマ区切りで読む
 		if (word.find("ChunkSize") == 0) {
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.size.x = stof(word);
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.size.y = stof(word);
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.size.z = stof(word);
 		}
 
 		if (word.find("ChunkDataDirectoryPath") == 0) {
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.chunkDataDirectoryPath = word;
 		}
 
 		if (word.find("VoxelDataFilePath") == 0) {
-			getline(line_stream, word, ',');
+			std::getline(line_stream, word, ',');
 			courseData_.csvData.voxelDataFilePath = word;
+		}
+
+		if (word.find("Section") == 0) {
+			SectionData section;
+			std::getline(line_stream, word, ',');
+			section.startChunkY = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.endChunkY = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.maxSeconds = stof(word);
+			std::getline(line_stream, word, ',');
+			section.clearScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.maxScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.rate.aScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.rate.bScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.count.aScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.count.bScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.time.aScore = stoi(word);
+			std::getline(line_stream, word, ',');
+			section.rankBorders.time.bScore = stoi(word);
+
+			courseData_.sectionDatas.push_back(section);
 		}
 	}
 
