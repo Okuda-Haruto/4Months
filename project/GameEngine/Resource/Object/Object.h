@@ -5,6 +5,7 @@
 
 #include "Model/Model.h"
 #include "Material.h"
+#include "GlowMaterial.h"
 #include "Parts.h"
 #include <AnimationInterpolation.h>
 #include <Camera/Camera.h>
@@ -64,6 +65,7 @@ public:
 	void Draw3DNoFog(uint32_t index);
 	void Draw3DNoFogRender(uint32_t index);
 	void DrawAdd3D();
+	void DrawGlow3D(GlowMaterial mat);
 	void Draw2D();
 	void Draw2D(uint32_t index);
 
