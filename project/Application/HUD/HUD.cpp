@@ -266,6 +266,9 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 		ImGui::EndTabBar();
 	}
 
+	ImGui::End();
+#endif
+
 	float t = 0;
 
 	if (course->GetResultState() == ResultState::SetResults) {
@@ -273,12 +276,14 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 		resultTimer_ += GameEngine::GetDeltaTime();
 		t = std::clamp(1.0f - powf(1 - resultTimer_ / setTime, 3), 0.0f, 1.0f);
 
-	} else if (course->GetResultState() == ResultState::RotateOut) {
+	}
+	else if (course->GetResultState() == ResultState::RotateOut) {
 		float outTime = 0.12f;
 		resultTimer_ += GameEngine::GetDeltaTime();
 		t = std::clamp(powf(1 - resultTimer_ / outTime, 3), 0.0f, 1.0f);
 
-	} else  if (course->GetResultState() == ResultState::Wait) {
+	}
+	else  if (course->GetResultState() == ResultState::Wait) {
 		t = 1;
 		resultTimer_ = 0;
 	}
@@ -342,7 +347,8 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 				cameraTransform_.translate, right, up, forward)
 				});
 		}
-	} else {
+	}
+	else {
 		// 一番左(マイナス)を非表示
 		float width = sectionTime_.scale.x + sectionTime_.spacing * (sectionTime_.digitCount - 2);
 		float startX = sectionTime_.pos.x - width * 0.5f + sectionTime_.scale.x * 0.5f;
@@ -365,9 +371,6 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 			CameraLocalToWorld(sectionRank_.pos, cameraTransform_.translate, right, up, forward)
 			});
 	}
-
-	ImGui::End();
-#endif
 }
 
 void HUD::Draw() {
