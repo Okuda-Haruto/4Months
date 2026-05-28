@@ -75,6 +75,16 @@ private:
 	//チャンク操作の設定
 	ChunkSettingItem chunkSettingItem_ = ChunkSettingItem::None;
 
+	enum class SectionSettingItem {
+		None,
+		Add,
+		Resize,
+	};
+
+	SectionData sectionData_{};
+
+	SectionSettingItem sectionSettingItem_ = SectionSettingItem::None;
+
 	//選択中のy座標
 	int mapchipAreaY_;
 	//選択中のボクセル

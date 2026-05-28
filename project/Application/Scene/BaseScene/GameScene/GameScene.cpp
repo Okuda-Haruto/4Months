@@ -49,7 +49,7 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	gameCamera_->Initialize(defaultCamera_, std::make_unique<StartCamera>(), input_, player_.get(), course_.get());
 
 	// コース
-	course_->Initialize(courseData_.csvData, gameCamera_.get(), directionalLight_);
+	course_->Initialize(courseData_, gameCamera_.get(), directionalLight_);
 	chunkHeight_ = int(course_->GetChunkData().size.y);
 	float cameraPosBottom = -32 * float(course_->GetVoxel()->GetChunks().size() + 1) * 3.0f + 16.0f * 3.0f;
 	gameCamera_->SetCameraPosBottom(cameraPosBottom);
