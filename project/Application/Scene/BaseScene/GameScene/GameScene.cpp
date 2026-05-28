@@ -291,9 +291,10 @@ void GameScene::Update() {
 		}
 		else {
 
-			player_->Draw();
 			course_->Draw(directionalLight_);
 			hitPreview_->Draw();
+			startCountdown_->Draw();
+			player_->Draw();
 		}
 	}
 	else {

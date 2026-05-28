@@ -85,6 +85,10 @@ void Object::DrawAdd3D() {
 	GameEngine::DrawAddBlendObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(), 0, animationTime_);
 }
 
+void Object::DrawGlow3D(GlowMaterial mat) {
+	GameEngine::DrawGlow3D(this, mat);
+}
+
 void Object::Draw2D() {
 	GameEngine::DrawObject_2D(this, directionalLight_.lock());
 }

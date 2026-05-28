@@ -18,7 +18,6 @@ private:
 	void UpdateTimer(Course* course);
 	void UpdateBreakRate(Course* course);
 	void UpdateBreakAmount(Course* course);
-	void UpdateSection(Player* player, Course* course);
 	void UpdateInfo();
 	void UpdateStartNum(int num);
 	void UpdateReload(Player* player, std::shared_ptr<Camera> camera);
@@ -28,19 +27,12 @@ private:
 	std::shared_ptr<Camera> camera_ = nullptr;
 	SRT cameraTransform_;
 
-	// エネルギー
-	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
-	std::unique_ptr<Sprite> currentChargeSprite_ = nullptr;
-	float kEnergyBarWidth = 256.0f;
-	Vector2 chargeLTPos_ = { 640 - 128,720 - 64 };
-
 	// 壊した量
 	std::unique_ptr<Sprite> breakBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentBreakSprite_ = nullptr;
-	std::unique_ptr<Sprite> bonusBreakSprite_ = nullptr;
-	float kBreakBarWidth = 1280 - 64;
-	float bonusRate_ = 0.6f; // ボーナス部分の見た目の長さ
-	Vector2 breakLTPos_ = { 32, 48 };
+	const Vector2 breakSpriteSize = { 5300,800 };
+	Vector2 kBreakBarSize = { 120 * (breakSpriteSize.x / breakSpriteSize.y), 120.0f};
+	Vector2 breakLTPos_ = { 230, 0 };
 
 
 	bool canDrawScore_ = false;
@@ -56,13 +48,6 @@ private:
 	Vector2 currentTimeSpriteSize_ = { 64,64 };
 	Vector2 timePos_[4] = { {60,60},{60 + 35,60},{60 + 70,60},{60 + 105,60} };
 
-	// 区間の進度
-	std::unique_ptr<Sprite> sectionSprite_ = nullptr;
-	std::unique_ptr<Sprite> progressSprite_ = nullptr;
-	Vector2 sectionBarSize_ = { 32,450 };
-	Vector2 sectionLTPos_ = { 1280 - 48, 150 };
-
-	// エネルギー
 	std::unique_ptr<Sprite> infoSprite_ = nullptr;
 	Vector2 infoLTPos_ = { 12,720 - (62 + 12) };
 
@@ -158,6 +143,43 @@ private:
 	int unuseDigitCountBreakAmount_ = 0;
 	bool useMinusSectionTime_ = false;
 
+	struct ChargeUI {
+		struct ChargeBar {
+			std::unique_ptr<Sprite> back;
+			std::unique_ptr<Sprite> light;
+			std::unique_ptr<Sprite> frame;
+
+			float length = 0;
+			const Vector2 defaultPos = { 640 - 160, 600 };
+			const Vector2 defaultSize = {3.2f * 100, 100};
+			Vector2 pos = defaultPos;
+			Vector2 size = defaultSize;
+			
+			// 発射後のイージング
+			const float kInactiveEaseTime = 0.75f;
+			float inactiveEaseTimer = 0;
+			// 再発射可能
+			const float kReactiveEaseTime = 0.3f;
+			float reactiveEaseTimer = 0;
+
+			float chargeAtShoot = 0;
+		};
+		struct ChargeIcon {
+			std::unique_ptr<Sprite> frame;
+			std::unique_ptr<Sprite> light;
+			std::unique_ptr<Sprite> icon;
+			const Vector2 defaultPos = { 640 - 160 + 290 + 50, 600 + 50 };
+			const Vector2 defaultSize = { 100, 100 };
+			Vector2 pos = defaultPos;
+			Vector2 size = defaultSize;
+			float rot = 0;
+		};
+
+		ChargeBar bar;
+		ChargeIcon icon;
+	};
+	ChargeUI charge_;
+
 	float resultTimer_ = 0;
 
 	Input* input_;
@@ -170,3 +192,4 @@ inline Vector4 Transform(const Vector4& vector, const Matrix4x4& matrix);
 inline Vector2 ToScreen(std::shared_ptr<Camera> camera, Vector3 worldPos);
 Vector3 CameraLocalToWorld(Vector3 local, Vector3 camPos, Vector3 right, Vector3 up, Vector3 forward);
 int ConvertPartNumber(int num);
+std::unique_ptr<Sprite> InitSprite(const std::string& path, const Vector2& pos, const Vector2& size, const Vector2& anchorPoint);

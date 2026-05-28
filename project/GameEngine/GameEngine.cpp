@@ -128,6 +128,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	instancingVoxleRootSignature_ = dxCommon_->InstancingVoxelRootSignatureInitialvalue();
 	particleRootSignature_ = dxCommon_->ParticleRootSignatureInitialvalue();
 	screenRootSignature_ = dxCommon_->ScreenRootSignatureInitialvalue();
+	glowRootSignature_ = dxCommon_->GlowRootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
@@ -160,6 +161,10 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(CopyImagePSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> instancingVoxelPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceVoxel3d.PS.hlsl", L"ps_6_0");
 	assert(instancingVoxelPixelShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> GlowVSBlob = dxCommon_->CompileShader(L"./resources/Shader/FlameNeonGlow.VS.hlsl", L"vs_6_0");
+	assert(GlowVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> GlowPSBlob = dxCommon_->CompileShader(L"./resources/Shader/FlameNeonGlow.PS.hlsl", L"ps_6_0");
+	assert(GlowPSBlob != nullptr);
 
 	//PSOを生成
 	object3DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
@@ -177,6 +182,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	screenPipelineState_ = ScreenPipelineStateInitialvalue(device_, screenRootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
+	glowPipelineState_ = GlowPipelineStateInitialvalue(device_, glowRootSignature_, GlowVSBlob.Get(), GlowPSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -198,6 +204,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 		objectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
 		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		glowMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(GlowMaterial));
 	}
 
 	for (int i = 0; i < kMaxInstanceIndex; i++) {
@@ -221,13 +228,13 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingSpriteResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
 		if (i == 0)startInstancingSpriteIndex_ = index;
 	}
-
 	for (int i = 0; i < PrimitiveManager::SHAPE_count; i++) {
 		primitiveMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		primitiveResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * PrimitiveManager::kMaxNumPrimitive);
 	}
 
 	fogResource_ = dxCommon_->CreateBufferResources(sizeof(Fog));
+
 }
 
 
@@ -909,6 +916,67 @@ void GameEngine::DrawRenderNoFogParts_3D_(Object* object, uint32_t partsIndex, s
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
 
 	objectIndex_++;
+}
+
+void GameEngine::DrawObject3D_Glow_(Object* object, GlowMaterial mat) {
+
+	//上限に達していたら描画しない
+	if (objectIndex_ >= kMaxIndex)return;
+
+	std::vector<Parts> parts = object->GetParts();
+	std::vector<Offset> offsets = object->GetOffsets();
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(glowRootSignature_.Get());
+	commandList_->SetPipelineState(glowPipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+
+	//変更が必要な部分だけ変える
+	for (int i = 0; i < parts.size(); i++) {
+
+		//WVPデータを更新
+		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
+
+		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
+		if (parts[i].parent) {
+			//親を持つPartsのローカル座標
+			Matrix4x4 parentMatrix = *parts[i].parent;
+			partsMatrix = partsMatrix * parentMatrix;
+		} else {
+			//ワールド座標を親に持つPartsのローカル座標
+			partsMatrix = partsMatrix * worldMatrix;
+		}
+
+		objectWvpData_[objectIndex_]->World = partsMatrix;
+		objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
+		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
+
+		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+
+		//マテリアルデータを更新
+		glowMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&glowMaterialData_[objectIndex_]));
+		*glowMaterialData_[objectIndex_] = mat;
+
+		glowMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+
+		//commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(0, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+		//wvp用のCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(1, glowMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+		//描画(DrawCall)
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
+
+		objectIndex_++;
+	}
 }
 
 void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight) {

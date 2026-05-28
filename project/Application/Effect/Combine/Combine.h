@@ -24,7 +24,7 @@ private:
 	float defaultHY_ = 70;
 	float defaultBY_ = 40;
 	float endY_ = 7.5f;
-	float setStart = 0.3f;
+	float setStart = 0.15f;
 	float setCountdown_[8] = {
 		0.7f,0.7f,0.9f,0.9f,5.0f,0.4f,0.4f,0.4f
 	};
