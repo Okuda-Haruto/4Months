@@ -98,10 +98,10 @@ void PlayerRotation::Draw() {
 		for (int j = 0; j < kRotationEffectCount; ++j) {
 			if (rotEffect_[i].isActivated[j]) {
 				GlowMaterial mat{};
-				mat.baseColor = {1.0f, 0.3f, 0.3f, 1.0f };
+				mat.baseColor = {0.5f, 0.0f, 0.0f, 1.0f };
 				mat.tipColor = { 0.8f, 0.5f, 0.0f, 1.0f };
 				mat.glowIntensity = 0.5f;
-				mat.flameHeight = 0.1f;
+				mat.flameHeight = 0.01f;
 				rotEffect_[i].object[j]->DrawGlow3D(mat);
 			}
 		}
@@ -110,10 +110,10 @@ void PlayerRotation::Draw() {
 	for (int i = 0; i < kChargingEffectCount; ++i) {
 		if (chargingEffect_.isActivated[i]) {
 			GlowMaterial mat{};
-			mat.baseColor = { 0.0f, 0.0f, 0.3f, 1.0f };
+			mat.baseColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 			mat.tipColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-			mat.glowIntensity = 0.5f;
-			mat.flameHeight = 0.1f;
+			mat.glowIntensity = 0.7f;
+			mat.flameHeight = 0.2f;
 			chargingEffect_.object[i]->DrawGlow3D(mat);
 		}
 	}

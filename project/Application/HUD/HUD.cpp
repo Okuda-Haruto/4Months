@@ -8,19 +8,14 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 	stars_->Initialize(camera);
 	camera_ = camera;
 
-	// チャージ背景
-	chargeBGSprite_ = std::make_unique<Sprite>();
-	chargeBGSprite_->Initialize("./resources/HUD/Charge.png");
-	chargeBGSprite_->SetColor({ 1,1,1,1 });
-	chargeBGSprite_->SetSize({ kEnergyBarWidth, 256 + 64});
-	chargeBGSprite_->SetPosition(chargeLTPos_);
-
-	// 現在チャージ量
-	currentChargeSprite_ = std::make_unique<Sprite>();
-	currentChargeSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	currentChargeSprite_->SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
-	currentChargeSprite_->SetSize({ kEnergyBarWidth, 32.0f });
-	currentChargeSprite_->SetPosition(chargeLTPos_);
+	// チャージ
+	charge_.bar.back = InitSprite("./resources/HUD/Charge/Charge_back.png", charge_.bar.defaultPos, charge_.bar.defaultSize, {});
+	charge_.bar.light = InitSprite("./resources/HUD/Charge/Charge_light.png", charge_.bar.defaultPos, charge_.bar.defaultSize, {});
+	charge_.bar.frame = InitSprite("./resources/HUD/Charge/Charge_flame.png", charge_.bar.defaultPos, charge_.bar.defaultSize, {});
+	charge_.icon.frame = InitSprite("./resources/HUD/Charge/gauge_icon_flame.png", charge_.icon.defaultPos, charge_.icon.defaultSize, {0.5f,0.5f});
+	charge_.icon.light = InitSprite("./resources/HUD/Charge/gauge_icon_right.png", charge_.icon.defaultPos, charge_.icon.defaultSize, {0.5f,0.5f});
+	charge_.icon.icon = InitSprite("./resources/HUD/Charge/gauge_icon.png", charge_.icon.defaultPos, charge_.icon.defaultSize, {0.5f,0.5f});
+	charge_.icon.light->SetColor({0,0,0,1});
 
 	// 破壊量背景
 	breakBGSprite_ = std::make_unique<Sprite>();
@@ -34,12 +29,6 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 	currentBreakSprite_->SetSize(kBreakBarSize);
 	currentBreakSprite_->SetPosition(breakLTPos_);
 
-	bonusBreakSprite_ = std::make_unique<Sprite>();
-	bonusBreakSprite_->Initialize("./resources/HUD/Norma/norma_light.png");
-	bonusBreakSprite_->SetColor({ 1.0f, 0.6f, 0.6f, 1.0f });
-	bonusBreakSprite_->SetSize(kBreakBarSize);
-	bonusBreakSprite_->SetPosition(breakLTPos_);
-
 	// 時間
 	timer_.sprite.resize(timer_.digitCount);
 	for (int i = 0; i < timer_.digitCount; ++i) {
@@ -51,20 +40,6 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 		timer_.sprite[i]->SetPosition({ timer_.pos.x + timer_.spacing * i, timer_.pos.y });
 		timer_.sprite[i]->SetTextureSize(kNumberSize);
 	}
-
-	// 区間
-	sectionSprite_ = std::make_unique<Sprite>();
-	sectionSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	sectionSprite_->SetColor({ 0.2f,0.2f,0.2f, 1.0f });
-	sectionSprite_->SetSize(sectionBarSize_);
-	sectionSprite_->SetPosition(sectionLTPos_);
-	sectionSprite_->Update();
-	progressSprite_ = std::make_unique<Sprite>();
-	progressSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	progressSprite_->SetColor({ 1.0f,1.0f,1.0f, 1.0f });
-	progressSprite_->SetSize({ sectionBarSize_.x,0 });
-	progressSprite_->SetPosition(sectionLTPos_);
-	progressSprite_->Update();
 
 	// 現時点の目的
 	objective_[0] = std::make_unique<Sprite>();
@@ -173,7 +148,6 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	UpdateTimer(course);
 	UpdateBreakRate(course);
 	UpdateBreakAmount(course);
-	UpdateSection(player, course);
 	UpdateInfo();
 	UpdateStartNum(startNum);
 	UpdateReload(player, camera);
@@ -186,12 +160,13 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	Vector3 forward = Normalize(Vector3{ inverseView.m[2][0], inverseView.m[2][1], inverseView.m[2][2] });
 
 	// エフェクト
-	auto pos = course->GetBreakPos();
-	for (int i = 0; i < int(pos.size()); i += 800) {
-		stars_->AddStar(pos[i]);
+	if (course->GetCurrBreakRate() < 1) {
+		auto pos = course->GetBreakPos();
+		for (int i = 0; i < int(pos.size()); i += 800) {
+			stars_->AddStar(pos[i]);
+		}
 	}
 	Vector2 center = currentBreakSprite_->GetSize();
-	center.x += bonusBreakSprite_->GetSize().x;
 	center.y /= 2.0f;
 	stars_->Update(breakLTPos_ + center);
 
@@ -365,22 +340,28 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 			});
 	}
 
+	Vector2 p = charge_.bar.frame->GetPosition();
+	ImGui::DragFloat2("pos", &p.x, 0.1f);
+	charge_.bar.frame->SetPosition(p);
+	Vector2 p2 = charge_.icon.frame->GetPosition();
+	ImGui::DragFloat2("pos2", &p2.x, 0.1f);
+	charge_.icon.frame->SetPosition(p2);
 	ImGui::End();
 #endif
 }
 
 void HUD::Draw() {
-	chargeBGSprite_->Draw2D();
-	currentChargeSprite_->Draw2D();
-
 	if (canDrawPlayingInfo_) {
+		charge_.bar.back->Draw2D();
+		charge_.bar.light->Draw2D();
+		charge_.bar.frame->Draw2D();
+		charge_.icon.frame->Draw2D();
+		charge_.icon.light->Draw2D();
+		charge_.icon.icon->Draw2D();
+
 		// 区間
 		breakBGSprite_->Draw2D();
-		//bonusBreakSprite_->Draw2D();
 		currentBreakSprite_->Draw2D();
-
-		sectionSprite_->Draw2D();
-		progressSprite_->Draw2D();
 
 		// 目的
 		currentObjective_->Draw2D();
@@ -446,15 +427,90 @@ void HUD::SetPauseDisplay(bool isOn) {
 void HUD::UpdateCharge(Player* player) {
 	float current = player->GetCharge();
 	float max = player->GetMaxCharge();
-	if (current < 0) return;
+	
+	auto& bar = charge_.bar;
+	auto& icon = charge_.icon;
+	if (player->CanShoot()) {
+		// -------------
+		// 発射可能
+		// -------------
 
-	// 割合を求める
-	float rate = current / max;
-	// 溜め量に応じてスプライトのサイズ変更
-	float length = kEnergyBarWidth * rate;
-	currentChargeSprite_->SetSize({ length, currentChargeSprite_->GetSize().y });
-	chargeBGSprite_->Update();
-	currentChargeSprite_->Update();
+		// バーをイージング
+		float rate = current / max;
+		float eased = rate * rate;
+		bar.light->SetSize({ eased * bar.size.x, bar.size.y });
+		Vector2 textureSize = { 3200, 1000 };
+		bar.light->SetTextureSize({ eased * textureSize.x, textureSize.y });
+
+		if (current == max) {
+			// 最大チャージ
+			icon.light->SetColor({1,1,1,1});
+			icon.frame->SetColor({1,1,1,1});
+		}
+		
+		// アイコン回転
+		icon.rot += eased;
+
+		if (bar.reactiveEaseTimer < bar.kReactiveEaseTime) {
+			bar.reactiveEaseTimer += GameEngine::GetDeltaTime();
+			float reactiveRate = std::clamp(bar.reactiveEaseTimer / bar.kReactiveEaseTime, 0.0f, 1.0f);
+			float reactiveEased = reactiveRate * reactiveRate;
+			Vector4 color = { reactiveEased, reactiveEased, reactiveEased, 1.0f };
+			bar.back->SetColor(color);
+			bar.light->SetColor(color);
+			bar.frame->SetColor(color);
+			icon.frame->SetColor(color);
+			icon.icon->SetColor(color);
+		}
+		bar.inactiveEaseTimer = 0;
+		if (bar.chargeAtShoot < current) {
+			bar.chargeAtShoot = current;
+		}
+	} else {
+		// -------------
+		// 発射不能
+		// -------------
+
+		// バーをイージング
+		if (bar.inactiveEaseTimer < bar.kInactiveEaseTime) {
+			bar.inactiveEaseTimer += GameEngine::GetDeltaTime();
+			float rate = 1.0f - std::clamp(bar.inactiveEaseTimer / bar.kInactiveEaseTime, 0.0f, 1.0f);
+			float eased = rate * rate;
+			bar.light->SetSize({ eased * bar.size.x * (bar.chargeAtShoot / max), bar.size.y });
+			Vector2 textureSize = { 3200, 1000 };
+			bar.light->SetTextureSize({ eased * textureSize.x, textureSize.y });
+
+			// 暗くする
+			float minBrightness = 0.2f;
+			float brightness = max(minBrightness, eased);
+			Vector4 color = { brightness, brightness, brightness, 1.0f };
+			bar.back->SetColor(color);
+			bar.light->SetColor(color);
+			bar.frame->SetColor(color);
+			icon.frame->SetColor(color);
+			icon.icon->SetColor(color);
+			// 光ったタイミングでも自然に暗くなるようにする
+			brightness = icon.light->GetColor().x * color.x;
+			color = { brightness, brightness, brightness, 1.0f };
+			icon.light->SetColor(color);
+
+			// アイコン回転
+			icon.rot += eased;
+		} else {
+			bar.chargeAtShoot = 0;
+		}
+
+		bar.reactiveEaseTimer = 0;
+	}
+	icon.icon->SetRotation(-icon.rot);
+
+
+	charge_.bar.back->Update();
+	charge_.bar.light->Update();
+	charge_.bar.frame->Update();
+	charge_.icon.frame->Update();
+	charge_.icon.light->Update();
+	charge_.icon.icon->Update();
 }
 
 void HUD::UpdateScore(Course* course) {
@@ -474,14 +530,10 @@ void HUD::UpdateScore(Course* course) {
 
 
 	if (canDrawPlayingInfo_) {
-		// 割合を求める
-		float rate = float(current) / float(clear);
-		float clearRate = float(clear) / float(max);
-		rate = clamp(rate, 0.0f, 1.0f);
 		// 必要スコアに応じてスプライトのサイズ変更
-		float requireSizeRate = rate * (float(current) / float(max));
-		currentBreakSprite_->SetTextureSize({ 7680 * requireSizeRate, 1000 });
-		currentBreakSprite_->SetSize({ kBreakBarSize.x * requireSizeRate, kBreakBarSize.y });
+		float sizeRate = std::clamp(float(current) / float(max),0.0f,1.0f);
+		currentBreakSprite_->SetTextureSize({ 5300 * sizeRate, 800.0f });
+		currentBreakSprite_->SetSize({ kBreakBarSize.x * sizeRate, kBreakBarSize.y });
 		breakBGSprite_->Update();
 		currentBreakSprite_->Update();
 
@@ -592,17 +644,6 @@ void HUD::UpdateBreakAmount(Course* course) {
 		// 該当パーツだけ表示状態にする
 		breakCount_.object[i]->GetParts()[ConvertPartNumber(num[i])].material->color.w = 1;
 	}
-}
-
-void HUD::UpdateSection(Player* player, Course* course) {
-	Section* currentSection = course->GetCurrentSection();
-	float rate = currentSection->GetPositionRate();
-
-	// 進度に応じてスプライトのサイズ変更
-	float length = sectionBarSize_.y * rate;
-	progressSprite_->SetSize({ sectionBarSize_.x, length });
-	sectionSprite_->Update();
-	progressSprite_->Update();
 }
 
 void HUD::UpdateInfo() {
@@ -762,4 +803,13 @@ int ConvertPartNumber(int num) {
 
 	// %
 	return 9;
+}
+
+std::unique_ptr<Sprite> InitSprite(const std::string& path, const Vector2& pos, const Vector2& size, const Vector2& anchorPoint) {
+	std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
+	sprite->Initialize(path);
+	sprite->SetPosition(pos);
+	sprite->SetSize(size);
+	sprite->SetAnchorPoint(anchorPoint);
+	return std::move(sprite);
 }
