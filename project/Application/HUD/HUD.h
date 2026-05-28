@@ -32,7 +32,7 @@ private:
 	std::unique_ptr<Sprite> chargeBGSprite_ = nullptr;
 	std::unique_ptr<Sprite> currentChargeSprite_ = nullptr;
 	float kEnergyBarWidth = 256.0f;
-	Vector2 chargeLTPos_ = { 640 - 128,720 - 64 };
+	Vector2 chargeLTPos_ = { 640 - 128, 360 + 32 };
 
 	// 壊した量
 	std::unique_ptr<Sprite> breakBGSprite_ = nullptr;

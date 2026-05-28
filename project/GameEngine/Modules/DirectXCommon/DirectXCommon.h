@@ -126,6 +126,7 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ParticleRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> FogRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ScreenRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> GlowRootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath, const wchar_t* profile);

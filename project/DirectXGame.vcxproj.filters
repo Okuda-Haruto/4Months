@@ -39,6 +39,7 @@
     </FxCompile>
     <FxCompile Include="resources\Shader\Object3d_NoFog.PS.hlsl" />
     <FxCompile Include="resources\Shader\InstanceVoxel3d.PS.hlsl" />
+    <FxCompile Include="resources\Shader\FlameNeonGlow.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -218,6 +219,7 @@
     <ClCompile Include="Application\Effect\Combine\Combine.cpp" />
     <ClCompile Include="Application\Effect\Flash\Flash.cpp" />
     <ClCompile Include="Application\Course\GameOver\GameOver.cpp" />
+    <ClCompile Include="resources\Shader\FlameNeonGlow.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
@@ -541,6 +543,7 @@
     <ClInclude Include="Application\Effect\Flash\Flash.h" />
     <ClInclude Include="Application\Course\GameOver\GameOver.h" />
     <ClInclude Include="Application\Course\Section\Ranks.h" />
+    <ClInclude Include="GameEngine\Data\FlameMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -559,6 +562,7 @@
     <None Include="resources\Shader\Material.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
+    <None Include="resources\Shader\FlameNeonGlow.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Application">

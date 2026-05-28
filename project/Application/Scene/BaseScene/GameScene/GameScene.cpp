@@ -259,11 +259,11 @@ void GameScene::Draw() {
 			course_->DrawUp(directionalLight_);
 		} else {
 
-			player_->Draw();
 			course_->Draw(directionalLight_);
 			hud_->Draw();
 			hitPreview_->Draw();
 			startCountdown_->Draw();
+			player_->Draw();
 		}
 	} else {
 		course_->DrawGameOver();

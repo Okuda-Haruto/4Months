@@ -10,9 +10,9 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 
 	// チャージ背景
 	chargeBGSprite_ = std::make_unique<Sprite>();
-	chargeBGSprite_->Initialize("./resources/DebugResources/white2x2.png");
-	chargeBGSprite_->SetColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	chargeBGSprite_->SetSize({ kEnergyBarWidth, 32.0f });
+	chargeBGSprite_->Initialize("./resources/HUD/Charge.png");
+	chargeBGSprite_->SetColor({ 1,1,1,1 });
+	chargeBGSprite_->SetSize({ kEnergyBarWidth, 256 + 64});
 	chargeBGSprite_->SetPosition(chargeLTPos_);
 
 	// 現在チャージ量
@@ -341,6 +341,8 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 			CameraLocalToWorld(Vector3{ startX + sectionTime_.spacing * index, sectionTime_.pos.y, sectionTime_.pos.z },
 				cameraTransform_.translate, right, up, forward)
 				});
+
+			index++;
 		}
 	} else {
 		// 一番左(マイナス)を非表示
@@ -511,8 +513,8 @@ void HUD::UpdateTimer(Course* course) {
 	Section* currentSection = course->GetCurrentSection();
 	if (!currentSection->IsSubSection()) {
 		lastTime_ = int(currentSection->GetTimer()->GetCurrent());
-		int min = lastTime_ / 60;
-		int sec = lastTime_ % 60;
+		int min = abs(lastTime_) / 60;
+		int sec = abs(lastTime_) % 60;
 
 		int num[4] = { min/10, min % 10, sec / 10, sec % 10 };
 		int spriteNum[3]{};
@@ -533,11 +535,13 @@ void HUD::UpdateTimer(Course* course) {
 				timer_.sprite[i]->SetColor({ 1,0,0,1 });
 				sectionTime_.object[i]->SetColor({ 1,0,0,1 });
 			}
+			sectionTime_.object[5]->SetColor({ 1,0,0,1 });
 		} else {
 			for (int i = 0; i < timer_.digitCount; ++i) {
 				timer_.sprite[i]->SetColor({ 1,1,1,1 });
 				sectionTime_.object[i]->SetColor({ 1,1,1,1 });
 			}
+			sectionTime_.object[5]->SetColor({ 1,1,1,1 });
 		}
 
 		timer_.sprite[1]->SetTextureLeftTop({ spriteNum[0] * kNumberSize.x, 0 });

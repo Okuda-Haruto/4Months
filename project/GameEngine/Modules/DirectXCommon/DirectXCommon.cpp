@@ -660,6 +660,59 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::ScreenRootSignatureI
 	return rootSignature;
 }
 
+Microsoft::WRL::ComPtr<ID3D12RootSignature> DirectXCommon::GlowRootSignatureInitialvalue() {
+	D3D12_DESCRIPTOR_RANGE range{};
+	range.BaseShaderRegister = 0;
+	range.NumDescriptors = 1;
+	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParameters[2] = {};
+
+	// b0 : Transform or Material
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[0].Descriptor.ShaderRegister = 0;
+
+	// b1 : FlameMaterial
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[1].Descriptor.ShaderRegister = 1;
+
+	D3D12_ROOT_SIGNATURE_DESC desc{};
+	desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	desc.pParameters = rootParameters;
+	desc.NumParameters = _countof(rootParameters);
+
+	ID3DBlob* signatureBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+
+	HRESULT hr = D3D12SerializeRootSignature(
+		&desc,
+		D3D_ROOT_SIGNATURE_VERSION_1,
+		&signatureBlob,
+		&errorBlob
+	);
+
+	if (FAILED(hr)) {
+		Log(logStream_, reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+		assert(false);
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+
+	hr = device_->CreateRootSignature(
+		0,
+		signatureBlob->GetBufferPointer(),
+		signatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(&rootSignature)
+	);
+
+	assert(SUCCEEDED(hr));
+
+	return rootSignature;
+}
+
 //シェーダーのコンパイル
 ComPtr<IDxcBlob> DirectXCommon::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
 	//これからシェーダーにコンパイルする旨をログに出す
