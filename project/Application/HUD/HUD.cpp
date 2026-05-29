@@ -403,7 +403,9 @@ void HUD::Draw() {
 			sectionTime_.object[i]->Draw3D();
 		}
 
-		sectionRank_.object[rank_-1]->Draw3D();
+		if (rank_ > 0) {
+			sectionRank_.object[rank_ - 1]->Draw3D();
+		}
 	}
 
 	infoSprite_->Draw2D();

@@ -130,6 +130,24 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 	SRT uv = black_->GetUVTransform();
 	uv.scale = { 0.1f, 0.1f, 1.0f };
 	black_->SetUVTransform(uv);
+
+	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
+	particleEmitter_ = make_unique<ParticleEmitter>("particle");
+	emitter_.transform.scale = { 1.0f,1.0f,1.0f };
+	emitter_.transform.translate = { 0.0f,0.0f,0.0f };
+	emitter_.count = 2;
+	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
+	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	emitter_.lifeTime = 1.0f;
+	emitter_.frequency = 0.5f;
+	emitter_.frequencyTime = 0.0f;
+	ParticleManager::GetInstance()->SetEmitter("particle", emitter_);
+	accelerationField_.area.min = { -0.5f,-0.5f,-0.5f };
+	accelerationField_.area.max = { 0.5f,0.5f,0.5f };
+	accelerationField_.acceleration = { 0.0f,0.0f,0.0f };
+	ParticleManager::GetInstance()->SetField("particle", accelerationField_);
+	particleEditor_.SetEmitter(emitter_);
+	particleEditor_.SetField(accelerationField_);
 }
 
 void Combine::Update() {
@@ -215,8 +233,37 @@ void Combine::Update() {
 
 		if (timer_ / kSetTime >= 1.0f) {
 			timer_ = 0;
-			phase_ = Phase::Ride;
+			//phase_ = Phase::Ride;
+
+			float tmp[8] = {
+			0.7f,0.7f,0.9f,0.9f,
+			5.0f,0.4f,0.4f,0.4f
+			};
+			std::copy(std::begin(tmp), std::end(tmp), setCountdown_);
 		}
+
+		particleEmitter_->Emit();
+		particleEmitter_->Update();
+		emitter_.transform.translate = beyblade_->GetTransform().translate;
+
+		ImGui::DragFloat("パーティクル Scale", &emitter_.transform.scale.x, 0.1f);
+		emitter_.transform.scale = { emitter_.transform.scale.x ,emitter_.transform.scale.x ,emitter_.transform.scale.x };
+		ImGui::SliderAngle("パーティクル RotateX", &emitter_.transform.rotate.x);
+		ImGui::SliderAngle("パーティクル RotateY", &emitter_.transform.rotate.y);
+		ImGui::SliderAngle("パーティクル Rotatez", &emitter_.transform.rotate.z);
+		ImGui::DragFloat3("パーティクル Translate", &emitter_.transform.translate.x, 0.1f);
+		ImGui::ColorPicker4("beforecolor", &emitter_.beforeColor.x);
+		ImGui::ColorPicker4("aftercolor", &emitter_.afterColor.x);
+		int count = int(emitter_.count);
+		ImGui::DragInt("パーティクル count", &count);
+		emitter_.count = count;
+		ImGui::DragFloat("パーティクル LifeTime", &emitter_.lifeTime, 0.01f);
+		ImGui::DragFloat("パーティクル frequency", &emitter_.frequency, 0.01f);
+		particleEmitter_->SetEmitter(emitter_);
+		ImGui::DragFloat3("エリアmin", &accelerationField_.area.min.x, 0.1f);
+		ImGui::DragFloat3("エリアmax", &accelerationField_.area.max.x, 0.1f);
+		ImGui::DragFloat3("エリアAcceleration", &accelerationField_.acceleration.translate.x, 0.01f);
+		particleEmitter_->SetField(accelerationField_);
 	}
 	break;
 	case Phase::Ride:
@@ -276,7 +323,7 @@ void Combine::Update() {
 		Quaternion lookRot = MakeLookRotation(cameraPos - startPos, Vector3{ 0,1,0 });
 
 		SRT h = human_->GetTransform();
-		h.rotate = Normalize( lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot));
+		h.rotate = Normalize(lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_) * MakeRotateAxisAngleQuaternion({ 1,0,0 }, kExtraXRot));
 		h.translate = pos + RotateVector(Vector3{ 0,endY_,0 }, lookRot) + RotateVector(Vector3{ 0,0,kFixOffset }, h.rotate);
 		human_->SetTransform(h);
 		human_->Update();
@@ -345,5 +392,7 @@ void Combine::Draw() {
 	if (phase_ > Phase::Black) {
 		human_->Draw3D();
 		beyblade_->Draw3D();
+
+		particleEmitter_->Draw();
 	}
 }

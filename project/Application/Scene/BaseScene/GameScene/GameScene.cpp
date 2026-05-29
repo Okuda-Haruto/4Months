@@ -190,6 +190,8 @@ void GameScene::Update() {
 			if (player_->IsEndResult()) {
 				startCountdown_->Reset(player_->GetTransform().translate);
 			}
+
+			hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
 		}
 
 		//カメラ更新
@@ -203,8 +205,6 @@ void GameScene::Update() {
 		directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
 		hud_->SetPauseDisplay(!startCountdown_->IsEnd());
-
-		hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
 
 	}
 
