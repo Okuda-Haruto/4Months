@@ -37,6 +37,8 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	skydome_->SetReflection(REFLECTION_None);
 	skydome_->SetCamera(defaultCamera_);
 
+	skydome_->SetColor(Vector4{92.0f / 255,214.0f / 255,251.0f / 255,1.0f,});
+
 	//プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_, defaultCamera_);
@@ -99,6 +101,16 @@ void GameScene::Finalize() {}
 void GameScene::Update() {
 	Keyboard keyboard = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
+
+	SRT transform;
+	transform.scale = { 1,1,1 };
+	transform.rotate = IdentityQuaternion();
+	transform.translate = { 0, gameCamera_->GetTransform().translate.y,0 };
+	skydome_->SetTransform(transform);
+
+	std::vector<Parts> parts = skydome_->GetParts();
+	parts[0].UVtransform.translate.y = -(gameCamera_->GetTransform().translate.y / (16.0f * 3.0f)) / 10;
+	skydome_->SetParts(parts[0], 0);
 
 	//メニュー中は一切動かさない
 	if (menu_->GetPhase() != Menu::Menu_Phase::Idle && menu_->GetPhase() != Menu::Menu_Phase::End) {
@@ -271,16 +283,22 @@ void GameScene::Update() {
 
 	fade_->Update();
 
+	GameEngine::RenderPreDraw("Sky");
+
+	skydome_->DrawSkyDome3D();
+
+	GameEngine::RenderPostDraw("Sky");
+
 	GameEngine::RenderPreDraw("BackGround");
 
-	skydome_->Draw3DNoFog();
+	skydome_->DrawSkyDome3D();
 	course_->DrawGoalBarrier();
 
 	GameEngine::RenderPostDraw("BackGround");
 
 	GameEngine::RenderPreDraw("Play");
 
-	skydome_->Draw3DNoFog();
+	skydome_->DrawSkyDome3D();
 
 	if (!player_->IsBreak()) {
 		if (isClear_) {
