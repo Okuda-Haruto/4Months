@@ -70,9 +70,10 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> objectRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingObjectRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> spriteRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> voxelRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> particleRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenRootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingVoxleRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingVoxelRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> glowRootSignature_;
 
 	//Windowのメッセージ
@@ -81,6 +82,7 @@ private:
 	//PSO
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3DPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2DPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> voxelPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noFogObject3DPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noFogObject3DRenderPipelineState_ = nullptr;
@@ -95,6 +97,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> glowPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> skyDomePipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -228,9 +231,12 @@ private:
 	void DrawObject3D_Glow_(Object* object, GlowMaterial mat);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
+	void DrawVoxel_3D_(Object* object, UINT backGroundTextureIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawInstancingVoxel_3D_(std::list<Object*> objects, UINT backGroundTextureIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
+	void DrawSkyDome_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
+
 
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawSpriteAdditive_(Sprite* sprite);
@@ -325,10 +331,13 @@ public:
 	static void DrawRenderNoFogParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawRenderNoFogParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
 	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
+	static void DrawVoxel_3D(Object* object, UINT backGroundTextureIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawVoxel_3D_(object, backGroundTextureIndex, directionalLight, pointLight, spotLight, animationIndex, time); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawInstancingVoxel_3D(std::list<Object*> objects, UINT backGroundTextureIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingVoxel_3D_(objects, backGroundTextureIndex, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
 	static void DrawGlow3D(Object* object, GlowMaterial mat) { return GetInstance()->DrawObject3D_Glow_(object, mat); }
+	static void DrawSkyDome_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawSkyDome_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
+
 
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
 	static void DrawSpriteAdditive(Sprite* sprite) { return GetInstance()->DrawSpriteAdditive_(sprite); }

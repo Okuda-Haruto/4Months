@@ -40,6 +40,9 @@
     <FxCompile Include="resources\Shader\Object3d_NoFog.PS.hlsl" />
     <FxCompile Include="resources\Shader\InstanceVoxel3d.PS.hlsl" />
     <FxCompile Include="resources\Shader\FlameNeonGlow.PS.hlsl" />
+    <FxCompile Include="resources\Shader\SkyDome.VS.hlsl" />
+    <FxCompile Include="resources\Shader\SkyDome.PS.hlsl" />
+    <FxCompile Include="resources\Shader\Voxel.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

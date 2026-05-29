@@ -148,7 +148,7 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 		boxObjects.push_back(box->GetObjectData());
 	}
 	if (!boxObjects.empty()) {
-		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(boxObjects,TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight, nullptr, nullptr);
 	}
 
 	voxel_->Draw();

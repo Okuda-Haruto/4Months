@@ -7,8 +7,9 @@ using namespace std;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ゲームエンジン
-	GameEngine::Initialize(L"LE2A_03_オクダ_ハルト", 1280, 720);
+	GameEngine::Initialize(L"3108_災Guy", 1280, 720);
 
+	TextureManager::GetInstance()->MakeRenderTexture("Sky");
 	TextureManager::GetInstance()->MakeRenderTexture("BackGround");
 	TextureManager::GetInstance()->MakeRenderTexture("Play");
 	TextureManager::GetInstance()->MakeRenderTexture("Screen");

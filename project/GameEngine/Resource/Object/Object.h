@@ -68,6 +68,8 @@ public:
 	void DrawGlow3D(GlowMaterial mat);
 	void Draw2D();
 	void Draw2D(uint32_t index);
+	void DrawSkyDome3D();
+	void DrawVoxel3D(UINT textureIndex);
 
 	void ResetTimer() { animationTime_ = 0.0f; }
 

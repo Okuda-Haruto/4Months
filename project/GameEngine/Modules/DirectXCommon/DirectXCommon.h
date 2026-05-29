@@ -128,6 +128,7 @@ public:
 	//RootSignature作成
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ObjectRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> SpriteRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> VoxelRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingObjectRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingVoxelRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ParticleRootSignatureInitialvalue();

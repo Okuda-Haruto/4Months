@@ -97,6 +97,15 @@ void Object::Draw2D(uint32_t index) {
 	GameEngine::DrawParts_2D(this, index, directionalLight_.lock());
 }
 
+void Object::DrawSkyDome3D() {
+	GameEngine::DrawSkyDome_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(), 0, animationTime_);
+}
+
+void Object::DrawVoxel3D(UINT textureIndex) {
+	GameEngine::DrawVoxel_3D(this, textureIndex, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(), 0, animationTime_);
+}
+
+
 void Object::SetReflection(UINT reflection) {
 	for (int i = 0; i < parts_.size(); i++) {
 		parts_[i].material->reflection = reflection;
