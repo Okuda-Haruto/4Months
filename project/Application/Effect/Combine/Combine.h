@@ -1,5 +1,7 @@
 #pragma once
 #include "GameEngine.h"
+#include <ParticleEmitter/ParticleEmitter.h>
+#include "../GameEngine/Editor/ParticleEditor/ParticleEditor.h"
 
 class Combine {
 public:
@@ -41,6 +43,7 @@ private:
 		{ -10,0,10 },
 		{ -10,0,-10 }
 	};
+	bool attached_[8]{};
 	const float kExtraXRot = 0.3f;
 	const float kFixOffset = 4.0f;
 
@@ -68,5 +71,11 @@ private:
 	const float kStartIrisIn = 0.5f;
 
 	std::unique_ptr<Sprite> black_ = nullptr;
+
+	// particle
+	Emitter emitter_;
+	AccelerationField accelerationField_;
+	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
+	ParticleEditor particleEditor_;
 };
 

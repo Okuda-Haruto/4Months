@@ -106,7 +106,7 @@ void ParticleManager::Update(std::string name) {
 			(*particleIterator).color.y = (*particleIterator).beforeColor.y * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.y * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
 			(*particleIterator).color.z = (*particleIterator).beforeColor.z * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.z * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
 			(*particleIterator).color.w = (*particleIterator).beforeColor.w * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.w * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			
+
 			(*particleIterator).lifeTime += GameEngine::GetDeltaTime();
 
 			++particleIterator;
@@ -162,11 +162,17 @@ void ParticleManager::Emit(const std::string name, uint32_t count) {
 			particle.transform.translate.y = particleGroups[name].emitter.transform.translate.y + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.y, particleGroups[name].emitter.spawnRange.max.y);
 			particle.transform.translate.z = particleGroups[name].emitter.transform.translate.z + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.z, particleGroups[name].emitter.spawnRange.max.z);
 			particle.velocity = {};
-			particle.velocity.translate = Normalize(Vector3{
+			Vector3 dir = {
 				particleGroups[name].emitter.angleBase.x + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.x, particleGroups[name].emitter.angleRange.x),
 				particleGroups[name].emitter.angleBase.y + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.y, particleGroups[name].emitter.angleRange.y),
-				particleGroups[name].emitter.angleBase.z + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.z, particleGroups[name].emitter.angleRange.z)
-				}) * (particleGroups[name].emitter.speedBase + GameEngine::randomFloat(-particleGroups[name].emitter.speedRange, particleGroups[name].emitter.speedRange));
+			particleGroups[name].emitter.angleBase.z + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.z, particleGroups[name].emitter.angleRange.z)
+			};
+			if (Length(dir) > 0.0001f) {
+				dir = Normalize(dir);
+			} else {
+				dir = { 0,1,0 };
+			}
+			particle.velocity.translate = dir * (particleGroups[name].emitter.speedBase + GameEngine::randomFloat(-particleGroups[name].emitter.speedRange, particleGroups[name].emitter.speedRange));
 			particle.beforeColor = particleGroups[name].emitter.beforeColor;
 			particle.afterColor = particleGroups[name].emitter.afterColor;
 			particle.color = particle.beforeColor;
