@@ -156,6 +156,7 @@ void GameScene::Update() {
 					if (startCountdown_->IsEnd()) {
 						isSectionResult_ = false;
 						gameCamera_->ChangeCamera(std::make_unique<DownCamera>(), 0.3f);
+						hud_->ResetSlideIn();
 					}
 				}
 			}
@@ -170,6 +171,7 @@ void GameScene::Update() {
 			}
 			if (player_->IsBreak()) {
 				gameCamera_->ChangeCamera(std::make_unique<SectionResultCamera>(), 0.0f);
+				hud_->ResetSlideIn();
 			}
 
 			player_->SetResult(isSectionResult_);
@@ -203,8 +205,8 @@ void GameScene::Update() {
 				startCountdown_->Reset(player_->GetTransform().translate);
 			}
 
-			hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera());
 		}
+		hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera(), startCountdown_->IsEnd());
 
 		//カメラ更新
 		if (gameTransition->IsEnd()) {
@@ -329,7 +331,9 @@ void GameScene::Update() {
 
 	GameEngine::DrawScreen(TextureManager::GetInstance()->GetSrvIndex("Play"));
 
-	hud_->Draw();
+	if ((!player_->IsBreak() && !course_->GetIsSectionFailed()) && !isClear_) {
+		hud_->Draw();
+	}
 
 	startCountdown_->Draw();
 

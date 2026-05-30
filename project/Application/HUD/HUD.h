@@ -8,10 +8,11 @@ class GameTimer;
 class HUD {
 public:
 	void Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_ptr<DirectionalLight> directionalLight);
-	void Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera);
+	void Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera, bool isStarted);
 	void Draw();
 
 	void SetPauseDisplay(bool isOn);
+	void ResetSlideIn() { slideInTimer_ = 0; }
 private:
 	void UpdateCharge(Player* player);
 	void UpdateScore(Course* course);
@@ -40,6 +41,9 @@ private:
 
 	bool canDrawPlayingInfo_ = false;
 
+	// スライドイン
+	const float kSlideInTime = 1.0f;
+	float slideInTimer_ = 0;
 
 	// 数字ひとつ分の画像内サイズ
 	Vector2 kNumberSize = { 256,256 };

@@ -90,6 +90,7 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 		sectionResult_[i]->SetShininess(30.0f);
 		sectionResult_[i]->SetDirectionalLight(directionalLight);
 		sectionResult_[i]->SetCamera(camera);
+		sectionResult_[i]->SetTransform({});
 	}
 
 	// リザルト:破壊率
@@ -102,6 +103,7 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 		breakRate_.object[i]->SetShininess(30.0f);
 		breakRate_.object[i]->SetDirectionalLight(directionalLight);
 		breakRate_.object[i]->SetCamera(camera);
+		breakRate_.object[i]->SetTransform({});
 	}
 
 	// リザルト:破壊量
@@ -113,6 +115,7 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 		breakCount_.object[i]->SetShininess(30.0f);
 		breakCount_.object[i]->SetDirectionalLight(directionalLight);
 		breakCount_.object[i]->SetCamera(camera);
+		breakCount_.object[i]->SetTransform({});
 	}
 
 	// リザルト:時間
@@ -124,6 +127,7 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 		sectionTime_.object[i]->SetShininess(30.0f);
 		sectionTime_.object[i]->SetDirectionalLight(directionalLight);
 		sectionTime_.object[i]->SetCamera(camera);
+		sectionTime_.object[i]->SetTransform({});
 	}
 
 	// ランク
@@ -137,21 +141,27 @@ void HUD::Initialize(Input* input, std::shared_ptr<Camera> camera, std::shared_p
 		sectionRank_.object[i]->SetShininess(30.0f);
 		sectionRank_.object[i]->SetDirectionalLight(directionalLight);
 		sectionRank_.object[i]->SetCamera(camera);
+		sectionRank_.object[i]->SetTransform({});
 	}
 
 	objectRot_ = MakeRotateAxisAngleQuaternion({ 0,1,0 }, float(std::numbers::pi) / 2.0f);
 }
 
-void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera) {
-	UpdateCharge(player);
-	UpdateScore(course);
-	UpdateTimer(course);
-	UpdateBreakRate(course);
-	UpdateBreakAmount(course);
-	UpdateInfo();
-	UpdateStartNum(startNum);
-	UpdateReload(player, camera);
-	UpdateResult(course);
+void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum, std::shared_ptr<Camera> camera, bool isStarted) {
+	if (isStarted) {
+		UpdateCharge(player);
+		UpdateScore(course);
+		UpdateTimer(course);
+		UpdateBreakRate(course);
+		UpdateBreakAmount(course);
+		UpdateInfo();
+		UpdateStartNum(startNum);
+		UpdateReload(player, camera);
+		UpdateResult(course);
+
+		slideInTimer_ += GameEngine::GetDeltaTime();
+		slideInTimer_ = clamp(slideInTimer_, 0.0f, kSlideInTime);
+	}
 
 	auto inverseView = Inverse(camera->GetViewMatrix());
 	cameraTransform_ = { {1,1,1},MatrixToQuaternion(inverseView), {inverseView.m[3][0], inverseView.m[3][1], inverseView.m[3][2]} };
@@ -509,6 +519,21 @@ void HUD::UpdateCharge(Player* player) {
 	}
 	icon.icon->SetRotation(-icon.rot);
 
+	float slideRate = 1.0f - (slideInTimer_ / kSlideInTime);
+	float slide = slideRate * slideRate * 160;
+	charge_.bar.back->SetPosition({ charge_.bar.defaultPos.x, charge_.bar.defaultPos.y + slide});
+	charge_.bar.light->SetPosition({ charge_.bar.defaultPos.x, charge_.bar.defaultPos.y + slide});
+	charge_.bar.frame->SetPosition({ charge_.bar.defaultPos.x, charge_.bar.defaultPos.y + slide});
+	charge_.icon.frame->SetPosition({ charge_.icon.defaultPos.x, charge_.icon.defaultPos.y + slide});
+	charge_.icon.light->SetPosition({ charge_.icon.defaultPos.x, charge_.icon.defaultPos.y + slide});
+	charge_.icon.icon->SetPosition({ charge_.icon.defaultPos.x, charge_.icon.defaultPos.y + slide});
+
+	charge_.bar.light->Update();
+	charge_.bar.frame->Update();
+	charge_.icon.frame->Update();
+	charge_.icon.light->Update();
+	charge_.icon.icon->Update();
+
 
 	charge_.bar.back->Update();
 	charge_.bar.light->Update();
@@ -539,6 +564,12 @@ void HUD::UpdateScore(Course* course) {
 		float sizeRate = std::clamp(float(current) / float(max),0.0f,1.0f);
 		currentBreakSprite_->SetTextureSize({ 5300 * sizeRate, 800.0f });
 		currentBreakSprite_->SetSize({ kBreakBarSize.x * sizeRate, kBreakBarSize.y });
+
+		float slideRate = 1.0f - (slideInTimer_ / kSlideInTime);
+		float slide = slideRate * slideRate * 200;
+		breakBGSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y - slide });
+		currentBreakSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y - slide });
+
 		breakBGSprite_->Update();
 		currentBreakSprite_->Update();
 
