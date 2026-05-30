@@ -1465,7 +1465,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(particleRootSignature_.Get());
-	commandList_->SetPipelineState(particlePipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(particleAddBlendPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

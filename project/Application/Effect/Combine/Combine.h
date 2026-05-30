@@ -43,6 +43,7 @@ private:
 		{ -10,0,10 },
 		{ -10,0,-10 }
 	};
+	bool attached_[8]{};
 	const float kExtraXRot = 0.3f;
 	const float kFixOffset = 4.0f;
 

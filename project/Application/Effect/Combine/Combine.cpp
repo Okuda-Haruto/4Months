@@ -133,13 +133,16 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 
 	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
 	particleEmitter_ = make_unique<ParticleEmitter>("particle");
-	emitter_.transform.scale = { 1.0f,1.0f,1.0f };
+	emitter_.transform.scale = { 2.5f,2.5f,2.5f };
 	emitter_.transform.translate = { 0.0f,0.0f,0.0f };
-	emitter_.count = 2;
-	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
-	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
-	emitter_.lifeTime = 1.0f;
-	emitter_.frequency = 0.5f;
+	emitter_.count = 20;
+	emitter_.speedBase = 1.8f;
+	emitter_.speedRange = 0.5f;
+	emitter_.angleRange = { 1,0.5f,0.7f };
+	emitter_.beforeColor = { 0.9f,0.7f,0.0f,1.0f };
+	emitter_.afterColor = { 1.0f,0.0f,0.0f,0.0f };
+	emitter_.lifeTime = 0.3f;
+	emitter_.frequency = 0.0f;
 	emitter_.frequencyTime = 0.0f;
 	ParticleManager::GetInstance()->SetEmitter("particle", emitter_);
 	accelerationField_.area.min = { -0.5f,-0.5f,-0.5f };
@@ -157,8 +160,8 @@ void Combine::Update() {
 
 	// カメラ位置と前方ベクトル（ワールド空間）
 	Vector3 cameraPos = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
-	Vector3 cameraForward = { cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] };
-	cameraForward = Normalize(cameraForward);
+	Vector3 cameraForward = Normalize(Vector3{ cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] });
+	Vector3 cameraUp = Normalize(Vector3{ cameraWorld.m[1][0], cameraWorld.m[1][1], cameraWorld.m[1][2] });
 
 	Vector3 startPos = cameraPos + cameraForward * gameDefaultZ_;
 	Quaternion lookRot = MakeLookRotation(cameraPos - startPos, Vector3{ 0,1,0 });
@@ -224,6 +227,18 @@ void Combine::Update() {
 				t = EaseOutCubic(t);
 				parts[i].transform->translate = Lerp(partsTranslate[i], Vector3{}, t);
 				beyblade_->SetParts(parts[i], i);
+
+				if (t == 1 && !attached_[i]) {
+					auto b = beyblade_->GetTransform();
+					Vector3 localPos = partsTranslate[i];
+					Vector3 worldPos = b.translate + RotateVector(localPos, b.rotate) * 0.3f;
+					emitter_.transform.translate = worldPos;
+
+					particleEmitter_->SetEmitter(emitter_);
+					particleEmitter_->Emit();
+
+					attached_[i] = true;
+				}
 			}
 		}
 
@@ -233,19 +248,19 @@ void Combine::Update() {
 
 		if (timer_ / kSetTime >= 1.0f) {
 			timer_ = 0;
-			//phase_ = Phase::Ride;
+			phase_ = Phase::Ride;
 
-			float tmp[8] = {
+			/*float tmp[8] = {
 			0.7f,0.7f,0.9f,0.9f,
 			5.0f,0.4f,0.4f,0.4f
 			};
 			std::copy(std::begin(tmp), std::end(tmp), setCountdown_);
+			for (int i = 0; i < 8; ++i) {
+				attached_[i] = false;
+			}*/
 		}
 
-		particleEmitter_->Emit();
-		particleEmitter_->Update();
-		emitter_.transform.translate = beyblade_->GetTransform().translate;
-
+#ifdef USE_IMGUI
 		ImGui::DragFloat("パーティクル Scale", &emitter_.transform.scale.x, 0.1f);
 		emitter_.transform.scale = { emitter_.transform.scale.x ,emitter_.transform.scale.x ,emitter_.transform.scale.x };
 		ImGui::SliderAngle("パーティクル RotateX", &emitter_.transform.rotate.x);
@@ -257,6 +272,22 @@ void Combine::Update() {
 		int count = int(emitter_.count);
 		ImGui::DragInt("パーティクル count", &count);
 		emitter_.count = count;
+		
+		float speedBase = emitter_.speedBase;
+		ImGui::DragFloat("パーティクル speedBase", &speedBase, 0.1f, 0.0f);
+		emitter_.speedBase = speedBase;
+		
+		float speedRange = emitter_.speedRange;
+		ImGui::DragFloat("パーティクル speedRange", &speedRange, 0.1f, 0.0f);
+		emitter_.speedRange = speedRange;
+
+		Vector3 angleBase = emitter_.angleBase;
+		ImGui::DragFloat3("パーティクル angleBase", &angleBase.x, 0.1f, 0.0f);
+		emitter_.angleBase = angleBase;
+
+		Vector3 angleRange = emitter_.angleRange;
+		ImGui::DragFloat3("パーティクル angleRange", &angleRange.x, 0.1f, 0.0f);
+		emitter_.angleRange = angleRange;
 		ImGui::DragFloat("パーティクル LifeTime", &emitter_.lifeTime, 0.01f);
 		ImGui::DragFloat("パーティクル frequency", &emitter_.frequency, 0.01f);
 		particleEmitter_->SetEmitter(emitter_);
@@ -264,6 +295,8 @@ void Combine::Update() {
 		ImGui::DragFloat3("エリアmax", &accelerationField_.area.max.x, 0.1f);
 		ImGui::DragFloat3("エリアAcceleration", &accelerationField_.acceleration.translate.x, 0.01f);
 		particleEmitter_->SetField(accelerationField_);
+#endif
+
 	}
 	break;
 	case Phase::Ride:
@@ -274,7 +307,7 @@ void Combine::Update() {
 		float deltaTime = GameEngine::GetDeltaTime();
 		float t = min(timer_, kRideTime) / kRideTime;
 		auto parts = beyblade_->GetParts();
-		parts[4].transform->translate = Lerp(RotateVector(partsTranslate[4], lookRot), {}, t);
+		parts[4].transform->translate = Lerp(Vector3{ 0, defaultBY_,0 }, {}, t);
 		beyblade_->SetParts(parts[4], 4);
 
 		auto h = human_->GetTransform();
@@ -381,7 +414,9 @@ void Combine::Update() {
 		break;
 	}
 	}
-
+	if (phase_ >= Phase::Set) {
+		particleEmitter_->Update();
+	}
 	timer_ += GameEngine::GetDeltaTime();
 }
 
