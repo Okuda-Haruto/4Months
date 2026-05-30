@@ -569,6 +569,11 @@ void HUD::UpdateScore(Course* course) {
 		float slide = slideRate * slideRate * 200;
 		breakBGSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y - slide });
 		currentBreakSprite_->SetPosition({ breakLTPos_.x, breakLTPos_.y - slide });
+		for (int i = 0; i < 2; ++i) {
+			objective_[i]->SetPosition({ objectivePos_.x, objectivePos_.y - slide });
+			objective_[i]->Update();
+		}
+
 
 		breakBGSprite_->Update();
 		currentBreakSprite_->Update();
@@ -663,7 +668,7 @@ void HUD::UpdateBreakRate(Course* course) {
 
 void HUD::UpdateBreakAmount(Course* course) {
 	if (!course->InSubSection()) return;
-
+	
 	int breakCount = course->GetBreakCount();
 	int num[6]{};
 	for (int i = 5; i >= 0; --i) {

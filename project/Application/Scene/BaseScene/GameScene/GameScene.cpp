@@ -206,12 +206,12 @@ void GameScene::Update() {
 			}
 
 		}
-		hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera(), startCountdown_->IsEnd());
-
 		//カメラ更新
 		if (gameTransition->IsEnd()) {
 			gameCamera_->Update();
 		}
+
+		hud_->Update(player_.get(), course_.get(), course_->GetCurrentSection()->GetTimer(), int(0), gameCamera_->GetCamera(), startCountdown_->IsEnd());
 
 		if (isUseDebugCamera_) {
 			defaultCamera_->Update();
