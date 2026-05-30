@@ -136,12 +136,12 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 	emitter_.transform.scale = { 2.5f,2.5f,2.5f };
 	emitter_.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_.count = 20;
-	emitter_.speedBase = 1.8f;
+	emitter_.speedBase = 2.0f;
 	emitter_.speedRange = 0.5f;
 	emitter_.angleRange = { 1,0.5f,0.7f };
 	emitter_.beforeColor = { 0.9f,0.7f,0.0f,1.0f };
 	emitter_.afterColor = { 1.0f,0.0f,0.0f,0.0f };
-	emitter_.lifeTime = 0.3f;
+	emitter_.lifeTime = 0.2f;
 	emitter_.frequency = 0.0f;
 	emitter_.frequencyTime = 0.0f;
 	ParticleManager::GetInstance()->SetEmitter("particle", emitter_);
@@ -250,14 +250,14 @@ void Combine::Update() {
 			timer_ = 0;
 			phase_ = Phase::Ride;
 
-			/*float tmp[8] = {
-			0.7f,0.7f,0.9f,0.9f,
-			5.0f,0.4f,0.4f,0.4f
-			};
-			std::copy(std::begin(tmp), std::end(tmp), setCountdown_);
-			for (int i = 0; i < 8; ++i) {
-				attached_[i] = false;
-			}*/
+			//float tmp[8] = {
+			//0.7f,0.7f,0.9f,0.9f,
+			//5.0f,0.4f,0.4f,0.4f
+			//};
+			//std::copy(std::begin(tmp), std::end(tmp), setCountdown_);
+			//for (int i = 0; i < 8; ++i) {
+			//	attached_[i] = false;
+			//}
 		}
 
 #ifdef USE_IMGUI
