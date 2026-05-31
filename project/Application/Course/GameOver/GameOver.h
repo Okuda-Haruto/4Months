@@ -9,6 +9,7 @@ private:
 
 	std::unique_ptr<Sprite> flowerGarden_Sprite_;
 	std::unique_ptr<Sprite> videoDistorted_Sprite_;
+	std::unique_ptr<Sprite> pressToNext_Sprite_;
 
 	std::array<std::unique_ptr<Object>,4> butterfly_;
 
@@ -18,6 +19,8 @@ private:
 	float eventTime_;
 	const float kMaxEventTime_ = 2.0f;
 
+	float plessToNextColor_;
+
 public:
 	//初期化
 	void Initialize(std::shared_ptr<DirectionalLight> directionalLight);
@@ -26,5 +29,5 @@ public:
 	//描画処理
 	void Draw();
 
-	void Reset() { eventTime_ = 0.0f; }
+	void Reset() { eventTime_ = 0.0f; plessToNextColor_ = 0; }
 };
