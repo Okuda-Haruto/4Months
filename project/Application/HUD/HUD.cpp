@@ -379,8 +379,7 @@ void HUD::Draw() {
 		// 目的
 		currentObjective_->Draw2D();
 
-		int start = 0;
-		if (!useMinusSectionTime_) start++;
+		int start = 1;
 		for (int i = start; i < timer_.digitCount; ++i) {
 			timer_.sprite[i]->Draw2D();
 		}
@@ -605,8 +604,6 @@ void HUD::UpdateTimer(Course* course) {
 		}
 
 		if (lastTime_ < 0) {
-			// マイナス
-			timer_.sprite[0]->SetTextureLeftTop({ 11.0f * kNumberSize.x, 0 });
 
 
 			for (int i = 0; i < timer_.digitCount; ++i) {
