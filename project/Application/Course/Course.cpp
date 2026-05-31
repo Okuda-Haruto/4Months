@@ -145,6 +145,8 @@ void Course::Update(Human* player) {
 void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
+		if (box->GetTransform().translate.y > camera_->GetTransform().translate.y)continue;
+
 		boxObjects.push_back(box->GetObjectData());
 	}
 	if (!boxObjects.empty()) {
@@ -174,10 +176,12 @@ void Course::Draw(const std::shared_ptr<DirectionalLight> directionalLight) {
 void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> directionalLight) {
 	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
+		if (box->GetTransform().translate.y > camera_->GetTransform().translate.y)continue;
+
 		boxObjects.push_back(box->GetObjectData());
 	}
 	if (!boxObjects.empty()) {
-		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(boxObjects, TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight, nullptr, nullptr);
 	}
 
 	for (auto& barrier : goalBarriers_) {
@@ -194,10 +198,13 @@ void Course::Draw(AABB drawRange, const std::shared_ptr<DirectionalLight> direct
 void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
+		if (box->GetTransform().translate.y - 3 * 16 * 3 > camera_->GetTransform().translate.y)continue;
+		if (box->GetTransform().translate.y + 3 * 16 * 3 < camera_->GetTransform().translate.y)continue;
+
 		boxObjects.push_back(box->GetObjectData());
 	}
 	if (!boxObjects.empty()) {
-		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(boxObjects, TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight, nullptr, nullptr);
 	}
 
 	voxel_->DrawAll();
@@ -209,10 +216,12 @@ void Course::DrawAll(const std::shared_ptr<DirectionalLight> directionalLight) {
 void Course::DrawUp(const std::shared_ptr<DirectionalLight> directionalLight) {
 	std::list<Object*> boxObjects;
 	for (auto& box : boxes_) {
+		if (box->GetTransform().translate.y > camera_->GetTransform().translate.y)continue;
+
 		boxObjects.push_back(box->GetObjectData());
 	}
 	if (!boxObjects.empty()) {
-		GameEngine::DrawInstancingObject_3D(boxObjects, directionalLight, nullptr, nullptr);
+		GameEngine::DrawInstancingVoxel_3D(boxObjects, TextureManager::GetInstance()->GetSrvIndex("BackGround"), directionalLight, nullptr, nullptr);
 	}
 
 	for (auto& barrier : goalBarriers_) {
