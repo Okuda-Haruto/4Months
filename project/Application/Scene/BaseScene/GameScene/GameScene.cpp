@@ -44,7 +44,20 @@ void GameScene::Initialize(std::shared_ptr<Input> input) {
 	player_->Initialize(Vector3{ 0,200,0 }, directionalLight_, defaultCamera_);
 
 	course_ = std::make_unique<Course>();
-	LoadCourse("resources/CourseData/Stage1.csv");
+	switch (SceneManager::GetInstance()->GetSelectNum())
+	{
+	case 1:
+		LoadCourse("resources/CourseData/Stage1.csv");
+		break;
+	case 2: 
+		LoadCourse("resources/CourseData/Stage2.csv");
+		break;
+	case 3:
+		LoadCourse("resources/CourseData/Stage3.csv");
+		break;
+	default:
+		break;
+	}
 
 	// カメラ
 	gameCamera_ = make_unique<GameCamera>();

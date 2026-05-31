@@ -104,6 +104,8 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 
 		SceneManager::GetInstance()->SetIsSelect(false);
 	}
+
+	selectNum_ = 1;
 }
 
 void TitleScene::Finalize() {
@@ -130,9 +132,57 @@ void TitleScene::Update() {
 	}
 
 	//全て終わった後にSpace(Bボタン)でステージに
-	if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && (studioGameCamera_->IsEndChangeCamera() && isChangeStudioCamera_ && fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {
-		selectSE_->SoundPlayWave();
-		sceneChange_ = true;
+	if ((studioGameCamera_->IsEndChangeCamera() && isChangeStudioCamera_ && fade_->GetIsEnd() && fade_->GetFadeMode() == Fade::FADE_MODE::FADE_IN)) {
+		if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger)) {
+			SceneManager::GetInstance()->SetSelectNum(selectNum_);
+
+			selectSE_->SoundPlayWave();
+			sceneChange_ = true;
+		}
+		else if ((keyboard.trigger[DIK_D] || keyboard.trigger[DIK_RIGHT] || pad.Button[PAD_BUTTON_RIGHT].trigger)) {
+			selectNum_++;
+			if (selectNum_ >= 4) {
+				selectNum_ = 1;
+			}
+			auto parts = studio_->GetParts();
+			switch (selectNum_)
+			{
+			case 1:
+				parts[5].textureIndex = TextureManager::GetInstance()->GetSrvIndex("resources/Title/texture_stadio/Stage1.png");
+				break;
+			case 2:
+				parts[5].textureIndex = TextureManager::GetInstance()->GetSrvIndex("resources/Title/texture_stadio/Stage2.png");
+				break;
+			case 3:
+				parts[5].textureIndex = TextureManager::GetInstance()->GetSrvIndex("resources/Title/texture_stadio/Stage3.png");
+				break;
+			default:
+				break;
+			}
+			studio_->SetParts(parts[5], 5);
+		}
+		else if ((keyboard.trigger[DIK_A] || keyboard.trigger[DIK_LEFT] || pad.Button[PAD_BUTTON_LEFT].trigger)) {
+			selectNum_--;
+			if (selectNum_ <= 0) {
+				selectNum_ = 3;
+			}
+			auto parts = studio_->GetParts();
+			switch (selectNum_)
+			{
+			case 1:
+				parts[5].textureIndex = TextureManager::GetInstance()->GetSrvIndex("resources/Title/texture_stadio/Stage1.png");
+				break;
+			case 2:
+				parts[5].textureIndex = TextureManager::GetInstance()->GetSrvIndex("resources/Title/texture_stadio/Stage2.png");
+				break;
+			case 3:
+				parts[5].textureIndex = TextureManager::GetInstance()->GetSrvIndex("resources/Title/texture_stadio/Stage3.png");
+				break;
+			default:
+				break;
+			}
+			studio_->SetParts(parts[5], 5);
+		}
 	}
 	//スキップ
 	else if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && isChangeStudioCamera_ && !isBackTitle_) {
