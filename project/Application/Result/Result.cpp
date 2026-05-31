@@ -128,6 +128,15 @@ void Result::Initialize(std::shared_ptr<DirectionalLight> directionalLight, int 
 	sectionTime_.object[3]->SetTransform({ {0.4f,0.25f,0.25f},q,{-9.214f,154.4f,3.310f} });
 	sectionTime_.object[4]->SetTransform({ {0.4f,0.25f,0.25f},q,{-9.264f,154.4f,3.504f} });
 	sectionTime_.object[5]->SetTransform({ {0.4f,0.25f,0.25f},q,{-9.304f,154.4f,3.659f} });
+
+	ascend_ = std::make_unique<Audio>();
+	ascend_->Initialize("./resources/SE・BGM/Game/ascend.mp3", 0.5f);
+
+	voice_ = std::make_unique<Audio>();
+	voice_->Initialize("./resources/SE・BGM/Game/finalResult.mp3", 0.5f);
+
+	space_ = std::make_unique<Audio>();
+	space_->Initialize("resources/SE・BGM/deceid.mp3", 0.5f);
 }
 
 void Result::Update(Player* player, Input* input, Course* course) {
@@ -193,6 +202,8 @@ void Result::Update(Player* player, Input* input, Course* course) {
 			UpdateTimer(course);
 			UpdateBreakRate(course);
 			UpdateBreakAmount(course);
+
+			ascend_->SoundPlayWave();
 		}
 		break;
 
@@ -201,7 +212,9 @@ void Result::Update(Player* player, Input* input, Course* course) {
 		timer_[int(ResultPhase::Rise)] += GameEngine::GetDeltaTime();
 
 		float x = min(CurrentTimeRate(), 1.0f);
-		float t = powf(x, 3.0f);
+		float t = x < 0.5f
+			? 2.0f * x * x
+			: 1.0f - std::powf(-2.0f * x + 2.0f, 2.0f) / 2.0f;
 		player->SetTranslate(Lerp(Vector3{ 0,startY_,0 }, Vector3{ 0,endY_,0 }, t));
 
 
@@ -239,6 +252,7 @@ void Result::Update(Player* player, Input* input, Course* course) {
 
 		if (timer_[int(ResultPhase::ResultSet)] >= kTime[int(ResultPhase::ResultSet)]) {
 			phase_ = ResultPhase::DisplayResult;
+			voice_->SoundPlayWave();
 		}
 		break;
 
@@ -546,6 +560,7 @@ void Result::Update(Player* player, Input* input, Course* course) {
 			Pad pad = input->GetPad(0);
 			if ((keyboard.release[DIK_SPACE] || pad.Button[PAD_BUTTON_B].release || pad.Button[PAD_BUTTON_A].release)) {
 				phase_ = ResultPhase::ResultOut;
+				space_->SoundPlayWave();
 			}
 		}
 		break;

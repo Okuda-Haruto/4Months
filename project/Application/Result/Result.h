@@ -149,4 +149,8 @@ private:
 	NumberDisplay3D sectionTime_ = {
 		.digitCount = 6,
 	};
+
+	std::unique_ptr<Audio> ascend_;
+	std::unique_ptr<Audio> voice_;
+	std::unique_ptr<Audio> space_;
 };
