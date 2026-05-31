@@ -31,6 +31,9 @@ private:
 
 	std::shared_ptr<GameCamera> gameCamera_;
 
+
+	std::unique_ptr<Audio> noiseSE_ = nullptr;
+
 public:
 
 	//初期化

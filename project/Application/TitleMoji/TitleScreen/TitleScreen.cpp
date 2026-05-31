@@ -32,6 +32,9 @@ void TitleScreen::Initialize(std::shared_ptr<GameCamera> gameCamera) {
 
 	isClearTime_ = kMaxIsClearTime_;
 	titleTimer_ = 0.0f;
+
+	noiseSE_ = make_unique<Audio>();
+	noiseSE_->Initialize("resources/SE・BGM/Title/noise.mp3", 0.3f);
 }
 
 void TitleScreen::Update() {
@@ -63,6 +66,10 @@ void TitleScreen::Update() {
 				}
 			}
 			else {
+				if (noiseColorA_ == 0) {
+					noiseSE_->SoundPlayWave();
+				}
+
 				noiseColorA_ += 0.1f * GameEngine::GetDeltaTimeRate();
 				if (noiseColorA_ > 1.0f) {
 					noiseColorA_ = 1.0f;
@@ -85,6 +92,7 @@ void TitleScreen::Update() {
 
 			if (isClearTime_ <= 0.0f) {
 				isEnd_ = true;
+				noiseSE_->SoundEndWave();
 			}
 		}
 		screen_White_Sprite_->SetSize(Vector2{ kScreeSize.x * screenWhiteRate_.x,kScreeSize.y * screenWhiteRate_.y });
