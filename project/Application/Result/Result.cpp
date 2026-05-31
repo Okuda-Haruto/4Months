@@ -213,8 +213,8 @@ void Result::Update(Player* player, Input* input, Course* course) {
 
 		float x = min(CurrentTimeRate(), 1.0f);
 		float t = x < 0.5f
-			? 2.0f * x * x
-			: 1.0f - std::powf(-2.0f * x + 2.0f, 2.0f) / 2.0f;
+			? 8.0f * x * x * x * x
+			: 1.0f - std::powf(-2.0f * x + 2.0f, 4.0f) / 2.0f;
 		player->SetTranslate(Lerp(Vector3{ 0,startY_,0 }, Vector3{ 0,endY_,0 }, t));
 
 

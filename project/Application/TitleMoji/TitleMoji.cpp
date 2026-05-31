@@ -20,7 +20,7 @@ void TitleMoji::Update() {
 	Keyboard key = input_->GetKeyBoard();
 	Pad pad = input_->GetPad(0);
 
-	if ((key.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && state_ != State::End) {
+	if ((key.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && state_ < State::Spread) {
 		timer_ = 0;
 		state_ = State::Spread;
 		if (!explosionSE_->IsSoundPlayingWave()) {

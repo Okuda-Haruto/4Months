@@ -44,7 +44,7 @@ private:
 	std::unique_ptr<Object> studio_;
 
 	float startY_ = 0;
-	float endY_ = 155;
+	float endY_ = 153.5f;
 	bool isEnd_ = false;
 
 	SRT studioTransform_ = { {0.13f,0.13f,0.13f}, {}, {0,150,2} };
