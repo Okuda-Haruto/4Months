@@ -8,6 +8,9 @@ void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight
 	Human::Initialize(position, directionalLight, camera);
 
 	startTime_ = 0.1f;
+
+	deceidSE_ = make_unique<Audio>();
+	deceidSE_->Initialize("resources/SE・BGM/deceid.mp3", 0.5f);
 }
 
 void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCountdown* countdown) {
@@ -93,6 +96,8 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 			transform_.translate.y = resultLoopEndY + offset;
 			isSectionResult_ = false;
 			isEndSectionResult_ = true;
+
+			deceidSE_->SoundPlayWave();
 		}
 	} else {
 		// 簡易リザルト終了
@@ -111,6 +116,8 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 
 			course->ResetFailed();
 			countdown->Reset(transform_.translate);
+
+			deceidSE_->SoundPlayWave();
 		}
 	}
 

@@ -69,6 +69,8 @@ private:
 	SRT resultInTransform = {};
 	SRT setTransform = { {1,1,1}, {-0.057f ,0.919f ,-0.27f, 0.146f }, { 0.89f, 7.0f, 12.8f } };
 	Vector3 setRot{};
+	std::unique_ptr<Audio> chargeSE_;
+	std::unique_ptr<Audio> clearSE_;
 
 public:
 	//初期化

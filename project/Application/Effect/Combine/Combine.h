@@ -18,6 +18,10 @@ private:
 	std::unique_ptr<Object> beyblade_;
 
 	std::shared_ptr<Camera> camera_;
+
+	std::unique_ptr<Audio> unionSE_;
+	std::unique_ptr<Audio> completeSE_;
+
 	bool isTitle_ = false;
 	bool isEnd_ = false;
 

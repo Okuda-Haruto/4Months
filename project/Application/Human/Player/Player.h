@@ -17,5 +17,7 @@ public:
 
 private:
 	float startTime_;
+
+	std::unique_ptr<Audio> deceidSE_;
 };
 
