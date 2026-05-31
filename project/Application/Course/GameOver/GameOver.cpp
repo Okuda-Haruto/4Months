@@ -20,6 +20,13 @@ void GameOver::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 	videoDistorted_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	videoDistorted_Sprite_->SetColor(Vector4{ 1,1,1,0 });
 
+	normaOver_Sprite_ = std::make_unique<Sprite>();
+	normaOver_Sprite_->Initialize("resources/GameOver/NormaOver.png");
+	normaOver_Sprite_->SetSize(Vector2{ 660,140 });
+	normaOver_Sprite_->SetPosition(Vector2{ 640,200 });
+	normaOver_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
+	normaOver_Sprite_->SetColor(Vector4{ 1,1,1,0 });
+
 	pressToNext_Sprite_ = std::make_unique<Sprite>();
 	pressToNext_Sprite_->Initialize("resources/GameOver/Press_to_Next.png");
 	pressToNext_Sprite_->SetPosition(Vector2{ 640,560 });
@@ -75,7 +82,14 @@ void GameOver::Update() {
 		}
 	}
 
-	videoDistorted_Sprite_->SetColor(Vector4{ 1,1,1,sinf(std::numbers::pi_v<float> *12.5f * (1.0f - powf(1.0f - eventTime_ / kMaxEventTime_,2.0f))) });
+	if (eventTime_ < 2.0f) {
+		videoDistorted_Sprite_->SetColor(Vector4{ 1,1,1,sinf(std::numbers::pi_v<float> *12.5f * (1.0f - powf(1.0f - eventTime_ / (kMaxEventTime_ - 2.0f),2.0f))) });
+		normaOver_Sprite_->SetColor(Vector4{ 1,1,1,0 });
+	}
+	else {
+		videoDistorted_Sprite_->SetColor(Vector4{ 1,1,1,1 });
+		normaOver_Sprite_->SetColor(Vector4{ 1,1,1,sinf(std::numbers::pi_v<float> *12.5f * (1.0f - powf(1.0f - (eventTime_ - 2.0f) / (kMaxEventTime_ - 2.0f),2.0f))) });
+	}
 
 	if (eventTime_ >= kMaxEventTime_) {
 		plessToNextColor_ += GameEngine::GetDeltaTime();
@@ -88,6 +102,7 @@ void GameOver::Update() {
 	flowerGarden_Sprite_->Update();
 	videoDistorted_Sprite_->Update();
 	pressToNext_Sprite_->Update();
+	normaOver_Sprite_->Update();
 
 	for (int i = 0; i < 4; i++) {
 		butterfly_[i]->Update();
@@ -105,4 +120,6 @@ void GameOver::Draw() {
 	videoDistorted_Sprite_->Draw2D();
 
 	pressToNext_Sprite_->Draw2D();
+
+	normaOver_Sprite_->Draw2D();
 }
