@@ -59,6 +59,8 @@ private:
 	// 音声
 	std::unique_ptr<Audio> bgm_ = nullptr;
 	std::unique_ptr<Audio> selectSE_ = nullptr;
+
+	int selectNum_ = 1;
 public:
 	//初期化
 	void Initialize(std::shared_ptr<Input> input) override;
