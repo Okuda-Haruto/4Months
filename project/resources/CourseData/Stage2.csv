@@ -1,0 +1,6 @@
+ChunkSize,2,22,2
+ChunkDataDirectoryPath,resources/Chunks/Stage2
+VoxelDataFilePath,resources/VoxelData/VoxelData.csv
+Section,0,2,60,10000,20000,80,60,17000,15000,30,10
+Section,6,12,73,15000,30000,71,50,25000,20000,20,10
+Section,12,20,83,18500,35200,80,70,28500,22600,19,9

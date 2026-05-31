@@ -85,7 +85,7 @@ void CourseEditor::Update() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImVec2(340, 720));
 	ImGui::Begin("エディターメニュー");
-	//コースが選択されていない場合
+
 	if (!course_) {
 		if (ImGui::Button("新しくコースを作る")) {
 			isOpenFile_ = MenuItem::MakeNewFile;
@@ -99,11 +99,11 @@ void CourseEditor::Update() {
 		}
 		ImGui::End();
 
-		//選択した場合場合別のウィンドウを開く
 		static char fileName[16] = "";
 		static char directoryPath[64] = "";
 		static char voxelPath[64] = "";
 		float step = 1.0f;
+
 		switch (isOpenFile_)
 		{
 		case CourseEditor::MenuItem::MakeNewFile:
@@ -112,11 +112,12 @@ void CourseEditor::Update() {
 
 			ImGui::Begin("新しくコースを作る");
 			ImGui::Text("ファイル名");
-			ImGui::InputText("##ファイル名", fileName,sizeof(fileName));
+			ImGui::InputText("##ファイル名", fileName, sizeof(fileName));
 			ImGui::Text("チャンクディレクトリへのパス");
 			ImGui::InputText("##チャンクディレクトリへのパス", directoryPath, sizeof(directoryPath));
 			ImGui::Text("チャンク数");
-			ImGui::InputScalarN("##チャンク数",
+			ImGui::InputScalarN(
+				"##チャンク数",
 				ImGuiDataType_Float,
 				&courseData_.csvData.size.x,
 				3,
@@ -127,7 +128,6 @@ void CourseEditor::Update() {
 			ImGui::Text("使用するボクセルデータ");
 			ImGui::InputText("##使用するボクセルデータ", voxelPath, sizeof(voxelPath));
 
-			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 75);
 
 			if (ImGui::Button("戻る")) {
@@ -142,6 +142,7 @@ void CourseEditor::Update() {
 			}
 			ImGui::End();
 			break;
+
 		case CourseEditor::MenuItem::OpenFlie:
 			ImGui::SetNextWindowPos(ImVec2(340, 306));
 			ImGui::SetNextWindowSize(ImVec2(600, 108));
@@ -150,7 +151,6 @@ void CourseEditor::Update() {
 			ImGui::Text("ファイル名");
 			ImGui::InputText("##ファイル名", fileName, sizeof(fileName));
 
-			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 75);
 
 			if (ImGui::Button("戻る")) {
@@ -163,19 +163,20 @@ void CourseEditor::Update() {
 			}
 			ImGui::End();
 			break;
+
 		default:
 			break;
 		}
-	//コースエディター部分
-	} else {
-		
+
+	}
+	else {
+
 		course_->Update(player_.get());
 
 		gameCamera_->Update();
 
 #pragma region エディターステータス
 
-		//チャンク描画
 		float voxelSize = 3.0f * 2.0f;
 		float chunkSize = voxelSize * 16.0f;
 
@@ -199,10 +200,12 @@ void CourseEditor::Update() {
 		chunkAABBSub.min = chunkOriginSub;
 		chunkAABBSub.max = chunkOriginSub + Vector3{ chunkSize, chunkSize, chunkSize };
 
-		// テクスチャID (DxLibやDirectXから取得したID)
-		ImTextureID textureID = (ImTextureID)GameEngine::GetSRVManager()->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSrvIndex("resources/Course/Face/Brick.png")).ptr;
-		ImVec2 uv00 = ImVec2(0.0f, 0.0f); // タイルのUV開始位置
-		ImVec2 uv11 = ImVec2(0.0f, 1.0f); // タイルのUV終了位置 (例: 4x4のタイルセットの左上)
+		ImTextureID textureID = (ImTextureID)GameEngine::GetSRVManager()->GetGPUDescriptorHandle(
+			TextureManager::GetInstance()->GetSrvIndex("resources/Course/Face/Brick.png")
+		).ptr;
+
+		ImVec2 uv00 = ImVec2(0.0f, 0.0f);
+		ImVec2 uv11 = ImVec2(0.0f, 1.0f);
 
 #pragma endregion
 
@@ -240,9 +243,10 @@ void CourseEditor::Update() {
 			ImGui::SliderFloat("Y##1", &selectChunk_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
 			ImGui::SliderFloat("Z##1", &selectChunk_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 
-			if (ImGui::Button("チャンク横回転(Y軸回転)")) {
-				course_->GetVoxel()->ChunkHorizontalRotation(selectChunk_);
-			}
+			static Vector3 rotateRangeMin = { 0, 0, 0 };
+			static Vector3 rotateRangeMax = { 0, 0, 0 };
+
+
 			if (ImGui::Button("チャンク縦回転(X軸回転)")) {
 				course_->GetVoxel()->ChunkVerticalRotation(selectChunk_);
 			}
@@ -261,13 +265,14 @@ void CourseEditor::Update() {
 				selectChunk_.y += 1.0f;
 				courseData_.csvData.size.y += 1.0f;
 			}
-
+		
 			ImGui::TreePop();
 		}
 
 #pragma endregion
 
 #pragma region ボクセル操作
+
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
 
 		isDrawMapchipArea_ = false;
@@ -277,7 +282,12 @@ void CourseEditor::Update() {
 
 			ImGui::SliderInt("高度", &mapchipAreaY_, 0, 15);
 
-			mapchipAreaTransform_.translate = chunkOrigin + Vector3{ chunkSize / 2, chunkSize - mapchipAreaY_ * voxelSize - voxelSize / 2, chunkSize / 2 };
+			mapchipAreaTransform_.translate =
+				chunkOrigin + Vector3{
+					chunkSize / 2,
+					chunkSize - mapchipAreaY_ * voxelSize - voxelSize / 2,
+					chunkSize / 2
+			};
 			mapchipAreaObject_->SetTransform(mapchipAreaTransform_);
 
 			std::vector<std::vector<std::vector<Chunk>>> chunks_ = course_->GetVoxel()->GetChunks();
@@ -290,36 +300,64 @@ void CourseEditor::Update() {
 				for (int x = 0; x < 16; x++) {
 					std::string id = "##tile" + std::to_string(z) + "_" + std::to_string(x);
 
-					//TILEの見た目変更
 					if (chunks_[int(selectChunk_.y)][int(selectChunk_.z)][int(selectChunk_.x)].mapChip[mapchipAreaY_][z][x] != TILE_None) {
 						uv00.x = float(chunks_[int(selectChunk_.y)][int(selectChunk_.z)][int(selectChunk_.x)].mapChip[mapchipAreaY_][z][x] - 1) / int(VOXEL_TILE_END - 1);
-					} else {
+					}
+					else {
 						uv00.x = 0.0f;
 					}
 					uv11.x = float(chunks_[int(selectChunk_.y)][int(selectChunk_.z)][int(selectChunk_.x)].mapChip[mapchipAreaY_][z][x]) / int(VOXEL_TILE_END - 1);
 
-					//隙間消し用
 					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1, 1));
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-					// クリック可能なマップチップボタン
-					if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv00, uv11)) {
-						// タイルが選択された時の処理
-						chunks_[int(selectChunk_.y)][int(selectChunk_.z)][int(selectChunk_.x)].mapChip[mapchipAreaY_][z][x] = selectedTile_;
-						course_->GetVoxel()->SetVoxel(selectChunk_, mapchipAreaY_, z, x, chunks_[int(selectChunk_.y)][int(selectChunk_.z)][int(selectChunk_.x)].mapChip[mapchipAreaY_][z][x]);
+					ImGui::ImageButton(id.c_str(), textureID, ImVec2(16, 16), uv00, uv11);
+
+					bool isTileHoveredOrActive =
+						ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) ||
+						ImGui::IsItemActive();
+
+					if (isTileHoveredOrActive) {
+
+						if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+							course_->GetVoxel()->SetVoxel(
+								selectChunk_,
+								mapchipAreaY_,
+								z,
+								x,
+								selectedTile_
+							);
+						}
+
+						if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+							course_->GetVoxel()->SetVoxel(
+								selectChunk_,
+								mapchipAreaY_,
+								z,
+								x,
+								TILE_None
+							);
+						}
 					}
 
-					//ホバー中か
 					if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
 						isSetVoxel_ = true;
-						setVoxelTransform_.translate = chunkOrigin + Vector3{ voxelSize * x + voxelSize / 2, chunkSize - mapchipAreaY_ * voxelSize - voxelSize / 2, voxelSize * z + voxelSize / 2 };
+
+						setVoxelTransform_.translate =
+							chunkOrigin + Vector3{
+								voxelSize * x + voxelSize / 2,
+								chunkSize - mapchipAreaY_ * voxelSize - voxelSize / 2,
+								voxelSize * z + voxelSize / 2
+						};
 						setVoxelObject_->SetTransform(setVoxelTransform_);
+
 						if (selectedTile_ > 0) {
 							std::vector<Parts> parts = setVoxelObject_->GetParts();
 							parts[0].UVtransform.scale.x = 1.0f / (VOXEL_TILE_END - 1);
 							parts[0].UVtransform.translate.x = (1.0f / (VOXEL_TILE_END - 1)) * (selectedTile_ - 1);
 							setVoxelObject_->SetParts(parts[0], 0);
-						} else {
+						}
+						else {
 							std::vector<Parts> parts = setVoxelObject_->GetParts();
 							parts[0].UVtransform.scale.x = 0.0000001f;
 							parts[0].UVtransform.translate.x = 0;
@@ -327,8 +365,9 @@ void CourseEditor::Update() {
 						}
 					}
 
-					// グリッドを並べる
-					if (x < 15) ImGui::SameLine();
+					if (x < 15) {
+						ImGui::SameLine();
+					}
 
 					ImGui::PopStyleVar(2);
 				}
@@ -339,6 +378,310 @@ void CourseEditor::Update() {
 			}
 			if (ImGui::Button("下のマップチップをコピー")) {
 				course_->GetVoxel()->CopyUnderMapChip(selectChunk_, mapchipAreaY_);
+			}
+
+			static Vector3 rotateRangeMin = { 0, 0, 0 };
+			static Vector3 rotateRangeMax = { 0, 0, 0 };
+
+
+			ImGui::Separator();
+			ImGui::Text("指定範囲チャンクY軸回転");
+
+			ImGui::Text("開始チャンク");
+			ImGui::SliderFloat("X##RotateRangeMinX", &rotateRangeMin.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##RotateRangeMinY", &rotateRangeMin.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##RotateRangeMinZ", &rotateRangeMin.z, 0, courseData_.csvData.size.z - 1, "%.0f");
+
+			ImGui::Text("終了チャンク");
+			ImGui::SliderFloat("X##RotateRangeMaxX", &rotateRangeMax.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##RotateRangeMaxY", &rotateRangeMax.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##RotateRangeMaxZ", &rotateRangeMax.z, 0, courseData_.csvData.size.z - 1, "%.0f");
+
+			if (ImGui::Button("指定範囲をコース形状維持でY軸90度回転")) {
+				int minX = int(std::min(rotateRangeMin.x, rotateRangeMax.x));
+				int maxX = int(std::max(rotateRangeMin.x, rotateRangeMax.x));
+				int minY = int(std::min(rotateRangeMin.y, rotateRangeMax.y));
+				int maxY = int(std::max(rotateRangeMin.y, rotateRangeMax.y));
+				int minZ = int(std::min(rotateRangeMin.z, rotateRangeMax.z));
+				int maxZ = int(std::max(rotateRangeMin.z, rotateRangeMax.z));
+
+				auto oldChunks = course_->GetVoxel()->GetChunks();
+
+				for (int y = minY; y <= maxY; y++) {
+					for (int z = minZ; z <= maxZ; z++) {
+						for (int x = minX; x <= maxX; x++) {
+
+							int srcX = x;
+							int srcZ = z;
+
+							// Y軸90度回転後のチャンク位置
+							int dstX = minX + (maxZ - srcZ);
+							int dstZ = minZ + (srcX - minX);
+
+							// 範囲外なら無視
+							if (dstX < 0 || dstX >= int(courseData_.csvData.size.x)) continue;
+							if (dstZ < 0 || dstZ >= int(courseData_.csvData.size.z)) continue;
+
+							Chunk srcChunk = oldChunks[y][srcZ][srcX];
+
+							// チャンク内もY軸90度回転して配置
+							for (int yy = 0; yy < 16; yy++) {
+								for (int zz = 0; zz < 16; zz++) {
+									for (int xx = 0; xx < 16; xx++) {
+
+										int dstVoxelX = 15 - zz;
+										int dstVoxelZ = xx;
+
+										course_->GetVoxel()->SetVoxel(
+											Vector3{ float(dstX), float(y), float(dstZ) },
+											yy,
+											dstVoxelZ,
+											dstVoxelX,
+											srcChunk.mapChip[yy][zz][xx]
+										);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+
+			if (ImGui::Button("指定範囲チャンク内を一括削除")) {
+				int minX = int(std::min(rotateRangeMin.x, rotateRangeMax.x));
+				int maxX = int(std::max(rotateRangeMin.x, rotateRangeMax.x));
+				int minY = int(std::min(rotateRangeMin.y, rotateRangeMax.y));
+				int maxY = int(std::max(rotateRangeMin.y, rotateRangeMax.y));
+				int minZ = int(std::min(rotateRangeMin.z, rotateRangeMax.z));
+				int maxZ = int(std::max(rotateRangeMin.z, rotateRangeMax.z));
+
+				for (int chunkY = minY; chunkY <= maxY; chunkY++) {
+					for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+						for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+
+							for (int y = 0; y < 16; y++) {
+								for (int z = 0; z < 16; z++) {
+									for (int x = 0; x < 16; x++) {
+										course_->GetVoxel()->SetVoxel(
+											Vector3{
+												float(chunkX),
+												float(chunkY),
+												float(chunkZ)
+											},
+											y,
+											z,
+											x,
+											TILE_None
+										);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (ImGui::Button("指定範囲チャンクを1つ上へ移動")) {
+				int minX = int(std::min(rotateRangeMin.x, rotateRangeMax.x));
+				int maxX = int(std::max(rotateRangeMin.x, rotateRangeMax.x));
+				int minY = int(std::min(rotateRangeMin.y, rotateRangeMax.y));
+				int maxY = int(std::max(rotateRangeMin.y, rotateRangeMax.y));
+				int minZ = int(std::min(rotateRangeMin.z, rotateRangeMax.z));
+				int maxZ = int(std::max(rotateRangeMin.z, rotateRangeMax.z));
+
+				// 上はYが小さい方向
+				int moveY = -1;
+
+				if (minY + moveY >= 0) {
+					auto oldChunks = course_->GetVoxel()->GetChunks();
+
+					// 元範囲を先に削除
+					for (int chunkY = minY; chunkY <= maxY; chunkY++) {
+						for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+							for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+								for (int y = 0; y < 16; y++) {
+									for (int z = 0; z < 16; z++) {
+										for (int x = 0; x < 16; x++) {
+											course_->GetVoxel()->SetVoxel(
+												Vector3{ float(chunkX), float(chunkY), float(chunkZ) },
+												y, z, x,
+												TILE_None
+											);
+										}
+									}
+								}
+							}
+						}
+					}
+
+					// コピー元の形を維持して移動先へ配置
+					for (int chunkY = minY; chunkY <= maxY; chunkY++) {
+						for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+							for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+								Chunk srcChunk = oldChunks[chunkY][chunkZ][chunkX];
+								int dstY = chunkY + moveY;
+
+								for (int y = 0; y < 16; y++) {
+									for (int z = 0; z < 16; z++) {
+										for (int x = 0; x < 16; x++) {
+											course_->GetVoxel()->SetVoxel(
+												Vector3{ float(chunkX), float(dstY), float(chunkZ) },
+												y, z, x,
+												srcChunk.mapChip[y][z][x]
+											);
+										}
+									}
+								}
+							}
+						}
+					}
+
+					rotateRangeMin.y += moveY;
+					rotateRangeMax.y += moveY;
+				}
+			}
+
+			if (ImGui::Button("指定範囲チャンクを1つ下へ移動")) {
+				int minX = int(std::min(rotateRangeMin.x, rotateRangeMax.x));
+				int maxX = int(std::max(rotateRangeMin.x, rotateRangeMax.x));
+				int minY = int(std::min(rotateRangeMin.y, rotateRangeMax.y));
+				int maxY = int(std::max(rotateRangeMin.y, rotateRangeMax.y));
+				int minZ = int(std::min(rotateRangeMin.z, rotateRangeMax.z));
+				int maxZ = int(std::max(rotateRangeMin.z, rotateRangeMax.z));
+
+				// 下はYが大きい方向
+				int moveY = 1;
+
+				if (maxY + moveY <= int(courseData_.csvData.size.y) - 1) {
+					auto oldChunks = course_->GetVoxel()->GetChunks();
+
+					// 元範囲を先に削除
+					for (int chunkY = minY; chunkY <= maxY; chunkY++) {
+						for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+							for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+								for (int y = 0; y < 16; y++) {
+									for (int z = 0; z < 16; z++) {
+										for (int x = 0; x < 16; x++) {
+											course_->GetVoxel()->SetVoxel(
+												Vector3{ float(chunkX), float(chunkY), float(chunkZ) },
+												y, z, x,
+												TILE_None
+											);
+										}
+									}
+								}
+							}
+						}
+					}
+
+					// コピー元の形を維持して移動先へ配置
+					for (int chunkY = minY; chunkY <= maxY; chunkY++) {
+						for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+							for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+								Chunk srcChunk = oldChunks[chunkY][chunkZ][chunkX];
+								int dstY = chunkY + moveY;
+
+								for (int y = 0; y < 16; y++) {
+									for (int z = 0; z < 16; z++) {
+										for (int x = 0; x < 16; x++) {
+											course_->GetVoxel()->SetVoxel(
+												Vector3{ float(chunkX), float(dstY), float(chunkZ) },
+												y, z, x,
+												srcChunk.mapChip[y][z][x]
+											);
+										}
+									}
+								}
+							}
+						}
+					}
+
+					rotateRangeMin.y += moveY;
+					rotateRangeMax.y += moveY;
+				}
+			}
+			static Vector3 copyStartChunk = { 0, 0, 0 };
+
+			ImGui::Separator();
+			ImGui::Text("指定範囲チャンク一括コピー");
+			ImGui::Text("コピー先開始チャンク");
+			ImGui::SliderFloat("X##CopyStartX", &copyStartChunk.x, 0, courseData_.csvData.size.x - 1, "%.0f");
+			ImGui::SliderFloat("Y##CopyStartY", &copyStartChunk.y, 0, courseData_.csvData.size.y - 1, "%.0f");
+			ImGui::SliderFloat("Z##CopyStartZ", &copyStartChunk.z, 0, courseData_.csvData.size.z - 1, "%.0f");
+
+			if (ImGui::Button("指定範囲を開始チャンクへ一括コピー")) {
+				int minX = int(std::min(rotateRangeMin.x, rotateRangeMax.x));
+				int maxX = int(std::max(rotateRangeMin.x, rotateRangeMax.x));
+				int minY = int(std::min(rotateRangeMin.y, rotateRangeMax.y));
+				int maxY = int(std::max(rotateRangeMin.y, rotateRangeMax.y));
+				int minZ = int(std::min(rotateRangeMin.z, rotateRangeMax.z));
+				int maxZ = int(std::max(rotateRangeMin.z, rotateRangeMax.z));
+
+				int startX = int(copyStartChunk.x);
+				int startY = int(copyStartChunk.y);
+				int startZ = int(copyStartChunk.z);
+
+				auto oldChunks = course_->GetVoxel()->GetChunks();
+
+				for (int chunkY = minY; chunkY <= maxY; chunkY++) {
+					for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+						for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+
+							int offsetX = chunkX - minX;
+							int offsetY = chunkY - minY;
+							int offsetZ = chunkZ - minZ;
+
+							int dstChunkX = startX + offsetX;
+							int dstChunkY = startY + offsetY;
+							int dstChunkZ = startZ + offsetZ;
+
+							if (dstChunkX < 0 || dstChunkX >= int(courseData_.csvData.size.x)) continue;
+							if (dstChunkY < 0 || dstChunkY >= int(courseData_.csvData.size.y)) continue;
+							if (dstChunkZ < 0 || dstChunkZ >= int(courseData_.csvData.size.z)) continue;
+
+							Chunk srcChunk = oldChunks[chunkY][chunkZ][chunkX];
+
+							for (int y = 0; y < 16; y++) {
+								for (int z = 0; z < 16; z++) {
+									for (int x = 0; x < 16; x++) {
+										course_->GetVoxel()->SetVoxel(
+											Vector3{
+												float(dstChunkX),
+												float(dstChunkY),
+												float(dstChunkZ)
+											},
+											y,
+											z,
+											x,
+											srcChunk.mapChip[y][z][x]
+										);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (ImGui::Button("指定範囲チャンクを一括鏡面反転")) {
+				int minX = int(std::min(rotateRangeMin.x, rotateRangeMax.x));
+				int maxX = int(std::max(rotateRangeMin.x, rotateRangeMax.x));
+				int minY = int(std::min(rotateRangeMin.y, rotateRangeMax.y));
+				int maxY = int(std::max(rotateRangeMin.y, rotateRangeMax.y));
+				int minZ = int(std::min(rotateRangeMin.z, rotateRangeMax.z));
+				int maxZ = int(std::max(rotateRangeMin.z, rotateRangeMax.z));
+
+				for (int y = minY; y <= maxY; y++) {
+					for (int z = minZ; z <= maxZ; z++) {
+						for (int x = minX; x <= maxX; x++) {
+							course_->GetVoxel()->ChunkMirror(Vector3{
+								float(x),
+								float(y),
+								float(z)
+								});
+						}
+					}
+				}
 			}
 
 			ImGui::TreePop();
@@ -356,6 +699,7 @@ void CourseEditor::Update() {
 			ImGui::SliderFloat("X##3", &drawAABB_.min.x, 0, courseData_.csvData.size.x - 1, "%.0f");
 			ImGui::SliderFloat("Y##3", &drawAABB_.min.y, 0, courseData_.csvData.size.y - 1, "%.0f");
 			ImGui::SliderFloat("Z##3", &drawAABB_.min.z, 0, courseData_.csvData.size.z - 1, "%.0f");
+
 			ImGui::Text("max");
 			ImGui::SliderFloat("X##4", &drawAABB_.max.x, 0, courseData_.csvData.size.x - 1, "%.0f");
 			ImGui::SliderFloat("Y##4", &drawAABB_.max.y, 0, courseData_.csvData.size.y - 1, "%.0f");
@@ -412,7 +756,8 @@ void CourseEditor::Update() {
 		ImGui::Text("右クリック + 移動 : カメラ回転");
 		ImGui::Text("右クリック + ホイール回転 : カメラ前後移動");
 		ImGui::Text("ホイールクリック + 移動 : カメラ位置調整");
-		ImGui::Text("左クリック : ボクセル配置 + チャンクカーソルを合わせる");
+		ImGui::Text("左クリック長押し : ボクセル配置");
+		ImGui::Text("右クリック長押し : ボクセル削除");
 		ImGui::Text("*下面は現在描画していません。");
 		ImGui::Text("*ボクセルの予測が出ていない場合は埋っています。");
 		ImGui::Text(" その状態で配置すると意図しない場所に配置されます。");
@@ -431,50 +776,51 @@ void CourseEditor::Update() {
 
 #pragma endregion
 
-
 		ImGui::End();
 
 #pragma region TILEパレット
+
 		ImGui::Begin("タイルパレット");
-		for (int i = 0; i < int(VOXEL_TILE_END);i++) {
+
+		for (int i = 0; i < int(VOXEL_TILE_END); i++) {
 			std::string id = "##pallet" + std::to_string(i);
-			//TILEの見た目変更
+
 			if (i != TILE_None) {
 				uv00.x = float(i - 1) / int(VOXEL_TILE_END - 1);
-			} else {
+			}
+			else {
 				uv00.x = 0.0f;
 			}
 			uv11.x = float(i) / int(VOXEL_TILE_END - 1);
 
-			//クリックでselectedTile_が変わるので状態を保持
 			bool isSelected = (i == selectedTile_);
 
 			if (isSelected) {
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.0f, 0.0f, 1));
 				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.1f, 0.1f, 1));
 				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1));
-			} else {
+			}
+			else {
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.1f, 0.1f, 1));
 				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 1));
 				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.2f, 1));
 			}
 
-			//隙間消し用
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-			// クリック可能なマップチップボタン
 			if (ImGui::ImageButton(id.c_str(), textureID, ImVec2(64, 64), uv00, uv11)) {
 				selectedTile_ = i;
 			}
 
-			if (i < VOXEL_TILE_END - 1 && ((i + 1) % 5 != 0) )ImGui::SameLine();
+			if (i < VOXEL_TILE_END - 1 && ((i + 1) % 5 != 0)) {
+				ImGui::SameLine();
+			}
 
 			ImGui::PopStyleVar(2);
 			ImGui::PopStyleColor(3);
 		}
 
-		//空気以外ならステータスを変更可能に
 		if (selectedTile_ != 0) {
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
 
@@ -483,22 +829,23 @@ void CourseEditor::Update() {
 				courseData_.csvData.voxelStatus.resize(selectedTile_ + 1);
 			}
 
-			ImGui::DragFloat("耐久度",&courseData_.csvData.voxelStatus[selectedTile_].MaxHP,0.1f,0.0f,180.0f);
+			ImGui::DragFloat("耐久度", &courseData_.csvData.voxelStatus[selectedTile_].MaxHP, 0.1f, 0.0f, 180.0f);
 			ImGui::DragFloat("耐久度乱数範囲", &courseData_.csvData.voxelStatus[selectedTile_].randomRate, 0.1f, 0.0f, 180.0f);
 			ImGui::DragFloat("巻き込まれやすさ", &courseData_.csvData.voxelStatus[selectedTile_].vacuumSensitivity, 0.01f, 0.0f, 1.0f);
 
 			course_->GetVoxel()->SetVoxelData(courseData_.csvData.voxelStatus);
 		}
 
-
 		ImGui::End();
+
 #pragma endregion
 
 #pragma region Chunkコピー
-		//チャンクコピーか入れ替えを選択した場合場合別のウィンドウを開く
+
 		static char fileName[16] = "";
 		static char directoryPath[64] = "";
 		float step = 1.0f;
+
 		switch (chunkSettingItem_)
 		{
 		case CourseEditor::ChunkSettingItem::Copy:
@@ -514,7 +861,6 @@ void CourseEditor::Update() {
 			ImGui::SliderFloat("Y##2", &selectChunkSub_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
 			ImGui::SliderFloat("Z##2", &selectChunkSub_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 
-			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
 
 			if (ImGui::Button("戻る")) {
@@ -529,6 +875,7 @@ void CourseEditor::Update() {
 			PrimitiveManager::GetInstance()->AddAABB(chunkAABBSub, Vector4{ 0,1,0,1 });
 
 			break;
+
 		case CourseEditor::ChunkSettingItem::Swap:
 			ImGui::SetNextWindowSize(ImVec2(600, 256));
 
@@ -542,7 +889,6 @@ void CourseEditor::Update() {
 			ImGui::SliderFloat("Y##2", &selectChunkSub_.y, 0, courseData_.csvData.size.y - 1, "%.0f");
 			ImGui::SliderFloat("Z##2", &selectChunkSub_.z, 0, courseData_.csvData.size.z - 1, "%.0f");
 
-			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
 
 			if (ImGui::Button("戻る")) {
@@ -554,15 +900,17 @@ void CourseEditor::Update() {
 			}
 			ImGui::End();
 
-			PrimitiveManager::GetInstance()->AddAABB(chunkAABBSub, Vector4{0,1,0,1});
+			PrimitiveManager::GetInstance()->AddAABB(chunkAABBSub, Vector4{ 0,1,0,1 });
 
 			break;
+
 		case CourseEditor::ChunkSettingItem::Resize:
 			ImGui::SetNextWindowSize(ImVec2(600, 128));
 
 			ImGui::Begin("チャンクサイズ変更");
 			ImGui::Text("チャンク数");
-			ImGui::InputScalarN("##チャンク数",
+			ImGui::InputScalarN(
+				"##チャンク数",
 				ImGuiDataType_Float,
 				&copyCourseSize_.x,
 				3,
@@ -571,7 +919,6 @@ void CourseEditor::Update() {
 				"%.0f"
 			);
 
-
 			if (ImGui::Button("戻る")) {
 				chunkSettingItem_ = ChunkSettingItem::None;
 			}
@@ -579,21 +926,26 @@ void CourseEditor::Update() {
 			if (ImGui::Button("変更")) {
 				courseData_.csvData.size = copyCourseSize_;
 				course_->GetVoxel()->Resize(courseData_.csvData.size);
-				drawAABB_.min.x = 0;						drawAABB_.min.z = 0;
-				drawAABB_.max.x = courseData_.csvData.size.x;	drawAABB_.max.z = courseData_.csvData.size.z;
+				drawAABB_.min.x = 0;
+				drawAABB_.min.z = 0;
+				drawAABB_.max.x = courseData_.csvData.size.x;
+				drawAABB_.max.z = courseData_.csvData.size.z;
 				chunkSettingItem_ = ChunkSettingItem::None;
 			}
 
 			ImGui::End();
 			break;
+
 		default:
 			break;
 		}
+
 #pragma endregion
 
 #pragma region Setcionコピー
 
 		static int sectionIndex = 0;
+
 		switch (sectionSettingItem_)
 		{
 		case SectionSettingItem::Add:
@@ -606,10 +958,10 @@ void CourseEditor::Update() {
 			ImGui::Text("最大時間");
 			ImGui::DragFloat("##Time", &sectionData_.maxSeconds);
 			ImGui::Text("制限スコア");
-			ImGui::DragInt("クリア", &sectionData_.clearScore,100);
+			ImGui::DragInt("クリア", &sectionData_.clearScore, 100);
 			ImGui::DragInt("最大", &sectionData_.maxScore, 100);
 			ImGui::Text("Aランクライン");
-			ImGui::DragInt("破壊割合##A", &sectionData_.rankBorders.rate.aScore, 1,0,100);
+			ImGui::DragInt("破壊割合##A", &sectionData_.rankBorders.rate.aScore, 1, 0, 100);
 			ImGui::DragInt("破壊スコア##A", &sectionData_.rankBorders.count.aScore, 100);
 			ImGui::DragInt("クリア時間##A", &sectionData_.rankBorders.time.aScore, 1, 0, int(sectionData_.maxSeconds));
 			ImGui::Text("Bランクライン");
@@ -617,7 +969,6 @@ void CourseEditor::Update() {
 			ImGui::DragInt("破壊スコア##B", &sectionData_.rankBorders.count.bScore, 100);
 			ImGui::DragInt("クリア時間##B", &sectionData_.rankBorders.time.bScore, 1, 0, int(sectionData_.maxSeconds));
 
-			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
 
 			if (ImGui::Button("戻る")) {
@@ -626,7 +977,14 @@ void CourseEditor::Update() {
 			ImGui::SameLine();
 			if (ImGui::Button("追加")) {
 				courseData_.sectionDatas.push_back(sectionData_);
-				course_->AddSection(sectionData_.startChunkY, sectionData_.endChunkY, sectionData_.maxSeconds, sectionData_.clearScore, sectionData_.maxScore, sectionData_.rankBorders);
+				course_->AddSection(
+					sectionData_.startChunkY,
+					sectionData_.endChunkY,
+					sectionData_.maxSeconds,
+					sectionData_.clearScore,
+					sectionData_.maxScore,
+					sectionData_.rankBorders
+				);
 				sectionSettingItem_ = SectionSettingItem::None;
 
 				course_->ResetGoalBarrier();
@@ -634,6 +992,7 @@ void CourseEditor::Update() {
 			ImGui::End();
 
 			break;
+
 		case SectionSettingItem::Resize:
 			ImGui::SetNextWindowSize(ImVec2(600, 472));
 
@@ -656,7 +1015,6 @@ void CourseEditor::Update() {
 			ImGui::DragInt("破壊スコア##B", &courseData_.sectionDatas[sectionIndex].rankBorders.count.bScore, 100);
 			ImGui::DragInt("クリア時間##B", &courseData_.sectionDatas[sectionIndex].rankBorders.time.bScore, 1, 0, int(courseData_.sectionDatas[sectionIndex].maxSeconds));
 
-			// 右寄せ
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - 85);
 
 			if (ImGui::Button("戻る")) {
@@ -664,17 +1022,22 @@ void CourseEditor::Update() {
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("変更")) {
-				//ステージエディターだとサイズ以外関係ない
-				course_->SetSectionChunkSize(courseData_.sectionDatas[sectionIndex].startChunkY, courseData_.sectionDatas[sectionIndex].endChunkY, sectionIndex);
+				course_->SetSectionChunkSize(
+					courseData_.sectionDatas[sectionIndex].startChunkY,
+					courseData_.sectionDatas[sectionIndex].endChunkY,
+					sectionIndex
+				);
 				sectionSettingItem_ = SectionSettingItem::None;
 
 				course_->ResetGoalBarrier();
 			}
 			ImGui::End();
 			break;
+
 		default:
 			break;
 		}
+
 #pragma endregion
 
 #pragma region マウス配置
@@ -683,32 +1046,32 @@ void CourseEditor::Update() {
 			!ImGui::IsAnyItemHovered() &&
 			!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
 
-			// ビューポート行列
-			Matrix4x4 matViewport = MakeViewportMatrix(0, 0, float(GameEngine::GetWindowWidth()), float(GameEngine::GetWindowHeight()), 0, 1);
+			Matrix4x4 matViewport = MakeViewportMatrix(
+				0,
+				0,
+				float(GameEngine::GetWindowWidth()),
+				float(GameEngine::GetWindowHeight()),
+				0,
+				1
+			);
 
-			// ビュー行列とプロジェクション行列、ビューポート行列を合成する
-			Matrix4x4 matViewProjectionViewport = gameCamera_->GetCamera()->GetViewMatrix() * gameCamera_->GetCamera()->GetProjectionMatrix() * matViewport;
+			Matrix4x4 matViewProjectionViewport =
+				gameCamera_->GetCamera()->GetViewMatrix() *
+				gameCamera_->GetCamera()->GetProjectionMatrix() *
+				matViewport;
 
-			//合成行列の逆行列を計算する
 			Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewport);
 
-			//スクリーン座標
 			Vector3 posNear = Vector3(mouse.Position.x, mouse.Position.y, 0.0f);
 			Vector3 posFar = Vector3(mouse.Position.x, mouse.Position.y, 1.0f);
 
-			//スクリーン座標系からワールド座標系へ
 			posNear = Transform(posNear, matInverseVPV);
 			posFar = Transform(posFar, matInverseVPV);
 
-			//マウスレイの方向
 			Vector3 mouseDirection = posFar - posNear;
 			mouseDirection = Normalize(mouseDirection);
 
-			//カメラから照準オブジェクトの距離	モデルがカメラから50離れているので更に50離す
-			const float kDistanceTestObject = 100.0f;
 			Vector3 rayDir = posNear + mouseDirection - gameCamera_->GetTransform().translate;
-
-			Vector3 rayOrigin = gameCamera_->GetTransform().translate;
 
 			Ray ray = {
 				gameCamera_->GetTransform().translate,
@@ -717,15 +1080,17 @@ void CourseEditor::Update() {
 
 			CollisionVoxel collisionVoxel = course_->GetVoxel()->GetCollisionVoxel(ray, drawAABB_);
 
-			//レイが接触していたら
 			if (Length(collisionVoxel.normal) > 0.000001f) {
 
 				isCursorVoxel_ = true;
 
-				//接触した面だけ動かす
 				if (selectedTile_ > 0) {
 
-					collisionVoxel.mapChipPos += Vector3{ collisionVoxel.normal.x, -collisionVoxel.normal.y, collisionVoxel.normal.z };
+					collisionVoxel.mapChipPos += Vector3{
+						collisionVoxel.normal.x,
+						-collisionVoxel.normal.y,
+						collisionVoxel.normal.z
+					};
 
 					if (collisionVoxel.mapChipPos.x < 0) {
 						collisionVoxel.chunkPos.x -= 1;
@@ -733,33 +1098,38 @@ void CourseEditor::Update() {
 						if (collisionVoxel.chunkPos.x < 0) {
 							isCursorVoxel_ = false;
 						}
-					} else if (collisionVoxel.mapChipPos.x > 15) {
+					}
+					else if (collisionVoxel.mapChipPos.x > 15) {
 						collisionVoxel.chunkPos.x += 1;
 						collisionVoxel.mapChipPos.x -= 16;
 						if (collisionVoxel.chunkPos.x > courseData_.csvData.size.x - 1) {
 							isCursorVoxel_ = false;
 						}
 					}
+
 					if (collisionVoxel.mapChipPos.y < 0) {
 						collisionVoxel.chunkPos.y -= 1;
 						collisionVoxel.mapChipPos.y += 16;
 						if (collisionVoxel.chunkPos.y < 0) {
 							isCursorVoxel_ = false;
 						}
-					} else if (collisionVoxel.mapChipPos.y > 15) {
+					}
+					else if (collisionVoxel.mapChipPos.y > 15) {
 						collisionVoxel.chunkPos.y += 1;
 						collisionVoxel.mapChipPos.y -= 16;
 						if (collisionVoxel.chunkPos.y > courseData_.csvData.size.y - 1) {
 							isCursorVoxel_ = false;
 						}
 					}
+
 					if (collisionVoxel.mapChipPos.z < 0) {
 						collisionVoxel.chunkPos.z -= 1;
 						collisionVoxel.mapChipPos.z += 16;
 						if (collisionVoxel.chunkPos.z < 0) {
 							isCursorVoxel_ = false;
 						}
-					} else if (collisionVoxel.mapChipPos.z > 15) {
+					}
+					else if (collisionVoxel.mapChipPos.z > 15) {
 						collisionVoxel.chunkPos.z += 1;
 						collisionVoxel.mapChipPos.z -= 16;
 						if (collisionVoxel.chunkPos.z > courseData_.csvData.size.z - 1) {
@@ -771,8 +1141,9 @@ void CourseEditor::Update() {
 					parts[0].UVtransform.scale.x = 1.0f / (VOXEL_TILE_END - 1);
 					parts[0].UVtransform.translate.x = (1.0f / (VOXEL_TILE_END - 1)) * (selectedTile_ - 1);
 					cursorVoxelObject_->SetParts(parts[0], 0);
-					//何もないを選択してるならそのまま
-				} else {
+
+				}
+				else {
 
 					std::vector<Parts> parts = cursorVoxelObject_->GetParts();
 					parts[0].UVtransform.scale.x = 0.0000001f;
@@ -788,25 +1159,36 @@ void CourseEditor::Update() {
 
 				cursorVoxelTransform_.translate =
 					collisionChunkOrigin + Vector3{
-					voxelSize * (collisionVoxel.mapChipPos.x) + voxelSize / 2,
-					chunkSize - (collisionVoxel.mapChipPos.y) * voxelSize - voxelSize / 2,
-					voxelSize * (collisionVoxel.mapChipPos.z) + voxelSize / 2
+						voxelSize * collisionVoxel.mapChipPos.x + voxelSize / 2,
+						chunkSize - collisionVoxel.mapChipPos.y * voxelSize - voxelSize / 2,
+						voxelSize * collisionVoxel.mapChipPos.z + voxelSize / 2
 				};
+
 				cursorVoxelObject_->SetTransform(cursorVoxelTransform_);
 
-				if (isCursorVoxel_ && mouse.click[MOUSE_BOTTON_LEFT].trigger) {
+				if (isCursorVoxel_) {
 					selectChunk_ = collisionVoxel.chunkPos;
 					mapchipAreaY_ = int(collisionVoxel.mapChipPos.y);
 
-					std::vector<std::vector<std::vector<Chunk>>> chunks_ = course_->GetVoxel()->GetChunks();
-					// タイルが選択された時の処理
-					chunks_[int(selectChunk_.y)][int(selectChunk_.z)][int(selectChunk_.x)].mapChip[int(collisionVoxel.mapChipPos.y)][int(collisionVoxel.mapChipPos.z)][int(collisionVoxel.mapChipPos.x)] = selectedTile_;
-					course_->GetVoxel()->SetVoxel(selectChunk_, int(collisionVoxel.mapChipPos.y), int(collisionVoxel.mapChipPos.z), int(collisionVoxel.mapChipPos.x), chunks_[int(selectChunk_.y)][int(selectChunk_.z)][int(selectChunk_.x)].mapChip[int(collisionVoxel.mapChipPos.y)][int(collisionVoxel.mapChipPos.z)][int(collisionVoxel.mapChipPos.x)]);
+					if (mouse.click[MOUSE_BOTTON_LEFT].hold) {
+						course_->GetVoxel()->SetVoxel(
+							selectChunk_,
+							int(collisionVoxel.mapChipPos.y),
+							int(collisionVoxel.mapChipPos.z),
+							int(collisionVoxel.mapChipPos.x),
+							selectedTile_
+						);
+					}
+
 				}
-			} else {
+
+			}
+			else {
 				isCursorVoxel_ = false;
 			}
-		} else {
+
+		}
+		else {
 			isCursorVoxel_ = false;
 		}
 
@@ -814,18 +1196,16 @@ void CourseEditor::Update() {
 
 #pragma region ショートカット
 
-		//コピー
 		if ((key.hold[DIK_LCONTROL] || key.hold[DIK_RCONTROL]) && key.trigger[DIK_C]) {
 			copyChunkPos_ = selectChunk_;
 		}
-		//ペースト
+
 		if ((key.hold[DIK_LCONTROL] || key.hold[DIK_RCONTROL]) && key.trigger[DIK_V]) {
 			if (copyChunkPos_.x >= 0.0f) {
 				course_->GetVoxel()->ChunkCopy(copyChunkPos_, selectChunk_);
 			}
 		}
 
-		//チャンク位置
 		if (key.trigger[DIK_PGUP]) {
 			selectChunk_.y = std::max(selectChunk_.y - 1, 0.0f);
 		}
@@ -844,23 +1224,27 @@ void CourseEditor::Update() {
 		if (key.trigger[DIK_LEFTARROW]) {
 			selectChunk_.x = std::max(selectChunk_.x - 1, 0.0f);
 		}
-		//チャンク回転
+
 		if (key.trigger[DIK_Q]) {
 			course_->GetVoxel()->ChunkHorizontalRotation(selectChunk_);
 		}
-		//カメラ拡大＆移動
+
 		if ((key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) && key.trigger[DIK_W]) {
 			drawAABB_.min.y = std::max(drawAABB_.min.y - 1.0f, 0.0f);
-		} else if (key.trigger[DIK_W]) {
+		}
+		else if (key.trigger[DIK_W]) {
 			drawAABB_.min.y = std::max(drawAABB_.min.y - 1.0f, 0.0f);
 			drawAABB_.max.y = std::max(drawAABB_.max.y - 1.0f, 0.0f);
 		}
+
 		if ((key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) && key.trigger[DIK_S]) {
 			drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.csvData.size.y - 1.0f);
-		} else if (key.trigger[DIK_S]) {
+		}
+		else if (key.trigger[DIK_S]) {
 			drawAABB_.min.y = std::min(drawAABB_.min.y + 1.0f, courseData_.csvData.size.y - 1.0f);
 			drawAABB_.max.y = std::min(drawAABB_.max.y + 1.0f, courseData_.csvData.size.y - 1.0f);
 		}
+
 		if ((key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) && key.trigger[DIK_R]) {
 			OpenCourse();
 		}
@@ -873,7 +1257,6 @@ void CourseEditor::Update() {
 	skydome_->Draw3DNoFog();
 
 	GameEngine::RenderPostDraw("BackGround");
-
 }
 
 void CourseEditor::Draw() {
