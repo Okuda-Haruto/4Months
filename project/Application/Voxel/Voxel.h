@@ -22,6 +22,22 @@ enum VOXEL_TILE {
 	TILE_Stage1_05,
 	TILE_Stage1_06,
 
+	TILE_Stage2_09,
+	TILE_Stage2_10,
+	TILE_Stage2_11,
+	TILE_Stage2_12,
+	TILE_Stage2_13,
+	TILE_Stage2_14,
+	TILE_Stage2_15,
+	TILE_Stage2_16,
+
+	TILE_Stage3_17,
+	TILE_Stage3_18,
+	TILE_Stage3_19,
+	TILE_Stage3_20,
+	TILE_Stage3_21,
+	TILE_Stage3_22,
+
 	VOXEL_TILE_END,
 };
 

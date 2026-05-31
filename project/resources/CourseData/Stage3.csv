@@ -1,0 +1,6 @@
+ChunkSize,2,21,2
+ChunkDataDirectoryPath,resources/Chunks/Stage3
+VoxelDataFilePath,resources/VoxelData/VoxelData.csv
+Section,0,3,0,0,0,0,0,0,0,0,0
+Section,4,10,0,0,0,0,0,0,0,0,0
+Section,13,19,0,0,0,0,0,0,0,0,0

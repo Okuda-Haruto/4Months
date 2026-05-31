@@ -4,7 +4,7 @@ VoxelData,5.5,1.5,0.5
 
 VoxelData,14,1,0.05
 
-VoxelData,5,1,0.4
+VoxelData,4.8,1,1
 
 VoxelData,2,1,1
 
@@ -15,4 +15,28 @@ VoxelData,3,0.5,0.6
 VoxelData,18,1,0.1
 
 VoxelData,8,2,0.4
+
+VoxelData,5.8,3.9,0.84
+
+VoxelData,3.4,1.7,0.4
+
+VoxelData,15.3,3.1,0.55
+
+VoxelData,8.3,2.1,0.38
+
+VoxelData,5.3,3.3,0.35
+
+VoxelData,3.3,1.9,0.92
+
+VoxelData,3.1,0,0
+
+VoxelData,2.4,0,0
+
+VoxelData,4.4,0,0
+
+VoxelData,7.5,0,0
+
+VoxelData,5.5,0,0
+
+VoxelData,0,0,0
 
