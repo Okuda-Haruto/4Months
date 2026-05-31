@@ -170,7 +170,7 @@ void HUD::Update(Player* player, Course* course, GameTimer* timer, int startNum,
 	Vector3 forward = Normalize(Vector3{ inverseView.m[2][0], inverseView.m[2][1], inverseView.m[2][2] });
 
 	// エフェクト
-	if (course->GetCurrBreakRate() < 1) {
+	if (course->GetCurrBreakRate() < 100) {
 		auto pos = course->GetBreakPos();
 		for (int i = 0; i < int(pos.size()); i += 800) {
 			stars_->AddStar(pos[i]);

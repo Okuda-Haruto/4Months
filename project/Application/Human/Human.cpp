@@ -79,7 +79,7 @@ void Human::Update() {
 	float gravity = kGravity_;
 	float maxFall = maxFallingSpeed_;
 
-	if (isResult_) {
+	if (isSectionResult_) {
 		gravity *= 0.1f;
 		maxFall *= 0.1f; // ← これが本命
 	}
@@ -115,7 +115,7 @@ void Human::Update() {
 	if (!stop) {
 		if (isCharging_) {
 			transform_.translate += velocity_.translate / 4 + knockBackVelocity_;
-		} else if (isResult_) {
+		} else if (isSectionResult_) {
 			transform_.translate += velocity_.translate / 8;
 		} else {
 			transform_.translate += velocity_.translate + knockBackVelocity_;
@@ -123,7 +123,7 @@ void Human::Update() {
 	}
 
 	// リザルト中の場合
-	if (isResult_) {
+	if (isSectionResult_) {
 		// 範囲内でループ
 		if (transform_.translate.y < resultLoopEndY) {
 			transform_.translate.y = resultLoopStartY - (resultLoopEndY - transform_.translate.y);
@@ -253,7 +253,9 @@ void Human::Draw() {
 
 	if (vacuumState_ != Break) {
 		bulletModel_->Draw3D();
-		headRotateEffect_->Draw();
+		if (!isFinalResult_) {
+			headRotateEffect_->Draw();
+		}
 	} else {
 		bulletModel_Break_->Draw3D();
 	}
@@ -308,7 +310,7 @@ void Human::BreakSpinner() {
 	resultLoopEndY = resultLoopStartY - 9;
 
 	velocity_.translate.y = 0.0f;
-	isResult_ = false;
+	isSectionResult_ = false;
 	model_->SetIsLoopAnimation(true);
 	model_->SetAnimationIndex(0);
 
@@ -411,12 +413,12 @@ Vector3 Human::CalcVacuumPosition() {
 	return transform_.translate + dir * distance;
 }
 void Human::SetResult(bool flag) {
-	if (!isResult_ && flag) {
+	if (!isSectionResult_ && flag) {
 		resultLoopStartY = transform_.translate.y;
 		resultLoopEndY = resultLoopStartY - 12;
 	}
 
-	isResult_ = flag;
+	isSectionResult_ = flag;
 
 	if (vacuumState_ == Break && fallingSpeed_ < 0.0f && transform_.translate.y < resultLoopStartY) {
 		isBreak_ = true;

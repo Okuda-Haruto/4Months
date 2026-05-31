@@ -121,6 +121,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Application\Result\Result.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Box\Box.h" />
@@ -238,6 +239,7 @@
     <ClInclude Include="Application\StartCountdown\StartCountdown.h" />
     <ClInclude Include="Application\Effect\Stars\Stars.h" />
     <ClInclude Include="Application\Effect\PlayerRotation\PlayerRotation.h" />
+    <ClInclude Include="Application\Result\Result.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

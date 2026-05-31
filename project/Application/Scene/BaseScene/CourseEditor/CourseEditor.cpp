@@ -12,7 +12,7 @@ void CourseEditor::Initialize(std::shared_ptr<Input> input) {
 	//カメラ
 	defaultCamera_ = Object::GetDefaultCamera();
 	gameCamera_ = make_unique<GameCamera>();
-	gameCamera_->Initialize(defaultCamera_, std::make_unique<EditorCamera>(), input_, nullptr,nullptr);
+	gameCamera_->Initialize(defaultCamera_, std::make_unique<EditorCamera>(), input_, nullptr,nullptr,nullptr);
 	gameCamera_->ChangeCamera(std::make_unique<EditorCamera>(), 0);
 
 	//光源
