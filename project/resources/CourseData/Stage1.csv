@@ -3,6 +3,6 @@ ChunkDataDirectoryPath,resources/Chunks/Stage1
 VoxelDataFilePath,resources/VoxelData/VoxelData.csv
 
 Section,0,2,60,15000,30000,80,40,20000,15000,20,0
-Section,4,10,60,30000,50000,80,60,45000,30000,10,0
-Section,12,20,60,20000,25000,40,20,25000,20000,15,0
+Section,4,11,60,30000,50000,80,60,45000,30000,10,0
+Section,13,21,60,20000,25000,40,20,25000,20000,15,0
 

@@ -10,6 +10,7 @@ private:
 	std::unique_ptr<Sprite> flowerGarden_Sprite_;
 	std::unique_ptr<Sprite> videoDistorted_Sprite_;
 	std::unique_ptr<Sprite> pressToNext_Sprite_;
+	std::unique_ptr<Sprite> normaOver_Sprite_;
 
 	std::array<std::unique_ptr<Object>,4> butterfly_;
 
@@ -17,7 +18,7 @@ private:
 	std::shared_ptr<Camera> camera_;
 
 	float eventTime_;
-	const float kMaxEventTime_ = 2.0f;
+	const float kMaxEventTime_ = 4.0f;
 
 	float plessToNextColor_;
 
