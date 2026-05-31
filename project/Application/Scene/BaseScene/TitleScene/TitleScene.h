@@ -59,6 +59,7 @@ private:
 	// 音声
 	std::unique_ptr<Audio> bgm_ = nullptr;
 	std::unique_ptr<Audio> selectSE_ = nullptr;
+	std::unique_ptr<Audio> cursorSE_ = nullptr;
 
 	int selectNum_ = 1;
 public:

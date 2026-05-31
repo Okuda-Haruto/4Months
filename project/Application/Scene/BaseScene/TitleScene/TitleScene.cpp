@@ -95,6 +95,8 @@ void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	bgm_->Initialize("resources/SE・BGM/Title/bgm_title.mp3", 0.5f);
 	selectSE_ = make_unique<Audio>();
 	selectSE_->Initialize("resources/SE・BGM/deceid.mp3", 0.5f);
+	cursorSE_ = make_unique<Audio>();
+	cursorSE_->Initialize("resources/SE・BGM/Title/cursor.mp3", 0.5f);
 
 	if (SceneManager::GetInstance()->GetIsSelect()) {
 		studioGameCamera_->ChangeCamera(std::make_unique<SelectCamera>(), 0.0f);
@@ -137,7 +139,9 @@ void TitleScene::Update() {
 		if ((keyboard.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger)) {
 			SceneManager::GetInstance()->SetSelectNum(selectNum_);
 
-			selectSE_->SoundPlayWave();
+			if (!selectSE_->IsSoundPlayingWave()) {
+				selectSE_->SoundPlayWave();
+			}
 			sceneChange_ = true;
 		}
 		else if ((keyboard.trigger[DIK_D] || keyboard.trigger[DIK_RIGHT] || pad.Button[PAD_BUTTON_RIGHT].trigger)) {
@@ -161,6 +165,7 @@ void TitleScene::Update() {
 				break;
 			}
 			studio_->SetParts(parts[5], 5);
+			cursorSE_->SoundPlayWave();
 		}
 		else if ((keyboard.trigger[DIK_A] || keyboard.trigger[DIK_LEFT] || pad.Button[PAD_BUTTON_LEFT].trigger)) {
 			selectNum_--;
@@ -183,6 +188,7 @@ void TitleScene::Update() {
 				break;
 			}
 			studio_->SetParts(parts[5], 5);
+			cursorSE_->SoundPlayWave();
 		}
 	}
 	//スキップ

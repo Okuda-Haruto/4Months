@@ -23,7 +23,9 @@ void TitleMoji::Update() {
 	if ((key.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && state_ != State::End) {
 		timer_ = 0;
 		state_ = State::Spread;
-		explosionSE_->SoundPlayWave();
+		if (!explosionSE_->IsSoundPlayingWave()) {
+			explosionSE_->SoundPlayWave();
+		}
 
 		for (int i = 0; i < blocks_.size(); ++i) {
 			spreadVel_[i] = Normalize(positions_[i]) * GameEngine::randomFloat(3.0f, 6.0f);
