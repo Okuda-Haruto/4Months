@@ -11,7 +11,6 @@ void Course::Initialize(CourseData courseData, GameCamera* camera, std::shared_p
 	courseData_ = courseData;
 	camera_ = camera;
 	directionalLight_ = directionalLight;
-
 	voxel_ = std::make_unique<Voxel>();
 	voxel_->Initialize(this, ModelManager::GetInstance()->GetModel("resources/Course/Face", "Face.obj"), courseData.csvData, camera_, directionalLight_);
 
@@ -21,7 +20,7 @@ void Course::Initialize(CourseData courseData, GameCamera* camera, std::shared_p
 	}
 
 	// 区間の設定(上~下)
-	//AddSection(0, 2, 30, 2000, 4000, RankBorders{{ 80, 40 }, { 3000, 2000 }, { 10, 0 }});
+	//AddSection(0, 2, 30, 0, 4000, RankBorders{{ 80, 40 }, { 3000, 2000 }, { 10, 0 }});
 	//AddSection(4, 10, 40, 12000, 15000, RankBorders{ { 60, 30 }, { 14000, 12000 }, { 10, 0 } });
 	//AddSection(13, 20, 60, 20000, 25000, RankBorders{ { 40, 20 }, { 23000, 20000 }, { 15, 0 } });
 	goalBarriers_.clear();
@@ -44,6 +43,8 @@ void Course::Initialize(CourseData courseData, GameCamera* camera, std::shared_p
 
 	gameover_ = std::make_unique<GameOver>();
 	gameover_->Initialize(directionalLight_);
+
+	voxelCount = voxel_->CountObjects(0, sections_.back()->GetEndChunkY());
 }
 
 void Course::Update(Human* player) {
@@ -78,6 +79,8 @@ void Course::Update(Human* player) {
 							// 次の区間に入る
 							currentSectionNum_+= 2;
 							currentSection_ = sections_[currentSectionNum_].get();
+						} else {
+							isAllCleared_ = true;
 						}
 					}
 

@@ -11,6 +11,7 @@
 #include "GameCamera/GameCamera.h"
 #include "Fade/Fade.h"
 #include "Effect/Combine/Combine.h"
+#include "Result/Result.h"
 #include <Menu/Menu.h>
 
 class GameScene : public BaseScene{
@@ -61,6 +62,9 @@ private:
 	// タイトルからの遷移
 	std::unique_ptr<Combine> gameTransition = nullptr;
 
+	// 終了時
+	std::unique_ptr<Result> result_ = nullptr;
+
 	//クリアしているか
 	bool isClear_ = false;
 	//クリアカメラの座標
@@ -68,7 +72,7 @@ private:
 	//クリアカメラのY位座標
 	float clearY_ = 0;
 	//ループカメラで上昇中か
-	bool isUp_ = false;
+	bool isUp_ = true;
 
 	int32_t chunkHeight_;
 
