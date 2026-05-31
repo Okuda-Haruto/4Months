@@ -6,7 +6,7 @@
 
 void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/test", "Player.gltf"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "player_master.gltf"));
 	model_->SetShininess(30.0f);
 	bulletModel_ = make_unique<Object>();
 	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
@@ -25,13 +25,16 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 
 	//カメラで使う
 	transform_ = {};
-	transform_.scale = { 2.5f,2.5f,2.5f };
+	transform_.scale = { 0.4f,0.4f,0.4f };
 	transform_.translate = position;
 	model_->SetTransform(transform_);
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
 	model_->SetIsUseAnimation(true);
-	model_->SetAnimationIndex(7);
+	model_->SetAnimationIndex(3);
+	auto partses = model_->GetParts();
+	partses[0].transform->translate.y = -2.0f;
+	model_->SetParts(partses[0], 0);
 	model_->Update();
 
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
@@ -169,7 +172,7 @@ void Human::Update() {
 			catchSE_->SoundPlayWave();
 
 			model_->ResetAnimationTime();
-			model_->SetAnimationIndex(7);
+			model_->SetAnimationIndex(3);
 			model_->SetIsLoopAnimation(false);
 		}
 		break;
@@ -307,7 +310,7 @@ void Human::BreakSpinner() {
 	velocity_.translate.y = 0.0f;
 	isResult_ = false;
 	model_->SetIsLoopAnimation(true);
-	model_->SetAnimationIndex(2);
+	model_->SetAnimationIndex(0);
 
 	bulletModel_Break_->SetTransform(headTransform_);
 
@@ -362,14 +365,14 @@ void Human::Throw() {
 	}
 
 	model_->ResetAnimationTime();
-	model_->SetAnimationIndex(11);
+	model_->SetAnimationIndex(4);
 	model_->SetIsLoopAnimation(false);
 }
 
 void Human::Charge() {
 	if (charge_ == 0) {
 		model_->ResetAnimationTime();
-		model_->SetAnimationIndex(12);
+		model_->SetAnimationIndex(5);
 		model_->SetIsLoopAnimation(false);
 
 		chargeSE_->SoundPlayWave();
