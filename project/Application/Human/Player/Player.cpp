@@ -8,9 +8,31 @@ void Player::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight
 	Human::Initialize(position, directionalLight, camera);
 
 	startTime_ = 0.1f;
+
+	deceidSE_ = make_unique<Audio>();
+	deceidSE_->Initialize("resources/SE・BGM/deceid.mp3", 0.5f);
 }
 
 void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCountdown* countdown) {
+	if (isFinalResult_) {
+		
+		SRT modelTransform = transform_;
+		modelTransform.rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, 0);
+		Vector3 up = RotateVector({ 0,1,0 }, modelTransform.rotate);
+		up.x *= -1; up.z *= -1;
+		modelTransform.translate = transform_.translate + up * humanFootOffset;
+		model_->SetTransform(modelTransform);
+		model_->Update();
+
+		headTransform_ = { headTransform_.scale,transform_.rotate, transform_.translate };
+		headTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, headRotate_) * modelTransform.rotate;
+		bulletModel_->SetTransform(headTransform_);
+
+		Quaternion NextRotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
+		transform_.rotate = Slerp(transform_.rotate, NextRotate, 0.1f * GameEngine::GetDeltaTimeRate());
+		return;
+	}
+
 
 	//基礎クォータニオン(真下)
 	Quaternion NextRotate;
@@ -25,7 +47,7 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 	Pad pad = input->GetPad(0);
 
 	// ★ここから入力を止める
-	if (!isResult_ && !isBreak_) {
+	if (!isSectionResult_ && !isBreak_) {
 
 		isCharging_ = false;
 		if (keyboard.trigger[DIK_L]) {
@@ -61,7 +83,7 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 				Throw();
 			}
 		}
-		isEndResult_ = false;
+		isEndSectionResult_ = false;
 
 	} else if (vacuumState_ != Break) {
 		transform_.translate.x = 0;
@@ -72,8 +94,10 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 			float blockSize = 3.0f;
 			float offset = transform_.translate.y - std::floor(transform_.translate.y / blockSize) * blockSize;
 			transform_.translate.y = resultLoopEndY + offset;
-			isResult_ = false;
-			isEndResult_ = true;
+			isSectionResult_ = false;
+			isEndSectionResult_ = true;
+
+			deceidSE_->SoundPlayWave();
 		}
 	} else {
 		// 簡易リザルト終了
@@ -81,17 +105,19 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 			float blockSize = 3.0f;
 			float offset = transform_.translate.y - std::floor(transform_.translate.y / blockSize) * blockSize;
 			transform_.translate = { 0,resultLoopEndY + offset,0 };
-			isResult_ = false;
+			isSectionResult_ = false;
 			isBreak_ = false;
 			vacuumState_ = None;
 
 			//やられモーションから治す
 			model_->ResetAnimationTime();
-			model_->SetAnimationIndex(7);
+			model_->SetAnimationIndex(3);
 			model_->SetIsLoopAnimation(false);
 
 			course->ResetFailed();
 			countdown->Reset(transform_.translate);
+
+			deceidSE_->SoundPlayWave();
 		}
 	}
 
@@ -120,7 +146,7 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 	ImGui::DragFloat("戻る時間", &returnTime_);
 	ImGui::DragFloat("発射時の速度", &headStartSpeed_, 0.1f);
 
-	if (!isResult_) {
+	if (!isSectionResult_) {
 		Keyboard keyboard = input->GetKeyBoard();
 		Pad pad = input->GetPad(0);
 

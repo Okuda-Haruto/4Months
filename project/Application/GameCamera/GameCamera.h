@@ -1,6 +1,7 @@
 #pragma once
 #include "Camera/Camera.h"
 #include "Human/Player/Player.h"
+#include "Result/Result.h"
 
 #include <numbers>
 class Course;
@@ -14,14 +15,32 @@ protected:
 	Player* player_;
 	Course* course_;
 	std::shared_ptr<Input> input_;
+	Result* result_;
 	GameCamera* gameCamera_;
 public:
 	//初期化
-	virtual void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) = 0;
+	virtual void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) = 0;
 	//更新処理
 	virtual void Update() = 0;
 	//Transform
 	SRT GetTransform() { return transform_; }
+};
+
+class EndCamera : public BaseCamera {
+public:
+	//初期化
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
+	//更新処理
+	void Update() override;
+
+private:
+	SRT backStart_{ {1,1,1},{},{} };
+	SRT backEnd_{ {1,1,1}, {0.00423146784f,0.994558275f,-0.0447853580f,0.0939691365f}, {1.0f,155.9f,17.3f} };
+	Vector3 backEndEuler{};
+
+	SRT setStart_{ {1,1,1},{},{} };
+	SRT setEnd_{ {1,1,1}, {0, 0.793532848f, 0, 0.608527422f}, {-2.1f, 156.0f, 3.6f} };
+	Vector3 setEndEuler{};
 };
 
 //落下カメラ
@@ -32,7 +51,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -50,10 +69,12 @@ private:
 	SRT resultInTransform = {};
 	SRT setTransform = { {1,1,1}, {-0.057f ,0.919f ,-0.27f, 0.146f }, { 0.89f, 7.0f, 12.8f } };
 	Vector3 setRot{};
+	std::unique_ptr<Audio> chargeSE_;
+	std::unique_ptr<Audio> clearSE_;
 
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -89,7 +110,7 @@ private:
 	
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -101,7 +122,7 @@ private:
 	const Vector3 kCameraPos = { 0, 0, 80 };
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -113,7 +134,7 @@ private:
 	const Vector3 kCameraPos = { 6.5f, 3.5f, 25.0f };
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -125,7 +146,7 @@ private:
 	const Vector3 kCameraPos = { 0,35, 120 };
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -137,7 +158,7 @@ private:
 	const Vector3 kCameraPos = { -35, 40, 20 };
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -158,7 +179,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 };
@@ -176,6 +197,8 @@ private:
 	Player* player_;
 	// コース(渡す用)
 	Course* course_;
+	// リザルト(渡す用)
+	Result* result_;
 	//現在のカメラ
 	std::unique_ptr<BaseCamera> nowCamera_;
 	//遷移する先のカメラ
@@ -202,7 +225,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player, Course* course);
+	void Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player, Course* course, Result* result);
 	//更新処理
 	void Update();
 
@@ -238,7 +261,7 @@ private:
 	
 public:
 	//初期化
-	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) override;
 	//更新処理
 	void Update() override;
 	Quaternion LookAt(const Vector3& eye, const Vector3& target);

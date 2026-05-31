@@ -88,7 +88,7 @@ public:
 	bool isNoNormaMode_ = false;
 
 	//getter
-	bool GetIsSectionFailed(){return isSectionFailed_;}
+	bool GetIsSectionFailed() { return isSectionFailed_; }
 	//setter
 	void ResetFailed() { isSectionFailed_ = false; gameover_->Reset(); resultState_ = ResultState::End; }
 
@@ -108,9 +108,32 @@ public:
 		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->GetCurrentScore(); }
 		return currentSection_->GetCurrentScore();
 	}
+	int GetAllBreakCount() {
+		int count = 0;
+		for (auto& section : sections_) {
+			count += section->GetCurrentScore();
+		}
+		return count;
+	}
+	float GetAllTime() {
+		float count = 0;
+		for (auto& section : sections_) {
+			if (!section->IsSubSection()) {
+				count += section->GetTimer()->GetCurrent();
+			}
+		}
+		return count;
+	}
+	float GetAllRate() {
+		return (1.0f - (float(voxel_->CountObjects(sections_[0]->GetStartChunkY(), sections_.back()->GetEndChunkY())) / voxelCount)) * 100;
+	}
+
 	int GetRank() {
 		if (InSubSection()) { return sections_[currentSectionNum_ - 1]->JudgeRank(GetBoxes()); }
 		return currentSection_->JudgeRank(GetBoxes());
+	}
+	int GetRank(int section) {
+		return sections_[section]->JudgeRank(GetBoxes());
 	}
 
 	// リザルトの段階
@@ -127,7 +150,7 @@ public:
 	void SetNoNormaMode(bool flag) { isNoNormaMode_ = flag; }
 	bool GetNoNormaMode() const { return isNoNormaMode_; }
 private:
-	
+
 	std::shared_ptr<DirectionalLight> directionalLight_;
 	GameCamera* camera_;
 
@@ -168,9 +191,11 @@ private:
 	//ゲームオーバー演出
 	bool isSectionFailed_;
 	std::unique_ptr<GameOver> gameover_;
-  
+
 	ResultState resultState_ = ResultState::RotateIn;
 	std::unique_ptr<Flash> resultFlash_;
+
+	int voxelCount = 0;
 };
 
 

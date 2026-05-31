@@ -39,7 +39,7 @@ Quaternion MatrixToQuaternion(const Matrix4x4& m) {
 
 #pragma region 落下カメラ
 
-void DownCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void DownCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
@@ -85,7 +85,7 @@ void DownCamera::Update() {
 
 #pragma region 区間リザルトカメラ
 
-void SectionResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void SectionResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
@@ -95,6 +95,16 @@ void SectionResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Inp
 	transform_.scale = { 1,1,1 };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	transform_.translate = player_->GetTransform().translate + Vector3{ 0,50,0 };
+
+	chargeSE_ = make_unique<Audio>();
+	chargeSE_->Initialize("resources/SE・BGM/Game/charge_goal.mp3", 1.0f);
+	clearSE_ = make_unique<Audio>();
+	clearSE_->Initialize("resources/SE・BGM/Game/clear.mp3", 0.7f);
+
+	if (!course_->GetIsSectionFailed()) {
+		chargeSE_->SoundPlayWave();
+	}
+
 }
 void SectionResultCamera::Update() {
 
@@ -172,6 +182,7 @@ void SectionResultCamera::Update() {
 			if (t == 1.0f) {
 				resultInTimer_ = 0;
 				course_->SetResultState(ResultState::Wait);
+				clearSE_->SoundPlayWave();
 			}
 		}
 		break;
@@ -262,7 +273,7 @@ void SectionResultCamera::Update() {
 
 #pragma region リザルトカメラ
 
-void ResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void ResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
@@ -356,7 +367,7 @@ void ResultCamera::Update() {
 
 #pragma region リビング全体を移すカメラ
 
-void LivingCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void LivingCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	transform_.scale = { 1,1,1 };
 	transform_.translate = kCameraPos;
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
@@ -370,7 +381,7 @@ void LivingCamera::Update() {
 
 #pragma region TVのみを写すカメラ
 
-void TVCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void TVCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	transform_.scale = { 1,1,1 };
 	transform_.translate = kCameraPos;
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
@@ -384,7 +395,7 @@ void TVCamera::Update() {
 
 #pragma region スタジオ全体を移すカメラ
 
-void StudioCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void StudioCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	transform_.scale = { 1,1,1 };
 	transform_.translate = kCameraPos;
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float>);
@@ -398,7 +409,7 @@ void StudioCamera::Update() {
 
 #pragma region ステージセレクトカメラ
 
-void SelectCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void SelectCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	transform_.scale = { 1,1,1 };
 	transform_.translate = kCameraPos;
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 0,1,0 }, std::numbers::pi_v<float> / 180 * 225);
@@ -414,7 +425,7 @@ void SelectCamera::Update() {
 
 #ifdef USE_IMGUI
 
-void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void EditorCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
@@ -466,15 +477,16 @@ void EditorCamera::Update() {
 
 #pragma endregion
 
-void GameCamera::Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player, Course* course) {
+void GameCamera::Initialize(std::shared_ptr<Camera> camera, std::unique_ptr<BaseCamera> nowCameraMode, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	camera_ = camera;
 	input_ = input;
 	player_ = player;
 	course_ = course;
+	result_ = result;
 
 	// 初期値
 	nowCamera_ = move(nowCameraMode);
-	nowCamera_->Initialize(this, input_, player, course);
+	nowCamera_->Initialize(this, input_, player, course, result_);
 }
 
 void GameCamera::Update() {
@@ -590,7 +602,7 @@ void GameCamera::Update() {
 
 void GameCamera::ChangeCamera(const std::unique_ptr<BaseCamera>& nextCamera, float changeCameraTime) {
 	nextCamera_ = std::move(const_cast<std::unique_ptr<BaseCamera>&>(nextCamera));
-	nextCamera_->Initialize(this, input_, player_, course_);
+	nextCamera_->Initialize(this, input_, player_, course_, result_);
 
 	//カメラ遷移時間
 	maxChangeCameraTime_ = changeCameraTime;
@@ -605,7 +617,7 @@ void GameCamera::StartShake(float amplitude, float time) {
 
 #pragma region ゲーム開始前カメラ
 
-void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course) {
+void StartCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
 	gameCamera_ = gameCamera;
 	input_ = input;
 	player_ = player;
@@ -675,3 +687,177 @@ Quaternion StartCamera::LookAt(const Vector3& eye, const Vector3& target) {
 
 	return Normalize(MatrixToQuaternion(m));
 }
+
+#pragma region 終了演出カメラ
+
+void EndCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input, Player* player, Course* course, Result* result) {
+	gameCamera_ = gameCamera;
+	input_ = input;
+	player_ = player;
+	course_ = course;
+	result_ = result;
+
+	transform_ = gameCamera_->GetTransform();
+}
+void EndCamera::Update() {
+
+	Vector3 nextTranslate = player_->GetTransform().translate;
+
+	float x = result_->CurrentTimeRate();
+
+	switch (result_->GetPhase()) {
+	case ResultPhase::Set:
+	{
+		// 注目地点
+		Vector3 focus = nextTranslate + Vector3{ 0, 1.0f,0 };
+
+		// 円運動
+		float angle = -x * std::numbers::pi_v<float> *1.6f;
+
+		// 距離変更
+		float radius = 20.0f;
+		Vector3 offset = {
+			cosf(angle) * radius,
+			-10,
+			sinf(angle) * radius
+		};
+		transform_.translate = nextTranslate + offset;
+
+		// プレイヤーを視界の中心に置く
+		Vector3 forward = Normalize(focus - transform_.translate);
+		Vector3 up = { 0,1,0 };
+		Vector3 right = Normalize(Cross(up, forward));
+		Vector3 newUp = Cross(forward, right);
+		Matrix4x4 m;
+		m.m[0][0] = right.x;   m.m[0][1] = right.y;   m.m[0][2] = right.z;
+		m.m[1][0] = newUp.x;   m.m[1][1] = newUp.y;   m.m[1][2] = newUp.z;
+		m.m[2][0] = forward.x; m.m[2][1] = forward.y; m.m[2][2] = forward.z;
+
+		transform_.rotate = Normalize(MatrixToQuaternion(m));
+	}
+	break;
+	case ResultPhase::Rise:
+	{
+		float t = x * x;
+		t = std::clamp(t, 0.0f, 1.0f);
+
+		// 注目地点
+		Vector3 focus = nextTranslate + Vector3{ 0, 1.0f,0 };
+
+		// 円運動
+		float angle = -t * std::numbers::pi_v<float> * 3.5f;
+
+		// 距離変更
+		float radius = sinf(t * std::numbers::pi_v<float>) * 40.0f + 5.5f;
+		Vector3 offset = {
+			cosf(angle) * radius,
+			t * 3.0f,
+			sinf(angle) * radius
+		};
+		transform_.translate = nextTranslate + offset;
+
+		// プレイヤーを視界の中心に置く
+		Vector3 forward = Normalize(focus - transform_.translate);
+		Vector3 up = { 0,1,0 };
+		Vector3 right = Normalize(Cross(up, forward));
+		Vector3 newUp = Cross(forward, right);
+		Matrix4x4 m;
+		m.m[0][0] = right.x;   m.m[0][1] = right.y;   m.m[0][2] = right.z;
+		m.m[1][0] = newUp.x;   m.m[1][1] = newUp.y;   m.m[1][2] = newUp.z;
+		m.m[2][0] = forward.x; m.m[2][1] = forward.y; m.m[2][2] = forward.z;
+
+		transform_.rotate = Normalize(MatrixToQuaternion(m));
+
+		backStart_.translate = transform_.translate;
+		backStart_.rotate = transform_.rotate;
+	}
+	break;
+	case ResultPhase::ZoomOut:
+	{
+		float t = x * x;
+		t = std::clamp(t, 0.0f, 1.0f);
+
+		transform_.translate = Lerp(backStart_.translate, backEnd_.translate, t);
+		transform_.rotate = Slerp(backStart_.rotate, backEnd_.rotate, t);
+
+#ifdef USE_IMGUI
+		ImGui::Begin("EndCamera");
+		ImGui::DragFloat3(
+			"Pos",
+			&backEnd_.translate.x,
+			0.1f
+		);
+
+		if (ImGui::DragFloat3(
+			"Rot",
+			&backEndEuler.x,
+			0.01f
+		)) {
+			backEnd_.rotate =
+				MatrixToQuaternion(
+					MakeAffineMatrix(
+						{ 1,1,1 },
+						backEndEuler,
+						{ 0,0,0 }
+					)
+				);
+		}
+
+		ImGui::End();
+#endif
+
+		setStart_.translate = transform_.translate;
+		setStart_.rotate = transform_.rotate;
+	}
+	break;
+	case ResultPhase::ResultSet:
+	{
+		float t = x;
+		t = std::clamp(t, 0.0f, 1.0f);
+
+		transform_.translate = Lerp(setStart_.translate, setEnd_.translate, t);
+		transform_.rotate = Slerp(setStart_.rotate, setEnd_.rotate, t);
+
+#ifdef USE_IMGUI
+		ImGui::Begin("EndCamera");
+
+		ImGui::DragFloat3(
+			"Pos",
+			&setEnd_.translate.x,
+			0.1f
+		);
+
+		if (ImGui::DragFloat3(
+			"Rot",
+			&setEndEuler.x,
+			0.01f
+		)) {
+			setEnd_.rotate =
+				MatrixToQuaternion(
+					MakeAffineMatrix(
+						{ 1,1,1 },
+						setEndEuler,
+						{ 0,0,0 }
+					)
+				);
+		}
+		ImGui::End();
+#endif
+	}
+	break;
+	case ResultPhase::DisplayResult:
+	{
+
+	}
+		break;
+	case ResultPhase::ResultOut:
+		float t = x;
+		t = std::clamp(t, 0.0f, 1.0f);
+
+		transform_.translate = Lerp(setEnd_.translate, setStart_.translate, t);
+		transform_.rotate = Slerp(setEnd_.rotate, setStart_.rotate, t);
+
+		break;
+	}
+}
+#pragma endregion

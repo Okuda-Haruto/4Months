@@ -6,7 +6,7 @@
 
 void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight> directionalLight, const std::shared_ptr<Camera> camera) {
 	model_ = make_unique<Object>();
-	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/test", "Player.gltf"));
+	model_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "player_master.gltf"));
 	model_->SetShininess(30.0f);
 	bulletModel_ = make_unique<Object>();
 	bulletModel_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player/Head", "beyblade.obj"));
@@ -25,13 +25,16 @@ void Human::Initialize(Vector3 position, const std::shared_ptr<DirectionalLight>
 
 	//カメラで使う
 	transform_ = {};
-	transform_.scale = { 2.5f,2.5f,2.5f };
+	transform_.scale = { 0.4f,0.4f,0.4f };
 	transform_.translate = position;
 	model_->SetTransform(transform_);
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	model_->SetDirectionalLight(directionalLight);
 	model_->SetIsUseAnimation(true);
-	model_->SetAnimationIndex(7);
+	model_->SetAnimationIndex(3);
+	auto partses = model_->GetParts();
+	partses[0].transform->translate.y = -2.0f;
+	model_->SetParts(partses[0], 0);
 	model_->Update();
 
 	headTransform_.scale = { 2.5f,2.5f,2.5f };
@@ -76,7 +79,7 @@ void Human::Update() {
 	float gravity = kGravity_;
 	float maxFall = maxFallingSpeed_;
 
-	if (isResult_) {
+	if (isSectionResult_) {
 		gravity *= 0.1f;
 		maxFall *= 0.1f; // ← これが本命
 	}
@@ -112,7 +115,7 @@ void Human::Update() {
 	if (!stop) {
 		if (isCharging_) {
 			transform_.translate += velocity_.translate / 4 + knockBackVelocity_;
-		} else if (isResult_) {
+		} else if (isSectionResult_) {
 			transform_.translate += velocity_.translate / 8;
 		} else {
 			transform_.translate += velocity_.translate + knockBackVelocity_;
@@ -120,7 +123,7 @@ void Human::Update() {
 	}
 
 	// リザルト中の場合
-	if (isResult_) {
+	if (isSectionResult_) {
 		// 範囲内でループ
 		if (transform_.translate.y < resultLoopEndY) {
 			transform_.translate.y = resultLoopStartY - (resultLoopEndY - transform_.translate.y);
@@ -169,7 +172,7 @@ void Human::Update() {
 			catchSE_->SoundPlayWave();
 
 			model_->ResetAnimationTime();
-			model_->SetAnimationIndex(7);
+			model_->SetAnimationIndex(3);
 			model_->SetIsLoopAnimation(false);
 		}
 		break;
@@ -250,7 +253,9 @@ void Human::Draw() {
 
 	if (vacuumState_ != Break) {
 		bulletModel_->Draw3D();
-		headRotateEffect_->Draw();
+		if (!isFinalResult_) {
+			headRotateEffect_->Draw();
+		}
 	} else {
 		bulletModel_Break_->Draw3D();
 	}
@@ -313,9 +318,9 @@ void Human::BreakSpinner() {
 	resultLoopEndY = resultLoopStartY - 9;
 
 	velocity_.translate.y = 0.0f;
-	isResult_ = false;
+	isSectionResult_ = false;
 	model_->SetIsLoopAnimation(true);
-	model_->SetAnimationIndex(2);
+	model_->SetAnimationIndex(0);
 
 	bulletModel_Break_->SetTransform(headTransform_);
 
@@ -377,14 +382,14 @@ void Human::Throw() {
 	}
 
 	model_->ResetAnimationTime();
-	model_->SetAnimationIndex(11);
+	model_->SetAnimationIndex(4);
 	model_->SetIsLoopAnimation(false);
 }
 
 void Human::Charge() {
 	if (charge_ == 0) {
 		model_->ResetAnimationTime();
-		model_->SetAnimationIndex(12);
+		model_->SetAnimationIndex(5);
 		model_->SetIsLoopAnimation(false);
 
 		chargeSE_->SoundPlayWave();
@@ -423,12 +428,12 @@ Vector3 Human::CalcVacuumPosition() {
 	return transform_.translate + dir * distance;
 }
 void Human::SetResult(bool flag) {
-	if (!isResult_ && flag) {
+	if (!isSectionResult_ && flag) {
 		resultLoopStartY = transform_.translate.y;
 		resultLoopEndY = resultLoopStartY - 12;
 	}
 
-	isResult_ = flag;
+	isSectionResult_ = flag;
 
 	if (vacuumState_ == Break && fallingSpeed_ < 0.0f && transform_.translate.y < resultLoopStartY) {
 		isBreak_ = true;

@@ -40,6 +40,7 @@ public:
 	//setter
 	void SetCameraEffectTime(float cameraEffectTime) { cameraEffectTime_ = cameraEffectTime; }
 	void SetTranslate(const Vector3& pos) { transform_.translate = pos; vacuumState_ = None; }
+	void SetFinalResult(bool isResult) { isFinalResult_ = isResult; }
 	void ApproachCenter(const Vector2& center);
 	void RepairSpinner() { isBreak_ = false; }
 
@@ -51,8 +52,8 @@ public:
 	float GetMaxCharge() { return kMaxCharge_; }
 	Vector3 GetVacuumStartPos() { return vacuumStartPos_; }
 	float GetFallingSpeed() { return fallingSpeed_; }
-	bool IsResult() { return isResult_; }
-	bool IsEndResult() { return isEndResult_; }
+	bool IsResult() { return isSectionResult_; }
+	bool IsEndResult() { return isEndSectionResult_; }
 	bool IsBreak() { return isBreak_; }
 
 	// ★これ追加
@@ -153,8 +154,9 @@ protected:
 	Vector3 CalcVacuumPosition();
 
 	bool stop;
-	bool isResult_;
-	bool isEndResult_;
+	bool isSectionResult_;
+	bool isEndSectionResult_;
+	bool isFinalResult_;
 	bool canSkipResult_;
 
 	float humanFootOffset = 2.4f;
