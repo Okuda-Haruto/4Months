@@ -18,6 +18,8 @@ private:
 
 	shared_ptr<Input> input_;
 
+	int selectNum_ = 1;
+
 	bool isSelect_ = false;
 public:
 
@@ -45,4 +47,7 @@ public:
 
 	void SetIsSelect(bool isSelect) { isSelect_ = isSelect; }
 	bool GetIsSelect() { return isSelect_; }
+
+	void SetSelectNum(int selectNum) { selectNum_ = selectNum; }
+	int GetSelectNum() { return selectNum_; }
 };
