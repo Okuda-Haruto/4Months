@@ -88,16 +88,16 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 
 	// 人モデル
 	human_ = std::make_unique<Object>();
-	human_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "Player.gltf"));
+	human_->Initialize(ModelManager::GetInstance()->GetModel("resources/Player", "player_master.gltf"));
 	human_->SetDirectionalLight(directionalLight);
 	human_->SetShininess(0);
 	SRT h;
-	h.scale = { 1.0f / 0.13f,1.0f / 0.13f ,1.0f / 0.13f };
+	h.scale = { 1.5f,1.5f,1.5f };
 	h.rotate = lookRot * MakeRotateAxisAngleQuaternion({ 1,0,0 }, angle_);
 	h.translate = RotateVector({ 0,defaultHY_,gameDefaultZ_ }, lookRot);
 	human_->SetTransform(h);
 	human_->SetIsUseAnimation(true);
-	human_->SetAnimationIndex(19);
+	human_->SetAnimationIndex(3);
 	human_->Update();
 
 	// コマモデル

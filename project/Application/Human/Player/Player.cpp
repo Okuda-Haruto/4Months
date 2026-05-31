@@ -87,7 +87,7 @@ void Player::Update(const std::shared_ptr<Input> input, Course* course, StartCou
 
 			//やられモーションから治す
 			model_->ResetAnimationTime();
-			model_->SetAnimationIndex(7);
+			model_->SetAnimationIndex(3);
 			model_->SetIsLoopAnimation(false);
 
 			course->ResetFailed();
