@@ -259,7 +259,6 @@ void Human::Draw() {
 		wind_->Draw();
 	}
 }
-
 void Human::OnHitVoxel(AABB aabb) {
 	if (!isBreak_) {
 		Slowdown();
@@ -272,16 +271,26 @@ void Human::OnHitVoxel(AABB aabb) {
 
 		if (fabsf(closest.x) >= fabsf(closest.y) && fabsf(closest.x) >= fabsf(closest.z)) {
 			knockBackAcceleration_.x -= fabsf(closest.x) / closest.x;
-		} else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
-			//knockBackAcceleration_.y -= fabsf(closest.y) / closest.y;
-		} else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
+		}
+		else if (fabsf(closest.y) >= fabsf(closest.x) && fabsf(closest.y) >= fabsf(closest.z)) {
+			// Y方向の押し戻しはしない
+		}
+		else if (fabsf(closest.z) >= fabsf(closest.x) && fabsf(closest.z) >= fabsf(closest.y)) {
 			knockBackAcceleration_.z -= fabsf(closest.z) / closest.z;
 		}
 
-		// ★追加：ジャンピングフラッシュ風
+		// コマがない時にボクセルへ触れたらジャンプ
+		if (vacuumState_ != None) {
+			fallingSpeed_ = bounceBackSpeed_;
+			velocity_.translate.y = 0.0f;
+			return;
+		}
+
+		// 通常時
 		if (isJumpFlashMode_) {
 			fallingSpeed_ = bounceBackSpeed_ * 0.33f;
-		} else {
+		}
+		else {
 			fallingSpeed_ = 0.0f;
 		}
 
@@ -294,7 +303,6 @@ void Human::OnHitVoxel(AABB aabb) {
 		}
 	}
 }
-
 void Human::BreakSpinner() {
 	vacuumState_ = Break;
 	fallingSpeed_ = 2.5f;
@@ -345,8 +353,15 @@ void Human::Throw() {
 	headDir_ = Vector3{ 0,0,1 } *rotateMatrix;
 	headSpeed_ = headStartSpeed_;
 	vacuumState_ = Going;
-	fallingSpeed_ += 5 + bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
-	speed_ = 0.0f;
+	// すでに上昇中なら、発射時ジャンプ力を加算しすぎない
+	float throwJumpPower = 5.0f + bounceBackSpeed_ * min(0.25f + charge_ / kMaxCharge_, 1.0f);
+
+	if (fallingSpeed_ > 0.0f) {
+		fallingSpeed_ = max(fallingSpeed_, throwJumpPower * 0.5f);
+	}
+	else {
+		fallingSpeed_ += throwJumpPower;
+	}	speed_ = 0.0f;
 	velocity_.translate.y = 0.0f;
 	vacuumRadius_ = baseVacuumRadius_ + charge_;
 	vacuumTime_ = (charge_ / kMaxCharge_) * (kMaxVacuumTime - kMinVacuumTime) + kMinVacuumTime;

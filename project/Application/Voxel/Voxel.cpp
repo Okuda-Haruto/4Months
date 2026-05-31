@@ -977,6 +977,15 @@ std::optional<Vector3> Voxel::CollisionCheck(Sphere sphere) {
 							closest.y = std::clamp(sphere.center.y, voxelAABB.min.y, voxelAABB.max.y);
 							closest.z = std::clamp(sphere.center.z, voxelAABB.min.z, voxelAABB.max.z);
 
+							// 下から当たった場合は無視
+							const float epsilon = 0.01f;
+
+							if (std::abs(closest.y - voxelAABB.max.y) < epsilon &&
+								sphere.center.y > voxelAABB.max.y) {
+								continue;
+							}
+
+
 							// 距離²
 							float dx = sphere.center.x - closest.x;
 							float dy = sphere.center.y - closest.y;
