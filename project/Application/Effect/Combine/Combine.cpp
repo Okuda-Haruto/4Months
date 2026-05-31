@@ -151,6 +151,13 @@ void Combine::InitializeGame(std::shared_ptr<DirectionalLight> directionalLight,
 	ParticleManager::GetInstance()->SetField("particle", accelerationField_);
 	particleEditor_.SetEmitter(emitter_);
 	particleEditor_.SetField(accelerationField_);
+
+	unionSE_ = make_unique<Audio>();
+	unionSE_->Initialize("resources/SE・BGM/Game/beyblade_gattai.mp3", 0.5f);
+
+	completeSE_ = make_unique<Audio>();
+	completeSE_->Initialize("resources/SE・BGM/Game/gattai.mp3", 1.0f);
+
 }
 
 void Combine::Update() {
@@ -237,6 +244,8 @@ void Combine::Update() {
 					particleEmitter_->SetEmitter(emitter_);
 					particleEmitter_->Emit();
 
+					unionSE_->SoundPlayWave();
+
 					attached_[i] = true;
 				}
 			}
@@ -321,6 +330,7 @@ void Combine::Update() {
 		beyblade_->SetTransform(b);
 
 		if (timer_ / kRideTime >= 1.0f) {
+			completeSE_->SoundPlayWave();
 			timer_ = 0;
 			phase_ = Phase::Back;
 		}

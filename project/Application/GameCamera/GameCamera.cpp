@@ -95,6 +95,16 @@ void SectionResultCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Inp
 	transform_.scale = { 1,1,1 };
 	transform_.rotate = MakeRotateAxisAngleQuaternion(Vector3{ 1,0,0 }, -std::numbers::pi_v<float> / 2);
 	transform_.translate = player_->GetTransform().translate + Vector3{ 0,50,0 };
+
+	chargeSE_ = make_unique<Audio>();
+	chargeSE_->Initialize("resources/SE・BGM/Game/charge_goal.mp3", 1.0f);
+	clearSE_ = make_unique<Audio>();
+	clearSE_->Initialize("resources/SE・BGM/Game/clear.mp3", 0.7f);
+
+	if (!course_->GetIsSectionFailed()) {
+		chargeSE_->SoundPlayWave();
+	}
+
 }
 void SectionResultCamera::Update() {
 
@@ -172,6 +182,7 @@ void SectionResultCamera::Update() {
 			if (t == 1.0f) {
 				resultInTimer_ = 0;
 				course_->SetResultState(ResultState::Wait);
+				clearSE_->SoundPlayWave();
 			}
 		}
 		break;
