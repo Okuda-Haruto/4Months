@@ -34,7 +34,7 @@ void TitleScreen::Initialize(std::shared_ptr<GameCamera> gameCamera) {
 	titleTimer_ = 0.0f;
 
 	noiseSE_ = make_unique<Audio>();
-	noiseSE_->Initialize("resources/SE・BGM/Title/noise.mp3", 0.3f);
+	noiseSE_->Initialize("resources/SE・BGM/Title/noise.mp3", 0.2f);
 }
 
 void TitleScreen::Update() {
