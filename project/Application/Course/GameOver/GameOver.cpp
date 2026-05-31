@@ -20,6 +20,12 @@ void GameOver::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 	videoDistorted_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	videoDistorted_Sprite_->SetColor(Vector4{ 1,1,1,0 });
 
+	pressToNext_Sprite_ = std::make_unique<Sprite>();
+	pressToNext_Sprite_->Initialize("resources/GameOver/Press_to_Next.png");
+	pressToNext_Sprite_->SetPosition(Vector2{ 640,560 });
+	pressToNext_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
+	pressToNext_Sprite_->SetColor(Vector4{ 1,1,1,0 });
+
 	for (int i = 0; i < 4; i++) {
 		butterfly_[i] = std::make_unique<Object>();
 		butterfly_[i]->Initialize(ModelManager::GetInstance()->GetModel("resources/GameOver/", "butterfly.gltf"));
@@ -57,6 +63,7 @@ void GameOver::Initialize(std::shared_ptr<DirectionalLight> directionalLight) {
 	butterfly_[3]->SetAnimationTime(0.15f);
 
 	eventTime_ = 0.0f;
+	plessToNextColor_ = 0.0f;
 }
 
 void GameOver::Update() {
@@ -70,8 +77,17 @@ void GameOver::Update() {
 
 	videoDistorted_Sprite_->SetColor(Vector4{ 1,1,1,sinf(std::numbers::pi_v<float> *12.5f * (1.0f - powf(1.0f - eventTime_ / kMaxEventTime_,2.0f))) });
 
+	if (eventTime_ >= kMaxEventTime_) {
+		plessToNextColor_ += GameEngine::GetDeltaTime();
+		if (plessToNextColor_ > 1.0f) {
+			plessToNextColor_ = 1.0f;
+		}
+	}
+	pressToNext_Sprite_->SetColor({ 1,1,1,plessToNextColor_ });
+
 	flowerGarden_Sprite_->Update();
 	videoDistorted_Sprite_->Update();
+	pressToNext_Sprite_->Update();
 
 	for (int i = 0; i < 4; i++) {
 		butterfly_[i]->Update();
@@ -87,4 +103,6 @@ void GameOver::Draw() {
 	}
 
 	videoDistorted_Sprite_->Draw2D();
+
+	pressToNext_Sprite_->Draw2D();
 }
